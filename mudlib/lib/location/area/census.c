@@ -52,8 +52,8 @@ mapping query_npc_census()
 // and whenever they are in the world: enough to name, rank and pair everybody
 // without loading anyone. The person is the authority; this is read by reports
 // and by the housing pass. Where they live is not here -- the books of houses
-// know that already.
-void update_npc_info(string uuid, object npc)
+// know that already. `unsaved` leaves the write to a caller that updates many.
+void update_npc_info(string uuid, object npc, varargs int unsaved)
 {
   mapping entry;
   mixed given;
@@ -69,7 +69,8 @@ void update_npc_info(string uuid, object npc)
   entry["gender"] = npc->query_gender();
   entry["level"] = npc->query_level();
 
-  this_object()->save_me();
+  if (!unsaved)
+    this_object()->save_me();
 }
 
 // How many NPCs of `source` the census holds across the whole area, materialized
@@ -578,7 +579,9 @@ string * rekit_npc(string id)
 // Put a census person into `loc`, the location the census says they are in:
 // read them from disk, dress them, move them in and set them going. Nobody is
 // placed twice, and a stale position (the census no longer puts them here) is
-// ignored. Returns the person, or nil.
+// ignored. Nothing is saved: the npc.o was just read and is saved again when the
+// location unloads, and the area is saved once by whoever places the whole
+// location. Returns the person, or nil.
 object place_npc(string id, object loc)
 {
   object npc;
@@ -661,13 +664,11 @@ object place_npc(string id, object loc)
     this_object()->index_schedule_hours(id, ({ }));
   }
 
-  npc->save_npc();
-
   // Refresh what the books remember about this person. The npc.o is the
   // authority on who somebody is; these are a copy the census keeps so a
   // report can name and rank everybody, including those nobody has loaded.
   // A level that changed in play does not leave a stale number behind.
-  update_npc_info(id, npc);
+  update_npc_info(id, npc, 1);
 
   return npc;
 }
@@ -694,7 +695,8 @@ void populate_location(object loc)
 {
   string file;
   string * ids, * fids;
-  mapping foreign;
+  mapping foreign, placers;
+  object * areas;
   int i;
 
   if (!loc)
@@ -711,12 +713,17 @@ void populate_location(object loc)
   //
   // this_object()->staff_vacancies_at(file);
 
+  // every area that placed somebody here is saved once at the end, not once
+  // per person
+  placers = ([ ]);
+
   // the census position is where somebody was when their location last
   // unloaded, and they may have walked on since: place_npc skips anybody
   // already in the world
   ids = query_census_uuids_at(file);
   for (i = 0; i < sizeof(ids); i++)
-    place_npc(ids[i], loc);
+    if (place_npc(ids[i], loc))
+      placers[this_object()] = 1;
 
   // the anonymous half of the population: cloned fresh from this location's
   // bucket, with no state carried over from the last time it was loaded
@@ -733,9 +740,13 @@ void populate_location(object loc)
     object rarea;
     rarea = (foreign[fids[i]] == (string)this_object()->query_area_path())
               ? this_object() : AREA_HANDLER->query_area(foreign[fids[i]]);
-    if (rarea)
-      rarea->place_npc(fids[i], loc);
+    if (rarea && rarea->place_npc(fids[i], loc))
+      placers[rarea] = 1;
   }
+
+  areas = map_indices(placers);
+  for (i = 0; i < sizeof(areas); i++)
+    areas[i]->save_me();
 }
 
 // Update this area's census position for one of its roamers to `file`. Called by
