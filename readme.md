@@ -6,7 +6,7 @@ Hexagon mudlib
 ==============
 
 [![Hexagon](https://img.shields.io/badge/Hexagon-v2.1%20Daggerfall-green)](https://github.com/maldorne/hexagon)
-[![DGD](https://img.shields.io/badge/DGD-1.7.5-green.svg)](https://github.com/dworkin/dgd)
+[![DGD](https://img.shields.io/badge/DGD-1.7.9-green.svg)](https://github.com/dworkin/dgd)
 
 A project to make the original _ccmudlib_ and other MudOS-alike mud libraries (like the ones from _Final
 Realms_ or _Discworld_) work with a modern [DGD](https://github.com/dworkin/dgd) mud driver.
