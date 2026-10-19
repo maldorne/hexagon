@@ -417,7 +417,7 @@ int query_effect_level(varargs object caster)
 
 /**
  * How strong the caster is in this effect: what the guild gives for this
- * spell alone (add_guild_spell) when it sets it, else how well the caster
+ * spell alone (add_guild_spell, add_job_spell) when it sets it, else how well the caster
  * knows the best of the effect's categories.
  * @return 0 none, 1 minor, 2 neutral, 3 major
  */
@@ -439,6 +439,10 @@ int query_effect_power(varargs object caster)
     path += ".c";
 
   given = caster->query_guild_spell_power(path);
+  if (intp(given) && given)
+    return given;
+
+  given = caster->query_job_spell_power(path);
   if (intp(given) && given)
     return given;
 
@@ -689,6 +693,38 @@ mixed * scale_range(object caster, mixed * range)
   return ({ low, (float)range[1] * factor, high });
 }
 
+string query_effect_key();
+
+/**
+ * What the guild and the job of the reader add to the help of this effect (see
+ * query_effect_note in /lib/social/abilities.c), guild first.
+ * @param  reader  who reads the help
+ */
+private string social_notes(object reader)
+{
+  string * paths, note, text;
+  object social;
+  int i;
+
+  text = "";
+  if (!reader)
+    return text;
+
+  paths = ({ reader->query_guild_ob(), reader->query_job_ob() });
+  for (i = 0; i < sizeof(paths); i++)
+  {
+    if (!paths[i])
+      continue;
+    social = nil;
+    catch(social = load_object(paths[i]));
+    note = social ? social->query_effect_note(query_effect_key(), reader) : nil;
+    if (note && strlen(note))
+      text += "\n  " + note;
+  }
+
+  return text;
+}
+
 // The effect's help text.
 string help()
 {
@@ -730,6 +766,7 @@ string help()
     if ( help_extras )
         ret += help_extras + "\n";
     ret += sprintf("  %-=*s\n", (this_user() ? this_user()->query_cols() - 2 : 77), query_help_desc());
+    ret += social_notes(this_player());
 
     if (sizeof(help_see_also))
         ret += "\n" + _LANG_EFFECT_HELP_SEE_ALSO;
@@ -759,8 +796,9 @@ int query_given_level(varargs object caster)
 }
 
 /**
- * What guilds allow this effect by: the spell's path (with .c) or the skill's
- * id (its file name without .c), as add_guild_spell and add_guild_skill take it.
+ * What guilds and jobs allow this effect by: the spell's path (with .c) or the
+ * skill's id (its file name without .c), as add_guild_spell, add_guild_skill
+ * and their job twins take it.
  */
 string query_effect_key()
 {
@@ -782,8 +820,8 @@ string query_effect_key()
 /**
  * Marks the effect as common: open to everyone, whatever their guild, even
  * when a guild teaches it (a job skill a member keeps using after leaving).
- * Every other effect is a guild effect, usable only inside a guild that allows
- * it (see query_allows in /lib/guild.c). Default 0.
+ * Every other effect is usable only inside a guild or job that allows it (see
+ * query_allows in /lib/social/abilities.c). Default 0.
  * @param  flag  1 for a common effect
  */
 void set_common_effect(int flag) { common_effect = flag ? 1 : 0; }
@@ -794,43 +832,43 @@ void set_common_effect(int flag) { common_effect = flag ? 1 : 0; }
 int is_common_effect() { return common_effect; }
 
 /**
- * Whether the guild the caster belongs to now allows this effect: teaches it
- * or relates it to the guild without teaching it.
+ * Whether the guild or the job the caster belongs to now allows this effect:
+ * teaches it or relates it without teaching it.
+ * @param  path  the guild or job object, nil for none
  */
-private int is_allowed_by_guild_of(object caster)
+private int is_allowed_by(string path)
 {
-  string path;
-  object guild;
+  object social;
 
-  path = caster->query_guild_ob();
   if (!path)
     return 0;
 
-  guild = nil;
-  catch(guild = load_object(path));
-  return guild && guild->query_allows(query_effect_key());
+  social = nil;
+  catch(social = load_object(path));
+  return social && social->query_allows(query_effect_key());
 }
 
 /**
  * Whether the caster may use the effect on its own: it is common, or the
- * guild the caster belongs to now allows it. A cast at a given level (a
- * scroll) does not ask: see cast_effect_at.
+ * guild or the job the caster belongs to now allows it. A cast at a given
+ * level (a scroll) does not ask: see cast_effect_at.
  */
 int query_usable_by(object caster)
 {
   if (common_effect)
     return 1;
 
-  return is_allowed_by_guild_of(caster);
+  return is_allowed_by(caster->query_guild_ob()) ||
+         is_allowed_by(caster->query_job_ob());
 }
 
 /**
  * The one level every spell and skill is fed: a given level first (a scroll,
  * an item); else, for a common effect, the class level of the caster; else,
- * for a guild effect, the caster's guild level, with no fallback to the class
- * level. At least 1: an effect the caster may not use is refused when cast
- * (see query_usable_by) and never gets here, but one that outlives the cast
- * may still ask.
+ * for an effect the caster's guild allows, the guild level; else, for one the
+ * caster's job allows, the job level. At least 1: an effect the caster may not
+ * use is refused when cast (see query_usable_by) and never gets here, but one
+ * that outlives the cast may still ask.
  * The level of a target (resist rolls) is not this one: it stays the class
  * level.
  * @param  caster  who uses the effect
@@ -842,7 +880,16 @@ int query_casting_level(object caster)
 
   level = query_given_level(caster);
   if (level < 1)
-    level = common_effect ? caster->query_level() : caster->query_guild_level();
+  {
+    if (common_effect)
+      level = caster->query_level();
+    else if (is_allowed_by(caster->query_guild_ob()))
+      level = caster->query_guild_level();
+    else if (is_allowed_by(caster->query_job_ob()))
+      level = caster->query_job_level();
+    else
+      level = caster->query_guild_level();
+  }
 
   return level < 1 ? 1 : level;
 }

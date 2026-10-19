@@ -163,8 +163,7 @@ int do_learn(string str)
 {
   object me, guild, ob;
   string * learned, * names;
-  mapping spells;
-  string * paths;
+  mixed * next;
   string next_name;
   int i, next_level;
 
@@ -196,21 +195,15 @@ int do_learn(string str)
   }
 
   // the lowest level above the member's that teaches a spell
-  spells = guild->query_guild_spells();
-  paths = map_indices(spells);
+  next = guild->query_next_ability_spell((int)me->query_guild_level());
   next_level = 0;
   next_name = nil;
-  for (i = 0; i < sizeof(paths); i++)
+  if (next)
   {
-    if (spells[paths[i]] <= (int)me->query_guild_level())
-      continue;
-    if (next_level && spells[paths[i]] >= next_level)
-      continue;
-
     ob = nil;
-    catch(ob = load_object(paths[i]));
-    next_level = spells[paths[i]];
-    next_name = ob ? capitalize(ob->query_effect_name()) : paths[i];
+    catch(ob = load_object(next[0]));
+    next_level = next[1];
+    next_name = ob ? capitalize(ob->query_effect_name()) : next[0];
   }
 
   write(next_name ? _LANG_GUILD_ROOM_LEARN_NEXT : _LANG_GUILD_ROOM_LEARN_NOTHING);

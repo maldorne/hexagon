@@ -37,10 +37,18 @@
         "none.\n"
 
 #define _LANG_JOB_ROOM_CMDS_RULES ({ "rules" })
+#define _LANG_JOB_ROOM_CMDS_LEARN ({ "learn" })
+#define _LANG_JOB_ROOM_LEARN_NOT_MEMBER "Only those who hold this job may learn here.\n"
+#define _LANG_JOB_ROOM_LEARNED "You learn " + implode(names, ", ") + ".\n"
+#define _LANG_JOB_ROOM_LEARNED_OTHERS me->query_cap_name() + " studies with the masters of the job.\n"
+#define _LANG_JOB_ROOM_LEARN_NEXT "You know everything the job teaches at your level. Next comes " + \
+        next_name + ", at level " + next_level + ".\n"
+#define _LANG_JOB_ROOM_LEARN_NOTHING "You know everything the job can teach you.\n"
 #define _LANG_JOB_ROOM_SIGN_LONG "A sign on the wall says what can be done here.\n"
 #define _LANG_JOB_ROOM_SIGN_TEXT "Job hall\n\n" + \
         "  rules      who may take it up and the rules of the job\n" + \
-        "  cost       what your next job level asks\n\n" + \
+        "  cost       what your next job level asks\n" + \
+        "  learn      the spells the job teaches at your level\n\n" + \
         "Only those who hold the job may read its rules here. The job goes up " + \
         "a level by itself, as you earn its experience."
 #define _LANG_JOB_ROOM_NO_JOB "This hall belongs to no job right now.\n"

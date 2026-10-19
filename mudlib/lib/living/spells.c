@@ -588,6 +588,21 @@ int query_guild_spell_power(string path)
 }
 
 /**
+ * The power the job of this living gives it in one spell, when the job sets it
+ * apart from the spell's categories (add_job_spell in /lib/job.c).
+ * @param  path  the spell object
+ * @return 0 when the job sets none, else 1 minor, 2 neutral, 3 major
+ */
+int query_job_spell_power(string path)
+{
+  object job;
+
+  job = this_object()->query_job_ob() ?
+        load_object(this_object()->query_job_ob()) : nil;
+  return job ? job->query_job_spell_power(path) : 0;
+}
+
+/**
  * The same, as one of the EFFECT_CAT_* names.
  */
 string query_effect_category_level(string name)

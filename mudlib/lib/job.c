@@ -7,6 +7,8 @@
  */
 
 inherit "/lib/core/object.c";
+// the skills and spells it teaches or relates, shared with the guilds
+inherit "/lib/social/abilities.c";
 
 #define BASIC_JOB_XP_COST 2000
 
@@ -23,6 +25,7 @@ void create()
   legal_races = ({ });
   legal_classes = ({ });
   rules_book = "";
+  create_abilities();
   ::create();
 }
 
@@ -80,6 +83,111 @@ int query_next_level_xp(object player)
 // for this job
 int query_max_level() { return 20; }
 
+/**
+ * Teaches a skill to those who hold the job, from a job level on.
+ *
+ * Call it from the job's setup. They get it when they join or reach the level
+ * (see grant_job_skills) and keep it when they leave, but they cannot use it
+ * outside a guild or job that allows it (teaches it or relates it, see
+ * add_job_related_skill), unless it is a common effect: the effect refuses
+ * the use (see query_usable_by in /lib/effects/base_effect.c). Inside the job
+ * it runs at the holder's job level, unless their guild allows it too.
+ *
+ * @param  id       the skill id, see <living/skills.h>
+ * @param  level    job level needed to know it
+ * @param  ability  least value they have in it when taught (an ability for a
+ *                  percentage skill, a level for a levelled one)
+ */
+void add_job_skill(string id, int level, varargs int ability)
+{
+  add_ability_skill(id, level, ability);
+}
+
+/**
+ * The skills the job teaches: id -> ({ job level needed, least ability }).
+ */
+mapping query_job_skills() { return query_ability_skills(); }
+
+/**
+ * Teaches a spell to those who hold the job, from a job level on. They learn
+ * it with aprender in the job room once they reach the level; the rest is as
+ * for add_job_skill.
+ *
+ * @param  path   the spell object, inheriting BASE_EFFECT as a spell
+ * @param  level  job level needed to learn it
+ * @param  power  optional EFFECT_CAT_MINOR, EFFECT_CAT_NEUTRAL or
+ *                EFFECT_CAT_MAJOR: the power they get in this spell, instead
+ *                of the one its categories give; it also lets them cast it
+ *                without knowing any of its categories
+ */
+void add_job_spell(string path, int level, varargs string power)
+{
+  add_ability_spell(path, level, power);
+}
+
+/**
+ * The spells the job teaches: path -> job level needed.
+ */
+mapping query_job_spells() { return query_ability_spells(); }
+
+/**
+ * The power those who hold the job get in one spell when the job sets it apart
+ * from the spell's categories (see add_job_spell).
+ * @param  path  the spell object
+ * @return 0 when the job sets none, else 1 minor, 2 neutral, 3 major
+ */
+int query_job_spell_power(string path)
+{
+  return query_ability_spell_power(path);
+}
+
+/**
+ * Ties a skill to the job without teaching it: holders may use it, but it is
+ * not granted on joining or levelling and not listed by query_job_skills (it
+ * is learned through quests, items...).
+ * @param  id  the skill id, compared exactly
+ */
+void add_job_related_skill(string id) { add_related_ability_skill(id); }
+
+/**
+ * Ties a spell to the job without teaching it, as add_job_related_skill does
+ * for a skill.
+ * @param  path  the spell object, full path with .c, compared exactly
+ */
+void add_job_related_spell(string path) { add_related_ability_spell(path); }
+
+/**
+ * The ids of the skills tied to the job but not taught by it.
+ */
+string * query_job_related_skills() { return query_related_ability_skills(); }
+
+/**
+ * The paths of the spells tied to the job but not taught by it.
+ */
+string * query_job_related_spells() { return query_related_ability_spells(); }
+
+/**
+ * Gives a holder every skill of the job their job level allows.
+ *
+ * Idempotent: a skill already known is left as it is, only raised to the
+ * least value the job promises.
+ */
+void grant_job_skills(object player)
+{
+  grant_ability_skills(player, player->query_job_level());
+}
+
+/**
+ * Gives a holder every spell of the job their job level allows and they do
+ * not know yet (see teach_ability_spells).
+ *
+ * @return the paths of the spells learned, in the order of their levels
+ */
+string * teach_job_spells(object player)
+{
+  return teach_ability_spells(player, player->query_job_level());
+}
+
 int query_gp_dice() { return 5; }
 
 int query_channel() { return 0; }
@@ -98,6 +206,9 @@ int add_job_command(string name, int add_if_player)
 // Mask this and put your shadows in here, scope to this though!
 void start_player(object pl) 
 {
+  // the skills the job teaches, at the job level they have now
+  grant_job_skills(pl);
+
 		/*
    int i;
    if (!pointerp(job_commands))

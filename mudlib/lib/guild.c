@@ -10,6 +10,8 @@
 #include <living/effects.h>
 
 inherit "/lib/core/object.c";
+// the skills and spells it teaches or relates, shared with the jobs
+inherit "/lib/social/abilities.c";
 // Quest system, not in hexagon yet: neither /global/basic/quests.c nor
 // <quests.h> exist here, so everything below that needs a quest is kept
 // commented until they do.
@@ -26,18 +28,6 @@ string *legal_races, *legal_classes;
 string requirements_func;
 int needed_ext_align;
 string *specs_available;
-// the skills the guild teaches its members: skill id -> ({ guild level
-// needed, least ability the member starts with })
-mapping guild_skills;
-// the spells the guild teaches its members: spell object path -> guild level
-// needed; members learn them with aprender in the guild room
-mapping guild_spells;
-// the spells and skills tied to the guild but not taught in its room (learned
-// through quests, items...): spell object path -> 1, skill id -> 1
-mapping related_spells, related_skills;
-// the power the guild gives its members in some of those spells, spell object
-// path -> 1 minor, 2 neutral, 3 major; see add_guild_spell
-mapping spell_powers;
 // the categories of the spells its members cast, -> EFFECT_CAT_* (how well
 // they know each, which makes its spells cheaper or dearer): spheres of divine
 // magic (clerics, paladins) and schools of arcane magic (mages, sorcerers)
@@ -53,11 +43,7 @@ void create()
   legal_races = ({ });
   legal_classes = ({ });
   specs_available = ({ });
-  guild_skills = ([ ]);
-  guild_spells = ([ ]);
-  related_spells = ([ ]);
-  related_skills = ([ ]);
-  spell_powers = ([ ]);
+  create_abilities();
   spheres = ([ ]);
   schools = ([ ]);
   needed_ext_align = 0;
@@ -237,7 +223,7 @@ int remove_guild_command(string name) {
  *
  * Call it from the guild's setup. Members get it when they join or reach the
  * level (see grant_guild_skills) and keep it when they leave, but they cannot
- * use it outside a guild that allows it (teaches it or relates it, see
+ * use it outside a guild or job that allows it (teaches it or relates it, see
  * add_guild_related_skill), unless it is a common effect: the effect refuses
  * the use (see query_usable_by in /lib/effects/base_effect.c). Inside one it
  * runs at the member's guild level.
@@ -249,22 +235,13 @@ int remove_guild_command(string name) {
  */
 void add_guild_skill(string id, int level, varargs int ability)
 {
-  guild_skills[id] = ({ level, ability });
+  add_ability_skill(id, level, ability);
 }
-
-mapping query_guild_skills() { return guild_skills; }
 
 /**
- * Whether the guild teaches an effect, at any level. Related effects are not
- * taught, see query_allows.
- * @param  key  the spell's path (with .c) or the skill's id, see
- *              query_effect_key in /lib/effects/base_effect.c
- * @return 1 when add_guild_spell or add_guild_skill named it
+ * The skills the guild teaches: id -> ({ guild level needed, least ability }).
  */
-int query_teaches(string key)
-{
-  return guild_spells[key] != nil || guild_skills[key] != nil;
-}
+mapping query_guild_skills() { return query_ability_skills(); }
 
 /**
  * Ties a skill to the guild without teaching it: members may use it, but it
@@ -272,36 +249,24 @@ int query_teaches(string key)
  * listed by query_guild_skills (it is learned through quests, items...).
  * @param  id  the skill id, compared exactly
  */
-void add_guild_related_skill(string id) { related_skills[id] = 1; }
+void add_guild_related_skill(string id) { add_related_ability_skill(id); }
 
 /**
  * Ties a spell to the guild without teaching it, as add_guild_related_skill
  * does for a skill.
  * @param  path  the spell object, full path with .c, compared exactly
  */
-void add_guild_related_spell(string path) { related_spells[path] = 1; }
+void add_guild_related_spell(string path) { add_related_ability_spell(path); }
 
 /**
  * The ids of the skills tied to the guild but not taught by it.
  */
-string * query_guild_related_skills() { return map_indices(related_skills); }
+string * query_guild_related_skills() { return query_related_ability_skills(); }
 
 /**
  * The paths of the spells tied to the guild but not taught by it.
  */
-string * query_guild_related_spells() { return map_indices(related_spells); }
-
-/**
- * Whether members of the guild may use an effect that is not common: the
- * guild teaches it or relates it.
- * @param  key  the spell's path (with .c) or the skill's id
- * @return 1 when taught or related
- */
-int query_allows(string key)
-{
-  return query_teaches(key) || related_spells[key] != nil ||
-         related_skills[key] != nil;
-}
+string * query_guild_related_spells() { return query_related_ability_spells(); }
 
 /**
  * Gives a member every skill of the guild their guild level allows.
@@ -311,24 +276,7 @@ int query_allows(string key)
  */
 void grant_guild_skills(object player)
 {
-  string * ids;
-  int i, level, ability;
-
-  ids = map_indices(guild_skills);
-  level = player->query_guild_level();
-
-  for (i = 0; i < sizeof(ids); i++)
-  {
-    if (guild_skills[ids[i]][0] > level)
-      continue;
-
-    player->add_known_skill(ids[i]);
-
-    ability = guild_skills[ids[i]][1];
-    if (player->query_known_skill(ids[i]) &&
-        player->query_skill_value(ids[i]) < ability)
-      player->set_skill_value(ids[i], ability, 1);
-  }
+  grant_ability_skills(player, player->query_guild_level());
 }
 
 /**
@@ -336,7 +284,7 @@ void grant_guild_skills(object player)
  *
  * Call it from the guild's setup. Members learn it with aprender in the guild
  * room once they reach the level, and keep it when they leave, but they cannot
- * cast it outside a guild that allows it (teaches it or relates it, see
+ * cast it outside a guild or job that allows it (teaches it or relates it, see
  * add_guild_related_spell), unless it is a common effect: the effect refuses
  * the cast (see query_usable_by in /lib/effects/base_effect.c). Inside one it
  * runs at the member's guild level.
@@ -350,19 +298,13 @@ void grant_guild_skills(object player)
  */
 void add_guild_spell(string path, int level, varargs string power)
 {
-  guild_spells[path] = level;
-
-  if (power == EFFECT_CAT_MINOR)
-    spell_powers[path] = 1;
-  else if (power == EFFECT_CAT_NEUTRAL)
-    spell_powers[path] = 2;
-  else if (power == EFFECT_CAT_MAJOR)
-    spell_powers[path] = 3;
-  else
-    spell_powers[path] = nil;
+  add_ability_spell(path, level, power);
 }
 
-mapping query_guild_spells() { return guild_spells; }
+/**
+ * The spells the guild teaches: path -> guild level needed.
+ */
+mapping query_guild_spells() { return query_ability_spells(); }
 
 /**
  * The power the members get in one spell when the guild sets it apart from
@@ -372,23 +314,7 @@ mapping query_guild_spells() { return guild_spells; }
  */
 int query_guild_spell_power(string path)
 {
-  return spell_powers[path] ? spell_powers[path] : 0;
-}
-
-/**
- * The id a spell is known by: its file name without the extension.
- * @param  path  the spell object
- * @return the id
- */
-string query_spell_id(string path)
-{
-  string * parts;
-
-  parts = explode(path, "/");
-  path = parts[sizeof(parts) - 1];
-  if (strlen(path) > 2 && path[strlen(path) - 2..] == ".c")
-    path = path[0..strlen(path) - 3];
-  return path;
+  return query_ability_spell_power(path);
 }
 
 /**
@@ -400,25 +326,7 @@ string query_spell_id(string path)
  */
 string * teach_guild_spells(object player)
 {
-  string * paths, * learned;
-  int i, level, top;
-
-  paths = map_indices(guild_spells);
-  learned = ({ });
-  top = player->query_guild_level();
-
-  for (level = 0; level <= top; level++)
-    for (i = 0; i < sizeof(paths); i++)
-    {
-      if (guild_spells[paths[i]] != level ||
-          player->query_spell(query_spell_id(paths[i])))
-        continue;
-
-      player->add_spell(query_spell_id(paths[i]), paths[i]);
-      learned += ({ paths[i] });
-    }
-
-  return learned;
+  return teach_ability_spells(player, player->query_guild_level());
 }
 
 /**

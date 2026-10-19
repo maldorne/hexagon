@@ -763,6 +763,10 @@ int adjust_job_level(int i)
 
   job_level += i;
 
+  // the new level may teach a skill of the job
+  if (i > 0 && query_job_ob())
+    catch(query_job_ob()->grant_job_skills(this_object()));
+
   // the new rank may carry a title with it
   this_object()->check_new_titles();
 

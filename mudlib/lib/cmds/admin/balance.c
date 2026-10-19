@@ -1,5 +1,5 @@
 // balance -- admin tool to dump the numbers that balance a game: its races,
-// classes, guilds, damaging and healing spells and skills, evaluated by the
+// classes, guilds, jobs, damaging and healing spells and skills, evaluated by the
 // game's own code on a test monster, written as CSV files under
 // /games/<game>/docs/balance/ (one folder per game).
 //
@@ -47,7 +47,7 @@ void setup()
   set_usage("balance [<game>]");
   set_help(
     "Dumps the numbers that balance a game as CSV files under\n" +
-    "/games/<game>/docs/balance/: its races, classes, guilds, the spells and\n" +
+    "/games/<game>/docs/balance/: its races, classes, guilds, jobs, the spells and\n" +
     "skills that damage or heal, and the baselines (hit points, regeneration)\n" +
     "they are measured against. Everything is evaluated by the game's own code\n" +
     "on a test monster with every stat at " + BALANCE_STAT + ", a spell for each\n" +
@@ -56,7 +56,7 @@ void setup()
     "  balance            the game of the room you are in\n" +
     "  balance <game>     another game, by its folder name\n" +
     "\n" +
-    "Files: races.csv, classes.csv, guilds.csv, effects.csv, skills.csv,\n" +
+    "Files: races.csv, classes.csv, guilds.csv, jobs.csv, effects.csv, skills.csv,\n" +
     "baselines.csv, stat_bonuses.csv. The work is split in steps and takes a\n" +
     "few seconds; the command says when it is done. A game adds columns to\n" +
     "baselines.csv with query_balance_baselines(level) in its master.\n");
@@ -343,9 +343,13 @@ void step_classes()
 }
 
 /**
- * The guilds of the game and the spells and skills they teach.
+ * Writes one row for each spell and skill that the guilds or the jobs of the
+ * game teach or relate to themselves.
+ * @param  csv     the file to write
+ * @param  dir     where their objects are, under the game folder
+ * @param  guilds  1 for the guilds, 0 for the jobs
  */
-void step_guilds()
+private void write_abilities(string csv, string dir, int guilds)
 {
   string * files, * ids;
   mapping abilities;
@@ -353,61 +357,77 @@ void step_guilds()
   string classes, power, categories;
   int i, j, level;
 
-  start_file("guilds.csv", ({ "guild", "file", "class", "ability",
+  start_file(csv, ({ guilds ? "guild" : "job", "file", "class", "ability",
     "ability_kind", "level", "power", "categories", "related" }));
 
-  files = files_under(game_dir() + "obj/guilds/");
+  files = files_under(game_dir() + dir);
   for (i = 0; i < sizeof(files); i++)
   {
     guild = try_load(files[i]);
-    if (!guild || !guild->query_is_guild())
+    if (!guild || (guilds ? !guild->query_is_guild() : !guild->query_is_job()))
       continue;
 
     classes = implode(guild->query_legal_classes() + ({ }), "|");
 
-    abilities = guild->query_guild_spells();
+    abilities = guild->query_ability_spells();
     ids = sort_array(map_indices(abilities));
     for (j = 0; j < sizeof(ids); j++)
     {
       spell = try_load(ids[j]);
       power = "";
       categories = "";
-      if (guild->query_guild_spell_power(ids[j]))
-        power = ({ "", "minor", "neutral", "major" })[guild->query_guild_spell_power(ids[j])];
+      if (guild->query_ability_spell_power(ids[j]))
+        power = ({ "", "minor", "neutral", "major" })[guild->query_ability_spell_power(ids[j])];
       if (spell)
         categories = category_text(spell);
 
-      put_row("guilds.csv", ({ id_of(files[i]), files[i], classes,
+      put_row(csv, ({ id_of(files[i]), files[i], classes,
         guild->query_spell_id(ids[j]), "spell", abilities[ids[j]], power,
         categories, 0 }));
     }
 
-    // spells tied to the guild but not taught: no level, related = 1
-    ids = sort_array(guild->query_guild_related_spells());
+    // spells tied to the guild or job but not taught: no level, related = 1
+    ids = sort_array(guild->query_related_ability_spells());
     for (j = 0; j < sizeof(ids); j++)
     {
       spell = try_load(ids[j]);
-      put_row("guilds.csv", ({ id_of(files[i]), files[i], classes,
+      put_row(csv, ({ id_of(files[i]), files[i], classes,
         guild->query_spell_id(ids[j]), "spell", "", "",
         spell ? category_text(spell) : "", 1 }));
     }
 
-    abilities = guild->query_guild_skills();
+    abilities = guild->query_ability_skills();
     ids = sort_array(map_indices(abilities));
     for (j = 0; j < sizeof(ids); j++)
     {
       level = abilities[ids[j]][0];
-      put_row("guilds.csv", ({ id_of(files[i]), files[i], classes, ids[j],
+      put_row(csv, ({ id_of(files[i]), files[i], classes, ids[j],
         "skill", level, "", "", 0 }));
     }
 
-    // skills tied to the guild but not taught: no level, related = 1
-    ids = sort_array(guild->query_guild_related_skills());
+    // skills tied to the guild or job but not taught: no level, related = 1
+    ids = sort_array(guild->query_related_ability_skills());
     for (j = 0; j < sizeof(ids); j++)
-      put_row("guilds.csv", ({ id_of(files[i]), files[i], classes, ids[j],
+      put_row(csv, ({ id_of(files[i]), files[i], classes, ids[j],
         "skill", "", "", "", 1 }));
   }
+}
 
+/**
+ * The guilds of the game and the spells and skills they teach.
+ */
+void step_guilds()
+{
+  write_abilities("guilds.csv", "obj/guilds/", 1);
+  next_step();
+}
+
+/**
+ * The jobs of the game and the spells and skills they teach.
+ */
+void step_jobs()
+{
+  write_abilities("jobs.csv", "obj/jobs/", 0);
   next_step();
 }
 
@@ -818,7 +838,7 @@ static int cmd(string str, object me, string verb)
   effect_ids = nil;
 
   queue = ({ "step_stat_bonuses", "step_races", "step_classes", "step_guilds",
-             "step_baselines", "step_spells", "step_skills" });
+             "step_jobs", "step_baselines", "step_spells", "step_skills" });
   running = 1;
 
   tell_object(me, "Dumping the balance of '" + game + "' into " + out_dir + "...\n");

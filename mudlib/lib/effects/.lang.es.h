@@ -78,7 +78,7 @@
 #define MSG_WHICH_TARGET "¿" + capitalize(verb) + " a quién?\n"
 #define MSG_DISSAPPEAR  "Tu objetivo ha desaparecido.\n"
 #define MSG_NO_GPS      "Estás demasiado cansado para hacer eso.\n"
-#define MSG_NOT_TAUGHT  "Tu gremio actual no te permite usar eso: no podrás hasta que estés en uno que sí lo permita.\n"
+#define MSG_NOT_TAUGHT  "Ni tu gremio ni tu oficio actuales te permiten usar eso: no podrás hasta que estés en uno que sí lo permita.\n"
 #define MSG_NO_COMBAT   "No puedes hacer eso en mitad de un combate.\n"
 #define MSG_ONLY_COMBAT "Eso sólo tiene sentido en mitad de un combate.\n"
 #define MSG_ALREADY_AFFECTED    target->query_cap_name()+" ya está afectado por ese efecto.\n"

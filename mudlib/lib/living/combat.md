@@ -121,7 +121,7 @@ are effect object paths added with `add_attack_effect(path)` (and
 knowing it as a spell or skill, like a bite or a breath. They have no chance,
 name or target of their own; a creature-only effect marks itself common in its
 file (`set_common_effect(1)`) to pass the same checks. Only effects it can
-use now are drawn (`can_use_effect`: an intent other than none, common or allowed by its guild,
+use now are drawn (`can_use_effect`: an intent other than none, common or allowed by its guild or job,
 gp enough, none of the effect's lockout properties set). `choose_effect()` picks one
 at random and its targets by intent and target type: a harmful `one`/`touch` goes at
 an attacker, a harmful `many` at all of them, a helpful

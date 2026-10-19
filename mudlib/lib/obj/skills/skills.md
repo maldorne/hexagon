@@ -96,7 +96,7 @@ No skill or spell keeps its own `call_out` chain to repeat something: anything p
 
 ## Balance: `query_balance`
 
-An effect that damages or heals describes one cast in `mapping query_balance(object caster)` (`BASE_EFFECT`; the default returns nil: neither). It is a pure function for the `balance` command (`lib/cmds/admin/balance.c`), which writes the numbers of a game as CSV files: no rolls, no messages, no change of state, and the numbers come from the same helpers the cast uses, so there is one formula. It reads the caster's level and power the way the cast does (`PROPERTY_CAST_LEVEL` and `PROPERTY_CAST_POWER`, see "At a level"), so the level of its curves is the one in the guild that teaches the ability, and the stats of the caster.
+An effect that damages or heals describes one cast in `mapping query_balance(object caster)` (`BASE_EFFECT`; the default returns nil: neither). It is a pure function for the `balance` command (`lib/cmds/admin/balance.c`), which writes the numbers of a game as CSV files (`guilds.csv` and `jobs.csv` list what each guild and job teaches or relates, with the same columns): no rolls, no messages, no change of state, and the numbers come from the same helpers the cast uses, so there is one formula. It reads the caster's level and power the way the cast does (`PROPERTY_CAST_LEVEL` and `PROPERTY_CAST_POWER`, see "At a level"), so the level of its curves is the one in the guild that teaches the ability, and the stats of the caster.
 
 `make_balance(caster, kind, rounds, range, type, note [, extra])` builds the answer; the keys:
 
@@ -116,13 +116,17 @@ The targeting data are not passed: `make_balance` reads them from the effect its
 
 Every projectile or touch is assumed to land and no target to resist, unless the note says otherwise. Helpers of the base: `dice_range(dice, faces, bonus)` gives `({ minimum, average, maximum })`, `scale_range(caster, range)` applies the `fix_amount` of the spell base (stat adjustment) to it and `repeat_range(range, times)` repeats it. Those with an amount that depends on the situation (hit location, armour class, the gp of the caster) answer for the plain case and say so in the note.
 
-## Common and guild effects
+## Common, guild and job effects
 
-Every effect is a guild effect unless it is marked common with `set_common_effect(1)` in its `setup()` (`is_common_effect()`). A common effect is open to everyone, whatever their guild, even one a guild teaches (a job skill a member keeps using after leaving). The common skills are climb, dismembering, evade, focus, follow, gutting, hide, judge, orientation, pray, pulling, repair, search, skinning, slice, steal and swim; no spell is common.
+Every effect is a guild or job effect unless it is marked common with `set_common_effect(1)` in its `setup()` (`is_common_effect()`). A common effect is open to everyone, whatever their guild or job, even one a guild or job teaches (a job skill a member keeps using after leaving). The common skills are climb, dismembering, evade, focus, follow, gutting, hide, judge, orientation, pray, pulling, repair, search, skinning, slice, steal and swim; no spell is common.
 
-A guild effect can only be used inside a guild that allows it (`query_allows(key)` of the guild, with `key` = `query_effect_key()`: the spell's full path with `.c`, the skill's id, compared exactly). A guild allows what it teaches (`add_guild_spell` by path, `add_guild_skill` by id, which is the skill's file name) and what it relates (`add_guild_related_spell`, `add_guild_related_skill`: tied to the guild but not taught in its room, learned through quests or items). Related effects are not offered by `aprender`, not granted on joining or levelling, not in `query_guild_spells` / `query_guild_skills` and not given by the NPC template `guild_abilities`; read them with `query_guild_related_spells()` / `query_guild_related_skills()`.
+A guild or job effect can only be used inside a guild or a job that allows it (`query_allows(key)` of the guild or job, with `key` = `query_effect_key()`: the spell's full path with `.c`, the skill's id, compared exactly). A guild allows what it teaches (`add_guild_spell` by path, `add_guild_skill` by id, which is the skill's file name) and what it relates (`add_guild_related_spell`, `add_guild_related_skill`: tied to the guild but not taught in its room, learned through quests or items). Related effects are not offered by `aprender`, not granted on joining or levelling, not in `query_guild_spells` / `query_guild_skills` and not given by the NPC template `guild_abilities`; read them with `query_guild_related_spells()` / `query_guild_related_skills()`.
 
-`cast_effect` refuses a guild effect with `MSG_NOT_TAUGHT` (`query_usable_by(caster)`) unless the cast carries a given level, so a scroll works for anyone who can read it. A character who leaves a guild keeps the spells and skills but cannot use them until joining a guild that allows them. An NPC follows the same rule: one that casts needs `guild` and `guild_level` in its template.
+A job does the same with `add_job_skill(id, job_level [, value])`, `add_job_spell(path, job_level [, power])`, `add_job_related_skill(id)` and `add_job_related_spell(path)` (`lib/job.c`; readers `query_job_skills`, `query_job_spells`, `query_job_related_skills`, `query_job_related_spells`, `query_job_spell_power`). Guild and job share the machinery in `lib/social/abilities.c` (neutral names `add_ability_skill`, `query_ability_spells`, `query_teaches`, `query_allows`, `grant_ability_skills`, `teach_ability_spells`...), the guild and job names being thin wrappers; the level that gates an ability is the guild level for a guild and the job level for a job. The taught skills of a job are granted on joining it, when its level rises and at login; its taught spells are learned with `aprender` in the job room, by job level. Leaving the job takes nothing back, but a holder can only use the effect while their guild or their job allows it.
+
+A guild or job may add a line to the help of an effect for its members: mask `query_effect_note(key, player)` (`lib/social/abilities.c`, nil by default); `help()` of `BASE_EFFECT` appends the answer of the reader's guild and then of their job.
+
+`cast_effect` refuses a guild or job effect with `MSG_NOT_TAUGHT` (`query_usable_by(caster)`) unless the cast carries a given level, so a scroll works for anyone who can read it. A character who leaves a guild or job keeps the spells and skills but cannot use them until joining a guild or job that allows them. An NPC follows the same rule: one that casts needs `guild` and `guild_level` in its template.
 
 ## The level of a spell or skill
 
@@ -130,15 +134,16 @@ One number feeds every formula of an effect (amounts, dice, durations, counts): 
 
 1. the level a cast was given (`PROPERTY_CAST_LEVEL`: a scroll or an item, see "At a level");
 2. for a common effect, the class level of the caster (`query_level()`);
-3. for a guild effect, the guild level of the caster (`query_guild_level()`), with no fallback to the class level.
+3. for an effect the caster's guild allows, the guild level (`query_guild_level()`), with no fallback to the class level;
+4. for an effect the caster's job allows (and the guild does not), the job level (`query_job_level()`).
 
 At least 1. The level of a target (resist rolls, hold person, holy word) is not this one: it stays the class level (`query_level()`). So do the baselines of the balance tool (hit points, weapon blow).
 
-`hechizos` and `habilidades` mark with `(!)` the ones the current guild does not allow, with a legend line; common effects are never marked.
+`hechizos` and `habilidades` mark with `(!)` the ones neither the current guild nor the current job allows, with a legend line; common effects are never marked.
 
-## Guild skills
+## Guild and job skills
 
-A guild teaches skills with `add_guild_skill(id, guild_level [, value])` in its `setup` (`lib/guild.c`); `grant_guild_skills` gives them on joining, on reaching the level and at login. Leaving a guild takes nothing back: a player keeps what they learned, but cannot use it outside a guild that teaches it.
+A guild teaches skills with `add_guild_skill(id, guild_level [, value])` in its `setup` (`lib/guild.c`); `grant_guild_skills` gives them on joining, on reaching the level and at login. Leaving a guild takes nothing back: a player keeps what they learned, but cannot use it outside a guild or job that allows it. The job has the same with `add_job_skill` and `grant_job_skills`.
 
 Outside a guild that teaches them, skills are refused by the rule above. A skill that wants its own in-character message for those outside its guild (a paladin's faith) also checks in `extra_checks`: `query_guild_refusal(caster, <guild path>)` (`lib/effects/guild_fixes.c`, inherited by every effect). For someone outside that guild it returns the guild's `query_non_member_refusal` (nil by default, so the skill stays free; a guild masks it with a message in character). For a member, or when no path is given, it returns the guild's `query_powers_refusal` (a message while the guild withholds its gifts, nil otherwise).
 

@@ -93,7 +93,8 @@ private string _skill_name(string id, object place)
                                            id;
 }
 
-// The skills a guild teaches, by the guild level that gives each.
+// The skills a guild or a job teaches, by the guild or job level that gives
+// each.
 private string _skills(object guild, object place)
 {
   mapping skills;
@@ -101,7 +102,7 @@ private string _skills(object guild, object place)
   string text;
   int i, level, top;
 
-  skills = guild->query_guild_skills();
+  skills = guild->query_ability_skills();
   if (!mappingp(skills) || !map_sizeof(skills))
     return "";
 
@@ -116,13 +117,14 @@ private string _skills(object guild, object place)
     for (i = 0; i < sizeof(ids); i++)
       if (skills[ids[i]][0] == level)
         text += sprintf("  %-28s %s\n", _skill_name(ids[i], place),
-                        _LANG_RULES_SKILL_FROM_LEVEL);
+                        guild->query_is_guild() ? _LANG_RULES_SKILL_FROM_LEVEL :
+                                                  _LANG_RULES_SKILL_FROM_JOB_LEVEL);
 
   return text;
 }
 
-// The spells a guild teaches, by the guild level that gives each; members
-// learn them with aprender in the guild room.
+// The spells a guild or a job teaches, by the guild or job level that gives
+// each; they are learned with aprender in the guild or job room.
 private string _spells(object guild)
 {
   mapping spells;
@@ -131,7 +133,7 @@ private string _spells(object guild)
   object ob;
   int i, level, top;
 
-  spells = guild->query_guild_spells();
+  spells = guild->query_ability_spells();
   if (!mappingp(spells) || !map_sizeof(spells))
     return "";
 
@@ -150,14 +152,15 @@ private string _spells(object guild)
         catch(ob = load_object(paths[i]));
         text += sprintf("  %-28s %s\n",
                         ob ? capitalize(ob->query_effect_name()) : paths[i],
-                        _LANG_RULES_SKILL_FROM_LEVEL);
+                        guild->query_is_guild() ? _LANG_RULES_SKILL_FROM_LEVEL :
+                                                  _LANG_RULES_SKILL_FROM_JOB_LEVEL);
       }
 
   return text;
 }
 
-// The spells and skills tied to a guild but not taught in its room: they are
-// learned elsewhere. Empty when the guild declares none.
+// The spells and skills tied to a guild or a job but not taught in its room:
+// they are learned elsewhere. Empty when it declares none.
 private string _related(object guild, object place)
 {
   string * paths, * ids;
@@ -167,20 +170,22 @@ private string _related(object guild, object place)
 
   text = "";
 
-  ids = guild->query_guild_related_skills();
+  ids = guild->query_related_ability_skills();
   if (sizeof(ids))
   {
-    text += _LANG_RULES_RELATED_SKILLS_HEADER;
+    text += guild->query_is_guild() ? _LANG_RULES_RELATED_SKILLS_HEADER :
+                                      _LANG_RULES_RELATED_JOB_SKILLS_HEADER;
     for (i = 0; i < sizeof(ids); i++)
       text += "  " + _skill_name(ids[i], place) + "\n";
   }
 
-  paths = guild->query_guild_related_spells();
+  paths = guild->query_related_ability_spells();
   if (sizeof(paths))
   {
     if (strlen(text))
       text += "\n";
-    text += _LANG_RULES_RELATED_SPELLS_HEADER;
+    text += guild->query_is_guild() ? _LANG_RULES_RELATED_SPELLS_HEADER :
+                                      _LANG_RULES_RELATED_JOB_SPELLS_HEADER;
     for (i = 0; i < sizeof(paths); i++)
     {
       ob = nil;
@@ -252,13 +257,13 @@ string query_rules(string path, object reader, object place)
          (string)social->query_short() + "%^RESET%^\n\n" +
          _who(social, reader, root);
 
-  if (social->query_is_guild() && strlen(_skills(social, place)))
+  if (strlen(_skills(social, place)))
     text += "\n" + _skills(social, place);
 
-  if (social->query_is_guild() && strlen(_spells(social)))
+  if (strlen(_spells(social)))
     text += "\n" + _spells(social);
 
-  if (social->query_is_guild() && strlen(_related(social, place)))
+  if (strlen(_related(social, place)))
     text += "\n" + _related(social, place);
 
   if (strlen(_next_level(social, reader, path)))

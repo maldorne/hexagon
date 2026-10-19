@@ -336,10 +336,13 @@
 #define _LANG_RULES_YOU_MEET "  You meet these conditions.\n"
 #define _LANG_RULES_YOU_DO_NOT_MEET "  You do not meet these conditions.\n"
 #define _LANG_RULES_SKILLS_HEADER "%^BOLD%^Skills it teaches%^RESET%^\n"
-#define _LANG_RULES_SKILL_FROM_LEVEL "from level " + level
+#define _LANG_RULES_SKILL_FROM_LEVEL "from guild level " + level
+#define _LANG_RULES_SKILL_FROM_JOB_LEVEL "from job level " + level
 #define _LANG_RULES_SPELLS_HEADER "%^BOLD%^Spells it teaches (learned with «learn»)%^RESET%^\n"
 #define _LANG_RULES_RELATED_SKILLS_HEADER "%^BOLD%^Skills tied to the guild (learned elsewhere)%^RESET%^\n"
 #define _LANG_RULES_RELATED_SPELLS_HEADER "%^BOLD%^Spells tied to the guild (learned elsewhere)%^RESET%^\n"
+#define _LANG_RULES_RELATED_JOB_SKILLS_HEADER "%^BOLD%^Skills tied to the job (learned elsewhere)%^RESET%^\n"
+#define _LANG_RULES_RELATED_JOB_SPELLS_HEADER "%^BOLD%^Spells tied to the job (learned elsewhere)%^RESET%^\n"
 #define _LANG_RULES_LEVEL_HEADER "%^BOLD%^Your next level%^RESET%^\n"
 #define _LANG_RULES_NOT_MEMBER_GUILD "  You are not a member of this guild.\n"
 #define _LANG_RULES_NOT_MEMBER_JOB "  This is not your job.\n"

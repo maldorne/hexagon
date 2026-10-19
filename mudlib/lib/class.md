@@ -142,8 +142,9 @@ do not offer it.
    alignment a guild asks (`query_needed_ext_align`), whatever else its check
    asks in words (`query_requirements_text`, masked beside the requirements
    function of a guild or the `query_legal_player` of a job), whether the reader
-   meets it all, the skills a guild teaches by guild level (`add_guild_skill`)
-   and what the reader's next level costs when they belong.
+   meets it all, the skills and spells a guild teaches by guild level or a job
+   by job level (`add_guild_skill`, `add_job_skill`...), the ones it only
+   relates (`add_guild_related_skill`, `add_job_related_skill`...) and what the reader's next level costs when they belong.
 2. The text of its rules book (`set_rules_book(<path of a markdown text>)` in
    the guild's or job's `setup`), rendered by the books handler
    (`query_rendered_text`) exactly as a library shows it. Put the same text on
