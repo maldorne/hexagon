@@ -6,7 +6,19 @@
 
 | Status | Title | Description |
 | :----: | :---- | ----------- |
-|        | **Quests** | Review quest system [[#26](https://github.com/maldorne/hexagon/issues/26)]. |
+| :white_check_mark: | **Quests** | Review quest system [[#26](https://github.com/maldorne/hexagon/issues/26)]. |
+| :white_check_mark: | **Citizenships and guards** | Citizenships, diplomacy between them, and guards that follow them [[#43](https://github.com/maldorne/hexagon/issues/43)]. |
+| :white_check_mark: | **Rivers, currents and bridges** | Water, swimming, currents that drag things along, bridges, and rivers on the world map [[#44](https://github.com/maldorne/hexagon/issues/44)]. |
+| :white_check_mark: | **World map** | World map with terrain glyphs, a legend, rivers, roads and city names [[#45](https://github.com/maldorne/hexagon/issues/45)]. |
+| :white_check_mark: | **Props** | Props as an alternative to items in locations: furniture, scenery, readable inscriptions, light sources [[#46](https://github.com/maldorne/hexagon/issues/46)]. |
+| :white_check_mark: | **Light** | Light and darkness review [[#47](https://github.com/maldorne/hexagon/issues/47)]. |
+| :white_check_mark: | **Shared houses** | Several households in one home [[#50](https://github.com/maldorne/hexagon/issues/50)]. |
+|         | **Area-driven NPC population** | NPCs are created, housed and scheduled by the area they live in [[#41](https://github.com/maldorne/hexagon/issues/41)]. |
+|         | **Families and houses** | Houses with a surname that outlives its members, and housing for the whole community [[#42](https://github.com/maldorne/hexagon/issues/42)]. |
+|         | **Crime and guards** | Law codes, crimes, witnesses, arrest, jail, fines, bail and bribes [[#52](https://github.com/maldorne/hexagon/issues/52)]. |
+|         | **Spell system review** | Spells as effects, taught by guilds by level, with reach and intent [[#53](https://github.com/maldorne/hexagon/issues/53)]. |
+|         | **Reparenting areas** | Moving an area under another parent without losing its community [[#51](https://github.com/maldorne/hexagon/issues/51)]. |
+|         | **More quest types** | Reach, gather and talk objectives [[#49](https://github.com/maldorne/hexagon/issues/49)]. |
 
 ## Previous versions/milestones
 
@@ -24,6 +36,7 @@
 | :white_check_mark: | **Weather** | Per-game weather instances [[#38](https://github.com/maldorne/hexagon/issues/38)]. |
 | :white_check_mark: | **Guests** | Activate guest users [[#29](https://github.com/maldorne/hexagon/issues/29)]. |
 | :white_check_mark: | **Calendar** | Make the calendar command dependant of the game [[#27](https://github.com/maldorne/hexagon/issues/27)]. |
+| :white_check_mark: | **Help** | New help system, serving the documentation by section, topic or pattern [[#48](https://github.com/maldorne/hexagon/issues/48)]. |
 
 ### [v1.24.04 Castle Black](https://github.com/maldorne/hexagon/milestone/3)
 
