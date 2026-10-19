@@ -22,7 +22,6 @@ inherit living     "/lib/living/living.c";
 inherit friends    "/lib/monster/friends.c";
 inherit chatter    "/lib/monster/chatter.c";
 inherit combat     "/lib/monster/combat.c";
-inherit casting    "/lib/monster/casting.c";
 inherit pacing     "/lib/monster/pacing.c";
 
 // already defined in living/combat.c
@@ -407,8 +406,7 @@ void heart_beat()
     chatter(chat_chance, chat_string);
   }
 
-  effect_heart_beat();
-  casting_heart_beat();
+  combat_effects_heart_beat();
 
   // Movement: directed travel or idle wander, paced by the shared cadence and
   // frozen while in combat. Only tick it when there is a reason to move.

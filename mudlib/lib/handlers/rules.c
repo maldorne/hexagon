@@ -156,6 +156,42 @@ private string _spells(object guild)
   return text;
 }
 
+// The spells and skills tied to a guild but not taught in its room: they are
+// learned elsewhere. Empty when the guild declares none.
+private string _related(object guild, object place)
+{
+  string * paths, * ids;
+  string text;
+  object ob;
+  int i;
+
+  text = "";
+
+  ids = guild->query_guild_related_skills();
+  if (sizeof(ids))
+  {
+    text += _LANG_RULES_RELATED_SKILLS_HEADER;
+    for (i = 0; i < sizeof(ids); i++)
+      text += "  " + _skill_name(ids[i], place) + "\n";
+  }
+
+  paths = guild->query_guild_related_spells();
+  if (sizeof(paths))
+  {
+    if (strlen(text))
+      text += "\n";
+    text += _LANG_RULES_RELATED_SPELLS_HEADER;
+    for (i = 0; i < sizeof(paths); i++)
+    {
+      ob = nil;
+      catch(ob = load_object(paths[i]));
+      text += "  " + (ob ? capitalize(ob->query_effect_name()) : paths[i]) + "\n";
+    }
+  }
+
+  return text;
+}
+
 // What the reader's next level costs, when they belong.
 private string _next_level(object social, object reader, string path)
 {
@@ -221,6 +257,9 @@ string query_rules(string path, object reader, object place)
 
   if (social->query_is_guild() && strlen(_spells(social)))
     text += "\n" + _spells(social);
+
+  if (social->query_is_guild() && strlen(_related(social, place)))
+    text += "\n" + _related(social, place);
 
   if (strlen(_next_level(social, reader, path)))
     text += "\n" + _next_level(social, reader, path);

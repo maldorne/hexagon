@@ -109,12 +109,18 @@ stops on both sides with every guard fighting it, and the victim is passed out
 and arrested instead of dying. Every other attacker, and every other victim,
 goes through the usual death. See `lib/handlers/crimes.md`.
 
-## Monsters casting in a fight
+## Monsters using effects in a fight
 
-`lib/monster/casting.c` gives every monster and NPC a default: each heart beat of
-a fight, with `NPC_CAST_CHANCE` percent (`include/npc/npc.h`), and never while it
-is casting or under `noskill`, it tries one spell or skill it knows
-(`query_known_effects`: its spells and its non-passive skills). Only effects it can
+`lib/monster/combat.c` gives every monster and NPC a default: each heart beat of
+a fight (`combat_effects_heart_beat`), with `NPC_CAST_CHANCE` percent
+(`include/npc/npc.h`), and never while it is casting or under `noskill`, it tries
+one of its combat effects (`query_combat_effects`: the spells and non-passive
+skills it knows, `query_known_effects`, plus its attack effects). Attack effects
+are effect object paths added with `add_attack_effect(path)` (and
+`remove_attack_effect`, `query_attack_effects`): what a creature does without
+knowing it as a spell or skill, like a bite or a breath. They have no chance,
+name or target of their own; a creature-only effect marks itself common in its
+file (`set_common_effect(1)`) to pass the same checks. Only effects it can
 use now are drawn (`can_use_effect`: an intent other than none, common or allowed by its guild,
 gp enough, none of the effect's lockout properties set). `choose_effect()` picks one
 at random and its targets by intent and target type: a harmful `one`/`touch` goes at

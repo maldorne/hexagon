@@ -3,15 +3,8 @@
 
 #define NO_SPAM      "no_spam"
 
-// Who an attack effect of a monster is aimed at, the fourth value of the data
-// given to add_attack_effect
-#define ATTACK_EFFECT_TARGET_ONE    0   // one of the attackers, at random
-#define ATTACK_EFFECT_TARGET_MANY   1   // every attacker, named one by one
-#define ATTACK_EFFECT_TARGET_ALL    2   // everybody in the room
-#define ATTACK_EFFECT_TARGET_CASTER 3   // the monster itself
-
-// Chance, in percent per heart beat, that a monster in a fight tries to cast
-// one of the spells or skills it knows (see /lib/monster/casting.c)
+// Chance, in percent per heart beat, that a monster in a fight tries to use one
+// of its combat effects (see combat_effects_heart_beat in /lib/monster/combat.c)
 #define NPC_CAST_CHANCE 20
 
 // #define NO_WANDER
