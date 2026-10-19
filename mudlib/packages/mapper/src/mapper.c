@@ -55,14 +55,15 @@ private string strip_colours(string text)
   if (!stringp(text))
     return "";
 
-  parts = explode(text, "%^");
+  // explode drops a leading or trailing marker: a sentinel on each end keeps
+  // the text in the even parts and the codes in the odd ones
+  parts = explode("|" + text + "|", "%^");
   result = "";
 
-  // odd parts sit between a pair of markers
   for (i = 0; i < sizeof(parts); i += 2)
     result += parts[i];
 
-  return result;
+  return result[1 .. strlen(result) - 2];
 }
 
 /**
