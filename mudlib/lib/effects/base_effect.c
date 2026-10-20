@@ -1696,12 +1696,6 @@ int hb_effect(object caster, mixed *params, int time)
                 tell_room(environment(caster),caster->query_cap_name()+"'s effect has no " +
                   "effect on "+target[i]->query_cap_name()+"!\n",({caster,target[i]}));
                 target = delete(target, i, 1);
-
-                if (caster->query_coder())
-                    tell_object(caster, "DEBUG: "+target[i]->query_cap_name() +
-                      " 'invulnerable_efectos': ("+
-                      target[i]->query_property(PROPERTY_INVUL)+
-                      ") Effect level: ("+query_effect_level(caster)+")\n");
             }
         if (!sizeof(target))
         {
@@ -1726,12 +1720,6 @@ int hb_effect(object caster, mixed *params, int time)
                   "effect on "+target->query_cap_name()+"!\n",({caster,target}));
             }
             target = 0;
-
-            if (caster->query_coder())
-                tell_object(caster, "DEBUG: "+caster->query_cap_name() +
-                  " 'invulnerable_efectos': ("+
-                  caster->query_property(PROPERTY_INVUL)+
-                  ") Effect level: ("+query_effect_level(caster)+")\n");
         }
         if (!target)
         {

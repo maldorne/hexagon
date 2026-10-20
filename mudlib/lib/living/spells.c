@@ -297,11 +297,6 @@ int cast(string str)
     return 0;
   }
 
-  /*** Para solucion de problemas, añadido por neverbot para hacerlo igual que en el
-       mud original ***/
-  if (this_object()->query_coder())
-    tell_object(this_object(), "DEBUG: " + match[0] + "\n");
-
   // the target is whatever follows the spell's name
   return (int)call_other(match[0], "cast_effect", match[1], this_object(), 0);
 }
@@ -702,11 +697,6 @@ int spell_damage(int damage, string type, varargs object caster)
 
   original = damage;
   prot = this_object()->query_resistance(type);
-
-  // Debug de informacion a los inmortales (neverbot 7/01)
-  if ((prot != 0) && this_object()->query_coder())
-     tell_object(this_object(), "DEBUG (spell_damage): Aplicada resistencia mágica "+
-               "contra '"+type+"' ("+prot+"%).\n");
 
   // Calculamos al modificacion al daño segun resistencias:
   damage = (damage * (100 - prot)) / 100;

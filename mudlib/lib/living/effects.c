@@ -159,9 +159,6 @@ int do_active_effects(object attacker)
   
           remove_active_effect(effects[i+1][j]);
 
-          if (this_object()->query_coder())
-            tell_object(this_object(),"DEBUG: Hechizo interrumpido. "+
-              "Valor devuelto: "+ok+"\n");
            return 0;
         }  
 

@@ -867,11 +867,6 @@ int skill_damage(int damage, string type, object attacker)
   
   prot = this_object()->query_resistance(type);
       
-  // Debug info for immortals (neverbot 7/01)
-  if ((prot != 0) && this_object()->query_coder())
-    tell_object(this_object(), "DEBUG (skill_damage): applied resistance " +
-                                "against '"+type+"' ("+prot+"%).\n");
-
   // Apply the damage modifier from resistances:
   damage = (damage * (100 - prot)) / 100;
                         
