@@ -83,10 +83,23 @@ void add_attacks( string * names )
 private object * load_attack_effects()
 {
   object * list;
+  mixed * stored;
   object effect;
   int i;
 
   list = ({ });
+
+  // a list saved by the older mechanism, ({ chance, name, call, ... }), only
+  // repeats skills and spells the monster already uses as known ones; it is
+  // read untyped, since indexing a string * checks every element is a string
+  stored = attack_effects;
+  for (i = 0; i < sizeof(stored); i++)
+    if (!stringp(stored[i]))
+    {
+      attack_effects = ({ });
+      return list;
+    }
+
   for (i = 0; i < sizeof(attack_effects); i++)
   {
     effect = nil;
