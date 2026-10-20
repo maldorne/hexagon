@@ -90,6 +90,24 @@ through `recalc_damage`, which returns `({ damage, location, piece })`.
   piece (`add_property(<element name>, n)` with `n` up to 100; negative for a
   weakness), and give the piece base ac.
 
+## Who fights whom, and for how long
+
+Every living keeps two lists in `lib/living/combat.c`: `attacker_list`, the
+rivals in its place, and `call_outed`, the rivals who left it and are still
+chased (they rejoin the fight when the two meet again). A rival who stays away
+for `CHASE_EXPIRY_SECONDS` (`include/living/combat.h`, 5 minutes) is dropped
+with the "no longer fighting" message; the check runs on every combat round
+and whenever a new blow starts (`attack_ob`, `attack_by`), so a monster whose
+heart_beat stopped forgets too. Neither list is saved.
+
+A monster of `GRUDGE_MIN_MONSTER_LEVEL` or more also holds grudges
+(`lib/monster/memory.c`): the names of the players of `GRUDGE_MIN_ATTACKER_LEVEL`
+or more who fought it, with the time of the last blow. They survive logouts and,
+for a persisted NPC, restarts, and the monster attacks such a player on sight.
+A grudge runs out `GRUDGE_EXPIRY_SECONDS` (5 minutes) after the last blow, and
+ends at once when the monster stops fighting that player (`stop_fight`: death,
+peace, the law, an expired chase). The constants are in `include/npc/npc.h`.
+
 ## Fights and the law
 
 `attack_ob` (the attacker's side) calls `report_attack(attacker, victim)` of the

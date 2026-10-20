@@ -23,13 +23,10 @@ inherit friends    "/lib/monster/friends.c";
 inherit chatter    "/lib/monster/chatter.c";
 inherit combat     "/lib/monster/combat.c";
 inherit pacing     "/lib/monster/pacing.c";
+inherit memory     "/lib/monster/memory.c";
 
 // already defined in living/combat.c
 // static int combat_counter;  /* Counts what we should do next in combat */
-
-// Taniwha 1995
-int p_memory;          /* if !0 will record player names, else won't */
-string *p_attack_list; /* names we don't like */
 
 mixed move_after;      /* wander cadence params ({ base, rand }); also the
                           "wander enabled" marker. The cadence and directed
@@ -59,7 +56,6 @@ void create()
 
   reset_get();
 
-  p_attack_list = ({ });
   move_zones = ({ });
   enter_commands = ({ });
   only_one = 0;
@@ -71,6 +67,7 @@ void create()
   chatter::create();
   combat::create();
   pacing::create();
+  memory::create();
   // setup() call is inside this create(),
   // so this has to be the last one
   living::create();
@@ -177,15 +174,10 @@ void add_clone(string what, varargs int how_many)
 void attack_by(object ob)
 {
   // For NPC's remember the man who shot my paw ;) Taniwha 1995
-  if (p_memory && interactive(ob) &&
-      (ob->query_level() > MIN_PLAYER_LEVEL) &&
-      (member_array(ob->query_name(), p_attack_list) == -1) )
-  {
-    p_attack_list += ({ (string)ob->query_name() });
-  }
+  // every blow renews the grudge, see memory.c
+  add_grudge(ob);
 
-  if (p_attack_list)
-    do_equip("");
+  do_equip("");
 
   // Combat interrupts whatever the NPC had lined up: abandon any route and drop
   // the pending queue so it stops mid-errand and fights. What it does once the
@@ -200,22 +192,8 @@ void attack_by(object ob)
 
 int stop_fight(object ob, varargs int silent)
 {
-  if ( ob && interactive(ob) )
-    p_attack_list -= ({ (string)ob->query_name() });
+  remove_grudge(ob);
   return ::stop_fight(ob, silent);
-}
-
-int query_player_memory() { return p_memory; }
-int set_player_memory(int i)
-{
-  p_memory = i;
-  return p_memory;
-}
-
-void remove_p_attack_list() { p_attack_list = ({ }); }
-string *query_p_attacker_list()
-{
-  return p_attack_list;
 }
 
 int check_anyone_here();
@@ -282,7 +260,7 @@ void event_enter(object ob, varargs string mess, object from, mixed avoid)
     return;
 
   // Taniwha 1995, I remember you you bastard, you attacked me then logged off
-  if (interactive(ob) && member_array(ob->query_name(), p_attack_list) != -1)
+  if (has_grudge(ob))
   {
     attack_by(ob);
     // This should avoid problems with players entering, attacking and repeat
@@ -444,8 +422,6 @@ int set_guild_level(int i)
 
 int set_level(int i)
 {
-  if (i > MIN_MONSTER_LEVEL)
-    p_memory = 1;
   if (i < 1)
     i = 1;
 
@@ -738,5 +714,5 @@ mixed * stats()
       });
 
   return ret + friends::stats() + chatter::stats() +
-      combat::stats();
+      combat::stats() + memory::stats();
 }

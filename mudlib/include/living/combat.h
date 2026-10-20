@@ -63,6 +63,9 @@
 // maximum ability value learning by yourself (auto)
 #define MAX_UNARMED_AUTO_LEARN 75
 
+// how long a living keeps chasing a rival who left the place, in seconds
+#define CHASE_EXPIRY_SECONDS 300
+
 // default damage dice 1d6
 #define BDEFNUM 1
 #define BDEFTYPE 6

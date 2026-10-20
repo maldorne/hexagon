@@ -21,6 +21,8 @@ inherit armed_combat   "/lib/living/armed_combat.c";
 
 static object attackee;
 static object *attacker_list, *call_outed, protector;
+// when each rival in call_outed left the place
+static mapping left_room_times;
 // new attackers not told about yet: the notice waits for the first blow
 static object *unannounced;
 
@@ -88,6 +90,7 @@ void create()
 {
   attacker_list = ({ });
   call_outed = ({ });
+  left_room_times = ([ ]);
   unannounced = ({ });
   protector = nil;
   attackee = nil;
@@ -106,6 +109,35 @@ void create()
 
 void attack();
 void announce_attackers();
+int stop_fight(object ob, varargs int silent);
+
+/**
+ * Stops chasing every rival who left the place more than CHASE_EXPIRY_SECONDS
+ * ago: the fight is forgotten.
+ */
+void expire_chases()
+{
+  object * expired;
+  int i, now;
+
+  if (!mappingp(left_room_times))
+    left_room_times = ([ ]);
+
+  now = time();
+  expired = ({ });
+  call_outed -= ({ nil });
+  for (i = 0; i < sizeof(call_outed); i++)
+  {
+    // a rival chased before the time was kept starts counting now
+    if (!left_room_times[call_outed[i]])
+      left_room_times[call_outed[i]] = now;
+    else if (now - left_room_times[call_outed[i]] > CHASE_EXPIRY_SECONDS)
+      expired += ({ call_outed[i] });
+  }
+
+  for (i = 0; i < sizeof(expired); i++)
+    this_object()->stop_fight(expired[i]);
+}
 
 /**
  * heart_beat features related to combat
@@ -230,6 +262,7 @@ void attack()
       {
         // tell_object(this_object(),"Estás persiguiendo a "+attacker_list[i]->short()+".\n");
         away_attackers += ({ attacker_list[i] });
+        left_room_times[attacker_list[i]] = time();
 
         if (!call_outed)
           call_outed = ({ attacker_list[i] });
@@ -247,6 +280,7 @@ void attack()
                 query_multiple_short(away_attackers) + ".\n");
 
   // dw check the not correct environ list to see if any one has come back.  
+  expire_chases();
   i = 0;
   while (i < sizeof(call_outed))
   {
@@ -255,6 +289,7 @@ void attack()
     else if (environment(this_object()) == environment(call_outed[i])) 
     {
       attacker_list += ({ call_outed[i] });
+      left_room_times[call_outed[i]] = nil;
       call_outed = delete(call_outed,i,1);
     } 
     else
@@ -392,6 +427,9 @@ void attack_by(object ob)
   if (ob == this_object())
     return;
 
+  // a rival back after the chase ran out starts a new fight
+  expire_chases();
+
   // a place may keep two of its inhabitants out of each other's reach
   if (ob && environment() && environment() == environment(ob) &&
       environment()->query_out_of_reach(ob, this_object()))
@@ -483,7 +521,10 @@ void attack_ob(object ob)
   if (environment() && environment() == environment(ob) &&
       environment()->query_out_of_reach(this_object(), ob))
     return;
-    
+
+  // a rival back after the chase ran out starts a new fight
+  expire_chases();
+
   // Should use the one used by death.c before.
   if (!attacker_list)
     attacker_list = ({ });
@@ -527,6 +568,8 @@ int stop_fight(object ob, varargs int silent)
     
     call_outed = delete(call_outed, i, 1);
   }
+  if (ob && mappingp(left_room_times))
+    left_room_times[ob] = nil;
   if ((i = member_array(ob,attacker_list)) != -1)
     attacker_list = delete(attacker_list, i, 1);
 }
@@ -552,6 +595,7 @@ int query_is_fighting()
 mixed * remove_call_outed()
 {
   call_outed = ({ });
+  left_room_times = ([ ]);
   return call_outed;
 }
 

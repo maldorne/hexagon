@@ -341,6 +341,8 @@ int save_npc()
   // refresh each live component's persisted attrs into component_info so
   // save_object writes their current state
   sync_component_info();
+  // the grudges that ran out are not worth a line in the savefile
+  expire_grudges();
   return !catch(save_object(dir + NPC_SAVE_FILE, 1));
 }
 

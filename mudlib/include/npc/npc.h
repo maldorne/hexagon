@@ -8,8 +8,12 @@
 #define NPC_CAST_CHANCE 20
 
 // #define NO_WANDER
-#define MIN_PLAYER_LEVEL 1
-#define MIN_MONSTER_LEVEL 10
+// Grudges (see /lib/monster/memory.c): from which level a monster remembers the
+// players who fought it, from which level a player is remembered, and how long
+// a grudge lasts after the last blow
+#define GRUDGE_MIN_MONSTER_LEVEL  6
+#define GRUDGE_MIN_ATTACKER_LEVEL 1
+#define GRUDGE_EXPIRY_SECONDS     300
 // Idle wander cadence: a step every 300 + random(300) heart_beats -- a slow,
 // occasional drift.
 #define MOVE_DEFAULT ({ 300, 300 })
