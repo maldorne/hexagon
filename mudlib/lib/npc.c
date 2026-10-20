@@ -753,13 +753,11 @@ void apply_template(mapping t, varargs int born)
     load_a_chat(t["a_chat"]["chance"], t["a_chat"]["lines"]);
   }
 
-  // How the world reads this type: its own value, or else its race's. Set
-  // outright here, since perceived alignment is not saved and a restored body
-  // gets its race back without the race's share being added again.
+  // How the world reads this type: its own value, or else its race's plus
+  // what the NPC has earned. The template's value is the whole perception,
+  // so the race's part, always added on top, is taken out of it.
   if (!undefinedp(t["ext_align"]))
-    set_ext_align(t["ext_align"]);
-  else if (query_race_ob())
-    set_ext_align(load_object(query_race_ob())->query_ext_align());
+    set_ext_align(t["ext_align"] - query_race_ext_align());
 
   // One particular person is exactly what its template says, so the pinned
   // level, deity, guild and job follow the template on every materialization,
@@ -893,10 +891,10 @@ void apply_template(mapping t, varargs int born)
   // the guild and its level are settled: it knows what the guild teaches
   apply_guild_abilities(t);
 
-  // How the world reads this type. Perceived alignment accumulates from the
-  // social objects, so this comes after them to have the last word.
+  // How the world reads this type, after the race is set, since the race's
+  // part is always added on top of it.
   if (!undefinedp(t["ext_align"]))
-    set_ext_align(t["ext_align"]);
+    set_ext_align(t["ext_align"] - query_race_ext_align());
 
   // weight is not applied here: set_race_ob above already set the body weight
   // from the race, which is where it belongs

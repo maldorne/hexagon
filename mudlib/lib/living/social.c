@@ -232,8 +232,6 @@ void set_race_ob(string str)
       if (sizeof(this_object()->query_languages()) > 0)
         this_object()->set_language(this_object()->query_languages()[0]);
 
-      this_object()->adjust_ext_align(-social_object_list[RACE_OB]->query_ext_align());
-
       // the outgoing race's words, which the race itself lists
       old_aliases = social_object_list[RACE_OB]->query_race_aliases();
       for (i = 0; i < sizeof(old_aliases); i++)
@@ -257,9 +255,6 @@ void set_race_ob(string str)
 
   // if (this_object()->query_player())
   //  this_object()->add_alias("*"+lower_case(this_object()->query_race())+"*");
-
-  // neverbot, nuevo sistema de alinamiento
-  this_object()->adjust_ext_align(social_object_list[RACE_OB]->query_ext_align());
 
   this_object()->reset_hands();
 

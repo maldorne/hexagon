@@ -15,12 +15,16 @@
  *          measured with two variables:
  *           * fixed extern: race, fame, guild, etc.
  *           * temporal extern: costumes, weapons wieldad, spells, etc.
+ *
+ *  10/2026 - The real alignment and the earned part of the perceived one
+ *  are saved; the race's part is read from the race object every time.
  */
 
 #include <basic/alignment.h>
 
-private int real_align;
-private int ext_align;
+// save_object skips private variables, so the saved ones are plain
+int real_align;
+int ext_align;            // perceived, earned: fame, deeds; the race's part is not in it
 private int tmp_ext_align;
 
 void create()
@@ -56,6 +60,23 @@ int query_real_align()
 //  perceived alignment functions
 // --------------------------------------
 
+/**
+ * @return how the race of this object is perceived, 0 when it has none
+ */
+int query_race_ext_align()
+{
+  string race;
+
+  race = this_object()->query_race_ob();
+  if (!race)
+    return 0;
+
+  return load_object(race)->query_ext_align();
+}
+
+/**
+ * Sets the earned part of the perceived alignment, the one on top of the race.
+ */
 void set_ext_align(int i)
 {
   if (i > MAX_ALIGN_INT)
@@ -72,7 +93,7 @@ int adjust_ext_align(int i)
 
 int query_ext_align()
 {
-  return ext_align + tmp_ext_align;
+  return query_race_ext_align() + ext_align + tmp_ext_align;
 }
 
 // -----------------------------------------------
@@ -123,13 +144,14 @@ private string _query_aux_align_string(int i)
 }
 
 string query_real_align_string() { return _query_aux_align_string(real_align); }
-string query_ext_align_string() { return _query_aux_align_string(ext_align); }
+string query_ext_align_string() { return _query_aux_align_string(query_ext_align()); }
 
 // stats added, neverbot 4/03
 mixed * stats()
 {
   return ({
     ({ "Real Align", real_align }),
+    ({ "Race Ext Align", query_race_ext_align() }),
     ({ "Ext Align", ext_align }),
     ({ "Tmp Ext Align (nosave)", tmp_ext_align }),
     });
