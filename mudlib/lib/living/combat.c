@@ -276,8 +276,8 @@ void attack()
   }
 
   if (sizeof(away_attackers) > 0)
-    tell_object(this_object(), _LANG_COMBAT_CHASING +
-                query_multiple_short(away_attackers) + ".\n");
+    tell_object(this_object(), _LANG_COMBAT_CHASING(
+                query_multiple_short(away_attackers), sizeof(away_attackers) > 1));
 
   // dw check the not correct environ list to see if any one has come back.  
   expire_chases();
@@ -563,8 +563,8 @@ int stop_fight(object ob, varargs int silent)
   if ((i = member_array(ob, call_outed)) != -1) 
   {
     if (!silent)
-      tell_object(this_object(), _LANG_COMBAT_STOP_CHASING + 
-        call_outed[i]->short(0) + ".\n");
+      tell_object(this_object(), _LANG_COMBAT_STOP_CHASING(
+        call_outed[i]->short(0)));
     
     call_outed = delete(call_outed, i, 1);
   }

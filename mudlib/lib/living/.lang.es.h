@@ -128,7 +128,9 @@
                         name + "%^BOLD%^.%^RESET%^\n\n"
 #define _LANG_COMBAT_PASSED_OUT_MSG "Estás demasiado aturdido como " + \
             "para devolver los golpes.\n"
-#define _LANG_COMBAT_CHASING "Sigues enfrentado a "
+// who left the place, and whether they are several
+#define _LANG_COMBAT_CHASING(who, several) (who + " " + (several ? "están" : "está") + \
+          " fuera de tu alcance, pero la pelea no ha terminado.\n")
 
 #define _LANG_COMBAT_PROTECT_VERBS ({ "proteger" })
 #define _LANG_COMBAT_UNPROTECT_VERBS ({ "desproteger" })
@@ -165,7 +167,7 @@
 #define _LANG_COMBAT_KILL_NO_ATTACKEE_MSG_ME "Has matado a "+his_name+"\n"
 #define _LANG_COMBAT_KILL_NO_ATTACKEE_MSG_ROOM this_object()->query_cap_name() + \
             " ha matado a "+his_name+"\n"
-#define _LANG_COMBAT_STOP_CHASING "Ya no estás enfrentado a "
+#define _LANG_COMBAT_STOP_CHASING(who) ("Dejas de pelear con " + who + ".\n")
 
 #define _LANG_COMBAT_MODE_VERBS ({ "combate" })
 #define _LANG_COMBAT_MODE_CURRENT "Tu modo de combate actual es " + \
