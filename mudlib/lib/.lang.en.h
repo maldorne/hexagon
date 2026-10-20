@@ -119,3 +119,11 @@
 #define _LANG_DEITY_PRAYER_BLESSED "You have been blessed!\n"
 #define _LANG_DEITY_PRAYER_STRONG "A divine strength runs through your veins.\n"
 #define _LANG_DEITY_PRAYER_WISE "You feel a great wisdom.\n"
+
+// why somebody may not join a guild, see query_join_refusal in guild.c
+#define _LANG_GUILD_REFUSED "You do not meet the conditions to join this guild.\n"
+#define _LANG_GUILD_REFUSED_RACE "This guild does not admit those of your race.\n"
+#define _LANG_GUILD_REFUSED_CLASS "This guild does not admit those of your class.\n"
+#define _LANG_GUILD_REFUSED_NEUTRAL "This guild only admits those whom others see as neutral.\n"
+#define _LANG_GUILD_REFUSED_GOOD "This guild only admits those whom others see as good.\n"
+#define _LANG_GUILD_REFUSED_EVIL "This guild only admits those whom others see as evil.\n"

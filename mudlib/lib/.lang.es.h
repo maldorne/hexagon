@@ -120,3 +120,11 @@
 #define _LANG_DEITY_PRAYER_BLESSED "¡Has sido bendecido!\n"
 #define _LANG_DEITY_PRAYER_STRONG "Una fuerza divina corre por tus venas.\n"
 #define _LANG_DEITY_PRAYER_WISE "Notas una gran sabiduría.\n"
+
+// why somebody may not join a guild, see query_join_refusal in guild.c
+#define _LANG_GUILD_REFUSED "No reúnes las condiciones para alistarte en este gremio.\n"
+#define _LANG_GUILD_REFUSED_RACE "Este gremio no admite a los de tu raza.\n"
+#define _LANG_GUILD_REFUSED_CLASS "Este gremio no admite a los de tu clase.\n"
+#define _LANG_GUILD_REFUSED_NEUTRAL "Este gremio solo admite a quienes los demás ven como neutrales.\n"
+#define _LANG_GUILD_REFUSED_GOOD "Este gremio solo admite a quienes los demás ven como buenos.\n"
+#define _LANG_GUILD_REFUSED_EVIL "Este gremio solo admite a quienes los demás ven como malvados.\n"

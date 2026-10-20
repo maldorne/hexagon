@@ -112,6 +112,7 @@ void init()
 int do_join(string str)
 {
   object me, guild;
+  string refusal;
   int wait;
 
   me = this_player();
@@ -134,9 +135,11 @@ int do_join(string str)
     return 0;
   }
 
-  if (!guild->query_legal_player(me))
+  // the guild says which of its conditions is not met
+  refusal = guild->query_join_refusal(me);
+  if (refusal)
   {
-    notify_fail(_LANG_GUILD_ENTRANCE_NOT_LEGAL);
+    notify_fail(refusal);
     return 0;
   }
 

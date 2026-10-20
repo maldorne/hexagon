@@ -8,6 +8,7 @@
  */
 
 #include <living/effects.h>
+#include <language.h>
 
 inherit "/lib/core/object.c";
 // the skills and spells it teaches or relates, shared with the jobs
@@ -155,27 +156,56 @@ string query_spell_directory() { return 0; }
 mixed query_legal_spheres() { return ({ }); }
 */
 
-int query_legal_player(object player)
-{  
-  if (!objectp(player) || !player)
-    return 0;
+/**
+ * Why a player may not join, in words, or nil when they may. The requirements
+ * function a guild names answers 1 to admit, 0 to refuse with the generic
+ * reason, or the reason itself.
+ *
+ * @param  player  who wants to join
+ * @return the reason, or nil
+ */
+string query_join_refusal(object player)
+{
+  mixed result;
+
+  if (!objectp(player))
+    return _LANG_GUILD_REFUSED;
+
   // We check race, class and external alignment. A race named in the list
   // admits all of its lineages, a lineage named admits only that lineage.
   if (!query_legal_race(player->query_race_id()) &&
       !query_legal_race(player->query_base_race_id()))
-    return 0;
+    return _LANG_GUILD_REFUSED_RACE;
   if (!query_legal_class(player->query_class_id()))
-    return 0;
+    return _LANG_GUILD_REFUSED_CLASS;
   if (!query_valid_align(player->query_ext_align()))
-    return 0;
-    
+  {
+    switch (needed_ext_align)
+    {
+      case 1:   return _LANG_GUILD_REFUSED_NEUTRAL;
+      case 100: return _LANG_GUILD_REFUSED_GOOD;
+      default:  return _LANG_GUILD_REFUSED_EVIL;
+    }
+  }
+
   // an extra requirement the guild may name for itself; with none, race,
   // class and alignment were the whole test
   if (strlen(requirements_func) &&
       function_exists(requirements_func, this_object()))
-    return call_other(this_object(), requirements_func, player);
+  {
+    result = call_other(this_object(), requirements_func, player);
+    if (stringp(result))
+      return result;
+    if (!result)
+      return _LANG_GUILD_REFUSED;
+  }
 
-  return 1;
+  return nil;
+}
+
+int query_legal_player(object player)
+{
+  return objectp(player) && !query_join_refusal(player);
 }
 
 // string help() { return read_file("/doc/helpdir/guilds"); }
