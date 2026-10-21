@@ -60,3 +60,12 @@ Output is sorted so that a regenerated map gives a small diff.
 - Exits whose target is not a saved location of the game.
 - Zone names (only their hash goes out).
 - NPCs, items, quests, components, descriptions and every other internal field.
+
+## Viewers
+
+The mud only writes the JSON; drawing it is up to whoever reads the files, and
+any viewer that understands `mapper/1` will do. The one on maldorne.org is open
+source, in [maldorne/maldorne.org](https://github.com/maldorne/maldorne.org):
+`web/themes/maldorne/source/js/mapper.js` draws a map, and
+`web/tools/maps-sync.js` copies a game's `docs/maps/*.json` from its repository.
+Use it as it is, adapt it, or write your own.
