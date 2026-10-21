@@ -2,7 +2,7 @@
 //
 //   /balance                    index of the games that have balance data
 //   /balance/<game>             redirect to /balance/<game>/
-//   /balance/<game>/            the viewer page (/lib/net/www/balance.html)
+//   /balance/<game>/            the viewer page (www/balance.html)
 //   /balance/<game>/files.json  names of the csv files of the game
 //   /balance/<game>/<name>.csv  one csv file
 //
@@ -12,7 +12,7 @@
 
 inherit "/lib/net/static";
 
-#define BALANCE_PAGE "/lib/net/www/balance.html"
+#define BALANCE_PAGE "/packages/balance/www/balance.html"
 
 private string _balance_dir(string game)
 {

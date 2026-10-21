@@ -5,6 +5,7 @@
 !/.gitignore
 
 # add these packages to repo
+!/balance
 !/crypt
 !/issues
 !/json

@@ -96,7 +96,7 @@ No skill or spell keeps its own `call_out` chain to repeat something: anything p
 
 ## Balance: `query_balance`
 
-An effect that damages or heals describes one cast in `mapping query_balance(object caster)` (`BASE_EFFECT`; the default returns nil: neither). It is a pure function for the `balance` command (`lib/cmds/admin/balance.c`), which writes the numbers of a game as CSV files (`guilds.csv` and `jobs.csv` list what each guild and job teaches or relates, with the same columns): no rolls, no messages, no change of state, and the numbers come from the same helpers the cast uses, so there is one formula. It reads the caster's level and power the way the cast does (`PROPERTY_CAST_LEVEL` and `PROPERTY_CAST_POWER`, see "At a level"), so the level of its curves is the one in the guild that teaches the ability, and the stats of the caster.
+An effect that damages or heals describes one cast in `mapping query_balance(object caster)` (`BASE_EFFECT`; the default returns nil: neither). It is a pure function for the `balance` command (`packages/balance/`), which writes the numbers of a game as CSV files (`guilds.csv` and `jobs.csv` list what each guild and job teaches or relates, with the same columns): no rolls, no messages, no change of state, and the numbers come from the same helpers the cast uses, so there is one formula. It reads the caster's level and power the way the cast does (`PROPERTY_CAST_LEVEL` and `PROPERTY_CAST_POWER`, see "At a level"), so the level of its curves is the one in the guild that teaches the ability, and the stats of the caster.
 
 `make_balance(caster, kind, rounds, range, type, note [, extra])` builds the answer; the keys:
 

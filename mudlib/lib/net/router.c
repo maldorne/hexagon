@@ -3,23 +3,67 @@
 // The response holds "status", "headers" and either "body" or "file" (a
 // path the HTTP session streams, for files too big for a string).
 //
-// The mapping below is the single source of truth for which endpoints
-// exist; adding one is: write the handler under /lib/net/handlers/,
-// then add an entry here.  A key ending in "/" is a prefix route: it
-// matches every path under it, the longest prefix winning over shorter
-// ones; exact keys win over any prefix.
+// The routes are the mapping below, the mudlib's own, plus those a package
+// declares: as it adds commands in its cmds/ folder, a package adds routes
+// with query_http_routes() in its master (path -> handler file). A route of
+// the mudlib, or of a package loaded before, is never replaced.  A key
+// ending in "/" is a prefix route: it matches every path under it, the
+// longest prefix winning over shorter ones; exact keys win over any prefix.
 
 #include <net/http.h>
 
 private mapping _routes;
 
+/**
+ * Adds the routes every loadable package declares in its master.
+ */
+private void _add_package_routes()
+{
+  string * names, * paths;
+  mapping  declared;
+  object   master;
+  int      i, j;
+
+  names = get_dir("/packages/*");
+  if (names == nil)
+    return;
+
+  for (i = 0; i < sizeof(names); i++)
+  {
+    // a folder without a master is not a loadable package
+    if (file_size("/packages/" + names[i] + "/master.c") < 0)
+      continue;
+
+    master = package(names[i]);
+    if (!master || !function_object("query_http_routes", master))
+      continue;
+
+    declared = master->query_http_routes();
+    if (!mappingp(declared))
+      continue;
+
+    paths = map_indices(declared);
+    for (j = 0; j < sizeof(paths); j++)
+      if (_routes[paths[j]] == nil && stringp(declared[paths[j]]))
+        _routes[paths[j]] = declared[paths[j]];
+  }
+}
+
 void create()
 {
   _routes = ([
     "/status"   : "/lib/net/handlers/status",
-    "/balance"  : "/lib/net/handlers/balance",
-    "/balance/" : "/lib/net/handlers/balance",
   ]);
+
+  _add_package_routes();
+}
+
+/**
+ * @return request path -> handler file, a copy
+ */
+mapping query_routes()
+{
+  return ([ ]) + _routes;
 }
 
 /**

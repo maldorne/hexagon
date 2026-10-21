@@ -1,20 +1,15 @@
-// balance -- admin tool to dump the numbers that balance a game: its races,
-// classes, guilds, jobs, damaging and healing spells and skills, evaluated by the
+// balance engine: dumps the numbers that balance a game, its races, classes,
+// guilds, jobs, damaging and healing spells and skills, evaluated by the
 // game's own code on a test monster, written as CSV files under
 // /games/<game>/docs/balance/ (one folder per game).
 //
-//   balance [<game>]    the game of the room you are in by default
+// Was the admin command /lib/cmds/admin/balance.c; the command is now
+// /packages/balance/cmds/admin/balance.c.
 
-#include <mud/cmd.h>
 #include <living/effects.h>
 #include <translations/combat.h>
+#include "balance.h"
 
-inherit CMD_BASE;
-
-// every stat of the test monster; the files say it (baselines.csv)
-#define BALANCE_STAT 13
-#define BALANCE_LEVELS 20
-#define BALANCE_POWERS 3
 // the monster that stands for a caster or a player
 #define DUMMY_PATH "/lib/monster.c"
 // how long a level or a power set on the test caster is held (heart_beats)
@@ -40,27 +35,6 @@ private int running;
 // pass over all of them, which comes before the rows are written
 private string * targeting_keys, * extra_keys;
 private int scanning;
-
-void setup()
-{
-  set_aliases(({ "balance" }));
-  set_usage("balance [<game>]");
-  set_help(
-    "Dumps the numbers that balance a game as CSV files under\n" +
-    "/games/<game>/docs/balance/: its races, classes, guilds, jobs, the spells and\n" +
-    "skills that damage or heal, and the baselines (hit points, regeneration)\n" +
-    "they are measured against. Everything is evaluated by the game's own code\n" +
-    "on a test monster with every stat at " + BALANCE_STAT + ", a spell for each\n" +
-    "level 1 to " + BALANCE_LEVELS + " and power 1 to " + BALANCE_POWERS + ".\n" +
-    "\n" +
-    "  balance            the game of the room you are in\n" +
-    "  balance <game>     another game, by its folder name\n" +
-    "\n" +
-    "Files: races.csv, classes.csv, guilds.csv, jobs.csv, effects.csv, skills.csv,\n" +
-    "baselines.csv, stat_bonuses.csv. The work is split in steps and takes a\n" +
-    "few seconds; the command says when it is done. A game adds columns to\n" +
-    "baselines.csv with query_balance_baselines(level) in its master.\n");
-}
 
 // ===== csv =====
 
@@ -809,29 +783,28 @@ void step_skills()
   step_effects("step_skills", "skills.csv", 0);
 }
 
-// ===== the command =====
+// ===== the entry point =====
 
-static int cmd(string str, object me, string verb)
+/**
+ * Starts a dump of a game, in steps; the admin is told when it is done.
+ *
+ * @param  me    the admin who asked
+ * @param  name  the game, by its folder name
+ * @return an error to show, or "" when the dump started
+ */
+string start_dump(object me, string name)
 {
-  if (this_player(1) != this_user())
-    return 0;
-
   if (running)
-  {
-    tell_object(me, "A balance dump is already running.\n");
-    return 1;
-  }
+    return "A balance dump is already running.\n";
 
-  game = strlen(str) ? trim(str) : game_name(me);
-  if (!strlen(game) || file_size("/games/" + game + "/master.c") < 0)
-  {
-    tell_object(me, "There is no game '" + game + "'.\n" + query_usage() + "\n");
-    return 1;
-  }
+  if (!strlen(name) || file_size("/games/" + name + "/master.c") < 0)
+    return "There is no game '" + name + "'.\n";
 
+  game = name;
   admin = me;
   master = try_load("/games/" + game + "/master.c");
   out_dir = "/games/" + game + "/docs/balance/";
+  mkdir("/games/" + game + "/docs");
   mkdir(out_dir);
 
   dummy = make_dummy();
@@ -843,5 +816,5 @@ static int cmd(string str, object me, string verb)
 
   tell_object(me, "Dumping the balance of '" + game + "' into " + out_dir + "...\n");
   next_step();
-  return 1;
+  return "";
 }
