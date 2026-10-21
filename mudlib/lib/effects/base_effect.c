@@ -7,6 +7,7 @@
  *
  * ******************************************************* */
 
+#include <mud/mudos.h>
 #include <living/effects.h>
 #include <common/properties.h>
 #include <living/skills.h>
@@ -1122,11 +1123,21 @@ private int run_cast(string str, object * given, object who, int quiet)
         str = (string)caster->expand_nickname(str);
     }
 
-    if(caster->query_property(NOSKILL_PROP) ||
-      environment(caster)->query_property(NOSKILL_PROP) ||
-      caster->query_property(PASSED_OUT_PROP))
+    if (caster->query_property(PASSED_OUT_PROP))
     {
-        notify_fail(MSG_CANNOT_NOW);
+        notify_fail(MSG_PASSED_OUT);
+        return 0;
+    }
+
+    if (environment(caster)->query_property(NOSKILL_PROP))
+    {
+        notify_fail(MSG_NOSKILL_HERE);
+        return 0;
+    }
+
+    if (caster->query_property(NOSKILL_PROP))
+    {
+        notify_fail(MSG_NOSKILL);
         return 0;
     }
 
@@ -1172,7 +1183,14 @@ private int run_cast(string str, object * given, object who, int quiet)
     for ( i=0; i<sizeof(property_checks); i++)
         if ( caster->query_property(property_checks[i]) )
         {
-            notify_fail(MSG_CANNOT_NOW);
+            if (property_checks[i] == PROPERTY_IS_CASTING)
+                notify_fail(MSG_BUSY);
+            // a timed property counts the caster's heart beats
+            else if (property_checks[i] == "LOCK " + base_name(this_object()))
+                notify_fail(MSG_LOCKED(effect_name, HEART_BEAT_TIME *
+                    caster->query_time_remaining(property_checks[i])));
+            else
+                notify_fail(MSG_CANNOT_NOW);
             return 0;
         }
 

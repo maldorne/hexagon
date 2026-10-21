@@ -89,6 +89,14 @@
 #define MSG_SUICIDE_ROOM      caster->query_cap_name()+" deja de hacer lo que estaba haciendo.\n"
 #define MSG_CANNOT_NOW    "No puedes hacer eso en este momento.\n"
 #define MSG_CANNOT_NOW_ROOM  caster->query_cap_name()+" deja de hacer lo que estaba haciendo.\n"
+#define MSG_NOSKILL     "Ahora mismo no puedes concentrarte en eso.\n"
+#define MSG_NOSKILL_HERE "Aquí no puedes hacer eso.\n"
+#define MSG_PASSED_OUT  "Estás inconsciente y no puedes hacer nada.\n"
+// the effect's name, and the seconds left of its lockout
+#define MSG_LOCKED(name, seconds) ("Todavía no puedes volver a usar " + name + ": " + \
+          ((seconds) < 60 ? "te faltan unos segundos" : \
+          (((seconds) + 30) / 60 == 1 ? "te falta un minuto" : \
+          "te faltan unos " + (((seconds) + 30) / 60) + " minutos")) + ".\n")
 #define MSG_NO_ITEMS    "No puedes hacer eso sobre objetos inanimados.\n"
 #define MSG_ON_ITEMS    "Eso sólo puede hacerse sobre objetos inanimados.\n"
 #define MSG_NO_CONTINUE "No puedes continuar con lo que estabas haciendo.\n"
