@@ -163,6 +163,12 @@ int can_complete(object who)
   return 1;
 }
 
+// Called as the quest is taken, once it is recorded and its accept message told:
+// a quest that hands something over to start the work does it here.
+void event_accepted(object who)
+{
+}
+
 // Called as the quest is handed in, once it has been accepted and before the
 // rewards are paid: a quest that asked for something takes it here.
 void event_completed(object who)
