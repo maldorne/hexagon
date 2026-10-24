@@ -55,7 +55,7 @@ does not exist yet.
   with the tokens `$weapon$` (already "Tu <short>" or "<article> <short> de <owner>"),
   `$attacker$` and `$defender$`.
   A weapon that adds it only against some targets redefines
-  `is_extra_damage_target(target)` (default 1): when it answers 0 the extra
+  `has_extra_damage_against(target)` (default 1): when it answers 0 the extra
   damage of that hit is not rolled nor shown.
 
 ## Speed
