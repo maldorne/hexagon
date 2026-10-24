@@ -58,6 +58,9 @@
 #define _LANG_GUILD_ROOM_NOT_MEMBER "Solo los miembros de este gremio pueden avanzar aquí.\n"
 #define _LANG_GUILD_ROOM_RULES_NOT_MEMBER "Solo los miembros de este gremio pueden " + \
         "leer aquí sus normas.\n"
+#define _LANG_GUILD_ROOM_NO_TEACHER "Aquí no hay nadie que pueda instruirte ahora mismo.\n"
+#define _LANG_GUILD_ROOM_TOO_YOUNG "Aún eres demasiado novato para que te instruyan aquí; busca a un maestro de menor rango.\n"
+#define _LANG_GUILD_ROOM_TOO_ADVANCED "Has llegado demasiado lejos para que te instruyan aquí; busca a un maestro de más alto rango.\n"
 #define _LANG_GUILD_ROOM_MAX_LEVEL "Ya has alcanzado el nivel más alto de tu gremio.\n"
 #define _LANG_GUILD_ROOM_NOT_ENOUGH_XP "Aún no tienes experiencia suficiente para avanzar: " + \
         "tienes " + have + " y necesitas " + cost + ".\n"

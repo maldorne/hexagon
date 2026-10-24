@@ -48,7 +48,10 @@ string query_info()
 mapping query_auto_load_attributes()
 {
   return component::query_auto_load_attributes() +
-         ([ "room_guild" : query_room_guild() ]);
+         ([ "room_guild" : query_room_guild(),
+            "teach_min" : query_teach_min_level(),
+            "teach_max" : query_teach_max_level(),
+            "teacher"   : query_teacher() ]);
 }
 
 void init_auto_load_attributes(mapping args)
@@ -57,6 +60,9 @@ void init_auto_load_attributes(mapping args)
 
   if (args && stringp(args["room_guild"]))
     set_room_guild(args["room_guild"]);
+  if (args && intp(args["teach_min"]) && intp(args["teach_max"]))
+    set_teaching(args["teach_min"], args["teach_max"],
+                 stringp(args["teacher"]) ? args["teacher"] : nil);
 }
 
 mixed * stats()

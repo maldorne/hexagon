@@ -229,6 +229,13 @@ mapping remove_extra_damage(string attack)
 }
 mapping query_extra_damage() { return extra_damage; }
 
+/**
+ * Whether the extra damage of this weapon lands on a target. A weapon that
+ * only adds it against some targets (by alignment, race...) redefines it.
+ * @param target the living being the attack hit
+ */
+int is_extra_damage_target(object target) { return 1; }
+
 // Extra damage is elemental damage added to every hit of one physical attack of
 // this weapon, the one named (BASIC_ATTACK_NAME for the attack the weapon comes
 // with, or any added with add_attack). It does not roll to hit by itself, unlike
@@ -419,7 +426,8 @@ int weapon_attack(object def, object att)
       // only the physical damage is.
       extra_hits = ({ });
       if (attacks[attack_names[i]][0] < sizeof(AC_TYPES) &&
-          extra_damage[attack_names[i]])
+          extra_damage[attack_names[i]] &&
+          is_extra_damage_target(defender))
       {
         extras = extra_damage[attack_names[i]];
         for (m = 0; m < sizeof(extras); m++)

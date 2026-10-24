@@ -1158,6 +1158,9 @@ object convert_room_to_location(object room)
   {
     location->add_component(LOCATION_COMPONENT_GUILD_ROOM, ([
       "room_guild" : room->query_room_guild(),
+      "teach_min"  : room->query_teach_min_level(),
+      "teach_max"  : room->query_teach_max_level(),
+      "teacher"    : room->query_teacher(),
         ]));
     ret += "   Adding component guild room.\n";
   }
