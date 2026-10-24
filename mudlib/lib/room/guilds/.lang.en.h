@@ -56,9 +56,6 @@
 #define _LANG_GUILD_ROOM_NOT_MEMBER "Only members of this guild may advance here.\n"
 #define _LANG_GUILD_ROOM_RULES_NOT_MEMBER "Only members of this guild may read its " + \
         "rules here.\n"
-#define _LANG_GUILD_ROOM_NO_TEACHER "There is nobody here who can instruct you right now.\n"
-#define _LANG_GUILD_ROOM_TOO_YOUNG "You are still too green to be taught here; look for a master of a lower rank.\n"
-#define _LANG_GUILD_ROOM_TOO_ADVANCED "You have come too far to be taught here; look for a master of a higher rank.\n"
 #define _LANG_GUILD_ROOM_MAX_LEVEL "You have already reached the highest level of your guild.\n"
 #define _LANG_GUILD_ROOM_NOT_ENOUGH_XP "You do not have experience enough to advance yet: " + \
         "you have " + have + " and need " + cost + ".\n"
