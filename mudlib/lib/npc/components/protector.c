@@ -20,11 +20,9 @@
 //   "min_align"       - least real alignment of the protected (0: not evil)
 //   "on_arrival"      - 1 to protect them as soon as they come in
 //
-// A player is only protected with the protect consent, as with the command.
-// Blows from an NPC that is itself protected by the rule are not answered: the
+// Protecting is the NPC typing 'proteger' (the command checks the consent of
+// the protected, which every NPC gives by default). Blows from an NPC that is itself protected by the rule are not answered: the
 // guards of a city arresting one of its citizens are not an attack to defend.
-
-#include <living/consents.h>
 
 inherit component "/lib/npc/component.c";
 
@@ -114,8 +112,7 @@ int is_protected(object who)
   return 1;
 }
 
-// Takes them under its protection, unless somebody in the room already has
-// them or they are a player who does not consent.
+// Types 'proteger' on them, unless somebody in the room already protects them.
 private void _protect(object who)
 {
   object me, current;
@@ -123,14 +120,12 @@ private void _protect(object who)
   me = query_entity();
   if (!me || !who || environment(who) != environment(me))
     return;
-  if (interactive(who) && !who->query_consent(PROTECT_CONS))
-    return;
 
   current = who->query_protector();
   if (current && environment(current) == environment(who))
     return;
 
-  me->protect_livings(({ who }));
+  me->do_command("proteger " + who->query_name());
 }
 
 /**

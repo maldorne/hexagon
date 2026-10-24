@@ -15,6 +15,7 @@
 #include <translations/races.h>
 #include <living/living.h>
 #include <living/races.h>
+#include <living/consents.h>
 #include <room/location.h>
 #include <language.h>
 
@@ -81,6 +82,10 @@ void create()
   // same for classes, neverbot 01/2021
   if (!query_class_ob())
     set_class_ob(DEFAULT_CLASS_OB);
+
+  // anybody may protect a monster, unless its setup said otherwise
+  if (query_consent(PROTECT_CONS) == nil)
+    set_consent(PROTECT_CONS, 1);
 
   combat_counter = 0;
 

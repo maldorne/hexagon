@@ -16,6 +16,7 @@
 #include <translations/money.h>
 #include <living/skills.h>
 #include <npc/npc.h>
+#include <living/consents.h>
 
 inherit monster   "/lib/monster.c";
 // Inventory persistence, the same mixin players use: create_auto_load snapshots
@@ -360,6 +361,10 @@ int restore_npc()
   {
     // what it can carry follows its strength, not the figure saved with it
     reset_carry_cap();
+
+    // a savefile from before the default had no protect consent
+    if (query_consent(PROTECT_CONS) == nil)
+      set_consent(PROTECT_CONS, 1);
 
     // rebuild the saved inventory (each item cloned and its attributes applied)
     // inside us, so a restored NPC carries exactly what it was saved with
