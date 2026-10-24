@@ -219,6 +219,30 @@
 #define _LANG_SKILL_FOCUS_LOST "You lose your mental concentration.\n"
 #define _LANG_SKILL_FOCUS_TIRED "You are too tired to keep focusing your blows.\n"
 
+#define _LANG_SKILL_PROTECT_NAME "protect"
+#define _LANG_SKILL_PROTECT_ALIASES ({ })
+#define _LANG_SKILL_PROTECT_OFF_WORDS ({ "off", "stop" })
+#define _LANG_SKILL_PROTECT_HELP "With 'protect <someone>' you stand by someone who is " + \
+      "with you, and the blows aimed at them may fall on you. They have to accept " + \
+      "your protection. With 'protect off <someone>' you stop protecting them, and " + \
+      "with 'protect off' you stop protecting everyone with you.\n"
+#define _LANG_SKILL_PROTECT_SYNTAX "Syntax: protect <target>, protect off [<target>]\n"
+#define _LANG_SKILL_PROTECT_WHO "Protect whom?\n"
+#define _LANG_SKILL_PROTECT_SELF "You cannot protect yourself.\n"
+#define _LANG_SKILL_PROTECT_REFUSED ob->query_cap_name() + " does not want your protection.\n"
+#define _LANG_SKILL_PROTECT_ME "You protect " + ob->query_short() + ".\n"
+#define _LANG_SKILL_PROTECT_HOW_TO_STOP "Use 'protect off' to stop doing it.\n"
+#define _LANG_SKILL_PROTECT_ROOM caster->query_cap_name() + " protects " + ob->query_short() + ".\n"
+#define _LANG_SKILL_PROTECT_THEM caster->query_cap_name() + " protects you.\n"
+#define _LANG_SKILL_PROTECT_NOT_PROTECTING "You are not protecting anyone by that name.\n"
+#define _LANG_SKILL_PROTECT_NOBODY "You are not protecting anyone here.\n"
+#define _LANG_SKILL_PROTECT_UNPROTECT_THEM_HERE caster->query_cap_name() + \
+      " steps back and protects you no more.\n"
+#define _LANG_SKILL_PROTECT_UNPROTECT_ROOM caster->query_cap_name() + " stops protecting " + \
+      ob->query_cap_name() + ".\n"
+#define _LANG_SKILL_PROTECT_UNPROTECT_THEM caster->query_cap_name() + " stops protecting you.\n"
+#define _LANG_SKILL_PROTECT_UNPROTECT_ME "You step back and stop protecting " + ob->query_cap_name() + ".\n"
+
 #define _LANG_SKILL_JUDGE_NAME "judge"
 #define _LANG_SKILL_JUDGE_ALIASES ({ })
 #define _LANG_SKILL_JUDGE_HELP "With 'judge <item>' you tell yourself how much harm " + \

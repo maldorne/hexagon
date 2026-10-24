@@ -111,6 +111,16 @@ A grudge runs out `GRUDGE_EXPIRY_SECONDS` (5 minutes) after the last blow, and
 ends at once when the monster stops fighting that player (`stop_fight`: death,
 peace, the law, an expired chase). The constants are in `include/npc/npc.h`.
 
+## Protecting
+
+A living protected by another (`set_protector`, set by the protect skill,
+`lib/obj/skills/protect.c`) may have each blow aimed at it fall on the
+protector, when both are in the same place: `query_protect_valid` of the
+protector rolls 20 plus its protect ability, 20 less when it is not already
+fighting the attacker, at most 95. Every player knows the skill from 50; an NPC
+that does not know it rolls with that same starting value. The ability does not
+climb with use. A protector who attacks the one it protects stops protecting.
+
 ## Fights and the law
 
 `attack_ob` (the attacker's side) calls `report_attack(attacker, victim)` of the

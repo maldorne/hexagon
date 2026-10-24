@@ -20,11 +20,13 @@
 //   "min_align"       - least real alignment of the protected (0: not evil)
 //   "on_arrival"      - 1 to protect them as soon as they come in
 //
-// Protecting is the NPC typing 'proteger' (the command checks the consent of
-// the protected, which every NPC gives by default). Blows from an NPC that is itself protected by the rule are not answered: the
+// Protecting is the NPC using the protect skill on them (the skill checks the
+// consent of the protected, which every NPC gives by default). Blows from an NPC that is itself protected by the rule are not answered: the
 // guards of a city arresting one of its citizens are not an attack to defend.
 
 inherit component "/lib/npc/component.c";
+
+#define PROTECT_SKILL "/lib/obj/skills/protect.c"
 
 private string * protector_names, * protector_citizenships,
                * protector_guilds, * protector_races;
@@ -112,7 +114,8 @@ int is_protected(object who)
   return 1;
 }
 
-// Types 'proteger' on them, unless somebody in the room already protects them.
+// Uses the protect skill on them, unless somebody in the room already protects
+// them.
 private void _protect(object who)
 {
   object me, current;
@@ -125,7 +128,7 @@ private void _protect(object who)
   if (current && environment(current) == environment(who))
     return;
 
-  me->do_command("proteger " + who->query_name());
+  load_object(PROTECT_SKILL)->cast_effect(who->query_name(), me, 1);
 }
 
 /**

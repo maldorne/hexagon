@@ -73,6 +73,13 @@ void create()
     SKILL_FOCUS :
       ({ SKILLS_PATH + SKILL_FOCUS, 10, 0, ACTIVE_SKILL, }),
 
+    // active skill: 'protect <someone>' / 'protect off', standing by someone
+    // so blows aimed at them may fall on the protector (the ability sets the
+    // chance, see query_protect_valid). A default skill: every player has it
+    // (DEFAULT_SKILLS). It does not climb with use.
+    SKILL_PROTECT :
+      ({ SKILLS_PATH + SKILL_PROTECT, 50, 0, ACTIVE_SKILL, }),
+
     // active skill: 'judge <item>', rates a weapon or an armour carried.
     SKILL_JUDGE :
       ({ SKILLS_PATH + SKILL_JUDGE, 10, 0, ACTIVE_SKILL, }),

@@ -222,6 +222,30 @@
 #define _LANG_SKILL_FOCUS_LOST "Pierdes tu concentración mental.\n"
 #define _LANG_SKILL_FOCUS_TIRED "Estás demasiado cansado para seguir centrando tus golpes.\n"
 
+#define _LANG_SKILL_PROTECT_NAME "proteger"
+#define _LANG_SKILL_PROTECT_ALIASES ({ })
+#define _LANG_SKILL_PROTECT_OFF_WORDS ({ "off", "no", "parar", "fin" })
+#define _LANG_SKILL_PROTECT_HELP "Con 'proteger <alguien>' te pones al lado de alguien " + \
+      "que esté contigo, y los golpes dirigidos a él pueden caer sobre ti. Tiene que " + \
+      "aceptar tu protección. Con 'proteger off <alguien>' dejas de protegerle, y con " + \
+      "'proteger off' dejas de proteger a todos los que estén contigo.\n"
+#define _LANG_SKILL_PROTECT_SYNTAX "Sintaxis: proteger <objetivo>, proteger off [<objetivo>]\n"
+#define _LANG_SKILL_PROTECT_WHO "¿Proteger a quién?\n"
+#define _LANG_SKILL_PROTECT_SELF "No puedes protegerte a ti mismo.\n"
+#define _LANG_SKILL_PROTECT_REFUSED ob->query_cap_name() + " no quiere tu protección.\n"
+#define _LANG_SKILL_PROTECT_ME "Proteges a " + ob->query_short() + ".\n"
+#define _LANG_SKILL_PROTECT_HOW_TO_STOP "Utiliza 'proteger off' para dejar de hacerlo.\n"
+#define _LANG_SKILL_PROTECT_ROOM caster->query_cap_name() + " protege a " + ob->query_short() + ".\n"
+#define _LANG_SKILL_PROTECT_THEM caster->query_cap_name() + " te protege.\n"
+#define _LANG_SKILL_PROTECT_NOT_PROTECTING "No estás protegiendo a nadie con ese nombre.\n"
+#define _LANG_SKILL_PROTECT_NOBODY "No estás protegiendo a nadie aquí.\n"
+#define _LANG_SKILL_PROTECT_UNPROTECT_THEM_HERE caster->query_cap_name() + \
+      " se retira y no te protege más.\n"
+#define _LANG_SKILL_PROTECT_UNPROTECT_ROOM caster->query_cap_name() + " deja de proteger a " + \
+      ob->query_cap_name() + ".\n"
+#define _LANG_SKILL_PROTECT_UNPROTECT_THEM caster->query_cap_name() + " deja de protegerte.\n"
+#define _LANG_SKILL_PROTECT_UNPROTECT_ME "Te retiras y dejas de proteger a " + ob->query_cap_name() + ".\n"
+
 #define _LANG_SKILL_JUDGE_NAME "juzgar"
 #define _LANG_SKILL_JUDGE_ALIASES ({ })
 #define _LANG_SKILL_JUDGE_HELP "Con 'juzgar <objeto>' te dices a ti mismo cuánto " + \

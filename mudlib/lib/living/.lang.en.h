@@ -134,28 +134,6 @@
 #define _LANG_COMBAT_CHASING(who, several) (who + " " + (several ? "are" : "is") + \
           " out of your reach, but the fight is not over.\n")
 
-#define _LANG_COMBAT_PROTECT_VERBS ({ "protect" })
-#define _LANG_COMBAT_UNPROTECT_VERBS ({ "unprotect" })
-#define _LANG_COMBAT_PROTECT_WHO "Protect whom?\n"
-#define _LANG_COMBAT_PROTECT_REFUSED query_multiple_short(no_prot) + \
-  (sizeof(no_prot) == 1 ? " does not want" : " do not want") + " your protection.\n"
-#define _LANG_COMBAT_PROTECT_ME "You protect " + \
-  (sizeof(ok) == 1 ? ok[0]->query_short() : query_multiple_short(ok)) + ".\n"
-#define _LANG_COMBAT_PROTECT_HOW_TO_STOP "Use 'unprotect' to stop doing it.\n"
-#define _LANG_COMBAT_PROTECT_ROOM this_object()->query_cap_name() + " protects " + \
-  (sizeof(ok) == 1 ? ok[0]->query_short() : query_multiple_short(ok)) + ".\n"
-#define _LANG_COMBAT_PROTECT_THEM_SEVERAL this_object()->query_cap_name() + \
-  " protects you and " + query_multiple_short(ok - ({ ok[i] })) + ".\n"
-#define _LANG_COMBAT_PROTECT_THEM this_object()->query_cap_name() + " protects you.\n"
-#define _LANG_COMBAT_UNPROTECT_SYNTAX "Syntax: unprotect <target>\n"
-#define _LANG_COMBAT_UNPROTECT_WHO "Unprotect whom?\n"
-#define _LANG_COMBAT_UNPROTECT_NOT_PROTECTING "You are not protecting " + tmp->query_cap_name() + ".\n"
-#define _LANG_COMBAT_UNPROTECT_THEM_HERE this_object()->query_cap_name() + \
-  " steps back and protects you no more.\n"
-#define _LANG_COMBAT_UNPROTECT_ROOM this_object()->query_cap_name() + " stops protecting " + \
-  tmp->query_cap_name() + ".\n"
-#define _LANG_COMBAT_UNPROTECT_THEM this_object()->query_cap_name() + " stops protecting you.\n"
-#define _LANG_COMBAT_UNPROTECT_ME "You step back and stop protecting " + tmp->query_cap_name() + ".\n"
 #define _LANG_ARMED_MASTERY_VERBS ({ "masteries" })
 #define _LANG_ARMED_MASTERY_DEAD "You are a spirit, you have no need to know that.\n"
 #define _LANG_ARMED_MASTERY_HEADER "> %^GREEN%^You have the following weapon masteries: %^RESET%^<"

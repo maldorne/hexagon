@@ -14,6 +14,7 @@
 #include <living/combat.h>
 #include <translations/combat.h>
 #include <living/consents.h>
+#include <living/skills.h>
 #include <language.h>
 
 inherit unarmed_combat "/lib/living/unarmed_combat.c";
@@ -77,8 +78,6 @@ int query_is_moving() { return is_moving; }
 
 void combat_commands() 
 {
-  add_private_action("do_protect", _LANG_COMBAT_PROTECT_VERBS);
-  add_private_action("do_unprotect", _LANG_COMBAT_UNPROTECT_VERBS);
   add_private_action("do_combat_role", _LANG_COMBAT_ROLE_VERBS);
   add_private_action("do_combat_mode", _LANG_COMBAT_MODE_VERBS);
 
@@ -210,18 +209,32 @@ int query_fighting()
   return 0;
 }
 
-int query_protect_valid(object attacker, object protectee){
-  int base_roll;
+/**
+ * Whether this living, protecting `protectee`, takes a blow from `attacker`.
+ * The chance is 20 plus the protect ability, 20 less when not already fighting
+ * the attacker, at most 95. Whoever does not know the skill (an NPC) rolls
+ * with its starting value.
+ */
+int query_protect_valid(object attacker, object protectee)
+{
+  int ability, chance;
 
   // Wonderflug, dec 95, can't protect while berserk
   if ( this_object()->query_property(FLIPPED_PROP) )
     return 0;
 
-  base_roll = random(100);   // this to be replaced by a guild obj call
-  if ( member_array( attacker, attacker_list ) == -1 )
-    base_roll -= 20;
+  if (this_object()->query_known_skill(SKILL_PROTECT))
+    ability = this_object()->query_skill_ability(SKILL_PROTECT);
+  else
+    ability = table("skills")->query_skill_data(SKILL_PROTECT)[SKILL_DATA_VALUE];
 
-  return ( base_roll >= 30 );
+  chance = 20 + ability;
+  if ( member_array( attacker, attacker_list ) == -1 )
+    chance -= 20;
+  if (chance > 95)
+    chance = 95;
+
+  return random(100) < chance;
 }
 
 void attack() 
@@ -617,114 +630,6 @@ mixed add_attacker_list(object ob)
     attacker_list += ({ ob });
 
   return attacker_list;
-}
-
-// dw Sets up protection matrixes.
-int do_protect(string str) 
-{
-  object *obs, *ok, *no_prot; 
-  int i;
-
-  if (!strlen(str))
-  {
-    notify_fail("Sintaxis: proteger <objetivos>\n");
-    return 0;
-  }
-  
-  /*
-  if (!this_object()->query_class_ob())
-  {
-    notify_fail("¿Acabas de aparecer en este mundo y ya piensas en proteger a la gente? "
-          "Mejor cuida de ti mismo y más adelante ya te dedicarás "
-          "a los demás.\n");
-    return 0;
-  }
-  */
-  
-  // flag to filter hidden
-  obs = find_match(str, environment(this_object()), 1);
-  
-  if (!sizeof(obs)) 
-  {
-    notify_fail(_LANG_COMBAT_PROTECT_WHO);
-    return 0;
-  }
-  
-  if (member_array(this_object(), obs))
-    obs -= ({ this_object() });
-    
-  ok = ({ });
-  no_prot = ({ });
-  
-  for (i = 0; i < sizeof(obs); i++)
-    if (obs[i]->query_consent(PROTECT_CONS) && obs[i]->set_protector(this_object()))
-      ok += ({ obs[i] });
-    else
-      no_prot += ({ obs[i] });
-      
-  if (sizeof(no_prot)) 
-  {
-    tell_object(this_object(), _LANG_COMBAT_PROTECT_REFUSED);
-  }
-  
-  if (sizeof(ok))
-  {
-    tell_player(this_object(), _LANG_COMBAT_PROTECT_ME);
-    tell_object(this_object(), _LANG_COMBAT_PROTECT_HOW_TO_STOP);
-
-    tell_room(environment(this_object()), _LANG_COMBAT_PROTECT_ROOM, ok);
-  }
-
-  if (sizeof(ok) > 1)
-  {
-    for (i = 0; i < sizeof(ok); i++)
-      tell_player(ok[i], _LANG_COMBAT_PROTECT_THEM_SEVERAL);
-  }
-  else if (sizeof(ok) == 1)      
-    tell_player(ok[0], _LANG_COMBAT_PROTECT_THEM);
-
-  return 1;
-}
-
-// Added by Radix, missing too long...
-int do_unprotect(string str)
-{
-  object tmp;
-  
-  if (!strlen(str))
-  {
-    notify_fail(_LANG_COMBAT_UNPROTECT_SYNTAX);
-    return(0);
-  }
-  
-  tmp = find_living(str);
-  
-  if (!tmp)
-  {
-    notify_fail(_LANG_COMBAT_UNPROTECT_WHO);
-    return(0);
-  }
-  
-  if (tmp->query_protector() != this_object())
-  {
-    write(_LANG_COMBAT_UNPROTECT_NOT_PROTECTING);
-    return(1);
-  }
-  
-  tmp->remove_protector(this_object());
-  
-  if (environment(tmp) == environment(this_object()))
-  {
-    tell_player(tmp, _LANG_COMBAT_UNPROTECT_THEM_HERE);
-    tell_room(environment(), _LANG_COMBAT_UNPROTECT_ROOM, ({ tmp, this_object() }));
-  }
-  else
-  {
-    tell_object(tmp, _LANG_COMBAT_UNPROTECT_THEM);
-  }
-  
-  tell_object(this_object(), _LANG_COMBAT_UNPROTECT_ME);
-  return(1);
 }
 
 static string combat_role_message(int new_role)
