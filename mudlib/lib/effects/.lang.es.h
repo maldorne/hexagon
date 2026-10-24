@@ -35,6 +35,10 @@
 #define _LANG_EFFECT_MANY_MISSING_POST "' por aquí.\n"
 #define _LANG_EFFECT_MANY_GONE_PRE "Tu objetivo "
 #define _LANG_EFFECT_MANY_GONE_POST " está demasiado lejos.\n"
+// un hechizo dañino que una esfera de protección detiene
+#define _LANG_EFFECT_SPELL_PROOF_PRE "El hechizo no consigue penetrar la esfera que protege a "
+#define _LANG_EFFECT_SPELL_PROOF_POST ".\n"
+#define _LANG_EFFECT_SPELL_PROOF_TARGET " lanza un hechizo contra ti, pero la esfera que te rodea lo detiene.\n"
 #define _LANG_EFFECT_ROLE_BLOCKS "Tu rol de combate actual no te permite realizar eso.\n"
 
 // --- base_effect: mensajes de comienzo ---

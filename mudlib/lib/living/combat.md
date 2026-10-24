@@ -58,6 +58,10 @@ does not exist yet.
   `is_extra_damage_target(target)` (default 1): when it answers 0 the extra
   damage of that hit is not rolled nor shown.
 
+## Speed
+
+The combat round is two heart_beats long. A living with the static property `HASTED_PROP` (`include/living/combat.h`) also attacks on the heart_beat between two rounds, so it makes two attacks per round; one with `SLOWED_PROP` attacks only every other round. A spell that speeds or slows sets the property while its lasting effect holds and removes it in `lasting_end`; nothing else reads them.
+
 ## Hit locations
 
 Aiming at a body part is an API of the defender (`living/wear.c`), shared by

@@ -66,6 +66,12 @@
 // how long a living keeps chasing a rival who left the place, in seconds
 #define CHASE_EXPIRY_SECONDS 300
 
+// Static properties the combat reads (set while a spell holds, never saved): a
+// hasted living attacks a second time in every combat round, a slowed one only
+// in every other round.
+#define HASTED_PROP "hasted"
+#define SLOWED_PROP "slowed"
+
 // default damage dice 1d6
 #define BDEFNUM 1
 #define BDEFTYPE 6

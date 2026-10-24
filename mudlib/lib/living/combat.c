@@ -148,7 +148,9 @@ void heart_beat()
   // Added a combat_counter, so the combat aren't that quick.
   if (combat_counter % 2 == 0)
   {
-    attack();
+    // a slowed living fights only every other round
+    if (!this_object()->query_property(SLOWED_PROP) || combat_counter % 4 == 0)
+      attack();
     this_object()->do_active_effects(attackee);
 
     if (combat_counter % 4 == 0)
@@ -170,6 +172,11 @@ void heart_beat()
     else
       is_quiet = 0;
   } 
+  else if (sizeof(attacker_list) && this_object()->query_property(HASTED_PROP))
+  {
+    // a hasted living makes a second attack between two rounds
+    attack();
+  }
 
   combat_counter++;
 

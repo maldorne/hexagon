@@ -56,6 +56,9 @@
 #define PROPERTY_CAST_LEVEL "cast level"
 // the power (1 minor, 2 neutral, 3 major) it runs with, held the same way
 #define PROPERTY_CAST_POWER "cast power"
+// the highest level of the harmful spells of others that a living shrugs off (a
+// globe of invulnerability), held as a static property while the spell lasts
+#define PROPERTY_SPELL_PROOF "spell_invulnerability"
 
 #define SP_OBJECT 1
 #define SP_FUNC 2

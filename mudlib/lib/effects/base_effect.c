@@ -1499,6 +1499,24 @@ private int run_cast(string str, object * given, object who, int quiet)
     return 1;
 }
 
+/**
+ * Whether the target is wrapped in a protection (a globe of invulnerability,
+ * the property PROPERTY_SPELL_PROOF holds the highest spell level it stops)
+ * against a harmful spell of this level cast by somebody else; tells the
+ * caster and the target so.
+ */
+private int is_spell_proof(object caster, object target)
+{
+    if (target == caster || !target || !living(target) ||
+        (int)target->query_property(PROPERTY_SPELL_PROOF) < query_effect_level(caster))
+        return 0;
+
+    tell_object(caster, _LANG_EFFECT_SPELL_PROOF_PRE + target->query_cap_name() +
+        _LANG_EFFECT_SPELL_PROOF_POST);
+    tell_object(target, caster->query_cap_name() + _LANG_EFFECT_SPELL_PROOF_TARGET);
+    return 1;
+}
+
 int hb_effect(object caster, mixed *params, int time)
 {
     /* params: [0] target, [1] quiet, [2] environment(caster), */
@@ -1748,6 +1766,34 @@ int hb_effect(object caster, mixed *params, int time)
         }
     }
     */
+
+    // A target wrapped in a globe of invulnerability shrugs off the harmful
+    // spells of the levels the globe covers
+    if (effect_type == EFFECT_IS_SPELL && effect_intent == EFFECT_INTENT_HARM)
+    {
+        if (objectp(target) && is_spell_proof(caster, target))
+        {
+            call_out("end_effect_now", 0, caster);
+            return 0;
+        }
+        else if (pointerp(target) && sizeof(target))
+        {
+            kept = ({ });
+            for (i = 0; i < sizeof(target); i++)
+                if (!is_spell_proof(caster, target[i]))
+                    kept += ({ target[i] });
+
+            if (!sizeof(kept))
+            {
+                call_out("end_effect_now", 0, caster);
+                return 0;
+            }
+
+            // the ones protected are lost in the rounds that follow
+            target = kept;
+            params[0] = kept;
+        }
+    }
 
     // Now we call the functions or whatever we have.
     if ( stringp(mess) )

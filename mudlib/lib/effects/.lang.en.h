@@ -35,6 +35,10 @@
 #define _LANG_EFFECT_MANY_MISSING_POST "' here.\n"
 #define _LANG_EFFECT_MANY_GONE_PRE "Your target "
 #define _LANG_EFFECT_MANY_GONE_POST " is too far away.\n"
+// a harmful spell that a sphere of protection stops
+#define _LANG_EFFECT_SPELL_PROOF_PRE "The spell cannot get through the sphere that protects "
+#define _LANG_EFFECT_SPELL_PROOF_POST ".\n"
+#define _LANG_EFFECT_SPELL_PROOF_TARGET " casts a spell at you, but the sphere around you stops it.\n"
 #define _LANG_EFFECT_ROLE_BLOCKS "Your current combat role does not let you do that.\n"
 
 // --- base_effect: start messages ---
