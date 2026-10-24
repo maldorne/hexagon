@@ -204,7 +204,7 @@ void resume_schedule(int hour)
 }
 
 // A fight in this NPC's room: join it the way any monster does, and let the
-// components react (a bodyguard defends whoever it stands by).
+// components react (a protector defends whoever it stands by).
 void event_fight_in_progress(object ob, object * fighters)
 {
   monster::event_fight_in_progress(ob, fighters);

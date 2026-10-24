@@ -32,13 +32,13 @@
 #define POI_KIND_SHRINE        "shrine"
 // Where guards stand by somebody: whoever attacks one of their citizenship
 // there is attacked by them.
-#define POI_KIND_BODYGUARD     "bodyguard"
+#define POI_KIND_PROTECTOR     "protector"
 
 // Every valid kind, for command validation.
 #define POI_KINDS ({ \
   POI_KIND_PUB, POI_KIND_SHOP, POI_KIND_TOWN_ENTRANCE, \
   POI_KIND_TOWN_SQUARE, POI_KIND_CROSSROADS, POI_KIND_SHRINE, \
-  POI_KIND_BODYGUARD })
+  POI_KIND_PROTECTOR })
 
 // Venture kinds are inferred from a matching location component during
 // room2loc conversion; the rest are declared by hand with the admin commands (pois).

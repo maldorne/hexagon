@@ -32,7 +32,7 @@
 //                       needed
 //
 // The POI of its post adds two more: a town_entrance that admits only citizens
-// (POI_FIELD_ADMIT) lets nobody else through, and at a bodyguard POI the guard
+// (POI_FIELD_ADMIT) lets nobody else through, and at a protector POI the guard
 // attacks whoever attacks one of its citizens there.
 //
 // The law: where the place has law, the guard attacks on sight whoever the
@@ -421,7 +421,7 @@ private int _passes_admission(object mover)
 
 // A fight in the guard's room, `fighters` being ({ victim, attacker }). The
 // guard attacks whoever attacks one of the names it protects, wherever it
-// stands. At a bodyguard post, standing at it, it attacks whoever attacks one
+// stands. At a protector post, standing at it, it attacks whoever attacks one
 // of its citizens -- unless the attacker is an NPC of the city itself, which is
 // how the guards' own blows on a citizen are not taken for an attack to answer.
 void event_fight_in_progress(object ob, object * fighters)
@@ -451,7 +451,7 @@ void event_fight_in_progress(object ob, object * fighters)
   }
 
   poi = _post_poi();
-  if (!poi || poi[POI_FIELD_KIND] != POI_KIND_BODYGUARD)
+  if (!poi || poi[POI_FIELD_KIND] != POI_KIND_PROTECTOR)
     return;
 
   if (!here || here != environment(attacker) ||

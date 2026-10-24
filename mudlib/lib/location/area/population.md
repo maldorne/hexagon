@@ -124,7 +124,7 @@ An area keeps `pois`, `([ location_file : ([ "kind", "label", "guard_dir",
 | `town_entrance` | a gate; carries `guard_dir` (the exit that leads into town) and `admit` |
 | `town_square` | a square; its guards stand by, stopping nobody |
 | `crossroads`, `shrine` | places of note; a shrine also names its deity |
-| `bodyguard` | guards posted here defend citizens attacked in the room |
+| `protector` | guards posted here defend citizens attacked in the room |
 
 `add_poi`, `remove_poi`, `set_poi_label`, `set_poi_guard_dir`, `set_poi_admit`
 and `query_poi` are the accessors. A schedule entry that sends somebody `out`
@@ -402,7 +402,7 @@ holder works. It stops movers whose citizenship is at war with its own (enmity
 cascades through parents), can add guild and class-level rules and a message,
 and at a `town_entrance` with `admit` set to `citizens` it lets through only its
 own citizenship and those under it. At a `town_square` it has no direction and
-stops nobody. At a `bodyguard` POI, standing at its post, it attacks whoever
+stops nobody. At a `protector` POI, standing at its post, it attacks whoever
 attacks a citizen of its citizenship in the room, unless the attacker is an NPC
 citizen itself. Independently of any post or citizenship, the `protects`
 attribute (a list of NPC names) makes the guard defend those NPCs: it attacks
