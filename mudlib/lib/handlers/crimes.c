@@ -466,52 +466,6 @@ int reduce(string name, string citizenship, int percent)
   return entry["points"];
 }
 
-// location file -> ({ x, y, z }) of it, or ({ }) when it has none; a
-// location's coordinates do not change, so loading one to read them happens
-// once per file
-static mapping coordinates_cache;
-
-/**
- * The coordinates of a place, from the place itself when it is loaded, or
- * from its file (loading it once and remembering them).
- *
- * @param loc the location, if it is loaded
- * @param file its file
- * @return ({ x, y, z }), or ({ }) when it has none
- */
-private int * place_coordinates(object loc, string file)
-{
-  mixed coords;
-
-  if (!coordinates_cache)
-    coordinates_cache = ([ ]);
-  if (!undefinedp(coordinates_cache[file]))
-    return coordinates_cache[file];
-
-  if (!loc)
-    loc = load_object(LOCATION_HANDLER)->load_location(file);
-  coords = loc ? loc->query_coordinates() : nil;
-  coordinates_cache[file] = (pointerp(coords) && sizeof(coords) == 3) ? coords
-                                                                     : ({ });
-  return coordinates_cache[file];
-}
-
-// The fewest steps between two coordinates (as the pathfinding handler
-// counts them), or a large number when either has none.
-private int coord_distance(int * a, int * b)
-{
-  int dx, dy, dz;
-
-  if (sizeof(a) != 3 || sizeof(b) != 3)
-    return 1000000;
-
-  dx = a[0] - b[0]; if (dx < 0) dx = -dx;
-  dy = a[1] - b[1]; if (dy < 0) dy = -dy;
-  dz = a[2] - b[2]; if (dz < 0) dz = -dz;
-
-  return (dx > dy ? dx : dy) + dz;
-}
-
 /**
  * A player's whole record.
  *
@@ -735,85 +689,31 @@ private int posted_on_door(object community, mapping attrs, mapping row)
          stringp(poi[POI_FIELD_GUARD_DIR]) && strlen(poi[POI_FIELD_GUARD_DIR]);
 }
 
-// Whether a loaded guard can be sent: alive, standing somewhere, not fighting
-// and not already on an errand.
-private int is_free(object npc)
-{
-  return npc && !npc->query_dead() && environment(npc) &&
-         !sizeof(npc->query_attacker_list()) &&
-         !npc->has_component("responder");
-}
-
-// The guards to send: every free guard of the community, loaded or not, the
-// nearest to the place first by coordinates. A guard out of the world is
-// brought in by loading its location.
+// The guards to send: every free guard of the community that is not posted on
+// a door, loaded or not, the nearest to the place first (pick_nearest_npcs of
+// the community).
 private object * pick_guards(object community, object place, int wanted)
 {
   mapping rows, row, attrs, cache;
-  string * uuids, * candidates;
-  object * chosen;
-  object npc;
-  string game, file;
-  int * here, * there, * dist;
-  int i, best;
+  string * uuids, * guards;
+  string game;
+  int i;
 
   rows = (mapping)community->query_npc_census();
   game = game_from_path((string)community->query_area_path());
   cache = ([ ]);
   uuids = map_indices(rows);
-  here = place_coordinates(place, (string)place->query_file_name());
-  candidates = ({ });
-  dist = ({ });
+  guards = ({ });
 
-  // every guard of the community, loaded or not, measured from where it is
   for (i = 0; i < sizeof(uuids); i++)
   {
     row = rows[uuids[i]];
     attrs = guard_attrs(community, game, row["source"], cache);
-    if (!attrs || posted_on_door(community, attrs, row))
-      continue;
-
-    npc = find_living(uuids[i]);
-    if (npc && !is_free(npc))
-      continue;
-
-    file = npc && environment(npc) ? (string)environment(npc)->query_file_name()
-                                   : row[CENSUS_LOCATION];
-    if (!stringp(file) || !strlen(file))
-      continue;
-
-    there = place_coordinates(npc ? environment(npc) : nil, file);
-    candidates += ({ uuids[i] });
-    dist += ({ coord_distance(here, there) });
+    if (attrs && !posted_on_door(community, attrs, row))
+      guards += ({ uuids[i] });
   }
 
-  // the nearest first; a guard out of the world is brought in by loading its
-  // location before it is sent
-  chosen = ({ });
-  while (sizeof(chosen) < wanted)
-  {
-    best = -1;
-    for (i = 0; i < sizeof(candidates); i++)
-      if (dist[i] >= 0 && (best < 0 || dist[i] < dist[best]))
-        best = i;
-
-    if (best < 0)
-      break;
-    dist[best] = -1;
-
-    npc = find_living(candidates[best]);
-    if (!npc)
-    {
-      file = rows[candidates[best]][CENSUS_LOCATION];
-      load_object(LOCATION_HANDLER)->load_location(file);
-      npc = find_living(candidates[best]);
-    }
-
-    if (is_free(npc))
-      chosen += ({ npc });
-  }
-
-  return chosen;
+  return (object *)community->pick_nearest_npcs(place, guards, wanted);
 }
 
 // Sends the guards of the place's community after a culprit. Called out after

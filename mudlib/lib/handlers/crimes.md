@@ -126,12 +126,11 @@ community (root area) and takes `query_responders()` guards:
 - A census row is a guard when its template carries the `guard` component.
   Guards posted on a door are never sent: the component has a `direction`, or the
   row's work is a `town_entrance` POI with a `guard_dir`. Square guards are.
-- Loaded guards come first, nearest to the crime by coordinates
-  (`PATHFIND_HANDLER->query_min_distance`; one that cannot be compared is last).
-  Any that is dead, fighting or already responding is skipped.
-- If more are needed, the guards the census holds in unloaded locations: those
-  in the crime place's own directory first, then the rest. Their location is
-  loaded, which materializes them. Their distance is not measured.
+- The guards are picked with `pick_nearest_npcs(place, uuids, wanted)` of the
+  community (`lib/location/area/census.c`): free ones only (alive, standing
+  somewhere, not fighting, not already responding), the nearest to the crime by
+  coordinates first, loaded or not. A guard in an unloaded location is brought
+  in by loading it.
 
 Each chosen guard gets the `responder` component
 (`lib/npc/components/responder.c`) and `respond(criminal, place, seconds)` with

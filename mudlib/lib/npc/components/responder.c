@@ -2,7 +2,8 @@
 // component.
 //
 // The crimes handler attaches it, on demand, to the guards it sends when a
-// crime is committed where no guard stands (see lib/handlers/crimes.md). The
+// crime is committed where no guard stands (see lib/handlers/crimes.md), and
+// the reinforcements component to the people it calls to a fight. The
 // guard walks to the criminal, attacks them if they are still unhidden there
 // and, if they have gone, follows them for as long as the pursuit lasts (inside
 // its community only). When the criminal is dead or gone, or the time is up,

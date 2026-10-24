@@ -413,10 +413,23 @@ citizenship, and when a crime is recorded where no guard stands the crimes
 handler picks guards from the community's census (every row whose template has
 the `guard` component, except those posted on a door: a `direction` or a
 `town_entrance` POI with `guard_dir`; square guards do answer), the nearest
-loaded ones first, then ones in unloaded locations, which it loads. Each gets the
+first, loaded or not (one in an unloaded location is brought in by loading it).
+Each gets the
 `responder` component, walks to the criminal, follows them inside the community
 for `query_pursuit_give_up()` seconds and goes back to its schedule. See
 `lib/handlers/crimes.md`.
+
+## Calling people
+
+An area answers who of its census can be sent somewhere, for any piece that
+needs people to come: `query_census_uuids_of(sources)` gives the people made
+from some templates, and `pick_nearest_npcs(place, uuids, wanted)` picks at
+most `wanted` of them that are free (`is_free_npc`: alive, standing somewhere,
+not fighting, not on a `responder` errand), the nearest to the place first by
+coordinates, loading the location of whoever is out of the world. It moves
+nobody. The crimes handler sends guards with it; the `reinforcements`
+component (`lib/npc/components/reinforcements.c`) sends the owner's
+community's helpers to its fights, each with the `responder` component.
 
 ## Reading the population
 

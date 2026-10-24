@@ -917,3 +917,160 @@ void npc_died(string uuid)
 }
 
 
+
+// --- Calling people -----------------------------------------------------------
+
+// location file -> ({ x, y, z }) of it, or ({ }) when it has none; a
+// location's coordinates do not change, so loading one to read them happens
+// once per file
+static mapping coordinates_cache;
+
+/**
+ * The coordinates of a place, from the place itself when it is loaded, or
+ * from its file (loading it once and remembering them).
+ *
+ * @param loc the location, if it is loaded
+ * @param file its file
+ * @return ({ x, y, z }), or ({ }) when it has none
+ */
+private int * place_coordinates(object loc, string file)
+{
+  mixed coords;
+
+  if (!coordinates_cache)
+    coordinates_cache = ([ ]);
+  if (!undefinedp(coordinates_cache[file]))
+    return coordinates_cache[file];
+
+  if (!loc)
+    loc = load_object(LOCATION_HANDLER)->load_location(file);
+  coords = loc ? loc->query_coordinates() : nil;
+  coordinates_cache[file] = (pointerp(coords) && sizeof(coords) == 3) ? coords
+                                                                     : ({ });
+  return coordinates_cache[file];
+}
+
+// The fewest steps between two coordinates (as the pathfinding handler
+// counts them), or a large number when either has none.
+private int coord_distance(int * a, int * b)
+{
+  int dx, dy, dz;
+
+  if (sizeof(a) != 3 || sizeof(b) != 3)
+    return 1000000;
+
+  dx = a[0] - b[0]; if (dx < 0) dx = -dx;
+  dy = a[1] - b[1]; if (dy < 0) dy = -dy;
+  dz = a[2] - b[2]; if (dz < 0) dz = -dz;
+
+  return (dx > dy ? dx : dy) + dz;
+}
+
+/**
+ * Whether a loaded person of the census can be sent somewhere: alive, standing
+ * somewhere, not fighting and not already on an errand (a responder).
+ */
+int is_free_npc(object npc)
+{
+  return npc && !npc->query_dead() && environment(npc) &&
+         !sizeof(npc->query_attacker_list()) &&
+         !npc->has_component("responder");
+}
+
+/**
+ * The people of the census made from any of `sources`.
+ *
+ * @param sources template ids
+ * @return their uuids
+ */
+string * query_census_uuids_of(string * sources)
+{
+  mapping rows;
+  string * uuids, * out;
+  int i;
+
+  rows = query_npc_census();
+  uuids = map_indices(rows);
+  out = ({ });
+  for (i = 0; i < sizeof(uuids); i++)
+    if (member_array(rows[uuids[i]]["source"], sources) != -1)
+      out += ({ uuids[i] });
+
+  return out;
+}
+
+/**
+ * Picks, among the people of the census named by `uuids`, at most `wanted`
+ * free ones (is_free_npc), the nearest to `place` first by coordinates,
+ * loaded or not: somebody standing in an unloaded location is brought into
+ * the world by loading it. Nobody is moved: what to do with them is the
+ * caller's.
+ *
+ * @param place where they are wanted
+ * @param uuids the candidates, people of this area's census
+ * @param wanted how many at most
+ * @return the people chosen, nearest first
+ */
+object * pick_nearest_npcs(object place, string * uuids, int wanted)
+{
+  mapping rows;
+  string * candidates;
+  object * chosen;
+  object npc;
+  string file;
+  int * here, * there, * dist;
+  int i, best;
+
+  rows = query_npc_census();
+  here = place_coordinates(place, (string)place->query_file_name());
+  candidates = ({ });
+  dist = ({ });
+
+  // every candidate, loaded or not, measured from where it is
+  for (i = 0; i < sizeof(uuids); i++)
+  {
+    if (!rows[uuids[i]])
+      continue;
+
+    npc = find_living(uuids[i]);
+    if (npc && !is_free_npc(npc))
+      continue;
+
+    file = npc && environment(npc) ? (string)environment(npc)->query_file_name()
+                                   : rows[uuids[i]][CENSUS_LOCATION];
+    if (!stringp(file) || !strlen(file))
+      continue;
+
+    there = place_coordinates(npc ? environment(npc) : nil, file);
+    candidates += ({ uuids[i] });
+    dist += ({ coord_distance(here, there) });
+  }
+
+  // the nearest first; somebody out of the world is brought in by loading
+  // their location
+  chosen = ({ });
+  while (sizeof(chosen) < wanted)
+  {
+    best = -1;
+    for (i = 0; i < sizeof(candidates); i++)
+      if (dist[i] >= 0 && (best < 0 || dist[i] < dist[best]))
+        best = i;
+
+    if (best < 0)
+      break;
+    dist[best] = -1;
+
+    npc = find_living(candidates[best]);
+    if (!npc)
+    {
+      file = rows[candidates[best]][CENSUS_LOCATION];
+      load_object(LOCATION_HANDLER)->load_location(file);
+      npc = find_living(candidates[best]);
+    }
+
+    if (is_free_npc(npc))
+      chosen += ({ npc });
+  }
+
+  return chosen;
+}
