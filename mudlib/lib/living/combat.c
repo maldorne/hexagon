@@ -37,6 +37,7 @@ static int combat_counter; // heart_beat counter
 static int is_quiet;  // not moving or fighting
 static int is_moving; // recently moved
 
+void protect_livings(object * ok);
 
 int query_dodging() { return dodging; }
 int query_combat_mode() { return combat_mode; }
@@ -657,16 +658,42 @@ int do_protect(string str)
   no_prot = ({ });
   
   for (i = 0; i < sizeof(obs); i++)
-    if (obs[i]->query_consent(PROTECT_CONS) && obs[i]->set_protector(this_object()))
+    if (obs[i]->query_consent(PROTECT_CONS))
       ok += ({ obs[i] });
     else
       no_prot += ({ obs[i] });
-      
-  if (sizeof(no_prot)) 
+
+  if (sizeof(no_prot))
   {
     tell_object(this_object(), _LANG_COMBAT_PROTECT_REFUSED);
   }
-  
+
+  protect_livings(ok);
+  return 1;
+}
+
+/**
+ * Becomes the protector of every one of them and says so: what 'proteger'
+ * does once it knows who agrees. NPCs that protect others call it directly.
+ *
+ * @param  ok  the livings to protect, all in this room
+ */
+void protect_livings(object * ok)
+{
+  object * list;
+  int i;
+
+  // nobody protects itself, or somebody out of its room
+  list = ({ });
+  for (i = 0; i < sizeof(ok); i++)
+    if (ok[i] && ok[i] != this_object() &&
+        environment(ok[i]) == environment(this_object()))
+      list += ({ ok[i] });
+  ok = list;
+
+  for (i = 0; i < sizeof(ok); i++)
+    ok[i]->set_protector(this_object());
+
   if (sizeof(ok))
   {
     tell_player(this_object(), _LANG_COMBAT_PROTECT_ME);
@@ -680,10 +707,8 @@ int do_protect(string str)
     for (i = 0; i < sizeof(ok); i++)
       tell_player(ok[i], _LANG_COMBAT_PROTECT_THEM_SEVERAL);
   }
-  else if (sizeof(ok) == 1)      
+  else if (sizeof(ok) == 1)
     tell_player(ok[0], _LANG_COMBAT_PROTECT_THEM);
-
-  return 1;
 }
 
 // Added by Radix, missing too long...
