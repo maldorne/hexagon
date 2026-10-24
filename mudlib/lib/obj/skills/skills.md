@@ -58,8 +58,6 @@ The target types decide who is hit:
 
 A one-target syntax does not change. For a caller that already chose its targets (an NPC) there is a clean entry point: `cast_effect_on(object * targets, object caster [, int quiet])` of `BASE_EFFECT`, which runs the same checks as `cast_effect` but takes the targets instead of the text (many-target: all the valid ones; single or touch: the first; other types ignore them). The balance dump carries `intent`.
 
-A living with the static property `PROPERTY_SPELL_PROOF` (`<living/effects.h>`; a globe of invulnerability sets it while its lasting effect holds) shrugs off the harmful spells (`intent` harm) of others whose level (`query_effect_level`) is not above the value of the property: `hb_effect` drops it from the targets of every round, tells both, and the effect ends if no target is left.
-
 ### Lasting effects
 
 Anything an effect keeps doing after its rounds ended (renew a target, a damage over time, a bonus that wears off) is a lasting effect: a second list on the living, never saved, which does not block other skills or spells. Every heart_beat, in or out of combat and before combat runs, the living calls `source->lasting_tick(living, data, ticks_left)` (ticks count down to 1). It ends when the ticks run out, when the tick returns 0, when the call errors or when the source object is gone; then `source->lasting_end(living, id, data, reason)` runs, with `reason` one of `LASTING_END_*` (`expired`, `done`, `error`, `removed`, `replaced`, `cleared`, `death`), so the effect gives its own message and undoes what it did. Both run inside `catch`.
