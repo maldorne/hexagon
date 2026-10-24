@@ -10,7 +10,6 @@ private int do_list(object env);
 private int do_add(object env, string type);
 private int do_remove(object env, string type);
 private int do_batch(string verb, string type, string * targets);
-private string blueprint(string type);
 private string * resolve_target(string target);
 private string * loadable(string * files);
 
@@ -29,8 +28,7 @@ void setup()
     "  components add <type> <target> ...  attach it to every target\n" +
     "  components remove <type> <target> ... detach it from every target\n" +
     "\n" +
-    "The type is the component blueprint name under " + COMPONENTS_DIR + ", or " +
-    "the full path of a game's own component without the .c.\n" +
+    "The type is the component blueprint name under " + COMPONENTS_DIR + ".\n" +
     "Without targets the location you are standing in is changed, and saved so " +
     "its sector reclassifies.\n" +
     "\n" +
@@ -79,18 +77,6 @@ static int cmd(string str, object me, string verb)
 
   type = tokens[1];
   return tokens[0] == "remove" ? do_remove(env, type) : do_add(env, type);
-}
-
-/**
- * The file of a component type: a bare name is under the shared components, a
- * path starting with a slash is a game's own.
- */
-private string blueprint(string type)
-{
-  if (strlen(type) && type[0] == '/')
-    return type + ".c";
-
-  return COMPONENTS_DIR + type + ".c";
 }
 
 /**
@@ -148,7 +134,7 @@ private int do_remove(object env, string type)
  */
 private int do_add(object env, string type)
 {
-  if (file_size(blueprint(type)) <= 0)
+  if (file_size(COMPONENTS_DIR + type + ".c") <= 0)
   {
     notify_fail("No component blueprint '" + type + "' under " +
                 COMPONENTS_DIR + ".\n");
@@ -173,7 +159,7 @@ private int do_batch(string verb, string type, string * targets)
   string * files;
   int i, changed;
 
-  if (file_size(blueprint(type)) <= 0)
+  if (file_size(COMPONENTS_DIR + type + ".c") <= 0)
   {
     notify_fail("No component blueprint '" + type + "' under " +
                 COMPONENTS_DIR + ".\n");

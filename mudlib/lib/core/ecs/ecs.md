@@ -22,9 +22,7 @@ gets everything below.
 
 - `add_component(type, attrs)`: attaches a component of `type`, cloned from
   `query_component_dir() + type + ".c"`, seeded with `attrs`; on a live one it
-  reseeds it. A `type` that starts with a slash is the full path of a component
-  file without the `.c`, so a game ships components of its own (it inherits the
-  entity's component base and is kept under that path).
+  reseeds it.
 - `remove_component(type)`: drops the live component and its saved state.
 - `query_component_by_type(type)`, `has_component(type)`, `query_components()`.
 - `run_on_components(func, args...)`: calls `func` with those arguments on

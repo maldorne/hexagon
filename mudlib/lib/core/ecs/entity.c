@@ -183,16 +183,11 @@ int _component_action(string str)
 }
 
 // Clone a component, stamp its type, seed its attrs and bind it to this entity.
-// A type that starts with a slash is the full path of a component file, without
-// the .c: how a game ships components of its own.
 private object _spawn_component(string type, mapping attrs)
 {
   object c;
 
-  if (strlen(type) && type[0] == '/')
-    c = clone_object(type + ".c");
-  else
-    c = clone_object(this_object()->query_component_dir() + type + ".c");
+  c = clone_object(this_object()->query_component_dir() + type + ".c");
   if (!c)
     return nil;
 
