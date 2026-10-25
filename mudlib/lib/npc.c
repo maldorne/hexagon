@@ -580,6 +580,31 @@ private void apply_guild_abilities(mapping t)
   }
 }
 
+/**
+ * Drops every component the template does not name, live or only saved: a
+ * component taken out of a template leaves the people already made too. What
+ * the world attaches (a schedule) is attached again after the template.
+ *
+ * @param t the NPC template
+ */
+private void drop_untemplated_components(mapping t)
+{
+  string * kept, * saved;
+  object * live;
+  int i;
+
+  kept = mappingp(t["components"]) ? map_indices(t["components"]) : ({ });
+  live = ({ }) + query_components();
+  for (i = 0; i < sizeof(live); i++)
+    if (live[i] && member_array(live[i]->query_type(), kept) == -1)
+      remove_component(live[i]->query_type());
+
+  saved = component_info ? map_indices(component_info) : ({ });
+  for (i = 0; i < sizeof(saved); i++)
+    if (member_array(saved[i], kept) == -1)
+      remove_component(saved[i]);
+}
+
 void apply_template(mapping t, varargs int born)
 {
   int g;
@@ -703,6 +728,8 @@ void apply_template(mapping t, varargs int born)
   // Behaviour the type carries: ([ "<component>" : ([ attrs ]) ]). This is how
   // a template says its people can do something a data field cannot describe --
   // bring the dead back, keep a shop -- without a blueprint of their own.
+  drop_untemplated_components(t);
+
   if (mappingp(t["components"]))
   {
     string * types;
