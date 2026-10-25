@@ -8,7 +8,11 @@
 // and, if they have gone, follows them for as long as the pursuit lasts (inside
 // its community only). When the criminal is dead or gone, or the time is up,
 // it walks back to its work and the component removes itself, so nothing is
-// kept on a guard that is idle.
+// kept on a guard that is idle. Once it has fought the criminal, a fight
+// stopped on its side (peace, the law) ends the errand too.
+//
+// A pacifist (query_pacifist) answers too, but strikes no blow: it goes to the
+// fight and stays there while it lasts, and does not follow anybody who leaves.
 //
 // Nothing here is persisted: a trip is never saved. A responder restored from
 // an npc.o has no task and removes itself.
@@ -24,6 +28,8 @@ static object target;      // the criminal
 static string origin;      // where the guard was sent from
 static int deadline;       // when the pursuit gives up
 static int busy;           // a task is under way
+static int arrived;        // it has reached the target once
+static int engaged;        // it has fought the target
 
 void create()
 {
@@ -33,6 +39,8 @@ void create()
   origin = nil;
   deadline = 0;
   busy = 0;
+  arrived = 0;
+  engaged = 0;
   call_out("check_task", 2);
 }
 
@@ -64,6 +72,21 @@ private int _same_community(object a, object b)
     return 0;
 
   return (object)area_a->query_root_area() == (object)area_b->query_root_area();
+}
+
+// Whether `who` is fighting somebody in its own place.
+private int is_fighting_here(object who)
+{
+  object * rivals;
+  int i;
+
+  rivals = who->query_attacker_list();
+  for (i = 0; i < sizeof(rivals); i++)
+    if (rivals[i] && living(rivals[i]) &&
+        environment(rivals[i]) == environment(who))
+      return 1;
+
+  return 0;
 }
 
 // Back to work: the schedule's entry for this hour, or else where the guard
@@ -120,6 +143,8 @@ void respond(object criminal, object place, int seconds)
   origin = (string)environment(me)->query_file_name();
   deadline = time() + seconds;
   busy = 1;
+  arrived = 0;
+  engaged = 0;
 
   // the first move is made now, the rest by tick
   call_out("tick", 0);
@@ -145,6 +170,47 @@ void tick()
   here = environment(me);
   there = environment(target);
   if (!here || !there)
+  {
+    _stand_down();
+    return;
+  }
+
+  if (me->query_pacifist())
+  {
+    // it stays while the fight goes on where it is, and never chases
+    if (here == there)
+    {
+      arrived = 1;
+      if (!is_fighting_here(target))
+      {
+        _stand_down();
+        return;
+      }
+    }
+    else if (arrived)
+    {
+      _stand_down();
+      return;
+    }
+    else if (!me->query_action_pending() &&
+             (!me->travelling() || me->query_travel_goal() != there))
+    {
+      if (!_same_community(here, there) || !me->travel_to(there))
+      {
+        _stand_down();
+        return;
+      }
+    }
+
+    call_out("tick", RESPONDER_TICK);
+    return;
+  }
+
+  // the fight with the target was stopped, not lost sight of: it is over
+  if (member_array(target, me->query_attacker_list()) != -1 ||
+      member_array(target, me->query_call_outed()) != -1)
+    engaged = 1;
+  else if (engaged)
   {
     _stand_down();
     return;

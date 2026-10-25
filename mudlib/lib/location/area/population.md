@@ -431,7 +431,12 @@ at a `town_entrance` with a `guard_dir`), the nearest to the place first by
 coordinates, loading the location of whoever is out of the world. It moves
 nobody. The crimes handler sends guards with it; the `reinforcements`
 component (`lib/npc/components/reinforcements.c`) sends the owner's
-community's helpers to its fights, each with the `responder` component.
+community's helpers to its fights, each with the `responder` component. A
+pacifist helper (template field `pacifist`) goes to the fight and stays there
+while it lasts without striking a blow; one with the `healer` component
+(`lib/npc/components/healer.c`) heals the most wounded of its side meanwhile.
+A responder that has fought its target and no longer fights it (`peace`, an
+arrest) goes back to its round.
 
 ## Reading the population
 

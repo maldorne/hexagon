@@ -14,6 +14,10 @@ int join_fights,        /* Do we join into fights in the room ? */
     
 int minplayer;          /* minimum player level an NPC will attack, extra param to set_aggressive(), default 0 */
 
+// A pacifist answers calls for help without fighting: it goes, and stays by,
+// but strikes no blow (see /lib/npc/components/responder.c).
+int pacifist;
+
 // Lighter feelings than love and hate: they decide nothing in a fight, only
 // what it says to somebody on seeing them arrive ($ocname$ is their name).
 mapping liked, disliked;
@@ -29,6 +33,7 @@ void create()
   fight_npcs = 0;  
   minplayer = 0;
   aggressive = 0;
+  pacifist = 0;
   liked = ([ ]);
   disliked = ([ ]);
   liked_message = nil;
@@ -41,6 +46,9 @@ void set_join_fights(varargs int npcs)
   join_fights = 1;
   fight_npcs = npcs;
 }
+
+int query_pacifist() { return pacifist; }
+void set_pacifist(int value) { pacifist = value ? 1 : 0; }
 
 string query_join_fight_mess() { return join_fight_mess; }
 void set_join_fight_mess(string str)
@@ -305,6 +313,7 @@ mixed * stats()
     ({ "Join Fights", join_fights }),
     ({ "Join Fight Mess", join_fight_mess }),
     ({ "Fight Npcs", fight_npcs }),
+    ({ "Pacifist", pacifist }),
     ({ "Loved", loved }),
     ({ "Hated", hated }),
     ({ "Liked", liked }),

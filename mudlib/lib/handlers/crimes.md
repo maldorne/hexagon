@@ -137,8 +137,9 @@ Each chosen guard gets the `responder` component
 `query_pursuit_give_up()` seconds. Every two seconds it looks at the criminal: in
 the same place, it attacks if the criminal is not hidden; elsewhere in the
 community, it walks (`travel_to`) to where they are; elsewhere out of the
-community, or with no route, it gives up. When the criminal is dead or gone or
-the time is up, it stands down: back to its schedule (`resume_schedule`), or to
+community, or with no route, it gives up. When the criminal is dead or gone,
+the time is up, or the fight it had with them was stopped (`peace`, an arrest),
+it stands down: back to its schedule (`resume_schedule`), or to
 the place it was sent from, and the component removes itself. A responder is
 never saved: one found in a restored npc.o removes itself.
 

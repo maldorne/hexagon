@@ -16,6 +16,8 @@
 //   "max"     - helpers answering at once (default 3)
 //   "arrive"  - what the room is told when one reaches the owner
 //   "leave"   - what the room is told when they go, once nobody fights
+//               (each a text, or a mapping of source -> text for helpers of
+//               different kinds; a source left out says nothing)
 
 #include <areas/area.h>
 
@@ -29,7 +31,7 @@ inherit component "/lib/npc/component.c";
 #define CHECK_DELAY 20
 
 private string * helper_sources;
-private string arrive_message, leave_message;
+private mixed arrive_message, leave_message;
 private int helper_chance, helper_max;
 // the helpers called, not saved: they are not part of the owner
 static object * helpers;
@@ -52,6 +54,18 @@ string query_info()
 {
   return implode(helper_sources, ", ") + " " + helper_chance + "% up to " +
          helper_max;
+}
+
+// The line of `message` for one helper: the text itself, or the one of the
+// helper's source, "" when there is none.
+private string message_for(mixed message, object helper)
+{
+  if (stringp(message))
+    return message;
+  if (mappingp(message) && stringp(message[helper->query_npc_source()]))
+    return message[helper->query_npc_source()];
+
+  return "";
 }
 
 // The helpers still on their errand.
@@ -175,7 +189,7 @@ void call_help()
  */
 void event_enter(object ob, varargs string mess, object from, mixed avoid)
 {
-  if (strlen(arrive_message) && is_helper(ob))
+  if (is_helper(ob) && strlen(message_for(arrive_message, ob)))
     call_out("announce_arrival", 0, ob);
 }
 
@@ -185,7 +199,8 @@ void announce_arrival(object helper)
 
   me = query_entity();
   if (me && helper && environment(helper) == environment(me))
-    tell_room(environment(me), arrive_message, ({ helper }));
+    tell_room(environment(me), message_for(arrive_message, helper),
+              ({ helper }));
 }
 
 // While somebody still fights, the helpers stay; once nobody does, those beside
@@ -212,12 +227,11 @@ void check_fight()
 
   list = answering_helpers();
   helpers = ({ });
-  if (!strlen(leave_message))
-    return;
-
   for (i = 0; i < sizeof(list); i++)
-    if (environment(list[i]) == environment(me))
-      tell_room(environment(me), leave_message, ({ list[i] }));
+    if (environment(list[i]) == environment(me) &&
+        strlen(message_for(leave_message, list[i])))
+      tell_room(environment(me), message_for(leave_message, list[i]),
+                ({ list[i] }));
 }
 
 void dest_me()
@@ -251,9 +265,9 @@ void init_auto_load_attributes(mapping args)
     helper_chance = args["chance"];
   if (intp(args["max"]))
     helper_max = args["max"];
-  if (stringp(args["arrive"]))
+  if (stringp(args["arrive"]) || mappingp(args["arrive"]))
     arrive_message = args["arrive"];
-  if (stringp(args["leave"]))
+  if (stringp(args["leave"]) || mappingp(args["leave"]))
     leave_message = args["leave"];
 }
 

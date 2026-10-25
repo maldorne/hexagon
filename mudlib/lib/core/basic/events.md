@@ -247,7 +247,7 @@ this_object() }))`. `fighters` are the two combatants.
 
 Monsters that `join_fights` pile in against the aggressor
 (`/lib/monster.c`). `/lib/npc.c` does the same and forwards it to its components
-(a protector defends whoever it stands by). `/lib/ventures/pub.c` turns it into
+(a protector defends whoever it stands by, a healer heals its side). `/lib/ventures/pub.c` turns it into
 a `pub_brawl` event on the neighbouring locations, and the undead base
 (`/lib/obj/death/base-undead.c`) reacts to it.
 

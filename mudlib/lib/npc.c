@@ -719,6 +719,8 @@ void apply_template(mapping t, varargs int born)
   // it joins any fight against a player in its room
   if (t["join_fights"])
     set_join_fights();
+  // it answers calls for help without fighting
+  set_pacifist(t["pacifist"] ? 1 : 0);
 
   if (t["liked_message"])
     set_liked_message(gender_value(t["liked_message"], g));
