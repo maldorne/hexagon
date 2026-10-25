@@ -256,6 +256,20 @@ row, so they come back next load. A person who dies runs `npc_died()` from
 the cross-area index forget them, the house books and the family register hear of
 it, and the seat is open.
 
+### Saving
+
+A person's `npc.o` is written when they are born, when their kit changes and
+when their location drains. The area's `area.o` is written whole, so the frequent
+changes (a person's position, the counts of a location's creatures, the hourly
+index, what the books copy off a person) only mark it with `mark_dirty()`: the
+area goes to disk when the mark comes `AREA_SAVE_INTERVAL` seconds
+(`include/areas/area.h`) after its last save, and otherwise at a later mark. A
+delegated area marks its root as well, which keeps its own interval. Deaths and
+builder changes save at once (`save_me()`). At shutdown the shutdown handler
+calls the areas handler's `save_all()`: every loaded location is drained
+without unloading (so every person in memory is saved where they stand), then
+every area still marked is written (`save_if_dirty()`).
+
 ## Housing
 
 The community's root area keeps the books (`housing.c`); the only record of who

@@ -54,6 +54,11 @@ string parent_area;
 // refused. Declared by hand (areas state), never inferred from what the
 // area happens to hold at the moment.
 string area_state;
+// When the area last went to disk, and whether it changed since. The frequent
+// changes (people moving, counts of creatures) only mark it; a mark saves it
+// when the last save is AREA_SAVE_INTERVAL seconds old, and the shutdown saves
+// whatever is left.
+static int last_saved, dirty;
 
 
 
@@ -92,10 +97,18 @@ void restore_me() {
   restore_object(file_name);
 }
 
+// Writes this area's own file, and only it.
+private void write_me()
+{
+  save_object(file_name);
+  last_saved = time();
+  dirty = 0;
+}
+
 void save_me() {
   object owner;
 
-  save_object(file_name);
+  write_me();
 
   // A delegated area shares its community's mappings by reference, so anything
   // that changed a roster, a census or a job here changed them in the parent
@@ -103,6 +116,38 @@ void save_me() {
   owner = query_root_area();
   if (owner != this_object())
     owner->save_me();
+}
+
+/**
+ * Notes that the area changed: it is saved now if the last save is old enough,
+ * and later otherwise, at the next mark or at the shutdown. The root of its
+ * community is marked too.
+ */
+void mark_dirty()
+{
+  object owner;
+
+  dirty = 1;
+
+  // the community's mappings are written with the root area: it keeps its
+  // own mark and its own interval
+  owner = query_root_area();
+  if (owner && owner != this_object())
+    owner->mark_dirty();
+
+  if (time() - last_saved >= AREA_SAVE_INTERVAL)
+    write_me();
+}
+
+int is_dirty() { return dirty; }
+
+/**
+ * Saves the area if it has changes not yet on disk.
+ */
+void save_if_dirty()
+{
+  if (dirty)
+    write_me();
 }
 
 // The area's event-log file, under the game's central logs dir (mirrors how

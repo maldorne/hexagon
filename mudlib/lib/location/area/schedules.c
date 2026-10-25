@@ -70,7 +70,7 @@ void index_schedule_hours(string uuid, int * hours)
 
   if (changed)
   {
-    this_object()->save_me();
+    this_object()->mark_dirty();
 
     // tell the areas handler our whole set of hours, not this NPC's: the last
     // one to leave an hour is what takes the area out of it

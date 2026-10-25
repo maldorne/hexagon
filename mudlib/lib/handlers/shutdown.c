@@ -9,10 +9,12 @@
  * Updated for CcMud, neverbot 4/2003
  * Now saving the weather handler, which controls the in-game time 
  *     advancement, neverbot 7/03
+ * Also saving the NPCs and the areas in memory, neverbot 10/2026
  */
 
 #include <mud/config.h>
 #include <areas/weather.h>
+#include <areas/area.h>
 #include <language.h>
 
 inherit "/lib/core/object";
@@ -234,6 +236,9 @@ void blue()
 
   // neverbot, 7/03
   handler("weather")->save_weather();
+
+  // the NPCs in memory and the areas with unsaved changes
+  catch(load_object(AREA_HANDLER)->save_all());
 
   shutdown(0);
 }

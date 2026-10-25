@@ -75,7 +75,7 @@ int assign_monster(string source, string location_file)
     bucket[source] = 1;
   else
     bucket[source] = bucket[source] + 1;
-  this_object()->save_me();
+  this_object()->mark_dirty();
 
   return 1;
 }
@@ -100,7 +100,7 @@ void monster_died(string source, string location_file)
     if (!map_sizeof(bucket))
       map_delete(monster_census, location_file);
   }
-  this_object()->save_me();
+  this_object()->mark_dirty();
 }
 
 // Bring the monster counts back within what this area's locations ask for,

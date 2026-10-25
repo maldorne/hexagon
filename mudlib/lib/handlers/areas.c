@@ -186,6 +186,35 @@ mapping query_loaded_areas() {
   return loaded_areas;
 }
 
+/**
+ * Saves the people and the places before the mud goes down: every person in a
+ * loaded location (where they stand and what they carry, as when the location
+ * unloads), then every area with changes not yet on disk. One area failing
+ * does not stop the others.
+ */
+void save_all()
+{
+  object * areas, * locs;
+  int i, j;
+
+  if (this_object() != _global())
+  {
+    _global()->save_all();
+    return;
+  }
+
+  areas = map_values(loaded_areas) - ({ nil });
+  for (i = 0; i < sizeof(areas); i++)
+  {
+    locs = areas[i]->query_loaded_locations();
+    for (j = 0; j < sizeof(locs); j++)
+      catch(areas[i]->drain_location(locs[j]));
+  }
+
+  for (i = 0; i < sizeof(areas); i++)
+    catch(areas[i]->save_if_dirty());
+}
+
 // Read a game's areas off the tree. There is no register of them: an area
 // exists because there is an area.o in its directory, so the tree under the
 // game's locations is the list, and walking it is the only answer that cannot

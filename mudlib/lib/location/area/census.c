@@ -57,20 +57,32 @@ void update_npc_info(string uuid, object npc, varargs int unsaved)
 {
   mapping entry;
   mixed given;
+  int changed;
 
   entry = query_npc_census()[uuid];
   if (!entry || !npc)
     return;
 
+  changed = 0;
   given = npc->query_given_name();
-  if (stringp(given) && strlen(given))
+  if (stringp(given) && strlen(given) && entry["name"] != given)
+  {
     entry["name"] = given;
+    changed = 1;
+  }
+  if (entry["gender"] != npc->query_gender())
+  {
+    entry["gender"] = npc->query_gender();
+    changed = 1;
+  }
+  if (entry["level"] != npc->query_level())
+  {
+    entry["level"] = npc->query_level();
+    changed = 1;
+  }
 
-  entry["gender"] = npc->query_gender();
-  entry["level"] = npc->query_level();
-
-  if (!unsaved)
-    this_object()->save_me();
+  if (changed && !unsaved)
+    this_object()->mark_dirty();
 }
 
 // How many NPCs of `source` the census holds across the whole area, materialized
@@ -746,7 +758,7 @@ void populate_location(object loc)
 
   areas = map_indices(placers);
   for (i = 0; i < sizeof(areas); i++)
-    areas[i]->save_me();
+    areas[i]->mark_dirty();
 }
 
 // Update this area's census position for one of its roamers to `file`. Called by
@@ -757,7 +769,7 @@ void set_census_location(string uuid, string file)
   if (uuid && query_npc_census()[uuid] && query_npc_census()[uuid][CENSUS_LOCATION] != file)
   {
     query_npc_census()[uuid][CENSUS_LOCATION] = file;
-    this_object()->save_me();
+    this_object()->mark_dirty();
   }
 }
 
@@ -822,7 +834,7 @@ void drain_location(object loc)
   }
 
   if (changed)
-    this_object()->save_me();
+    this_object()->mark_dirty();
 }
 
 // Drop one row from the census and persist. A seam for the pieces that own
