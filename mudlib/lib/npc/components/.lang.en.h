@@ -27,3 +27,6 @@
 
 // gift
 #define _LANG_GIFT_BUSY "$npc$ is in the middle of a fight and cannot attend to you right now."
+
+// verb-response
+#define _LANG_VERB_RESPONSE_BUSY "$npc$ is in the middle of a fight and cannot attend to you right now."

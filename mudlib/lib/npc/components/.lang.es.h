@@ -27,3 +27,6 @@
 
 // gift
 #define _LANG_GIFT_BUSY "$npc$ está en mitad de un combate y ahora no puede atenderte."
+
+// verb-response
+#define _LANG_VERB_RESPONSE_BUSY "$npc$ está en mitad de un combate y ahora no puede atenderte."
