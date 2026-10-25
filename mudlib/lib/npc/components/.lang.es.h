@@ -24,3 +24,6 @@
 // guard
 #define _LANG_GUARD_WANTED_BLOCKED "¡Alto! La ley te busca, no pasarás."
 #define _LANG_GUARD_WANTED_SHOUT "¡Alto en nombre de la ley!"
+
+// gift
+#define _LANG_GIFT_BUSY "$npc$ está en mitad de un combate y ahora no puede atenderte."

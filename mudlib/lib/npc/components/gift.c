@@ -22,6 +22,10 @@
 //                       each a line for the greeter, with $npc$ and $player$
 //                       for the names; "given_room" is the line for the room
 //                       and "greet_room" the one for the room when greeting back
+//   "busy"            - what the NPC says while it fights somebody in its place
+//                       (a default line when absent)
+
+#include <language.h>
 
 inherit component "/lib/npc/component.c";
 
@@ -32,7 +36,7 @@ private string * gift_verbs, * gift_unless;
 private string gift_item, gift_guild;
 private int gift_min_level, gift_wait;
 private string gift_ignore, gift_greet, gift_greet_room, gift_again, gift_given,
-               gift_given_room;
+               gift_given_room, gift_busy;
 
 void create()
 {
@@ -49,6 +53,7 @@ void create()
   gift_again = "";
   gift_given = "";
   gift_given_room = "";
+  gift_busy = _LANG_GIFT_BUSY;
 }
 
 string query_info()
@@ -92,6 +97,24 @@ private int carries_one(object who)
   return 0;
 }
 
+/**
+ * Whether the NPC is fighting somebody in its own place; rivals who left and
+ * are only being chased do not count.
+ */
+private int is_fighting_here(object me)
+{
+  object * rivals;
+  int i;
+
+  rivals = me->query_attacker_list();
+  for (i = 0; i < sizeof(rivals); i++)
+    if (rivals[i] && living(rivals[i]) &&
+        environment(rivals[i]) == environment(me))
+      return 1;
+
+  return 0;
+}
+
 int do_greet(string str)
 {
   object me, who, item;
@@ -101,6 +124,12 @@ int do_greet(string str)
   me = query_entity();
   if (!who || !me || !gift_item || !stringp(str) || !me->id(lower_case(str)))
     return 0;
+
+  if (is_fighting_here(me))
+  {
+    tell_object(who, say_text(gift_busy, who));
+    return 1;
+  }
 
   if (gift_guild && who->query_guild_ob() != gift_guild)
   {
@@ -154,6 +183,7 @@ mapping query_auto_load_attributes()
     "again"           : gift_again,
     "given"           : gift_given,
     "given_room"      : gift_given_room,
+    "busy"            : gift_busy,
   ]);
 }
 
@@ -187,6 +217,8 @@ void init_auto_load_attributes(mapping args)
     gift_given = args["given"];
   if (stringp(args["given_room"]))
     gift_given_room = args["given_room"];
+  if (stringp(args["busy"]))
+    gift_busy = args["busy"];
 }
 
 mixed * stats()
