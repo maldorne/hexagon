@@ -978,6 +978,50 @@ int is_free_npc(object npc)
 }
 
 /**
+ * Whether a person of the census is posted on a door: the guard component of
+ * their template names a direction, or their work is a town entrance with a
+ * guard direction. Whoever holds an exit is never sent away from it.
+ *
+ * @param uuid a person of this area's census
+ */
+int is_posted_on_door(string uuid)
+{
+  mapping row, t, job, poi;
+  mixed attrs;
+  object area;
+  string works_at;
+
+  row = query_npc_census()[uuid];
+  if (!row)
+    return 0;
+
+  t = (mapping)this_object()->query_area_template(
+        game_from_path((string)this_object()->query_area_path()), row["source"]);
+  attrs = (t && mappingp(t["components"])) ? t["components"]["guard"] : nil;
+  if (!mappingp(attrs))
+    return 0;
+
+  if (stringp(attrs["direction"]) && strlen(attrs["direction"]))
+    return 1;
+
+  works_at = row[CENSUS_WORKS_AT];
+  if ((!stringp(works_at) || !strlen(works_at)) && row[CENSUS_VACANCY])
+  {
+    job = (mapping)this_object()->query_vacancy(row[CENSUS_VACANCY]);
+    works_at = job ? job[VACANCY_WORKS_AT] : nil;
+  }
+  if (!stringp(works_at) || !strlen(works_at))
+    return 0;
+
+  area = (object)load_object(LOCATION_HANDLER)->
+           query_area_from_location_file_name(works_at);
+  poi = area ? (mapping)area->query_poi(works_at) : nil;
+
+  return poi && poi[POI_FIELD_KIND] == POI_KIND_TOWN_ENTRANCE &&
+         stringp(poi[POI_FIELD_GUARD_DIR]) && strlen(poi[POI_FIELD_GUARD_DIR]);
+}
+
+/**
  * The people of the census made from any of `sources`.
  *
  * @param sources template ids
@@ -1001,7 +1045,8 @@ string * query_census_uuids_of(string * sources)
 
 /**
  * Picks, among the people of the census named by `uuids`, at most `wanted`
- * free ones (is_free_npc), the nearest to `place` first by coordinates,
+ * free ones (is_free_npc) not posted on a door (is_posted_on_door), the
+ * nearest to `place` first by coordinates,
  * loaded or not: somebody standing in an unloaded location is brought into
  * the world by loading it. Nobody is moved: what to do with them is the
  * caller's.
@@ -1029,7 +1074,7 @@ object * pick_nearest_npcs(object place, string * uuids, int wanted)
   // every candidate, loaded or not, measured from where it is
   for (i = 0; i < sizeof(uuids); i++)
   {
-    if (!rows[uuids[i]])
+    if (!rows[uuids[i]] || is_posted_on_door(uuids[i]))
       continue;
 
     npc = find_living(uuids[i]);

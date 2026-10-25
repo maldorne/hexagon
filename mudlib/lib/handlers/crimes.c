@@ -661,40 +661,12 @@ private mapping guard_attrs(object community, string game, string source,
   return mappingp(cache[source]) ? (mapping)cache[source] : nil;
 }
 
-// Whether a guard of the census is posted on a door: its template names a
-// direction, or its work is a town entrance with a direction. Those stay.
-private int posted_on_door(object community, mapping attrs, mapping row)
-{
-  object area;
-  mapping poi, job;
-  string works_at;
-
-  if (stringp(attrs["direction"]) && strlen(attrs["direction"]))
-    return 1;
-
-  works_at = row[CENSUS_WORKS_AT];
-  if ((!stringp(works_at) || !strlen(works_at)) && row[CENSUS_VACANCY])
-  {
-    job = (mapping)community->query_vacancy(row[CENSUS_VACANCY]);
-    works_at = job ? job[VACANCY_WORKS_AT] : nil;
-  }
-  if (!stringp(works_at) || !strlen(works_at))
-    return 0;
-
-  area = (object)load_object(LOCATION_HANDLER)->
-           query_area_from_location_file_name(works_at);
-  poi = area ? (mapping)area->query_poi(works_at) : nil;
-
-  return poi && poi[POI_FIELD_KIND] == POI_KIND_TOWN_ENTRANCE &&
-         stringp(poi[POI_FIELD_GUARD_DIR]) && strlen(poi[POI_FIELD_GUARD_DIR]);
-}
-
-// The guards to send: every free guard of the community that is not posted on
-// a door, loaded or not, the nearest to the place first (pick_nearest_npcs of
-// the community).
+// The guards to send: every free guard of the community, loaded or not, the
+// nearest to the place first (pick_nearest_npcs of the community, which never
+// sends one posted on a door).
 private object * pick_guards(object community, object place, int wanted)
 {
-  mapping rows, row, attrs, cache;
+  mapping rows, cache;
   string * uuids, * guards;
   string game;
   int i;
@@ -706,12 +678,8 @@ private object * pick_guards(object community, object place, int wanted)
   guards = ({ });
 
   for (i = 0; i < sizeof(uuids); i++)
-  {
-    row = rows[uuids[i]];
-    attrs = guard_attrs(community, game, row["source"], cache);
-    if (attrs && !posted_on_door(community, attrs, row))
+    if (guard_attrs(community, game, rows[uuids[i]]["source"], cache))
       guards += ({ uuids[i] });
-  }
 
   return (object *)community->pick_nearest_npcs(place, guards, wanted);
 }

@@ -425,7 +425,9 @@ An area answers who of its census can be sent somewhere, for any piece that
 needs people to come: `query_census_uuids_of(sources)` gives the people made
 from some templates, and `pick_nearest_npcs(place, uuids, wanted)` picks at
 most `wanted` of them that are free (`is_free_npc`: alive, standing somewhere,
-not fighting, not on a `responder` errand), the nearest to the place first by
+not fighting, not on a `responder` errand) and not posted on a door
+(`is_posted_on_door`: a guard whose component names a direction, or who works
+at a `town_entrance` with a `guard_dir`), the nearest to the place first by
 coordinates, loading the location of whoever is out of the world. It moves
 nobody. The crimes handler sends guards with it; the `reinforcements`
 component (`lib/npc/components/reinforcements.c`) sends the owner's
