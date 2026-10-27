@@ -563,7 +563,8 @@ string * query_houses(string surname)
 }
 
 // The families holding property inside an area, so a builder can be told what a
-// wipe would take with it.
+// wipe would take with it. `area_path` is the area's own (query_area_path), the
+// save directory every house file inside it starts with.
 string * query_area_families(string area_path)
 {
   object * areas;
@@ -574,8 +575,7 @@ string * query_area_families(string area_path)
   if (!area_path || !strlen(area_path))
     return ({ });
 
-  prefix = "/save/games/" + game_from_path(area_path) + "/locations/" +
-           area_path;
+  prefix = area_path;
   areas = _root_areas();
   out = ({ });
 
