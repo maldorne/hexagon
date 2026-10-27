@@ -260,7 +260,7 @@ string mint_surname(string citizenship)
 
   for (i = 0; i < FAMILY_MINT_TRIES; i++)
   {
-    name = NAMEGEN_OB->generate_for(style, "surname", 3, 4, 10);
+    name = NAMEGEN_OB->generate_for(style, "surname", 3, 4, 12);
     if (!stringp(name) || !strlen(name))
       return nil;
 

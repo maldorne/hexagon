@@ -132,7 +132,8 @@ private mapping model_for(string path, int order)
 
 // Walk the table once to produce a single raw (lowercase) name. Starts from a
 // run of start markers, appends one weighted-random next character at a time,
-// and stops at the end marker or when `max_len` characters have been emitted.
+// and stops at the end marker. A walk that reaches `max_len` characters without
+// it is a word cut short, and gives "" so the caller draws again.
 private string sample(mapping model, int max_len)
 {
   mapping table;
@@ -147,24 +148,24 @@ private string sample(mapping model, int max_len)
     ctx += NG_START;
 
   out = "";
-  for (steps = 0; steps < max_len; steps++)
+  for (steps = 0; steps <= max_len; steps++)
   {
     string * nexts, ch;
 
     nexts = table[ctx];
     if (!nexts || !sizeof(nexts))
-      break;
+      return out;
 
     ch = nexts[random(sizeof(nexts))];
     if (ch == NG_END)
-      break;
+      return out;
 
     out += ch;
     // slide the window: keep the last `order` characters as the new context
     ctx = (ctx + ch)[1 ..];
   }
 
-  return out;
+  return "";
 }
 
 // Generate one name from a per-culture wordlist file. `order`, `min_len` and
@@ -198,8 +199,8 @@ string generate_name(string path, varargs int order, int min_len, int max_len)
 
     s = sample(model, max_len);
 
-    // we want new names, not the source list read back
-    if (member_array(s, model["words"]) != -1)
+    // a cut word is no name, and neither is the source list read back
+    if (!strlen(s) || member_array(s, model["words"]) != -1)
       continue;
 
     name = s;
