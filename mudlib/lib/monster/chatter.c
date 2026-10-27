@@ -102,7 +102,7 @@ void add_achat_string(mixed weight, mixed chat)
   else
     if (member_array(chat, achat_string[1]) == -1)
     {
-      achat_string[1] += ({ chat });
+      achat_string[1] += ({ weight, chat });
       achat_string[0] += weight;
     }
 }
@@ -118,7 +118,7 @@ void remove_achat_string(mixed chat)
     if ((i = member_array(chat, achat_string[1])) != -1)
     {
       achat_string[0] -= achat_string[1][i-1];
-      achat_string[1] = delete(achat_string[1], i-1, 1);
+      achat_string[1] = delete(achat_string[1], i-1, 2);
     }
 }
 

@@ -82,8 +82,9 @@ All in `chatter.c`; each `chat` function has its `achat` twin
 - `load_chat(chance, ({ weight, line, ... }))`: adds the lines and sets the
   chance.
 - `clear_chat()`: forgets every line, before loading a new set over an old one.
-- `add_chat_string(weight, line)`, `remove_chat_string(line)`: one line, or a
-  flat list of them.
+- `add_chat_string(weight, line)`: one line; `add_chat_string(({ weight, line,
+  ... }), nil)` adds a flat list.
+- `remove_chat_string(line)`: one line, or a list of lines.
 - `set_chat_chance(n)`, `query_chat_chance()`.
 - `query_chat_string()`: `({ total weight, ({ weight, line, ... }) })`. The
   first number is the sum of the weights, not the chance.
