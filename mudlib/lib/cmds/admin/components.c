@@ -171,7 +171,7 @@ private int do_batch(string verb, string type, string * targets)
   for (i = 0; i < sizeof(targets); i++)
     files += resolve_target(targets[i]);
 
-  // keep only loadable rooms / locations, each once
+  // keep the rooms and locations, each once
   files = loadable(files);
   if (!sizeof(files))
   {
@@ -249,34 +249,32 @@ private string * resolve_target(string target)
 }
 
 /**
- * The files that load as a room (.c) or a location (.o), each once.
+ * The rooms (.c) and saved locations (.o) among the files, each once. Nothing
+ * is loaded here: the background steps load them one at a time and skip what
+ * is not a location, so a directory of hundreds never runs out of ticks.
  */
 private string * loadable(string * files)
 {
   string * kept;
-  object what;
+  mapping seen;
+  string ext;
   int i;
 
   kept = ({ });
+  seen = ([ ]);
   for (i = 0; i < sizeof(files); i++)
   {
-    if (member_array(files[i], kept) != -1 || strlen(files[i]) < 2)
+    if (seen[files[i]] || strlen(files[i]) < 2)
+      continue;
+    seen[files[i]] = 1;
+
+    // an area's own save sits beside its locations and is not one
+    if (get_path_file_name(files[i]) == "area.o")
       continue;
 
-    what = nil;
-    // a .c should be a room; a .o a saved location
-    if (files[i][strlen(files[i]) - 2 ..] == ".c")
-    {
-      catch(what = load_object(files[i]));
-      if (what && what->query_room())
-        kept += ({ files[i] });
-    }
-    else if (files[i][strlen(files[i]) - 2 ..] == ".o")
-    {
-      what = LOCATION_HANDLER->load_location(files[i]);
-      if (what && what->query_location())
-        kept += ({ files[i] });
-    }
+    ext = files[i][strlen(files[i]) - 2 ..];
+    if (ext == ".c" || ext == ".o")
+      kept += ({ files[i] });
   }
 
   return kept;
