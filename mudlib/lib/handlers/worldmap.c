@@ -17,9 +17,9 @@
 //      their city locations are forest; road/path sectors are box-drawing
 //      joins, one light line for both (see _arms_code).
 //      Rivers (the swum exits of flowing water, see sector.c query_border_rivers)
-//      are drawn the same way in blue, over every terrain and over roads, under
-//      cities only; where a road crosses a straight river it is a bridge (see
-//      bridge_code).
+//      are drawn the same way in blue, over roads, farmland and open land but
+//      under cities, forests, taiga, mountains and swamps; where a road crosses
+//      a straight river it is a bridge (see bridge_code).
 //   4. Where a city wall meets a road, the wall glyph swaps to a wall/road
 //      hybrid so the road visibly enters the settlement.
 //   5. Overwrite the viewer's own sector with '@'.
@@ -341,10 +341,11 @@ private int _plains_code(int sx, int sy, int sz)
 //   2. road / path — if the sector has road/path exits, draw the way glyph;
 //                    with a river through it as well it is a bridge when the
 //                    road crosses it, and the river otherwise (bridge_code)
-//   3. river       — blue line, over farmland and every terrain, so the
-//                    whole river shows
-//   4. forest, taiga, mountain, swamp, ruins, plains
-//   5. majority    — otherwise the dominant remaining terrain type
+//   3. forest, taiga, mountain, swamp — win over a river, so they keep
+//                    their size
+//   4. river       — blue line, over farmland and any other terrain
+//   5. ruins, plains — below the river
+//   6. majority    — otherwise the dominant remaining terrain type
 private int sector_code(string game, string map_name, int sx, int sy, int sz)
 {
   object sect;
@@ -394,15 +395,15 @@ private int sector_code(string game, string map_name, int sx, int sy, int sz)
     return MAP_GLYPH_WAYS + _arms_code(road_arms);
   }
 
-  // a river is drawn over the terrain it runs through, so it is never lost
-  // inside a forest or a swamp
-  if (river)
-    return MAP_GLYPH_RIVERS + _arms_code(river_arms_here);
-
+  // a forest wins over a river running through it: the woods read as their
+  // true size; so do the other terrain with a shape of its own
   if (type == SECTOR_TYPE_FOREST)      return MAP_GLYPH_FOREST;
   if (type == SECTOR_TYPE_TAIGA)       return MAP_GLYPH_TAIGA;
   if (type == SECTOR_TYPE_MOUNTAIN)    return MAP_GLYPH_MOUNTAIN;
   if (type == SECTOR_TYPE_SWAMP)       return MAP_GLYPH_SWAMP;
+
+  if (river)
+    return MAP_GLYPH_RIVERS + _arms_code(river_arms_here);
 
   if (type == SECTOR_TYPE_RUINS)       return MAP_GLYPH_RUINS;
   if (type == SECTOR_TYPE_PLAINS)      return _plains_code(sx, sy, sz);
