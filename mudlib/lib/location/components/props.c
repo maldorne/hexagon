@@ -1048,6 +1048,77 @@ void refresh_actions()
   move(loc);
 }
 
+/**
+ * Whether the generic action `verb` would go ahead on an instance: nothing
+ * blocks it and its state is what the action asks for. A custom action is
+ * always taken as ready, since only its blueprint knows.
+ */
+private int _ready_for(mapping inst, string verb)
+{
+  string canonical;
+  mixed * plan;
+  mapping spec, st, ov_props, match;
+  string * flags, * keys;
+  mixed expected;
+  int i;
+
+  canonical = handler("props")->query_canonical_action(
+                inst[PROP_FIELD_TYPE], verb);
+  plan = canonical
+       ? handler("props")->query_action_plan(inst[PROP_FIELD_TYPE], canonical)
+       : nil;
+  if (!plan || sizeof(plan) < 2 || plan[0] != PROP_PLAN_GENERIC)
+    return 1;
+
+  spec = plan[1];
+  st = inst[PROP_FIELD_STATE] ? inst[PROP_FIELD_STATE] : ([ ]);
+  ov_props = inst[PROP_FIELD_OVERRIDES]
+           ? inst[PROP_FIELD_OVERRIDES][PROP_OVERRIDE_PROPS] : nil;
+
+  flags = spec[PROP_SPEC_BLOCKED_BY] ? spec[PROP_SPEC_BLOCKED_BY] : ({ });
+  for (i = 0; i < sizeof(flags); i++)
+    if (st[flags[i]] || (ov_props && ov_props[flags[i]]))
+      return 0;
+
+  flags = spec[PROP_SPEC_REQUIRES_STATE] ? spec[PROP_SPEC_REQUIRES_STATE] : ({ });
+  for (i = 0; i < sizeof(flags); i++)
+    if (!st[flags[i]])
+      return 0;
+
+  flags = spec[PROP_SPEC_REQUIRES_STATE_UNSET]
+        ? spec[PROP_SPEC_REQUIRES_STATE_UNSET] : ({ });
+  for (i = 0; i < sizeof(flags); i++)
+    if (st[flags[i]])
+      return 0;
+
+  match = spec[PROP_SPEC_REQUIRES_STATE_MATCH]
+        ? spec[PROP_SPEC_REQUIRES_STATE_MATCH] : ([ ]);
+  keys = map_indices(match);
+  for (i = 0; i < sizeof(keys); i++)
+  {
+    expected = match[keys[i]];
+    if (expected == PROP_VALUE_PLAYER_NAME)
+      expected = this_player()->query_name();
+    if (st[keys[i]] != expected)
+      return 0;
+  }
+
+  return 1;
+}
+
+// The first of several matching instances ready for `verb`, or the first of
+// them when none is.
+private mapping _first_ready(mapping * matches, string verb)
+{
+  int i;
+
+  for (i = 0; i < sizeof(matches); i++)
+    if (_ready_for(matches[i], verb))
+      return matches[i];
+
+  return matches[0];
+}
+
 // ************************************************************
 //  Action dispatcher
 // ************************************************************
@@ -1118,11 +1189,10 @@ int do_prop_action(string str)
     return 0;
   }
 
+  // several props answer (two benches): the first one free for the action is
+  // meant; with none free, the first, whose own message says why
   if (sizeof(matches) > 1)
-  {
-    notify_fail(_LANG_PROPS_AMBIGUOUS_TARGET + "\n");
-    return 0;
-  }
+    matches = ({ _first_ready(matches, verb) });
 
   inst = matches[0];
 
