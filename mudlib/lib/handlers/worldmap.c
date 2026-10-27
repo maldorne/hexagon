@@ -297,15 +297,16 @@ private int * river_arms(object sect, string game, string map_name,
 }
 
 // The code of a sector a road and a river both cross. `road` and `river` are
-// the arms of each: a straight river with the road reaching both of its banks
-// is a bridge, whatever other arms the road has; otherwise the river is drawn,
-// so it reads unbroken from source to mouth.
+// the arms of each: a river running one way only (one or both of its arms,
+// as where it rises or meets another) with the road reaching both of its
+// banks is a bridge, whatever other arms the road has; otherwise the river is
+// drawn, so it reads unbroken from source to mouth.
 private int bridge_code(int * road, int * river)
 {
   int river_h, river_v;
 
-  river_h = river[2] && river[3] && !river[0] && !river[1];
-  river_v = river[0] && river[1] && !river[2] && !river[3];
+  river_h = (river[2] || river[3]) && !river[0] && !river[1];
+  river_v = (river[0] || river[1]) && !river[2] && !river[3];
 
   if (river_v && road[2] && road[3])
     return MAP_GLYPH_BRIDGE_V;
