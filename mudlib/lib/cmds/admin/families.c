@@ -1,11 +1,13 @@
 #include <mud/cmd.h>
 #include <living/family.h>
 #include <areas/area.h>
+#include <areas/vacancy.h>
+#include <room/location.h>
 
 inherit LOCATION_CMD;
 
 // subcommands that act on a family; they cannot be surnames
-#define FAMILY_VERBS ({ "found", "join", "leave", "marry", "parents" })
+#define FAMILY_VERBS ({ "found", "join", "leave", "marry", "parents", "rename" })
 
 private int do_list(object me, string game, int whole_game, int extinct);
 private int do_house(object me, string surname);
@@ -16,13 +18,14 @@ private int do_join(object me, string game, string * args);
 private int do_leave(object me, string * args);
 private int do_marry(object me, string * args);
 private int do_parents(object me, string * args);
+private int do_rename(object me, string * args);
 
 void setup()
 {
   set_aliases(({ "families", "familias" }));
   set_usage("families [ all [extinct] | <surname> | found [surname] | " +
             "join <surname> <who> | leave <who> | marry <who> <to whom> | " +
-            "parents <who> <a> [b] ]");
+            "parents <who> <a> [b] | rename <surname> <new surname> ]");
   set_help(
     "Report on the houses of the game you are standing in.\n" +
     "\n" +
@@ -36,6 +39,7 @@ void setup()
     "  families leave <who>            take somebody out of their house\n" +
     "  families marry <who> <to whom>  wed two people who are here\n" +
     "  families parents <who> <a> [b]  record the parents of a member\n" +
+    "  families rename <surname> <new> give a house another surname\n" +
     "\n" +
     "A family is a surname, the people who belong to it and what it owns. " +
     "It is kept in a register of its own rather than on any of its members, " +
@@ -52,7 +56,7 @@ void setup()
     "\n" +
     "Houses are founded with 'families found', and by 'houses assign', which " +
     "gives each household it houses a house of its own. The words found, join, " +
-    "leave, marry and parents are subcommands, so no house can be looked up " +
+    "leave, marry, parents and rename are subcommands, so no house can be looked up " +
     "under them. found works on the area you stand in, which must be settled " +
     "and grant a citizenship; join, leave, marry and parents name people " +
     "standing in the same location (or players online), and marry follows the " +
@@ -93,14 +97,99 @@ private string * area_families(object me, object area)
   return sort_array(out);
 }
 
+// The communities of a game: each root area, which keeps the books of its
+// houses and the census of its people.
+private object * game_communities(string game)
+{
+  string * paths;
+  object * out;
+  object area;
+  int i;
+
+  paths = (string *)AREA_HANDLER->query_area_paths(game);
+  out = ({ });
+  for (i = 0; i < sizeof(paths); i++)
+  {
+    area = AREA_HANDLER->query_area(paths[i]);
+    if (area && area->query_root_area() == area)
+      out += ({ area });
+  }
+
+  return out;
+}
+
+// A house file without what every one of the game shares, the save directory
+// and the extension: "<area>/rooms/<file>", and " #<n>" for one household of a
+// shared house.
+private string short_house_path(string file)
+{
+  string rest, unit;
+
+  unit = "";
+  if (sscanf(file, "%s" + HOUSE_UNIT_MARK + "%s", file, unit) == 2)
+    unit = " " + HOUSE_UNIT_MARK + unit;
+
+  if (sscanf(file, "/save/games/%*s/locations/areas/%s", rest) != 2)
+    rest = file;
+  if (strlen(rest) > 2 && rest[strlen(rest) - 2 ..] == ".o")
+    rest = rest[0 .. strlen(rest) - 3];
+
+  return rest + unit;
+}
+
+// The census row of a member, from whichever community counts them; nil for a
+// player or anybody no census knows.
+private mapping census_row(object * communities, string id)
+{
+  string uuid;
+  mapping row;
+  int i;
+
+  if (sscanf(id, FAMILY_NPC + "%s", uuid) != 1)
+    return nil;
+
+  for (i = 0; i < sizeof(communities); i++)
+  {
+    row = (mapping)communities[i]->query_npc_census()[uuid];
+    if (row)
+      return row;
+  }
+
+  return nil;
+}
+
+// What a member does: the job they hold, else the kind of person they were
+// made as; "player" for a player.
+private string member_trade(object * communities, string id)
+{
+  mapping row;
+  string * parts;
+
+  if (sscanf(id, FAMILY_PLAYER + "%*s") == 1)
+    return "player";
+
+  row = census_row(communities, id);
+  if (!row)
+    return "-";
+  if (stringp(row[CENSUS_VACANCY]) && strlen(row[CENSUS_VACANCY]))
+    return row[CENSUS_VACANCY];
+  if (stringp(row["source"]))
+  {
+    parts = explode(row["source"], "/");
+    return parts[sizeof(parts) - 1];
+  }
+
+  return "-";
+}
+
 // ===== families [all [extinct]] =====
 private int do_list(object me, string game, int whole_game, int extinct)
 {
-  string * names;
+  string * names, * members, * houses, * parts;
   string * * rows;
-  string where;
+  string where, citizenship;
   object area, fam;
-  int i, living, hidden;
+  int i, j, living, players, hidden;
 
   fam = handler("families", me);
   area = environment(me) ? (object)environment(me)->query_area() : nil;
@@ -141,21 +230,37 @@ private int do_list(object me, string game, int whole_game, int extinct)
     return 1;
   }
 
-  rows = ({ ({ "house", "living", "gone", "property", "" }) });
+  rows = ({ ({ "house", "of", "living", "players", "gone", "property",
+                "where", "" }) });
   for (i = 0; i < sizeof(names); i++)
   {
-    living = sizeof((string *)fam->query_members(names[i]));
+    members = (string *)fam->query_members(names[i]);
+    living = sizeof(members);
+    players = 0;
+    for (j = 0; j < living; j++)
+      if (sscanf(members[j], FAMILY_PLAYER + "%*s") == 1)
+        players++;
+
+    houses = (string *)fam->query_houses(names[i]);
+    citizenship = (string)fam->query_family(names[i])[FAMILY_CITIZENSHIP];
+    parts = explode(citizenship ? citizenship : "", "/");
+
     rows += ({ ({ names[i],
+                  sizeof(parts) ? replace_string(parts[sizeof(parts) - 1],
+                                                 ".c", "") : "-",
                   "" + living,
+                  "" + players,
                   "" + (map_sizeof((mapping)fam->query_history(
                                       names[i])) - living),
-                  "" + sizeof((string *)fam->query_houses(
-                                names[i])),
+                  "" + sizeof(houses),
+                  sizeof(houses) ? short_house_path(houses[0]) +
+                    (sizeof(houses) > 1 ? " +" + (sizeof(houses) - 1) : "")
+                    : "-",
                   fam->is_extinct(names[i]) ? "extinct"
                     : (living ? "" : "nobody has moved in yet") }) });
   }
 
-  write("Houses of " + where + ":\n" + columns(rows) +
+  write("Houses of " + where + ": " + sizeof(names) + "\n" + columns(rows) +
         (hidden ? hidden + " extinct house" + (hidden == 1 ? "" : "s") +
                   " not shown ('families all extinct' lists them).\n" : ""));
   return 1;
@@ -164,13 +269,14 @@ private int do_list(object me, string game, int whole_game, int extinct)
 // ===== families <surname> =====
 private int do_house(object me, string surname)
 {
-  mapping history;
-  object fam;
-  string * ids, * props, * parents;
+  mapping history, row;
+  object * communities;
+  object fam, place;
+  string * ids, * props, * parents, * residents, * names, * kind;
   string * * rows;
-  string out;
+  string out, file;
   mixed spouse, fate;
-  int i;
+  int i, j, k, shared;
 
   fam = handler("families", me);
   if (!fam->has_family(surname))
@@ -182,6 +288,7 @@ private int do_house(object me, string surname)
   ids = (string *)fam->query_members(surname);
   history = (mapping)fam->query_history(surname);
   props = (string *)fam->query_houses(surname);
+  communities = game_communities(game_name(me));
 
   out = "House " + surname + ", of " +
         (string)fam->query_family(surname)[FAMILY_CITIZENSHIP] +
@@ -194,7 +301,7 @@ private int do_house(object me, string surname)
            "spent.\n\n";
   else
   {
-    rows = ({ ({ "living", "married to", "child of" }) });
+    rows = ({ ({ "living", "trade", "married to", "child of" }) });
     for (i = 0; i < sizeof(ids); i++)
     {
       // no (string) cast on the spouse: the unmarried have none, and the cast
@@ -204,6 +311,7 @@ private int do_house(object me, string surname)
 
       rows += ({ ({
         (string)fam->query_member_name(surname, ids[i]),
+        member_trade(communities, ids[i]),
         stringp(spouse)
           ? (string)fam->query_member_name(surname, spouse)
           : "-",
@@ -235,9 +343,41 @@ private int do_house(object me, string surname)
     out += "It owns nothing.\n";
   else
   {
-    rows = ({ ({ "property" }) });
-    for (i = 0; i < sizeof(props); i++)
-      rows += ({ ({ props[i] }) });
+    rows = ({ ({ "property", "where", "who lives there", "" }) });
+    for (i = 0; i < sizeof(communities); i++)
+    {
+      props = (string *)communities[i]->query_houses_owned_by(surname);
+      for (j = 0; j < sizeof(props); j++)
+      {
+        // a household of a shared house is the location's file plus a mark
+        file = (string)communities[i]->query_house_file(props[j]);
+        place = nil;
+        catch(place = load_object(LOCATION_HANDLER)->load_location(file));
+
+        residents = (string *)communities[i]->query_house_residents(props[j]);
+        names = ({ });
+        for (k = 0; k < sizeof(residents); k++)
+        {
+          row = (mapping)communities[i]->query_npc_census()[residents[k]];
+          names += ({ (row && stringp(row["name"])) ? capitalize(row["name"])
+                                                     : residents[k] });
+        }
+
+        kind = ({ });
+        if (communities[i]->is_kept_house(file))
+          kind += ({ "kept" });
+        if (communities[i]->is_communal_house(file))
+          kind += ({ "communal" });
+        shared = (int)communities[i]->query_shared_house(file);
+        if (shared > 1)
+          kind += ({ "shared by " + shared });
+
+        rows += ({ ({ place ? (string)place->short() : "-",
+                      short_house_path(props[j]),
+                      sizeof(names) ? implode(names, ", ") : "nobody",
+                      implode(kind, ", ") }) });
+      }
+    }
     out += columns(rows);
   }
 
@@ -536,6 +676,46 @@ private int do_parents(object me, string * args)
   return 1;
 }
 
+// ===== families rename <surname> <new surname> =====
+private int do_rename(object me, string * args)
+{
+  object fam;
+  string old_surname, new_surname;
+
+  if (sizeof(args) != 3)
+  {
+    notify_fail("Usage: families rename <surname> <new surname>\n");
+    return 0;
+  }
+
+  fam = handler("families", me);
+  old_surname = capitalize(args[1]);
+  new_surname = capitalize(args[2]);
+
+  if (!fam->has_family(old_surname))
+  {
+    notify_fail("No house of that name here.\n");
+    return 0;
+  }
+  if (fam->has_family(new_surname) ||
+      member_array(lower_case(new_surname), FAMILY_VERBS) != -1)
+  {
+    notify_fail("'" + new_surname + "' cannot be taken: a house bears it, " +
+                "or it is a subcommand.\n");
+    return 0;
+  }
+
+  if (!fam->rename_family(old_surname, new_surname))
+  {
+    notify_fail("The house could not be renamed.\n");
+    return 0;
+  }
+
+  write("House " + old_surname + " is now house " + new_surname + ". Its " +
+        "people answer to it from the next time they are materialized.\n");
+  return 1;
+}
+
 static int cmd(string str, object me, string verb)
 {
   string * args;
@@ -568,6 +748,8 @@ static int cmd(string str, object me, string verb)
     return do_marry(me, args);
   if (args[0] == "parents")
     return do_parents(me, args);
+  if (args[0] == "rename")
+    return do_rename(me, args);
 
   // any other single word is a surname; the subcommand words are reserved
   if (sizeof(args) == 1 && member_array(args[0], FAMILY_VERBS) == -1)

@@ -52,6 +52,7 @@ mapping member_of;
 private void _save();
 string query_save_file();
 private void _vacate_houses(string surname);
+private object * _root_areas();
 int is_extinct(string surname);
 
 void create()
@@ -288,6 +289,42 @@ int found_family(string surname, string citizenship)
   all[surname] = ([ FAMILY_CITIZENSHIP: citizenship ? citizenship : "",
                     FAMILY_MEMBERS:     ([ ]),
                     FAMILY_HISTORY:     ([ ]) ]);
+  _save();
+  return 1;
+}
+
+/**
+ * Give a family another surname: its record, its members and the houses on the
+ * books of every community of the game move to the new one. The old surname is
+ * forgotten, not spent. Members already in the world answer to the new surname
+ * the next time they are materialized.
+ */
+int rename_family(string old_surname, string new_surname)
+{
+  object * areas;
+  string * ids, * files;
+  int i, j;
+
+  if (!old_surname || !new_surname || !strlen(new_surname) ||
+      !families[old_surname] || families[new_surname])
+    return 0;
+
+  families[new_surname] = families[old_surname];
+  map_delete(families, old_surname);
+
+  ids = map_indices(member_of);
+  for (i = 0; i < sizeof(ids); i++)
+    if (member_of[ids[i]] == old_surname)
+      member_of[ids[i]] = new_surname;
+
+  areas = _root_areas();
+  for (i = 0; i < sizeof(areas); i++)
+  {
+    files = (string *)areas[i]->query_houses_owned_by(old_surname);
+    for (j = 0; j < sizeof(files); j++)
+      areas[i]->set_house_owner(files[j], new_surname);
+  }
+
   _save();
   return 1;
 }
