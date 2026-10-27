@@ -58,7 +58,7 @@ inherit "/lib/core/object.c";
 // single ones. Either way they are blue.
 #define WORLDMAP_RIVER_DOUBLE 1
 
-// Colour of the river line, and of a bridge crossing it.
+// Colour of the river line.
 #define COLOUR_RIVER  "%^BLUE%^"
 
 // A river that never reaches a border of its sector (it starts and ends in it).
@@ -109,11 +109,11 @@ void create()
   glyphs[MAP_GLYPH_TAIGA] = "%^GREEN%^" + GLYPH_MAP_TAIGA + "%^RESET%^";
   glyphs[MAP_GLYPH_RUINS]    = GLYPH_MAP_RUINS;
 
-  // a bridge crossing is drawn in the river's blue, so the river reads unbroken
-  glyphs[MAP_GLYPH_BRIDGE_V] = COLOUR_RIVER +
-    (WORLDMAP_RIVER_DOUBLE ? GLYPH_CROSS_DBL_V : GLYPH_BOX_1111) + "%^RESET%^";
-  glyphs[MAP_GLYPH_BRIDGE_H] = COLOUR_RIVER +
-    (WORLDMAP_RIVER_DOUBLE ? GLYPH_CROSS_DBL_H : GLYPH_BOX_1111) + "%^RESET%^";
+  // a bridge is part of the road, so it is drawn in the road's plain colour
+  glyphs[MAP_GLYPH_BRIDGE_V] =
+    (WORLDMAP_RIVER_DOUBLE ? GLYPH_CROSS_DBL_V : GLYPH_BOX_1111);
+  glyphs[MAP_GLYPH_BRIDGE_H] =
+    (WORLDMAP_RIVER_DOUBLE ? GLYPH_CROSS_DBL_H : GLYPH_BOX_1111);
 
   for (i = 0; i < 16; i++)
   {
