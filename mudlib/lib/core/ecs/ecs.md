@@ -64,7 +64,9 @@ priority (lower first, ties in load order) and runs it in one of two ways:
 
 A component stands nowhere, so it cannot carry a verb. One that wants a verb
 lists it in `query_component_actions()` as `([ verb : function ])`; the entity
-adds the action and calls that function on the component.
+adds the action and calls that function on the component. Reseeding a live
+component (`add_component`) asks for its verbs again, and dropping it removes
+them.
 
 ## The component
 

@@ -152,7 +152,8 @@ private void _register_component_actions(object c)
   }
 }
 
-// Forget the verbs a component that is going asked for.
+// Forget the verbs a component asked for, the action included, so a verb it no
+// longer wants stops answering.
 private void _unregister_component_actions(object c)
 {
   string * verbs;
@@ -164,7 +165,10 @@ private void _unregister_component_actions(object c)
   verbs = map_indices(component_actions);
   for (i = 0; i < sizeof(verbs); i++)
     if (component_actions[verbs[i]][0] == c)
+    {
       map_delete(component_actions, verbs[i]);
+      remove_action("_component_action", verbs[i]);
+    }
 }
 
 /**
@@ -259,7 +263,12 @@ void add_component(string type, mapping attrs)
 
   live = query_component_by_type(type);
   if (live)
+  {
+    // the seed may change the verbs it asks for
+    _unregister_component_actions(live);
     live->init_auto_load_attributes(attrs);
+    _register_component_actions(live);
+  }
   else
   {
     live = _spawn_component(type, attrs);
