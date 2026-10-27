@@ -428,6 +428,12 @@ mixed uncarve_location(object loc, string dir, string allowed,
   return ({ file });
 }
 
+// Ticks kept in hand by the coordinate walk before it goes on in a call_out.
+#define GUESS_TICK_MARGIN 3000000
+
+void continue_guess_coordinates(mapping state);
+private int _guess_out_of_ticks(mapping state);
+
 // One line per location with its file and coordinates, "no coords" when the
 // inference could not place it. `old` (file name -> previous coordinates)
 // marks the locations a recompute moved and ends with a count of them.
@@ -519,6 +525,7 @@ private mapping _clear_anchored_components(object * locations)
   for (i = 0; i < sizeof(file_names); i++)
   {
     string * members;
+    mapping in_group;
     int anchor;
 
     if (group[file_names[i]])
@@ -552,8 +559,12 @@ private mapping _clear_anchored_components(object * locations)
     if (!anchor)
       continue;
 
+    in_group = ([ ]);
+    for (j = 0; j < sizeof(members); j++)
+      in_group[members[j]] = 1;
+
     for (j = 0; j < sizeof(locations); j++)
-      if (member_array(locations[j]->query_file_name(), members) != -1)
+      if (in_group[locations[j]->query_file_name()])
         locations[j]->clear_coordinates();
   }
 
@@ -566,73 +577,145 @@ private mapping _clear_anchored_components(object * locations)
 // set are placed again from it instead of keeping their coordinates.
 int do_guess_coordinates(object * locations, varargs int verbose, int recompute)
 {
-  mapping old_coords;
-  string * exits;
-  object current;       // location currently checking
-  object * pending;     // locations pending to guess coordinates
-  object * done;        // locations already checked
-  mapping connected;    // locations connected to a different area, ([ file_name : ({ "direction", destination }) ])
-  string * file_names;  // array with the file names of every location in this area
-  object area;
-  string initial_area_name;
-  int i, j;
-  string * aux;
-  string ret;
+  mapping state;
+  int i;
 
-  pending = ({ });
-  done = ({ });
-  connected = ([ ]);
-  file_names = ({ });
-  ret = "";
-  old_coords = nil;
+  if (!sizeof(locations))
+    return 1;
+
+  state = ([
+    "verbose":    verbose,
+    "recompute":  recompute,
+    "old_coords": nil,
+    "phase":      0,
+    "i":          0,
+    "pending":    ({ }),
+    "head":       0,
+    "queued":     ([ ]),
+    "done":       ([ ]),
+    "in_set":     ([ ]),
+    "file_names": ([ ]),
+    "connected":  ([ ]),
+  ]);
+
+  state["files"] = ({ });
+  for (i = 0; i < sizeof(locations); i++)
+  {
+    state["in_set"][locations[i]->query_file_name()] = 1;
+    state["files"] += ({ locations[i]->query_file_name() });
+  }
 
   if (recompute)
   {
     // exits must point at locations before the grid links can be followed
     for (i = 0; i < sizeof(locations); i++)
       locations[i]->update_exits_to_locations();
-    old_coords = _clear_anchored_components(locations);
+    state["old_coords"] = _clear_anchored_components(locations);
   }
 
-  // find locations in the list with coordinates as starting points,
+  continue_guess_coordinates(state);
+  return 1;
+}
+
+// Queue a location for the walk, once. Files, not objects: the walk can span
+// several executions, and an idle location may be unloaded in between.
+private void _guess_enqueue(mapping state, object loc)
+{
+  string file;
+
+  file = loc->query_file_name();
+  if (state["queued"][file])
+    return;
+  state["queued"][file] = 1;
+  state["pending"] += ({ file });
+}
+
+/**
+ * One stretch of do_guess_coordinates, resumed from a call_out when the ticks
+ * run low: a large area is placed over several executions instead of running
+ * out of ticks halfway. Membership is kept in mappings, so the walk grows with
+ * the number of locations and not with its square.
+ *
+ * @param state the walk so far, as do_guess_coordinates set it up
+ */
+void continue_guess_coordinates(mapping state)
+{
+  object * locations;
+  string * exits;
+  object current;
+  object area;
+  string ret;
+  int i, j, verbose;
+
+  verbose = state["verbose"];
+
+  // 0: find locations in the list with coordinates as starting points,
   // and update every exit to the locations instead of the rooms
-  for (i = 0; i < sizeof(locations); i++)
+  while (state["phase"] == 0)
   {
+    if (state["i"] >= sizeof(state["files"]))
+    {
+      state["phase"] = 1;
+      state["i"] = 0;
+      state["report"] = "\nCheck connections to different areas ...\n";
+      break;
+    }
+    if (_guess_out_of_ticks(state))
+      return;
+
+    current = load_object(LOCATION_HANDLER)->
+      load_location(state["files"][state["i"]++]);
+    if (!current)
+      continue;
+
     // if some exit destination is to a .c file whose location
     // already exists, we change the destination to the .o file
-    locations[i]->update_exits_to_locations();
+    current->update_exits_to_locations();
+    state["file_names"][current->query_file_name()] = 1;
 
-    // write("Checking " + file_name(locations[i]) + " (" + locations[i]->query_file_name() + ")\n");
-
-    file_names += ({ locations[i]->query_file_name() });
-
-    // write("Updated exits for " + file_name(locations[i]) + " " +
-    //  + to_string(locations[i]->query_dest_dir()) + "\n");
-
-    if (locations[i]->query_coordinates())
-      pending += ({ locations[i] });
+    if (current->query_coordinates())
+      _guess_enqueue(state, current);
     // a location added to an area already on the map takes its place from a
     // neighbour that has one, whatever area that neighbour belongs to
-    else if (locations[i]->guess_coordinates())
-      pending += ({ locations[i] });
+    else if (current->guess_coordinates())
+      _guess_enqueue(state, current);
   }
 
-  // get the area (the same for every location, use the first one as an example)
-  area = load_object(LOCATION_HANDLER)->query_area_from_location_file_name(locations[0]->query_file_name());
-  initial_area_name = area->query_area_name();
-
-  ret += "\nCheck connections to different areas ...\n";
-
-  // after updating every exit, check locations connected to different areas
-  for (i = 0; i < sizeof(locations); i++)
+  // 1: after updating every exit, check locations connected to different areas
+  while (state["phase"] == 1)
   {
-    ret += "  Checking " + get_path_file_name(locations[i]->query_file_name()) + "\n";
+    if (state["i"] >= sizeof(state["files"]))
+    {
+      state["phase"] = 2;
+      break;
+    }
+    if (_guess_out_of_ticks(state))
+      return;
 
-    exits = locations[i]->query_dest_dir();
+    current = load_object(LOCATION_HANDLER)->
+      load_location(state["files"][state["i"]++]);
+    if (!current)
+      continue;
 
-    for (j = 0; j < sizeof(exits); j+=2)
+    if (!state["area"])
+      state["area"] = load_object(LOCATION_HANDLER)->
+        query_area_from_location_file_name(current->query_file_name());
+    area = state["area"];
+
+    state["report"] += "  Checking " +
+      get_path_file_name(current->query_file_name()) + "\n";
+
+    exits = current->query_dest_dir();
+
+    for (j = 0; j < sizeof(exits); j += 2)
     {
       object destination;
+      string here;
+
+      // a destination already known to be in the set is never another area
+      if (state["file_names"][exits[j+1]])
+        continue;
+
       destination = load_object(LOCATION_HANDLER)->load_location(exits[j+1]);
 
       // maybe this is not a location, but a room
@@ -641,138 +724,160 @@ int do_guess_coordinates(object * locations, varargs int verbose, int recompute)
 
       // if any of our locations has an exit connecting with somewhere
       // outside our area
-      if (member_array(exits[j+1], file_names) == -1 && 
-          (locations[i]->query_area_name() != destination->query_area_name()))
-      {
-        if (connected[locations[i]->query_file_name()])
-          connected[locations[i]->query_file_name()] += ({ exits[j], exits[j+1] });
-        else
-          connected[locations[i]->query_file_name()] = ({ exits[j], exits[j+1] });
+      if (current->query_area_name() == destination->query_area_name())
+        continue;
 
-        area->add_connection(locations[i]->query_file_name(), exits[j], exits[j+1]);
+      here = current->query_file_name();
+      if (state["connected"][here])
+        state["connected"][here] += ({ exits[j], exits[j+1] });
+      else
+        state["connected"][here] = ({ exits[j], exits[j+1] });
 
-        // if we can guess the coordinates from outside the area, 
-        // add this location as one of the initial ones
-        if (locations[i]->guess_coordinates() && 
-            member_array(locations[i], pending) == -1)
-          pending += ({ locations[i] });
-      }
+      if (area)
+        area->add_connection(here, exits[j], exits[j+1]);
+
+      // if we can guess the coordinates from outside the area,
+      // add this location as one of the initial ones
+      if (current->guess_coordinates())
+        _guess_enqueue(state, current);
     }
   }
 
-  // log the connections
-  aux = keys(connected);
+  // the locations as they are now, for the reports
+  locations = ({ });
+  if (state["phase"] >= 2)
+    for (i = 0; i < sizeof(state["files"]); i++)
+      locations += ({ load_object(LOCATION_HANDLER)->
+                        load_location(state["files"][i]) }) - ({ nil });
 
-  for (i = 0; i < sizeof(aux); i++)
+  if (state["phase"] == 2)
   {
-    ret += "  " + get_path_file_name(aux[i]) + ":\n";
-    for (j = 0; j < sizeof(connected[aux[i]]); j+=2)
-      ret += "    " + connected[aux[i]][j] + " -> " + get_path_file_name(connected[aux[i]][j+1]) + "\n";
-  }
+    mapping connected;
+    string * aux;
 
-  if (verbose)
-    write(ret);
-  ret = "";
-  // write("Connections (" + map_sizeof(connected) + "): " + to_string(connected));
+    // log the connections
+    connected = state["connected"];
+    aux = keys(connected);
+    ret = state["report"];
 
-  if (!sizeof(pending))
-  {
-    write("\n  No locations with coordinates found.\n");
-    _print_coordinates(locations, old_coords);
-    return 1;
-  }
-
-  ret += "\nTry guessing missing coordinates ...\n";
-  ret += "Initially we have " + sizeof(pending) + " locations to check coordinates:\n";
-
-  for (i = 0; i < sizeof(pending); i++)
-    ret += "   - " + pending[i]->query_file_name() + "\n";
-
-  if (verbose)
-    write(ret);
-
-  while (sizeof(pending))
-  {
-    ret = "\n";
-    // ret += "Locations (" + sizeof(locations) + "): " + to_string(locations);
-    ret += "  Yet to check " + sizeof(pending) + ", "; // "): " + to_string(pending));
-    ret += "already done " + sizeof(done) + + "\n"; // "): " + to_string(done));
-
-    current = pending[0];
-
-    ret += "  Checking " +get_path_file_name(current->query_file_name()) + "\n";
-    
-    // already checked location, remove from pending
-    // and continue
-    if (member_array(current, done) != -1)
+    for (i = 0; i < sizeof(aux); i++)
     {
-      pending -= ({ current });
-      continue;
+      ret += "  " + get_path_file_name(aux[i]) + ":\n";
+      for (j = 0; j < sizeof(connected[aux[i]]); j += 2)
+        ret += "    " + connected[aux[i]][j] + " -> " +
+               get_path_file_name(connected[aux[i]][j+1]) + "\n";
     }
+
+    if (verbose)
+      write(ret);
+
+    if (!sizeof(state["pending"]))
+    {
+      write("\n  No locations with coordinates found.\n");
+      _print_coordinates(locations, state["old_coords"]);
+      return;
+    }
+
+    ret = "\nTry guessing missing coordinates ...\n";
+    ret += "Initially we have " + sizeof(state["pending"]) +
+           " locations to check coordinates:\n";
+
+    for (i = 0; i < sizeof(state["pending"]); i++)
+      ret += "   - " + state["pending"][i] + "\n";
+
+    if (verbose)
+      write(ret);
+
+    state["phase"] = 3;
+  }
+
+  // 3: walk the graph from the anchored locations, placing each neighbour
+  while (state["phase"] == 3)
+  {
+    if (state["head"] >= sizeof(state["pending"]))
+    {
+      state["phase"] = 4;
+      break;
+    }
+    if (_guess_out_of_ticks(state))
+      return;
+
+    current = load_object(LOCATION_HANDLER)->
+      load_location(state["pending"][state["head"]++]);
+
+    // already checked location
+    if (!current || state["done"][current->query_file_name()])
+      continue;
+
+    ret = "\n  Yet to check " +
+          (sizeof(state["pending"]) - state["head"] + 1) + ", already done " +
+          map_sizeof(state["done"]) + "\n";
+    ret += "  Checking " + get_path_file_name(current->query_file_name()) + "\n";
 
     exits = current->query_dest_dir();
-    // write("Exits: " + to_string(exits) + "\n");
 
-    for (i = 0; i < sizeof(exits); i+=2)
+    for (i = 0; i < sizeof(exits); i += 2)
     {
       object dest;
 
       // if it is not a valid exit for guessing coordinates
-      if (member_array(exits[i], ({ DIR_NORTH, DIR_SOUTH, DIR_EAST, DIR_WEST, 
-                                  DIR_NORTHWEST, DIR_NORTHEAST, DIR_SOUTHWEST, DIR_SOUTHEAST, 
+      if (member_array(exits[i], ({ DIR_NORTH, DIR_SOUTH, DIR_EAST, DIR_WEST,
+                                  DIR_NORTHWEST, DIR_NORTHEAST, DIR_SOUTHWEST, DIR_SOUTHEAST,
                                   DIR_UP, DIR_DOWN })) == -1)
-      {
         continue;
-      }
 
       ret += "   - exit " + exits[i] + " to " + get_path_file_name(exits[i+1]);
-      
+
       dest = current->query_dest_object(exits[i]);
 
       if (dest)
       {
-        int found;
-
         if (!dest->query_location())
         {
           ret += " (not a location)\n";
           continue;
         }
 
-        // write("Destination: " + to_string(dest) + " " + dest->query_file_name() + "\n");
-        found = dest->guess_coordinates();
-
-        if (found)
+        if (dest->guess_coordinates())
           ret += " (%^GREEN%^found%^RESET%^)";
 
         // enqueue the destination for guessing coordinates, only with locations from
         // our original list, in other case we will remap the full game
-        if (member_array(dest, locations) == -1)
+        if (!state["in_set"][dest->query_file_name()])
         {
           ret += " (outside area)\n";
           continue;
         }
 
-        // not peding to process and not already processed
-        if ((member_array(dest, pending) == -1) && (member_array(dest, done) == -1))
-          pending += ({ dest });
-        // write(" Exits: " + to_string(dest->query_dest_dir()) + "\n");
+        if (!state["done"][dest->query_file_name()])
+          _guess_enqueue(state, dest);
       }
 
       ret += "\n";
     }
 
     // location done
-    pending -= ({ current });
-    done += ({ current });
+    state["done"][current->query_file_name()] = 1;
     if (verbose)
       write(ret);
   }
 
   // the quiet report: one line per location with the coordinates it ended with
-  if (!verbose || recompute)
-    _print_coordinates(locations, old_coords);
+  if (!verbose || state["recompute"])
+    _print_coordinates(locations, state["old_coords"]);
+}
 
+// Whether the walk should stop here and go on in a call_out of its own: a
+// margin of ticks is kept so the step in hand always finishes.
+private int _guess_out_of_ticks(mapping state)
+{
+  int left;
+
+  left = eval_cost();
+  if (left < 0 || left > GUESS_TICK_MARGIN)
+    return 0;
+
+  call_out("continue_guess_coordinates", 0, state);
   return 1;
 }
 
