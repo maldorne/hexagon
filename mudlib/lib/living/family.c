@@ -36,7 +36,7 @@ string query_family()
   string id;
 
   id = query_family_id();
-  return id ? handler("families", this_object())->family_of(id) : nil;
+  return id ? handler("families", this_object())->query_member_family(id) : nil;
 }
 
 // What somebody is called in full: their own name, and the house they are of
@@ -78,7 +78,7 @@ int set_family(string surname, varargs string display_name)
     if (!old)
       return 1;
 
-    handler("families", this_object())->member_married_out(id, "nowhere");
+    handler("families", this_object())->marry_out(id, "nowhere");
 
     // the surname answers as a name while it is theirs, so it stops answering
     // when it is not
@@ -157,7 +157,7 @@ void start_family()
 
   given = this_object()->query_given_name();
   if (stringp(given) && strlen(given) && query_family_id())
-    handler("families", this_object())->name_member(query_family_id(),
+    handler("families", this_object())->set_member_name(query_family_id(),
                                                     capitalize(given));
 }
 

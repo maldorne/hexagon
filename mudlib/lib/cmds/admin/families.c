@@ -80,7 +80,7 @@ private string * area_families(object me, object area)
   ids = map_indices(census);
   for (i = 0; i < sizeof(ids); i++)
   {
-    surname = fam->family_of(FAMILY_NPC + ids[i]);
+    surname = fam->query_member_family(FAMILY_NPC + ids[i]);
     if (stringp(surname) && member_array(surname, out) == -1)
       out += ({ surname });
   }
@@ -149,7 +149,7 @@ private int do_list(object me, string game, int whole_game, int extinct)
                   "" + living,
                   "" + (map_sizeof((mapping)fam->query_history(
                                       names[i])) - living),
-                  "" + sizeof((string *)fam->query_properties(
+                  "" + sizeof((string *)fam->query_houses(
                                 names[i])),
                   fam->is_extinct(names[i]) ? "extinct"
                     : (living ? "" : "nobody has moved in yet") }) });
@@ -181,7 +181,7 @@ private int do_house(object me, string surname)
 
   ids = (string *)fam->query_members(surname);
   history = (mapping)fam->query_history(surname);
-  props = (string *)fam->query_properties(surname);
+  props = (string *)fam->query_houses(surname);
 
   out = "House " + surname + ", of " +
         (string)fam->query_family(surname)[FAMILY_CITIZENSHIP] +

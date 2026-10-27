@@ -905,7 +905,7 @@ void npc_died(string uuid)
   // is the only thing that will still be able to name this person afterwards:
   // it moves them into its history, widows whoever they were married to, and if
   // they were the last one left the house dies out and frees its property.
-  handler("families", this_object())->member_died(FAMILY_NPC + uuid);
+  handler("families", this_object())->record_death(FAMILY_NPC + uuid);
 
   // drop any cross-area position index for it, so a dead roamer is never
   // rematerialized when the foreign location it last rested in reloads

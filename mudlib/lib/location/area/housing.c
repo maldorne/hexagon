@@ -1004,8 +1004,8 @@ private string _family_for(string * group)
   int i;
 
   for (i = 0; i < sizeof(group); i++)
-    if (handler("families", this_object())->family_of(FAMILY_NPC + group[i]))
-      surname = handler("families", this_object())->family_of(FAMILY_NPC + group[i]);
+    if (handler("families", this_object())->query_member_family(FAMILY_NPC + group[i]))
+      surname = handler("families", this_object())->query_member_family(FAMILY_NPC + group[i]);
 
   if (!surname)
   {
@@ -1030,14 +1030,14 @@ private string _family_for(string * group)
                                                    _person(group[1]),
                                                    _descent());
 
-  if (!handler("families", this_object())->family_of(FAMILY_NPC + group[0]))
+  if (!handler("families", this_object())->query_member_family(FAMILY_NPC + group[0]))
   {
     first = _person(group[0]);
     handler("families", this_object())->add_member(surname, first["id"],
                                                    first["name"]);
   }
 
-  return handler("families", this_object())->family_of(FAMILY_NPC + group[0]);
+  return handler("families", this_object())->query_member_family(FAMILY_NPC + group[0]);
 }
 
 // The family somebody belongs to, founding one for them if they have none. What
@@ -1149,7 +1149,7 @@ private void _found_housed_families(mapping census, mapping lives_at,
   ids = map_indices(lives_at);
   for (i = 0; i < sizeof(ids); i++)
     if (census[ids[i]] && !is_communal_house(lives_at[ids[i]]) &&
-        !handler("families", this_object())->family_of(FAMILY_NPC + ids[i]))
+        !handler("families", this_object())->query_member_family(FAMILY_NPC + ids[i]))
       by_house[lives_at[ids[i]]] = by_house[lives_at[ids[i]]]
                                      ? by_house[lives_at[ids[i]]] + ({ ids[i] })
                                      : ({ ids[i] });
@@ -1305,10 +1305,10 @@ void assign_homes()
 
       _family_for(({ who, singles[j] }));
       set_house_of(who, lives_at[singles[j]]);
-      if (handler("families", this_object())->family_of(FAMILY_NPC + who) &&
+      if (handler("families", this_object())->query_member_family(FAMILY_NPC + who) &&
           member_array(lives_at[singles[j]], posts) == -1)
         set_house_owner(lives_at[singles[j]],
-          handler("families", this_object())->family_of(FAMILY_NPC + who));
+          handler("families", this_object())->query_member_family(FAMILY_NPC + who));
       lives_at[who] = lives_at[singles[j]];
       singles -= ({ singles[j] });
       found = 1;

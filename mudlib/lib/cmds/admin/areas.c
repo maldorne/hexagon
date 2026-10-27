@@ -280,7 +280,7 @@ private int do_state(object area, string * args)
 
   census = (mapping)area->query_npc_census();
   people = map_sizeof(census);
-  families = sizeof((string *)handler("families", this_player())->families_of_area(
+  families = sizeof((string *)handler("families", this_player())->query_area_families(
                       (string)area->query_area_path()));
 
   area->set_area_state(args[1]);

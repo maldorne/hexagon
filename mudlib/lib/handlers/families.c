@@ -107,7 +107,7 @@ int has_family(string surname)
 
 // The surname somebody belongs to, or nil. This is the lookup every living
 // does, so it is an index rather than a walk of the register.
-string family_of(string id)
+string query_member_family(string id)
 {
   return member_of[id];
 }
@@ -145,7 +145,7 @@ string query_spouse(string id)
   mapping family;
   string surname;
 
-  surname = family_of(id);
+  surname = query_member_family(id);
   family = surname ? query_family(surname) : nil;
   if (!family || !family[FAMILY_MEMBERS][id])
     return nil;
@@ -159,7 +159,7 @@ int has_been_married(string id)
   mapping family;
   string surname;
 
-  surname = family_of(id);
+  surname = query_member_family(id);
   family = surname ? query_family(surname) : nil;
   if (!family || !family[FAMILY_MEMBERS][id])
     return 0;
@@ -174,7 +174,7 @@ string * query_parents(string id)
   string surname;
   mixed parents;
 
-  surname = family_of(id);
+  surname = query_member_family(id);
   family = surname ? query_family(surname) : nil;
   if (!family || !family[FAMILY_MEMBERS][id])
     return ({ });
@@ -194,7 +194,7 @@ string * query_children(string id)
   string * ids, * out;
   int i;
 
-  surname = family_of(id);
+  surname = query_member_family(id);
   family = surname ? query_family(surname) : nil;
   if (!family)
     return ({ });
@@ -223,7 +223,7 @@ string * query_siblings(string id)
   if (!sizeof(mine))
     return ({ });
 
-  surname = family_of(id);
+  surname = query_member_family(id);
   family = query_family(surname);
   members = family[FAMILY_MEMBERS];
   ids = map_indices(members);
@@ -320,12 +320,12 @@ int add_member(string surname, string id, string name)
 // Write down the name somebody goes by, when the history only knows them by id.
 // An NPC can join a house before it has been named, and the history is the only
 // place that will still name it once its savefile is gone.
-void name_member(string id, string name)
+void set_member_name(string id, string name)
 {
   mapping history;
   string surname;
 
-  surname = family_of(id);
+  surname = query_member_family(id);
   if (!surname || !name || !strlen(name))
     return;
 
@@ -343,12 +343,12 @@ void name_member(string id, string name)
 // Somebody married out. They leave the members but stay in the history, marked
 // with where they went -- which is how the house they left can still say whose
 // children they were.
-int member_married_out(string id, string into)
+int marry_out(string id, string into)
 {
   mapping family;
   string surname;
 
-  surname = family_of(id);
+  surname = query_member_family(id);
   family = surname ? query_family(surname) : nil;
   if (!family || !family[FAMILY_MEMBERS][id])
     return 0;
@@ -370,14 +370,14 @@ int member_married_out(string id, string into)
 // Somebody died. They leave the members and are marked in the history. If nobody
 // living is left the family is extinct: its properties are freed, and the
 // record stays as history so the name is never minted again.
-int member_died(string id)
+int record_death(string id)
 {
   mapping family, members;
   string surname;
   string * ids;
   int i;
 
-  surname = family_of(id);
+  surname = query_member_family(id);
   family = surname ? query_family(surname) : nil;
   if (!family || !family[FAMILY_MEMBERS][id])
     return 0;
@@ -470,7 +470,7 @@ int set_spouse(string id, string other)
   mapping family;
   string surname;
 
-  surname = family_of(id);
+  surname = query_member_family(id);
   family = surname ? query_family(surname) : nil;
   if (!family || !family[FAMILY_MEMBERS][id] || !family[FAMILY_MEMBERS][other])
     return 0;
@@ -494,7 +494,7 @@ string wed(mapping who, mapping other, string rule)
 
   if (!who || !other || who["id"] == other["id"])
     return nil;
-  if (!family_of(who["id"]) && !family_of(other["id"]))
+  if (!query_member_family(who["id"]) && !query_member_family(other["id"]))
     return nil;
 
   if (rule == DESCENT_MATRILINEAL)
@@ -504,18 +504,18 @@ string wed(mapping who, mapping other, string rule)
   joins = (keeps == who) ? other : who;
 
   // the one who would keep the house has none: the other's stands instead
-  if (!family_of(keeps["id"]))
+  if (!query_member_family(keeps["id"]))
   {
     swap = keeps;
     keeps = joins;
     joins = swap;
   }
 
-  kept = family_of(keeps["id"]);
-  left = family_of(joins["id"]);
+  kept = query_member_family(keeps["id"]);
+  left = query_member_family(joins["id"]);
 
   if (left && left != kept)
-    member_married_out(joins["id"], kept);
+    marry_out(joins["id"], kept);
 
   if (left != kept)
     add_member(kept, joins["id"], joins["name"]);
@@ -533,7 +533,7 @@ int set_parents(string id, string * parents)
   mapping family;
   string surname;
 
-  surname = family_of(id);
+  surname = query_member_family(id);
   family = surname ? query_family(surname) : nil;
   if (!family || !family[FAMILY_MEMBERS][id])
     return 0;
@@ -548,7 +548,7 @@ int set_parents(string id, string * parents)
 // ---------------------------------------------------------------------------
 
 // The houses a family owns, read off the books of every community in the game.
-string * query_properties(string surname)
+string * query_houses(string surname)
 {
   object * areas;
   string * out;
@@ -564,7 +564,7 @@ string * query_properties(string surname)
 
 // The families holding property inside an area, so a builder can be told what a
 // wipe would take with it.
-string * families_of_area(string area_path)
+string * query_area_families(string area_path)
 {
   object * areas;
   string prefix;
