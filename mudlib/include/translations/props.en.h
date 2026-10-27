@@ -103,6 +103,34 @@
 #define _LANG_PROP_PERGOLA_LONG              "A $material_phrase$ pergola on carved pillars shades the ground, climbing plants twisting around the pillars and up to the top."
 
 // ************************************************************
+//  bench
+// ************************************************************
+#define _LANG_PROP_BENCH_ID             "bench"
+#define _LANG_PROP_BENCH_ID_ALIAS_1     "seat"
+
+#define _LANG_PROP_BENCH_NOUN           "bench"
+#define _LANG_PROP_BENCH_NOUN_PLURAL    "benches"
+
+#define _LANG_PROP_BENCH_SHORT          "a $material_phrase$ bench"
+#define _LANG_PROP_BENCH_LONG           "A long, heavy $material_phrase$ bench with no back."
+
+#define _LANG_PROP_BENCH_SUFFIX_OCCUPIED    " (%s is sitting on it)"
+#define _LANG_PROP_BENCH_LONG_OCCUPIED      " %s is sitting on it."
+
+#define _LANG_PROP_BENCH_SIT_VERBS          ({ "sit" })
+#define _LANG_PROP_BENCH_STAND_VERBS        ({ "stand", "rise" })
+
+#define _LANG_PROP_BENCH_SIT_ME             "You sit on the bench."
+#define _LANG_PROP_BENCH_SIT_OTHERS         "$mcname$ sits on the bench."
+#define _LANG_PROP_BENCH_STAND_ME           "You stand up."
+#define _LANG_PROP_BENCH_STAND_OTHERS       "$mcname$ stands up."
+
+#define _LANG_PROP_BENCH_CANT_SIT           "You can't sit on this bench right now."
+#define _LANG_PROP_BENCH_ALREADY_SITTING    "You are already sitting on that bench."
+#define _LANG_PROP_BENCH_OCCUPIED_BY        "$lastarg$ is already sitting on it."
+#define _LANG_PROP_BENCH_NOT_SITTING        "You are not sitting on this bench."
+
+// ************************************************************
 //  chair
 // ************************************************************
 #define _LANG_PROP_CHAIR_ID             "chair"

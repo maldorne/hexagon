@@ -108,6 +108,34 @@
 #define _LANG_PROP_PERGOLA_LONG              "Una pérgola $material_phrase$ sobre pilares tallados da sombra al suelo, con plantas trepadoras enredadas en los pilares hasta lo alto."
 
 // ************************************************************
+//  banco
+// ************************************************************
+#define _LANG_PROP_BENCH_ID             "banco"
+#define _LANG_PROP_BENCH_ID_ALIAS_1     "asiento"
+
+#define _LANG_PROP_BENCH_NOUN           "banco"
+#define _LANG_PROP_BENCH_NOUN_PLURAL    "bancos"
+
+#define _LANG_PROP_BENCH_SHORT          "un banco $material_phrase$"
+#define _LANG_PROP_BENCH_LONG           "Un banco largo y pesado $material_phrase$, sin respaldo."
+
+#define _LANG_PROP_BENCH_SUFFIX_OCCUPIED    " (%s está sentado en {él|ella})"
+#define _LANG_PROP_BENCH_LONG_OCCUPIED      " %s está sentado en {él|ella}."
+
+#define _LANG_PROP_BENCH_SIT_VERBS          ({ "sentar", "sentarse", "sentarme" })
+#define _LANG_PROP_BENCH_STAND_VERBS        ({ "levantar", "levantarse", "levantarme" })
+
+#define _LANG_PROP_BENCH_SIT_ME             "Te sientas en el banco."
+#define _LANG_PROP_BENCH_SIT_OTHERS         "$mcname$ se sienta en el banco."
+#define _LANG_PROP_BENCH_STAND_ME           "Te levantas."
+#define _LANG_PROP_BENCH_STAND_OTHERS       "$mcname$ se levanta."
+
+#define _LANG_PROP_BENCH_CANT_SIT           "No puedes sentarte en este banco ahora mismo."
+#define _LANG_PROP_BENCH_ALREADY_SITTING    "Ya estás sentado en ese banco."
+#define _LANG_PROP_BENCH_OCCUPIED_BY        "$lastarg$ ya está sentado en {él|ella}."
+#define _LANG_PROP_BENCH_NOT_SITTING        "No estás sentado en este banco."
+
+// ************************************************************
 //  silla
 // ************************************************************
 #define _LANG_PROP_CHAIR_ID             "silla"
