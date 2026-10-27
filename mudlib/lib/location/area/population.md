@@ -110,7 +110,8 @@ Because the caps are shared by a community (see parent areas) but the share is
 read from the area's own provenance, a road keeps topping up its own travellers
 and does not scatter them through the town. `npcs populate` runs the same pass
 for the area you stand in and brings the new arrivals into locations already
-loaded.
+loaded, in steps (ten people, then one location, per `call_out`) so a large
+deficit or a freshly loaded area does not run out of ticks.
 
 ## Points of interest
 

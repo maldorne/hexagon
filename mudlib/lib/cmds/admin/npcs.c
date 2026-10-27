@@ -12,6 +12,9 @@ inherit CMD_BASE;
 // existing the day the mud is booted in the other one.
 #define TEMPLATE_LANGS ({ "es", "en" })
 
+// How many people `npcs populate` creates in one step, as the sweep does.
+#define POPULATE_BATCH 10
+
 private object area_of(object me);
 private int do_orphans(object area, object me, string * args);
 private int do_resident(object area, object me, string * args);
@@ -784,29 +787,69 @@ private int do_retemplate(object area, object me, string * args)
   return 1;
 }
 
+/**
+ * One step of `npcs populate`, run from a call_out: first the books are filled
+ * a batch at a time, then the loaded locations are populated one per step, so
+ * no single execution has to create and place everybody at once.
+ *
+ * @param area     the area being topped up
+ * @param me       who asked, told the result at the end
+ * @param assigned how many have been assigned so far
+ * @param filling  whether the books may still be missing people
+ * @param next     the index of the next loaded location to populate
+ */
+void continue_populate(object area, object me, int assigned,
+                       int filling, int next)
+{
+  object * locs;
+  int n;
+
+  if (!area || !me)
+    return;
+
+  if (filling)
+  {
+    n = (int)handler("population", me)->populate_area(area, POPULATE_BATCH);
+    if (n > 0)
+      assigned += n;
+    call_out("continue_populate", 0, area, me, assigned,
+             n == POPULATE_BATCH, 0);
+    return;
+  }
+
+  locs = (object *)area->query_loaded_locations();
+  if (next < sizeof(locs))
+  {
+    if (locs[next])
+      area->populate_location(locs[next]);
+    call_out("continue_populate", 0, area, me, assigned, 0, next + 1);
+    return;
+  }
+
+  tell_object(me, "" + assigned + " NPC(s) assigned; " + sizeof(locs) +
+              " loaded location(s) populated.\n");
+}
+
 // Top the area under our feet up to its caps now instead of waiting for the
 // sweep to come round to it. The sweep only fills the books, and a location
 // brings its people in when it loads, so the ones already loaded are populated
-// here as well.
+// here as well. The work runs in steps (continue_populate): placing everybody
+// in every loaded location in one execution runs out of ticks.
 private int do_populate(object area, object me)
 {
-  object * locs;
-  int assigned, i;
+  int assigned;
 
-  assigned = (int)handler("population", me)->populate_area(area, 0);
+  assigned = (int)handler("population", me)->populate_area(area,
+                                                            POPULATE_BATCH);
   if (assigned < 0)
   {
     write("This area has no caps to fill.\n");
     return 1;
   }
 
-  locs = (object *)area->query_loaded_locations();
-  for (i = 0; i < sizeof(locs); i++)
-    if (locs[i])
-      area->populate_location(locs[i]);
-
-  write("" + assigned + " NPC(s) assigned; " + sizeof(locs) +
-        " loaded location(s) populated.\n");
+  write("Populating; you will be told when it is done.\n");
+  call_out("continue_populate", 0, area, me, assigned,
+           assigned == POPULATE_BATCH, 0);
   return 1;
 }
 
