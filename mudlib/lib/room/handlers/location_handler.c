@@ -474,7 +474,7 @@ private void _print_coordinates(object * locations, varargs mapping old)
 private mapping _clear_anchored_components(object * locations)
 {
   string * grid, * file_names, * stack;
-  mapping old, links, group, anchored;
+  mapping old, links, group, anchored, in_set;
   int i, j, g;
 
   grid = ({ DIR_NORTH, DIR_SOUTH, DIR_EAST, DIR_WEST, DIR_NORTHWEST,
@@ -483,10 +483,12 @@ private mapping _clear_anchored_components(object * locations)
   old = ([ ]);
   links = ([ ]);
   anchored = ([ ]);
+  in_set = ([ ]);
 
   for (i = 0; i < sizeof(locations); i++)
   {
     file_names += ({ locations[i]->query_file_name() });
+    in_set[locations[i]->query_file_name()] = 1;
     links[locations[i]->query_file_name()] = ({ });
   }
 
@@ -506,7 +508,7 @@ private mapping _clear_anchored_components(object * locations)
       if (member_array(exits[j], grid) == -1)
         continue;
 
-      if (member_array(exits[j + 1], file_names) != -1)
+      if (in_set[exits[j + 1]])
       {
         // links count in both directions, exits may be one-way
         links[name] += ({ exits[j + 1] });
