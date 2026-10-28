@@ -25,8 +25,7 @@
 
 #define _LANG_HEAL_SERVICE_INFO "I can tend your wounds: write 'heal' and I will " + \
     "see to them."
-#define _LANG_HEAL_SERVICE_INFO_PRICE "I charge " + price_text + " for each hit point I heal."
-#define _LANG_HEAL_SERVICE_INFO_YOURS "Right now, that would be " + price_text + " for you."
+#define _LANG_HEAL_SERVICE_INFO_PRICE "I charge " + price_text + " to tend you."
 #define _LANG_HEAL_SERVICE_DEAD "I tend the living, not ghosts. Get yourself raised first.\n"
 #define _LANG_HEAL_SERVICE_FIGHTING "Not while you are fighting! Finish that first.\n"
 #define _LANG_HEAL_SERVICE_REFUSED "I cannot help you.\n"
@@ -34,10 +33,8 @@
 #define _LANG_HEAL_SERVICE_NOT_NEEDED "You look fine to me, I have nothing to heal.\n"
 #define _LANG_HEAL_SERVICE_CANNOT_PAY "That will be " + price_text + ", and you do not " + \
     "have it. Come back when you do.\n"
-#define _LANG_HEAL_SERVICE_YOU "Skilled hands tend your wounds with herbs and " + \
-    "ointments. Slowly, the pain fades and your strength returns.\n"
-#define _LANG_HEAL_SERVICE_ROOM who->query_cap_name() + " is tended by skilled " + \
-    "hands, and looks much better afterwards.\n"
+#define _LANG_HEAL_SERVICE_BUSY "I cannot tend you right now, wait a moment.\n"
+#define _LANG_HEAL_SERVICE_START "Keep still, I am starting."
 
 // toll
 #define _LANG_TOLL_VERBS ({ "pay" })

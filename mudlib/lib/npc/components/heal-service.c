@@ -1,46 +1,49 @@
-// heal-service.c -- healing the wounds of whoever asks, for a price, as an NPC
-// component.
+// heal-service.c -- healing whoever asks, for a price, as an NPC component.
 //
 // A service somebody sells, the counterpart of the raise component for the
 // living (healer.c is another thing: an NPC that heals its own side in a
 // fight). It asks the NPC for two verbs: one to explain the service, one to
-// request it. A player in a fight is never served.
+// request it. For a fixed price the NPC casts one healing spell on whoever
+// pays; what is healed and closed is what that spell does. A player in a
+// fight is never served.
 //
-// Attributes, every one optional (store only what differs from the default):
-//   "price_per_hp" - base coins for each hit point healed; without it the
-//                    service is free
-//   "max"          - the most hit points healed in one request (default: all
-//                    the player is missing)
-//   "cooldown"     - heart beats before the same player may ask again
-//                    (default: none)
-//   "cures"        - traits closed on request, free of charge, with the reason
-//                    "cured": ({ "bleeding", "poisoned" }); the player must
-//                    carry them. A player missing no hit points is still served
-//                    when they carry one.
-//   "only"         - who is served, as in the raise component
-//   "refusal"      - what somebody left out is told; defaults to the stock text
+// Attributes, every one optional except "spell" (store only what differs from
+// the default):
+//   "spell"    - file of the spell cast on whoever pays
+//   "price"    - base coins for each casting; without it the service is free
+//   "level"    - guild level (1-20) the spell is cast at (default: the NPC's
+//                guild level, or its level when it has no guild)
+//   "cooldown" - heart beats before the same player may ask again
+//                (default: none)
+//   "only"     - who is served, as in the raise component
+//   "refusal"  - what somebody left out is told; defaults to the stock text
 
 #include <language.h>
-#include <living/traits.h>
+#include <common/properties.h>
+#include <living/effects.h>
 
 inherit component "/lib/npc/component.c";
 inherit fee "/lib/npc/service-fee.c";
 
 // The timed property stamped on the player while the cooldown lasts.
 #define HEAL_COOLDOWN_PROP "heal_service_cooldown"
+#define HEAL_MAX_LEVEL 20
+// the power the spell runs with, the neutral one: a service does not need the
+// NPC to belong to the guild that teaches the spell
+#define HEAL_POWER 2
 
-private int heal_price_per_hp, heal_max, heal_cooldown;
-private string * heal_cures;
+private string heal_spell;
+private int heal_price, heal_level, heal_cooldown;
 private mapping heal_only;
 private string heal_refusal;
 
 void create()
 {
   component::create();
-  heal_price_per_hp = 0;
-  heal_max = 0;
+  heal_spell = nil;
+  heal_price = 0;
+  heal_level = 0;
   heal_cooldown = 0;
-  heal_cures = ({ });
   heal_only = ([ ]);
   heal_refusal = nil;
 }
@@ -65,131 +68,140 @@ mapping query_component_actions()
 }
 
 /**
- * The hit points the service would heal `who` now.
- *
- * @param who the player asking
- * @return the hit points missing, capped by "max"; 0 when none
+ * The guild level the spell is cast at: the "level" attribute, or the NPC's
+ * own guild level, or its level when it has no guild, capped to 1-20.
  */
-private int _query_to_heal(object who)
+private int _query_cast_level()
 {
-  int missing;
+  int level;
 
-  missing = who->query_max_hp() - who->query_hp();
-  if (missing < 0)
-    missing = 0;
-  if (heal_max > 0 && missing > heal_max)
-    missing = heal_max;
-  return missing;
+  level = heal_level;
+  if (level <= 0)
+    level = query_entity()->query_guild_level();
+  if (level <= 0)
+    level = query_entity()->query_level();
+  if (level > HEAL_MAX_LEVEL)
+    level = HEAL_MAX_LEVEL;
+  return level < 1 ? 1 : level;
 }
 
 /**
- * The traits of the "cures" attribute that `who` carries.
+ * The spell object of the service, loaded when needed.
  *
- * @param who the player asking
- * @return their ids
+ * @return the spell, nil when it is not set or does not load
  */
-private string * _query_curable(object who)
+private object _query_spell_object()
 {
-  string * found;
-  int i;
+  object spell;
 
-  found = ({ });
-  for (i = 0; i < sizeof(heal_cures); i++)
-    if (who->has_trait(heal_cures[i]))
-      found += ({ heal_cures[i] });
-  return found;
+  if (!heal_spell)
+    return nil;
+  spell = find_object(heal_spell);
+  if (!spell)
+    catch(spell = load_object(heal_spell));
+  return spell;
+}
+
+/**
+ * Whether the NPC is in the middle of casting, or cannot cast now.
+ */
+private int _is_busy(object me)
+{
+  return me->query_active_effect("effect") ||
+    me->query_property(PROPERTY_IS_CASTING) ||
+    me->check_props(NOSKILL_PROP) ||
+    me->query_property(PASSED_OUT_PROP);
 }
 
 int do_info(string str)
 {
-  object who;
   string price_text;
-  int cost;
 
   if (!query_entity())
     return 0;
 
   query_entity()->do_say(_LANG_HEAL_SERVICE_INFO);
 
-  if (heal_price_per_hp > 0)
+  if (heal_price > 0)
   {
-    price_text = price_words(heal_price_per_hp);
+    price_text = price_words(heal_price);
     query_entity()->do_say(_LANG_HEAL_SERVICE_INFO_PRICE);
-  }
-
-  who = this_player();
-  if (who && heal_price_per_hp > 0 && _query_to_heal(who) > 0)
-  {
-    cost = _query_to_heal(who) * heal_price_per_hp;
-    price_text = price_words(cost);
-    query_entity()->do_say(_LANG_HEAL_SERVICE_INFO_YOURS);
   }
   return 1;
 }
 
 int do_heal(string str)
 {
-  object who, payer;
-  string price_text, * curable;
-  int cost, amount, i;
+  object who, me, payer, spell;
+  string price_text;
 
   who = this_player();
-  if (!who || !query_entity())
+  me = query_entity();
+  if (!who || !me)
     return 0;
 
   if (who->query_dead())
   {
-    query_entity()->do_say(_LANG_HEAL_SERVICE_DEAD);
+    me->do_say(_LANG_HEAL_SERVICE_DEAD);
     return 1;
   }
 
   if (who->query_is_fighting())
   {
-    query_entity()->do_say(_LANG_HEAL_SERVICE_FIGHTING);
+    me->do_say(_LANG_HEAL_SERVICE_FIGHTING);
     return 1;
   }
 
   if (!meets_only(who, heal_only))
   {
-    query_entity()->do_say(heal_refusal ? heal_refusal : _LANG_HEAL_SERVICE_REFUSED);
+    me->do_say(heal_refusal ? heal_refusal : _LANG_HEAL_SERVICE_REFUSED);
     return 1;
   }
 
   if (who->query_timed_property(HEAL_COOLDOWN_PROP))
   {
-    query_entity()->do_say(_LANG_HEAL_SERVICE_TOO_SOON);
+    me->do_say(_LANG_HEAL_SERVICE_TOO_SOON);
     return 1;
   }
 
-  amount = _query_to_heal(who);
-  curable = _query_curable(who);
-  if (!amount && !sizeof(curable))
+  // nothing to heal: no hit points missing and no trait carried
+  if (who->query_hp() >= who->query_max_hp() && !map_sizeof(who->query_traits()))
   {
-    query_entity()->do_say(_LANG_HEAL_SERVICE_NOT_NEEDED);
+    me->do_say(_LANG_HEAL_SERVICE_NOT_NEEDED);
+    return 1;
+  }
+
+  spell = _query_spell_object();
+  if (!spell || _is_busy(me))
+  {
+    me->do_say(_LANG_HEAL_SERVICE_BUSY);
     return 1;
   }
 
   // Nothing is taken until the player can pay the whole of it
-  cost = amount * heal_price_per_hp;
-  if (cost > 0)
+  payer = nil;
+  if (heal_price > 0)
   {
-    price_text = price_words(cost);
-    payer = find_payer(who, cost, 0);
+    price_text = price_words(heal_price);
+    payer = find_payer(who, heal_price, 0);
     if (!payer)
     {
-      query_entity()->do_say(_LANG_HEAL_SERVICE_CANNOT_PAY);
+      me->do_say(_LANG_HEAL_SERVICE_CANNOT_PAY);
       return 1;
     }
-    take_payment(payer, cost);
   }
 
-  tell_object(who, _LANG_HEAL_SERVICE_YOU);
-  tell_room(environment(who), _LANG_HEAL_SERVICE_ROOM, who);
+  // and only once the spell has started
+  if (!spell->cast_effect_at(who->query_name(), me, _query_cast_level(),
+      HEAL_POWER))
+  {
+    me->do_say(_LANG_HEAL_SERVICE_BUSY);
+    return 1;
+  }
 
-  if (amount > 0)
-    who->adjust_hp(amount);
-  for (i = 0; i < sizeof(curable); i++)
-    who->remove_trait(curable[i], TRAIT_END_CURED);
+  if (payer)
+    take_payment(payer, heal_price);
+  me->do_say(_LANG_HEAL_SERVICE_START);
 
   if (heal_cooldown > 0)
     who->add_timed_property(HEAL_COOLDOWN_PROP, 1, heal_cooldown);
@@ -201,14 +213,14 @@ mapping query_auto_load_attributes()
   mapping out;
 
   out = component::query_auto_load_attributes();
-  if (heal_price_per_hp > 0)
-    out["price_per_hp"] = heal_price_per_hp;
-  if (heal_max > 0)
-    out["max"] = heal_max;
+  if (heal_spell)
+    out["spell"] = heal_spell;
+  if (heal_price > 0)
+    out["price"] = heal_price;
+  if (heal_level > 0)
+    out["level"] = heal_level;
   if (heal_cooldown > 0)
     out["cooldown"] = heal_cooldown;
-  if (sizeof(heal_cures))
-    out["cures"] = heal_cures;
   if (map_sizeof(heal_only))
     out["only"] = heal_only;
   if (heal_refusal)
@@ -221,14 +233,14 @@ void init_auto_load_attributes(mapping args)
   component::init_auto_load_attributes(args);
   if (!args)
     return;
-  if (intp(args["price_per_hp"]))
-    heal_price_per_hp = args["price_per_hp"];
-  if (intp(args["max"]))
-    heal_max = args["max"];
+  if (stringp(args["spell"]))
+    heal_spell = args["spell"];
+  if (intp(args["price"]))
+    heal_price = args["price"];
+  if (intp(args["level"]))
+    heal_level = args["level"];
   if (intp(args["cooldown"]))
     heal_cooldown = args["cooldown"];
-  if (pointerp(args["cures"]))
-    heal_cures = ({ }) + args["cures"];
   if (mappingp(args["only"]))
     heal_only = ([ ]) + args["only"];
   if (stringp(args["refusal"]))

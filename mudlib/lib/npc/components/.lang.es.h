@@ -25,8 +25,7 @@
 
 #define _LANG_HEAL_SERVICE_INFO "Puedo atender tus heridas: escribe 'curar' y me " + \
     "ocuparé de ellas."
-#define _LANG_HEAL_SERVICE_INFO_PRICE "Cobro " + price_text + " por cada punto de vida que curo."
-#define _LANG_HEAL_SERVICE_INFO_YOURS "Ahora mismo, serían " + price_text + " en tu caso."
+#define _LANG_HEAL_SERVICE_INFO_PRICE "Cobro " + price_text + " por atenderte."
 #define _LANG_HEAL_SERVICE_DEAD "Atiendo a los vivos, no a los fantasmas. Haz que te resuciten primero.\n"
 #define _LANG_HEAL_SERVICE_FIGHTING "¡No mientras estás luchando! Termina eso primero.\n"
 #define _LANG_HEAL_SERVICE_REFUSED "No puedo ayudarte.\n"
@@ -34,10 +33,8 @@
 #define _LANG_HEAL_SERVICE_NOT_NEEDED "Te veo bien, no tengo nada que curar.\n"
 #define _LANG_HEAL_SERVICE_CANNOT_PAY "Serían " + price_text + ", y no llevas tanto dinero. " + \
     "Vuelve cuando lo tengas.\n"
-#define _LANG_HEAL_SERVICE_YOU "Unas manos hábiles tratan tus heridas con hierbas y " + \
-    "ungüentos. Lentamente, el dolor desaparece y recuperas las fuerzas.\n"
-#define _LANG_HEAL_SERVICE_ROOM who->query_cap_name() + " recibe los cuidados de unas manos " + \
-    "hábiles y parece mucho mejor después.\n"
+#define _LANG_HEAL_SERVICE_BUSY "Ahora no puedo atenderte, espera un momento.\n"
+#define _LANG_HEAL_SERVICE_START "Quédate quieto, que empiezo."
 
 // toll
 #define _LANG_TOLL_VERBS ({ "pagar" })

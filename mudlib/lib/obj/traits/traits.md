@@ -62,7 +62,7 @@ Strings go in the directory's `.lang.<lang>.h` as everywhere. `damage-over-time.
 - `bleeding.c`: a wound on a body part (`part` and its `article`, named by whoever adds it); raises the flag `bleeding`. Healing closes it by removing it with the reason `cured` (a game's healing spells decide how often), which tells the living the wound closes.
 - `poisoned.c`: venom in the blood; raises the flag `poisoned`.
 
-The `heal-service` NPC component (`lib/npc/components/heal-service.c`) cures traits listed in its `cures` attribute with `remove_trait(id, "cured")`.
+The `heal-service` NPC component (`lib/npc/components/heal-service.c`) casts a healing spell, so it closes what that spell closes.
 
 ## Wired and pending
 
