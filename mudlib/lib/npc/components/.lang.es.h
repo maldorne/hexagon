@@ -16,6 +16,21 @@
 #define _LANG_RAISE_INFO_PRICE "Mis servicios cuestan " + price_text + "."
 #define _LANG_RAISE_CANNOT_PAY "Devolverte a la vida cuesta " + price_text + \
     ", y no veo esa cantidad aquí, ni contigo ni en tu cuerpo.\n"
+#define _LANG_RAISE_PAY_VERBS ({ "pagar" })
+#define _LANG_RAISE_BUSY "Ahora no puedo invocar a los poderes, inténtalo en un momento.\n"
+// price_text is the price in words, set by raise.c
+#define _LANG_RAISE_INFO_CREDIT "Te devolveré a la vida, y lo que cuesta, " + price_text + \
+    ", me lo deberás: pagarás cuando puedas con 'pagar'."
+#define _LANG_RAISE_DEBT_TOLD "Serás devuelto a tu forma mortal, pero me deberás " + price_text + \
+    ". No olvides tu deuda: escribe 'pagar' cuando tengas dinero."
+#define _LANG_RAISE_DEBT_REMINDER "Aún me debes " + price_text + ". Escribe 'pagar' para saldarlo."
+#define _LANG_RAISE_DEBT_REFUSED "No te devolveré a la vida mientras no me pagues lo que me debes: " + \
+    price_text + ". Busca a otro que te devuelva la vida, y vuelve a pagarme.\n"
+#define _LANG_RAISE_NO_DEBT "No me debes nada.\n"
+#define _LANG_RAISE_DEBT_NO_MONEY "No llevas dinero con el que pagarme lo que me debes: " + price_text + ".\n"
+#define _LANG_RAISE_DEBT_SETTLED "Tu deuda queda saldada. Si me necesitas de nuevo, aquí estaré."
+// price_text is what was paid, left_text what is still owed
+#define _LANG_RAISE_DEBT_PART_PAID "Recibo " + price_text + ". Aún me debes " + left_text + "."
 
 // heal-service.c -- the service of healing whoever asks, for a price
 // price_text is a price in words and who the player, set by heal-service.c

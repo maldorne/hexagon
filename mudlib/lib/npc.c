@@ -352,6 +352,7 @@ int save_npc()
 int restore_npc()
 {
   int ok;
+  string * race_languages;
 
   if (!query_persisted() || !npc_game)
     return 0;
@@ -368,6 +369,17 @@ int restore_npc()
     // a savefile from before the default had no protect consent
     if (query_consent(PROTECT_CONS) == nil)
       set_consent(PROTECT_CONS, 1);
+
+    // the languages follow its race: one the race gained since it was saved is
+    // learnt, and it speaks the first one its race lists
+    race_languages = ({ });
+    if (query_race_ob() && load_object(query_race_ob()))
+      race_languages = load_object(query_race_ob())->query_initial_languages();
+    if (sizeof(race_languages))
+    {
+      add_languages(race_languages);
+      set_language(race_languages[0]);
+    }
 
     // rebuild the saved inventory (each item cloned and its attributes applied)
     // inside us, so a restored NPC carries exactly what it was saved with

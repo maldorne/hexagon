@@ -16,6 +16,21 @@
 #define _LANG_RAISE_INFO_PRICE "My services cost " + price_text + "."
 #define _LANG_RAISE_CANNOT_PAY "Bringing you back costs " + price_text + \
     ", and I see no such sum here, neither on you nor on your body.\n"
+#define _LANG_RAISE_PAY_VERBS ({ "pay" })
+#define _LANG_RAISE_BUSY "I cannot call on the powers right now, try again in a moment.\n"
+// price_text is the price in words, set by raise.c
+#define _LANG_RAISE_INFO_CREDIT "I will bring you back, and what it costs, " + price_text + \
+    ", you will owe me: pay when you can with 'pay'."
+#define _LANG_RAISE_DEBT_TOLD "You will return to your mortal form, but you will owe me " + price_text + \
+    ". Do not forget your debt: write 'pay' when you have money."
+#define _LANG_RAISE_DEBT_REMINDER "You still owe me " + price_text + ". Write 'pay' to settle it."
+#define _LANG_RAISE_DEBT_REFUSED "I will not bring you back while you owe me " + price_text + \
+    ". Find somebody else to bring you back, and come back to pay me.\n"
+#define _LANG_RAISE_NO_DEBT "You owe me nothing.\n"
+#define _LANG_RAISE_DEBT_NO_MONEY "You carry no money to pay what you owe me: " + price_text + ".\n"
+#define _LANG_RAISE_DEBT_SETTLED "Your debt is settled. If you need me again, I will be here."
+// price_text is what was paid, left_text what is still owed
+#define _LANG_RAISE_DEBT_PART_PAID "I receive " + price_text + ". You still owe me " + left_text + "."
 
 // heal-service.c -- the service of healing whoever asks, for a price
 // price_text is a price in words and who the player, set by heal-service.c

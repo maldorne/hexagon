@@ -31,6 +31,20 @@ private object _purse_of(object holder)
 }
 
 /**
+ * How much money, in base coins, a holder carries.
+ *
+ * @param holder a living, or a corpse
+ * @return the value of its purse, 0 when it has none
+ */
+int query_purse_value(object holder)
+{
+  object purse;
+
+  purse = _purse_of(holder);
+  return purse ? (int)purse->query_value() : 0;
+}
+
+/**
  * Who would pay `amount`: the player when their purse covers it; otherwise,
  * when `from_body`, the body they left behind if it lies in the same place and
  * its purse covers it (a death leaves the player's money on the corpse, so a
