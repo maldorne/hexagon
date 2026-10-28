@@ -104,11 +104,11 @@ void monster_died(string source, string location_file)
 }
 
 // Bring the monster counts back within what this area's locations ask for,
-// after a conversion changed it: a kind no room of the area clones any more
-// goes, and a kind over its share loses the excess, first from locations that
-// do not declare it and then from the fullest ones. The share is what the
-// population sweep tops up to, so lowering what the rooms clone lowers the
-// population instead of leaving the old one in place.
+// after a conversion or a roster limit changed it: a kind no room of the area
+// clones any more goes, and a kind over its share loses the excess, first from
+// locations that do not declare it and then from the fullest ones. The share is
+// what the population sweep tops up to (cut to the roster limit, as there), so
+// lowering either lowers the population instead of leaving the old one in place.
 // How many monsters of `source` the bucket of `file` holds.
 private int _bucket_count(string file, string source)
 {
@@ -121,7 +121,10 @@ private int _bucket_count(string file, string source)
 void trim_monsters_to_caps()
 {
   string * sources, * files;
+  mapping caps;
   int i, j, changed;
+
+  caps = (mapping)this_object()->query_npc_caps();
 
   sources = ({ });
   files = map_indices(monster_census);
@@ -138,6 +141,9 @@ void trim_monsters_to_caps()
     files = map_indices(declared);
     for (j = 0; j < sizeof(files); j++)
       share += declared[files[j]];
+    if (caps[sources[i]] && caps[sources[i]]["limit"] &&
+        share > caps[sources[i]]["limit"])
+      share = caps[sources[i]]["limit"];
 
     excess = query_monster_live_count(sources[i]) - share;
     if (excess <= 0)

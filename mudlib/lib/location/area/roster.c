@@ -104,7 +104,9 @@ int set_npc_resident(string source, int flag)
 
 /**
  * Cap a roster type below the sum of the rooms that clone it, or lift that
- * limit, then recompute the caps.
+ * limit, then recompute the caps. This area's fauna over the new limit goes
+ * at once (another area of the community trims its own on its next
+ * conversion); people over it stay until they die.
  *
  * @param source the template id, as 'npcs roster' prints it
  * @param limit  the most people of that type alive at once; 0 lifts it
@@ -127,6 +129,7 @@ int set_npc_limit(string source, int limit)
     map_delete(npc_caps[source], "limit");
 
   this_object()->rebuild_npc_caps();
+  this_object()->trim_monsters_to_caps();
   this_object()->save_me();
   return 1;
 }

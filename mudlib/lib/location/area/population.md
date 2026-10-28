@@ -105,7 +105,9 @@ A death frees a slot at once; the next sweep refills it, usually elsewhere.
 type's `limit` on the roster, when it has one (`npcs limit <source> <n|none>`,
 kept in `npc_caps` beside `resident` and carried over every recompute). The
 rooms that clone the type then say only where it may appear: a lone thief
-declared in six stalls is born in one of them, and only one is alive at once.
+declared in six stalls is born in one of them, and only one is alive at once. Setting a
+limit trims the area's fauna above it at once, as a conversion does; people
+above it stay until they die.
 Because the caps are shared by a community (see parent areas) but the share is
 read from the area's own provenance, a road keeps topping up its own travellers
 and does not scatter them through the town. `npcs populate` runs the same pass
