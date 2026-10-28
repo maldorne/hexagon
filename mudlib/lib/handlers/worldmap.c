@@ -335,20 +335,27 @@ private int _plains_code(int sx, int sy, int sz)
   return (h & 1) ? MAP_GLYPH_PLAINS_B : MAP_GLYPH_PLAINS_A;
 }
 
+// A sector with more locations than this carrying the ruins component draws
+// the ruins glyph over everything but a city.
+#define RUINS_OVERRIDE_MIN 5
+
 // Display priority for a sector (highest first):
 //   1. city        — any city presence wins; drawn as a solid block, the
 //                    surrounding wall added later by _overlay_city_walls.
 //                    A forest city (half or more of its city locations are
 //                    also forest) shows the bold green forest glyph instead
 //                    and is a city for the wall and the name
-//   2. road / path — if the sector has road/path exits, draw the way glyph;
+//   2. many ruins  — more than RUINS_OVERRIDE_MIN locations with the ruins
+//                    component draw the ruins glyph whatever the majority,
+//                    road, river or terrain; only a city outranks it
+//   3. road / path — if the sector has road/path exits, draw the way glyph;
 //                    with a river through it as well it is a bridge when the
 //                    road crosses it, and the river otherwise (bridge_code)
-//   3. forest, taiga, mountain, swamp — win over a river, so they keep
+//   4. forest, taiga, mountain, swamp — win over a river, so they keep
 //                    their size
-//   4. river       — blue line, over farmland and any other terrain
-//   5. ruins, plains — below the river
-//   6. majority    — otherwise the dominant remaining terrain type
+//   5. river       — blue line, over farmland and any other terrain
+//   6. ruins, plains — below the river
+//   7. majority    — otherwise the dominant remaining terrain type
 private int sector_code(string game, string map_name, int sx, int sy, int sz)
 {
   object sect;
@@ -366,6 +373,10 @@ private int sector_code(string game, string map_name, int sx, int sy, int sz)
   // in bold green (the sector is still a city for walls and labels)
   if (sect->has_locations_of_type(SECTOR_TYPE_CITY))
     return sect->is_forest_city() ? MAP_GLYPH_FOREST_CITY : MAP_GLYPH_CITY;
+
+  // many ruins locations paint the sector as ruins whatever the majority
+  if (sect->count_locations_of_type(SECTOR_TYPE_RUINS) > RUINS_OVERRIDE_MIN)
+    return MAP_GLYPH_RUINS;
 
   // query_sector_type is the majority component, or the programmer-set
   // manual type for a sector with no locations of its own
