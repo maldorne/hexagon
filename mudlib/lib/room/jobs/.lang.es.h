@@ -21,8 +21,8 @@
         "a él antes de aprender otro.\n"
 #define _LANG_JOB_ENTRANCE_NOT_LEGAL "No reúnes las condiciones para aprender " + \
         "este oficio.\n"
-#define _LANG_JOB_ENTRANCE_JOINED "Te alistas: desde hoy tu oficio es " + \
-        lower_case((string)job->query_short()) + ". En la sala principal de " + \
+#define _LANG_JOB_ENTRANCE_JOINED "Te alistas: desde hoy tu oficio es «" + \
+        (string)job->query_short() + "». En la sala principal de " + \
         "la casa, escribe 'normas' para leer las normas del oficio.\n"
 #define _LANG_JOB_ENTRANCE_JOINED_OTHERS me->query_cap_name() + " se alista " + \
         "para aprender el oficio.\n"
