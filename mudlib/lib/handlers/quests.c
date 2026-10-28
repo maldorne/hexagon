@@ -352,6 +352,8 @@ int accept(object who, string id, varargs string source)
     tell_object(who, "\n" + wrap(quest->query_accept_message(),
                                  this_user()->query_cols()));
 
+  quest->event_accepted(who);
+
   return QUEST_OK;
 }
 

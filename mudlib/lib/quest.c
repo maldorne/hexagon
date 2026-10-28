@@ -183,3 +183,9 @@ int can_complete(object who)
 void event_completed(object who)
 {
 }
+
+// Called as the quest is taken, once it is recorded and its accept message
+// told: a quest that hands something over to start the work does it here.
+void event_accepted(object who)
+{
+}
