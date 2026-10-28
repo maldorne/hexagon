@@ -34,7 +34,7 @@ void setup()
   set_usage("pois [ <kind> | here ]\n" +
             "     pois add <kind> [label]\n" +
             "     pois remove\n" +
-            "     pois guard_dir <dir>\n" +
+            "     pois guard_dir <dir>[,<dir>...]\n" +
             "     pois admit <citizens|all>");
   set_help(
     "Report on the points of interest of the area you are standing in, and " +
@@ -47,7 +47,8 @@ void setup()
     "                         make this location a POI of that kind, with\n" +
     "                         that label if given (replaces the one it had)\n" +
     "  pois remove            this location stops being a POI\n" +
-    "  pois guard_dir <dir>   town_entrance only: the exit into town its\n" +
+    "  pois guard_dir <dir>[,<dir>...]\n" +
+    "                         town_entrance only: the exits into town its\n" +
     "                         guards watch; live guards are re-posted\n" +
     "  pois admit <citizens|all>\n" +
     "                         town_entrance only: its guards let through only\n" +
@@ -339,11 +340,31 @@ private int do_remove(object area, object me)
   return 1;
 }
 
-// ===== pois guard_dir <dir> =====
+// Re-registers the guards standing here on the exits their post now names.
+private void repost_guards(object here)
+{
+  object * inv;
+  object guard;
+  int i;
+
+  inv = all_inventory(here);
+  for (i = 0; i < sizeof(inv); i++)
+  {
+    guard = inv[i]->query_component_by_type("guard");
+    if (!guard)
+      continue;
+    here->unregister_guard(inv[i]);
+    guard->register_at_post();
+  }
+}
+
+// ===== pois guard_dir <dir>[,<dir>...] =====
 private int do_guard_dir(object area, object me, string * args)
 {
   string file;
+  string * dirs;
   mapping exits;
+  int i;
 
   file = (string)environment(me)->query_file_name();
   if (!area->is_poi(file))
@@ -357,24 +378,28 @@ private int do_guard_dir(object area, object me, string * args)
     notify_fail("guard_dir only applies to a town_entrance POI.\n");
     return 0;
   }
-  if (sizeof(args) != 2)
+  if (sizeof(args) < 2)
   {
-    notify_fail("Usage: pois guard_dir <direction into the town>\n");
+    notify_fail("Usage: pois guard_dir <dir>[,<dir>...] (the ways into " +
+                "the town)\n");
     return 0;
   }
 
-  // the guards watch one of this location's exits, so it has to be one
+  // the guards watch this location's exits, so each has to be one
+  dirs = explode(implode(args[1..], ","), ",") - ({ "" });
   exits = (mapping)environment(me)->query_exit_map();
-  if (!exits || !exits[args[1]])
-  {
-    notify_fail("This location has no exit '" + args[1] + "'.\n");
-    return 0;
-  }
+  for (i = 0; i < sizeof(dirs); i++)
+    if (!exits || !exits[dirs[i]])
+    {
+      notify_fail("This location has no exit '" + dirs[i] + "'.\n");
+      return 0;
+    }
 
-  // the exit into town its guards watch; re-post so live guards pick it up
-  area->set_poi_guard_dir(file, args[1]);
-  area->repost_guards(file);
-  write("Entrance guards here now watch '" + args[1] + "'.\n");
+  // the exits into town its guards watch; re-post so live guards pick them up
+  area->set_poi_guard_dir(file, implode(dirs, ","));
+  repost_guards(environment(me));
+  write("Entrance guards here now watch '" + implode(dirs, "', '") +
+        "'.\n");
   return 1;
 }
 
@@ -451,7 +476,7 @@ static int cmd(string str, object me, string verb)
     notify_fail("Usage: pois [ <kind> | here ]\n" +
                 "       pois add <kind> [label]\n" +
                 "       pois remove\n" +
-                "       pois guard_dir <dir>\n" +
+                "       pois guard_dir <dir>[,<dir>...]\n" +
                 "       pois admit <citizens|all>\n");
     return 0;
   }

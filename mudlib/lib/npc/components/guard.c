@@ -16,8 +16,8 @@
 // citizenships at war with its own, at the exit its post names.
 //
 // Attributes:
-//   "direction"       - the exit it watches; without it, the one the
-//                       town_entrance POI of its post names
+//   "direction"       - the exits it watches, comma-separated; without it,
+//                       the ones the town_entrance POI of its post names
 //   "enemies"         - 0 to stop nobody for their citizenship (default 1:
 //                       those at war with the guard's)
 //   "guilds"          - guild objects whose members pass; anybody else is
@@ -89,26 +89,31 @@ private mapping _post_poi()
   return ((mapping)post->query_area()->query_pois())[work];
 }
 
-// The exit this guard watches: its own "direction" when it has one, otherwise
+// The exits this guard watches: its own "direction" when it has one, otherwise
 // read off the post it works at rather than stored: a town_entrance POI names
-// the way in, and a guard is posted to a place before it is posted to a
+// the ways in, and a guard is posted to a place before it is posted to a
 // direction. Empty at a square, where the watch is presence only and nobody is
-// stopped.
-private string _watched_direction()
+// stopped. Several exits are written comma-separated.
+private string * _watched_directions()
 {
   mapping poi;
+  string dirs;
 
   if (guard_direction && strlen(guard_direction))
-    return guard_direction;
+    dirs = guard_direction;
+  else
+  {
+    poi = _post_poi();
+    if (!poi || poi[POI_FIELD_KIND] != POI_KIND_TOWN_ENTRANCE ||
+        !stringp(poi[POI_FIELD_GUARD_DIR]))
+      return ({ });
+    dirs = poi[POI_FIELD_GUARD_DIR];
+  }
 
-  poi = _post_poi();
-  if (!poi || poi[POI_FIELD_KIND] != POI_KIND_TOWN_ENTRANCE)
-    return "";
-
-  return poi[POI_FIELD_GUARD_DIR] ? poi[POI_FIELD_GUARD_DIR] : "";
+  return explode(dirs, ",") - ({ "" });
 }
 
-string query_direction() { return _watched_direction(); }
+string query_direction() { return implode(_watched_directions(), ","); }
 
 // The name of the guard's own citizenship in the diplomacy graph, "" when it
 // has none.
@@ -277,6 +282,8 @@ void event_crime(object who, object criminal, string type, object victim,
 void placed()
 {
   object me, post;
+  string * dirs;
+  int i;
 
   me = query_entity();
   if (!me)
@@ -287,8 +294,9 @@ void placed()
   if (guard_direction && strlen(guard_direction))
   {
     post = environment(me);
-    if (post)
-      post->register_guard(me, guard_direction);
+    dirs = _watched_directions();
+    for (i = 0; post && i < sizeof(dirs); i++)
+      post->register_guard(me, dirs[i]);
     return;
   }
 
@@ -299,23 +307,24 @@ void placed()
 }
 
 /**
- * Registers the guard on the exit it watches at its town entrance post,
+ * Registers the guard on the exits it watches at its town entrance post,
  * loading the post if needed.
  */
 void register_at_post()
 {
   object me, post;
-  string dir;
+  string * dirs;
+  int i;
 
   me = query_entity();
-  dir = _watched_direction();
-  if (!me || !strlen(dir))
+  dirs = _watched_directions();
+  if (!me || !sizeof(dirs))
     return;
 
   post = (object)load_object(LOCATION_HANDLER)->load_location(
            (string)me->query_work());
-  if (post)
-    post->register_guard(me, dir);
+  for (i = 0; post && i < sizeof(dirs); i++)
+    post->register_guard(me, dirs[i]);
 }
 
 // The guild rules: the guilds whose members pass, and the level a member needs.
@@ -415,13 +424,13 @@ private int _passes_admission(object mover)
   return _is_fellow_citizen(mover);
 }
 
-// Let `mover` through the watched exit? Only if every rule lets them. With no
+// Let `mover` through a watched exit? Only if every rule lets them. With no
 // direction posted, the mover passes.
 int check(object mover)
 {
   refusal = nil;
 
-  if (!strlen(_watched_direction()) || !mover || !query_entity())
+  if (!sizeof(_watched_directions()) || !mover || !query_entity())
     return 1;
 
   // the wanted do not pass the gate
@@ -497,7 +506,7 @@ void init_auto_load_attributes(mapping args)
 mixed * stats()
 {
   return component::stats() + ({
-    ({ "Direction", _watched_direction() }),
+    ({ "Direction", query_direction() }),
     ({ "Enemies", guard_enemies }),
     ({ "Guilds", implode(guard_guilds, ", ") }),
     ({ "Guildless", guard_guildless }),

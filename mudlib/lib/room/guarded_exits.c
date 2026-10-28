@@ -45,17 +45,23 @@ private void _prune_guards()
   guarded_exit_slots = out;
 }
 
-// Register a live guard NPC as protecting `direction`. Idempotent per guard.
+// Register a live guard NPC as protecting `direction`. A guard may protect
+// several directions, one slot each; idempotent per guard and direction.
 void register_guard(object guard, string direction)
 {
+  int i;
+
   if (!guard || !direction)
     return;
 
   _prune_guards();
 
-  // a guard protects one direction; skip if already registered
-  if (member_array(guard, guarded_exit_slots) == -1)
-    guarded_exit_slots += ({ guard, direction });
+  for (i = 0; i < sizeof(guarded_exit_slots); i += 2)
+    if (guarded_exit_slots[i] == guard &&
+        guarded_exit_slots[i + 1] == direction)
+      return;
+
+  guarded_exit_slots += ({ guard, direction });
 }
 
 // Remove a guard from the registry (it left, died, or was reassigned).

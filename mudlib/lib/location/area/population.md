@@ -122,7 +122,7 @@ An area keeps `pois`, `([ location_file : ([ "kind", "label", "guard_dir",
 | kind | meaning |
 |---|---|
 | `pub`, `shop` | ventures; attached automatically from the location component at conversion |
-| `town_entrance` | a gate; carries `guard_dir` (the exit that leads into town) and `admit` |
+| `town_entrance` | a gate; carries `guard_dir` (the exits that lead into town, comma-separated) and `admit` |
 | `town_square` | a square; its guards stand by, stopping nobody |
 | `crossroads`, `shrine` | places of note; a shrine also names its deity |
 
@@ -417,9 +417,10 @@ parents and the ally and enemy pairs.
 - **Descent and surnames** for families come from the citizenship too.
 
 A watch is an ordinary vacancy staffed from a template that carries the `guard`
-component. The component asks the exit handler to consult it at one exit: its own
-`direction` attribute, or the `guard_dir` of the `town_entrance` POI where its
-holder works. It stops movers whose citizenship is at war with its own (enmity
+component. The component asks the exit handler to consult it at the exits its
+own `direction` attribute names, or else the `guard_dir` of the
+`town_entrance` POI where its holder works (several exits comma-separated: a
+gate that opens onto two streets). It stops movers whose citizenship is at war with its own (enmity
 cascades through parents), can add guild and class-level rules and a message,
 and at a `town_entrance` with `admit` set to `citizens` it lets through only its
 own citizenship and those under it. At a `town_square` it has no direction and
@@ -491,7 +492,7 @@ Standing in the right location each time. The templates
    <high>`, `areas diplomacy <citizenship|none|inherit>`, and
    `areas parent <area path>` for a town's fields and roads.
 3. Mark points of interest: `pois add <kind> [label]`; on an entrance
-   `pois guard_dir <dir>` and `pois admit <citizens|all>`.
+   `pois guard_dir <dir>[,<dir>...]` and `pois admit <citizens|all>`.
 4. Declare the jobs, standing where each is worked: `vacancies add <name>
    <count> <template>[*<weight>],... [fixed]`, then `vacancies equip`,
    `timetable <name> <hour> <work|home|out|clear>`, `timetable <name> <hour>
