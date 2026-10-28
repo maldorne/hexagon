@@ -45,5 +45,6 @@
 #define QUEST_DONE         3
 #define QUEST_NEEDS        4
 #define QUEST_INCOMPLETE   5
+#define QUEST_TODAY        6
 
 #endif

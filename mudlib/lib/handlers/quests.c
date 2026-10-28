@@ -21,6 +21,8 @@
  */
 
 #include <living/quests.h>
+#include <mud/time.h>
+#include <user/quests.h>
 #include <living/persisted.h>
 #include <living/skills.h>
 #include <living/titles.h>
@@ -163,6 +165,18 @@ private string game_of(object who)
   return game_name(who);
 }
 
+/**
+ * Whether two times fall on the same calendar day of the mud's local time.
+ */
+private int _is_same_day(int first, int second)
+{
+  mixed * a, * b;
+
+  a = localtime(first);
+  b = localtime(second);
+  return a[LT_YEAR] == b[LT_YEAR] && a[LT_YDAY] == b[LT_YDAY];
+}
+
 /*
  * Whether a player may take a quest. Returns one of the QUEST_* answers, so a
  * caller can tell a player why rather than only that they cannot.
@@ -187,6 +201,11 @@ int check_can_take(object who, string id)
   // a quest that is not repeatable is taken once and never again
   if (who->has_completed_quest(game, id) && !quest->query_repeatable())
     return QUEST_DONE;
+
+  // a daily one waits for the next real day
+  if (quest->query_daily() && who->has_completed_quest(game, id) &&
+      _is_same_day(who->query_completed_quests(game)[id][QUEST_LAST], time()))
+    return QUEST_TODAY;
 
   if (quest->query_needs_level() &&
       who->query_level() < quest->query_needs_level())

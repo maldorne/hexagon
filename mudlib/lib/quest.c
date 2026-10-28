@@ -60,6 +60,8 @@ private string chain_title;
 private string chain_description;
 private int needs_level;
 private int repeatable;
+// a daily quest is taken again once per real day, see set_daily
+private int daily;
 
 void create()
 {
@@ -79,6 +81,7 @@ void create()
   chain_title = "";
   chain_description = "";
   repeatable = 0;
+  daily = 0;
 
   // /lib/core/object's create() is what calls setup()
   ::create();
@@ -110,6 +113,18 @@ int query_needs_level() { return needs_level; }
 
 void set_repeatable(int i) { repeatable = i; }
 int query_repeatable() { return repeatable; }
+
+/**
+ * A daily quest is repeatable, but taken again only on a later real day than
+ * the one it was last completed on (the mud's local calendar day).
+ */
+void set_daily(int i)
+{
+  daily = i ? 1 : 0;
+  if (daily)
+    repeatable = 1;
+}
+int query_daily() { return daily; }
 
 // Which chain this quest belongs to, and its place in it, counting from one.
 void set_chain(string chain_id, int step) { chain = chain_id; chain_step = step; }
