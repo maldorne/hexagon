@@ -112,7 +112,6 @@ void set_status(int i)
   // force an update the next time the exit_string is queried
   // (we have change the door from closed to open or open to closed)
   environment(this_object())->reset_short_exit_string();
-  environment(this_object())->query_dirs_string();
 }
 
 int query_init_status() { return init_status; }

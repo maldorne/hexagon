@@ -71,8 +71,9 @@ string long(string str, int dark)
 
   ret += (string)handler("weather", this_object())->weather_string(this_object());
 
-  // refreshed every time: open and closed doors show in it
-  query_dirs_string();
+  // refreshed every time: open and closed doors show in it, and a place that
+  // says its exits its own way (water) answers through its own function
+  exit_string = query_dirs_string();
 
   if (exit_string)
     ret += exit_string + "\n";

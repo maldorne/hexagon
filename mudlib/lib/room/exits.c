@@ -261,6 +261,7 @@ mixed add_exit(string direc, mixed dest, string type,
     dest_other, dest_direc, this_object()->query_hidden_objects(), // arrays
     direc, dest, type, material);                                  // & data
 
+  // the exit lines are worked out when somebody looks, not on every exit added
   short_exit_string = "";
   exit_string = "";
 
@@ -284,9 +285,6 @@ mixed add_exit(string direc, mixed dest, string type,
     // that is swum is never seen
     if (query_sealed_exit(direc) || query_swim_exit(direc))
       show_exit(direc, 0);
-
-    exit_string = query_dirs_string();
-    short_exit_string = query_short_exit_string();
 
     // new door system for ccmud, just with calling add_exit
     // with door exit type, the door object will be added
@@ -314,9 +312,6 @@ mixed add_exit(string direc, mixed dest, string type,
     // that is swum is never seen
     if (query_sealed_exit(direc) || query_swim_exit(direc))
       show_exit(direc, 0);
-
-    exit_string = query_dirs_string();
-    short_exit_string = query_short_exit_string();
 
     if ((type == "door") || (type == "gate"))
     {
@@ -387,7 +382,8 @@ int modify_exit(string direc, mixed *data)
     door_control = m[0];
     dest_other = m[1];
     this_object()->set_hidden_objects(m[2]);
-    exit_string = query_dirs_string();
+    exit_string = "";
+    reset_short_exit_string();
     return(1);
   }
 
@@ -424,7 +420,7 @@ int remove_exit(string direc)
     this_object()->set_hidden_objects(m[4]);
   }
 
-  exit_string = query_dirs_string(); // Update the exit string
+  exit_string = ""; // Update the exit string
   reset_short_exit_string();  //so glance works, Anirudh
 
   return 1;
@@ -635,7 +631,7 @@ int renew_exits()
   {
     olist[i]->move(this_object());
   }
-  exit_string = query_dirs_string();
+  exit_string = "";
   reset_short_exit_string();
 }
 
@@ -700,7 +696,7 @@ object add_door(string dir)
   if (opposite != "")
     door->set_dir_other_side(opposite);
 
-  exit_string = query_dirs_string();
+  exit_string = "";
   reset_short_exit_string();
 
   return door;
