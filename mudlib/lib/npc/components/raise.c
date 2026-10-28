@@ -14,10 +14,16 @@
 //                 "align_min" - the lowest real alignment raised
 //                 "property"  - a property the player must have set
 //   "refusal" - what somebody left out is told; defaults to the stock text
+//   "price"   - what raising costs, in base coins: ([ "base": n, "per_level": m ])
+//               is n plus m for each level of the player, either key optional.
+//               Without it the service is free. A death leaves a player's money
+//               on the corpse, so a ghost pays from its own purse or, failing
+//               that, from the corpse lying in the same place.
 
 #include <language.h>
 
 inherit component "/lib/npc/component.c";
+inherit fee "/lib/npc/service-fee.c";
 
 // How long, in heart beats, before the same player may ask again.
 #define RAISE_COOLDOWN 100
@@ -26,20 +32,14 @@ inherit component "/lib/npc/component.c";
 
 private mapping raise_only;
 private string raise_refusal;
+private mapping raise_price;
 
 void create()
 {
   component::create();
   raise_only = ([ ]);
   raise_refusal = nil;
-}
-
-// Whether `path` is one of the `allowed` objects.
-private int _is_listed(string path, string * allowed)
-{
-  if (!path || !strlen(path))
-    return 0;
-  return member_array(path, allowed) != -1;
+  raise_price = ([ ]);
 }
 
 /**
@@ -50,18 +50,25 @@ private int _is_listed(string path, string * allowed)
  */
 private int _is_eligible(object who)
 {
-  if (pointerp(raise_only["guild"]) &&
-      !_is_listed(who->query_guild_ob(), raise_only["guild"]))
-    return 0;
-  if (pointerp(raise_only["race"]) &&
-      !_is_listed(who->query_race_ob(), raise_only["race"]))
-    return 0;
-  if (intp(raise_only["align_min"]) &&
-      who->query_real_align() < raise_only["align_min"])
-    return 0;
-  if (stringp(raise_only["property"]) && !who->query_property(raise_only["property"]))
-    return 0;
-  return 1;
+  return meets_only(who, raise_only);
+}
+
+/**
+ * What raising `who` costs.
+ *
+ * @param who the player asking to be raised
+ * @return the price in base coins, 0 when the service is free
+ */
+private int _query_cost(object who)
+{
+  int cost;
+
+  cost = 0;
+  if (intp(raise_price["base"]))
+    cost += raise_price["base"];
+  if (intp(raise_price["per_level"]))
+    cost += raise_price["per_level"] * who->query_level();
+  return cost > 0 ? cost : 0;
 }
 
 // The service is a fact about the component, not state to carry: nothing here
@@ -87,16 +94,30 @@ mapping query_component_actions()
 
 int do_info(string str)
 {
+  object who;
+  string price_text;
+  int cost;
+
   if (!query_entity())
     return 0;
 
   query_entity()->do_say(_LANG_RAISE_INFO);
+
+  who = this_player();
+  cost = who ? _query_cost(who) : 0;
+  if (cost)
+  {
+    price_text = price_words(cost);
+    query_entity()->do_say(_LANG_RAISE_INFO_PRICE);
+  }
   return 1;
 }
 
 int do_raise(string str)
 {
-  object who;
+  object who, payer;
+  string price_text;
+  int cost;
 
   who = this_player();
   if (!who || !query_entity())
@@ -120,6 +141,20 @@ int do_raise(string str)
     return 1;
   }
 
+  // The price is checked before the gesture and taken after the player is back,
+  // so somebody who cannot be raised (remove_ghost refuses) pays nothing.
+  cost = _query_cost(who);
+  if (cost)
+  {
+    price_text = price_words(cost);
+    payer = find_payer(who, cost, 1);
+    if (!payer)
+    {
+      query_entity()->do_say(_LANG_RAISE_CANNOT_PAY);
+      return 1;
+    }
+  }
+
   // Everybody present sees the gesture, the raised player included -- it is the
   // one thing here that remove_ghost cannot know about. It then tells the player
   // they are back and tells the room, each in their own words, so saying either
@@ -127,6 +162,11 @@ int do_raise(string str)
   tell_room(environment(who), _LANG_RAISE_GESTURE);
 
   who->remove_ghost();
+  if (who->query_dead())
+    return 1;
+
+  if (cost)
+    take_payment(payer, cost);
   who->add_timed_property(RAISE_COOLDOWN_PROP, 1, RAISE_COOLDOWN);
   return 1;
 }
@@ -140,6 +180,8 @@ mapping query_auto_load_attributes()
     out["only"] = raise_only;
   if (raise_refusal)
     out["refusal"] = raise_refusal;
+  if (map_sizeof(raise_price))
+    out["price"] = raise_price;
   return out;
 }
 
@@ -152,4 +194,6 @@ void init_auto_load_attributes(mapping args)
     raise_only = ([ ]) + args["only"];
   if (stringp(args["refusal"]))
     raise_refusal = args["refusal"];
+  if (mappingp(args["price"]))
+    raise_price = ([ ]) + args["price"];
 }
