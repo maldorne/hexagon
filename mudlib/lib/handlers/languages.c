@@ -113,6 +113,18 @@ int language_exists(string lang)
   return arrayp(languages[lang]);
 }
 
+/**
+ * The display names of the languages, by id. A game's handler adds its own
+ * languages to these.
+ */
+mapping query_language_names() { return _LANG_LANGUAGE_NAMES; }
+
+/**
+ * The words a player may type for each language, by id. A game's handler adds
+ * its own languages to these.
+ */
+mapping query_language_aliases() { return _LANG_LANGUAGE_ALIASES; }
+
 // The real-world-language display name for a language id ("common" -> "común"
 // in ES, "Common" in EN). Unknown ids fall back to the capitalised id, so a
 // game that registers a language without a name entry still shows something
@@ -124,7 +136,7 @@ string query_language_display(string lang)
   if (!lang || !strlen(lang))
     return "";
 
-  names = _LANG_LANGUAGE_NAMES;
+  names = this_object()->query_language_names();
   if (mappingp(names) && !undefinedp(names[lang]))
     return names[lang];
 
@@ -149,7 +161,7 @@ string resolve_language(string input)
     return input;
 
   // an alias
-  aliases = _LANG_LANGUAGE_ALIASES;
+  aliases = this_object()->query_language_aliases();
   if (mappingp(aliases))
   {
     ids = map_indices(aliases);
@@ -159,7 +171,7 @@ string resolve_language(string input)
   }
 
   // a display name (lower-cased)
-  names = _LANG_LANGUAGE_NAMES;
+  names = this_object()->query_language_names();
   if (mappingp(names))
   {
     ids = map_indices(names);
