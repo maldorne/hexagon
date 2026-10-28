@@ -100,7 +100,6 @@ void create()
   if (clonep(this_object()))
     set_heart_beat(1);
 
-  // TODO
   alias_commands();
   nickname_commands();
   // recipes_commands();
@@ -281,7 +280,6 @@ nomask int save_me()
   else
     money_array = ({ });
 
-  // TODO social save
   // if ( query_guild_ob() && ( (file_size(query_guild_ob()) > 0) ||
   //   (file_size(query_guild_ob()+".c") > 0) ) )
     //   query_guild_ob()->player_save_me();
@@ -352,8 +350,6 @@ void heart_beat()
 
   living::heart_beat();
 
-  // TODO this is user stuff, move it to the user object when/if the user 
-  // has its own heart_beat
   // show pending notifications after the heart beat has finished; a player
   // without a connection keeps them until they come back
   if (!_net_dead && user()->query_pending_notifications())

@@ -185,9 +185,8 @@ void attack_by(object ob)
   do_equip("");
 
   // Combat interrupts whatever the NPC had lined up: abandon any route and drop
-  // the pending queue so it stops mid-errand and fights. What it does once the
-  // fight ends is a separate decision the NPC will make later (see the future
-  // "NPC event reactions" work), not a resume of the old route.
+  // the pending queue so it stops mid-errand and fights. It does not resume the
+  // old route once the fight ends.
   if (travelling())
     stop_travel();
   flush_actions();

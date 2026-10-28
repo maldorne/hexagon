@@ -186,7 +186,7 @@ private void _raise_house(string file, string * residents, int kept)
 }
 
 // Raise a house on a free plot and move its residents in. Picks a random free
-// plot (no neighbourhood grading yet). Returns the house's location file, or nil
+// plot. Returns the house's location file, or nil
 // (and logs) when there is no free plot. `residents` are the uuids that will
 // live there; a family shares one call.
 string build_house_on_plot(string * residents)

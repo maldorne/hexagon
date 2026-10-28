@@ -919,8 +919,7 @@ private int _staff(mapping vacancy)
 }
 
 // Staff every job this settlement offers -- the whole-settlement pass, which a
-// scheduled population check would call. Nothing calls it on its own: how a
-// settlement replaces its dead is undecided, so hiring is always asked for.
+// scheduled population check would call.
 // Whoever is taken on is housed straight away, the resident ones at least.
 void staff_vacancies()
 {

@@ -473,7 +473,7 @@ int do_exit_command(mapping door_control,
  * Yes folks. This creates that really stupid obvious exits message you keep
  * getting. Hope you really hate it.
  * specialy changed to handle stupid things. If you can figure it out I
- * will shake your hand. Look for docs coming soon to a universe near you.
+ * will shake your hand.
  */
 string query_dirs_string(mixed *dest_direc, mixed *dest_other,
                          object room_ob, string exit_color)

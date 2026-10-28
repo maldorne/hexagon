@@ -1,6 +1,6 @@
 // World-map renderer. Draws a sector-scale bird's-eye map — one glyph
 // per 10x10 sector — around a given world coordinate. Called from
-// player and admin commands, and (later) from anything that wants to
+// player and admin commands, and from anything that wants to
 // show a snapshot of the surrounding territory: quest handers, travel
 // commands, gazetteer entries, etc.
 //
@@ -49,9 +49,6 @@ inherit "/lib/core/object.c";
 // to highlight where a settlement is; they do not correspond one-to-one
 // with the underlying sectors. Set to 0 to render cities as plain solid
 // blocks with no surrounding wall.
-//
-// Temporarily disabled (0): cities render as solid blocks for now. Flip
-// back to 1 to re-enable the wall overlay; the overlay code is left intact.
 #define WORLDMAP_CITY_WALLS 0
 
 // Toggle for the river line: 1 draws rivers with double box lines, 0 with

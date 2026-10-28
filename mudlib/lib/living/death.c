@@ -212,7 +212,7 @@ int do_death(varargs object killed_by)
       }
     
       /* -----------------------------------------------
-       * PENDING: alignment, improve this with time
+       * alignment adjustment
        * neverbot, new alignment adjustment system
        * here we have to do all the checks when someone
        * dies, alignment adjustments of attackers (real

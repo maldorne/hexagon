@@ -269,8 +269,6 @@ int query_total_wc()
     if (mastery <= 0) mastery = 1;
 
     // with multiple weapons we divide the mastery value
-    // Pending: when we have combat skills with multiple weapons,
-    // improve this
     mastery = mastery/sizeof(obs);
     
     ret += mastery;
@@ -278,8 +276,6 @@ int query_total_wc()
 
   // add the bonus for the level
   // every 5 class levels, a wc point is added
-  // Pending: check if we don't add too many levels, if we allow many
-  // class levels, change the division / 10
   ret += this_object()->query_level() / 5;
   return ret;
 }

@@ -10,7 +10,7 @@ mapping locations;
 //   ([ "file": location_file, "maze": 0/1 ])
 // It merges what used to be two parallel per-coordinate maps (a coord->file
 // map and a coord->maze flag) into one, so a consumer resolves a coordinate in
-// a single lookup and new per-node data can be added here later. The graph
+// a single lookup. The graph
 // EDGES live in `edges` below.
 mapping nodes;
 // The graph EDGES, keyed by coordinate: every traversable exit of the node at

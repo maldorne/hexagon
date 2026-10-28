@@ -167,8 +167,7 @@ string query_log_file()
 }
 
 // Append a line to the area's event log. One English line per notable event --
-// for now "no free plot", later invasions, guards reposted, houses raised, and
-// so on. A shared record a builder or an audit can read. Creates the logs dir
+// "no free plot", invasions, guards reposted, houses raised, and so on. A shared record a builder or an audit can read. Creates the logs dir
 // on demand (mkdir is recursive).
 void log_event(string msg)
 {
