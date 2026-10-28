@@ -6,7 +6,8 @@
  * For each group (the path of its class, guild or job object) it keeps the
  * names at each level (each under a key for who it is), and only the
  * RANKING_LEVELS highest levels: whoever falls below the lowest one kept drops
- * out. Coders are left out.
+ * out. Coders are left out, and so are test characters (a name starting
+ * with RANKING_TEST_PREFIX) and the jobs players cannot take.
  *
  * Updated when a level changes and when a player logs in (RANKING_OB->update);
  * shown by the ranking command.
@@ -31,6 +32,8 @@ inherit "/lib/core/object.c";
 #define RANKING_LEVELS 11
 // seconds between two prunes asked for by the ranking command
 #define RANKING_PRUNE_EVERY 300
+// players whose name starts with it are test characters, never ranked
+#define RANKING_TEST_PREFIX "test"
 
 // group path -> ([ level : ([ key : name ]) ]). The key says who it is (see
 // _identity_key), so two with the same name do not collide.
@@ -216,6 +219,34 @@ private int _remove_entry(mapping levels, string key, string name)
   return found;
 }
 
+/**
+ * Whether a group may be ranked: its object still exists, and when it is a
+ * job, players may take it.
+ */
+private int _is_rankable_group(string group)
+{
+  object ob;
+
+  if (!group || !strlen(group))
+    return 0;
+  if (file_size(group) < 0 &&
+      file_size(group + ".c") < 0)
+    return 0;
+
+  catch(ob = load_object(group));
+  if (!ob)
+    return 0;
+
+  return !ob->query_is_job() || ob->query_playable();
+}
+
+/** Whether a player name belongs to a test character. */
+private int _is_test_name(string name)
+{
+  return strlen(name) >= strlen(RANKING_TEST_PREFIX) &&
+    lower_case(name)[0 .. strlen(RANKING_TEST_PREFIX) - 1] == RANKING_TEST_PREFIX;
+}
+
 // Put somebody at their level of a group, keeping only the highest levels.
 // Whether the group changed.
 private int _place(string group, string key, string name, int level)
@@ -225,6 +256,9 @@ private int _place(string group, string key, string name, int level)
   int changed;
 
   if (!group || !strlen(group) || level <= 0)
+    return 0;
+
+  if (!_is_rankable_group(group))
     return 0;
 
   levels = ranking[group];
@@ -293,7 +327,8 @@ void update(object who)
   // players always; NPCs only when they are somebody
   if (who->query_player())
   {
-    if (who->query_property(GUEST_PROP))
+    if (who->query_property(GUEST_PROP) ||
+        _is_test_name((string)who->query_name()))
       return;
   }
   else if (!who->has_proper_name() && !who->query_only_one())
@@ -465,6 +500,15 @@ int prune(varargs int force)
     if (sscanf(groups[i], "/games/%s/%*s", game) != 2)
       continue;
 
+    // a guild, class or job that is gone, or a job players cannot take
+    if (!_is_rankable_group(groups[i]))
+    {
+      for (j = 0, keys = map_indices(ranking[groups[i]]); j < sizeof(keys); j++)
+        removed += map_sizeof(ranking[groups[i]][keys[j]]);
+      map_delete(ranking, groups[i]);
+      continue;
+    }
+
     levels = ranking[groups[i]];
     keys = map_indices(levels);
     for (j = 0; j < sizeof(keys); j++)
@@ -480,7 +524,7 @@ int prune(varargs int force)
         if (cache[who] == nil)
         {
           if (sscanf(key, "player:%s", source))
-            keep = player_exists(source);
+            keep = player_exists(source) && !_is_test_name(source);
           else if (sscanf(key, "npc:%s", source))
             keep = _npc_exists(game, source, name);
           else if (sscanf(key, "name:%s", source))

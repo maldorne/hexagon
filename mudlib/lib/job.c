@@ -19,12 +19,15 @@ inherit "/lib/social/abilities.c";
 private string * legal_races, * legal_classes;
 // the markdown text of the job's rules, see set_rules_book
 private string rules_book;
+// whether players may take the job; a job only NPCs hold sets it to 0
+private int playable;
 
 void create()
 {
   legal_races = ({ });
   legal_classes = ({ });
   rules_book = "";
+  playable = 1;
   create_abilities();
   ::create();
 }
@@ -67,6 +70,10 @@ string query_requirements_text() { return nil; }
  */
 void set_rules_book(string path) { rules_book = path ? path : ""; }
 string query_rules_book() { return rules_book; }
+
+/** Whether players may take the job (1 unless the job says otherwise). */
+int query_playable() { return playable; }
+void set_playable(int value) { playable = value ? 1 : 0; }
 
 // neverbot 07/12/06
 int query_next_level_xp(object player)
