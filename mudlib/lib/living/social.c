@@ -727,12 +727,18 @@ int query_total_job_xp() { return total_job_xp; }
 
 void logit_job(string what,int amount)
 {
+  mixed giver;
+
   if (interactive(this_object()))
   {
+    // whatever gives it may have no name (a coder's exec, a handler)
+    giver = previous_object()->query_name();
+    if (!stringp(giver))
+      giver = "";
     log_file(LOGFILE, (string)this_object()->query_cap_name()+" gano "+amount+" "+what+
-      " por: '"+previous_object()->query_name()+"' file: '"+file_name(previous_object())+
+      " por: '"+giver+"' file: '"+file_name(previous_object())+
       "'\n");
-}
+  }
 }
 
 int adjust_job_level(int i)

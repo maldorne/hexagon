@@ -15,7 +15,8 @@
 //                 "property"  - a property the player must have set
 //   "refusal" - what somebody left out is told; defaults to the stock text
 //   "price"   - what raising costs, in base coins: ([ "base": n, "per_level": m ])
-//               is n plus m for each level of the player, either key optional.
+//               is n plus m for each level of the player, either key optional;
+//               "free_up_to": l raises players of level l or lower for nothing.
 //               Without it the service is free. A death leaves a player's money
 //               on the corpse, so a ghost pays from its own purse or, failing
 //               that, from the corpse lying in the same place.
@@ -64,6 +65,9 @@ private int _query_cost(object who)
   int cost;
 
   cost = 0;
+  if (intp(raise_price["free_up_to"]) &&
+      who->query_level() <= raise_price["free_up_to"])
+    return 0;
   if (intp(raise_price["base"]))
     cost += raise_price["base"];
   if (intp(raise_price["per_level"]))
