@@ -124,6 +124,32 @@ string query_root_citizenship_path()
   return "/games/" + game + "/obj/citizenships/" + root + ".c";
 }
 
+/**
+ * The citizenship of the graph whose people an NPC born in this area belongs
+ * to: the area's own, or else the one of the nearest ancestor area that has one,
+ * as for the naming pool. Its node in the diplomacy graph may declare the races
+ * and the names of those born there.
+ *
+ * @return a citizenship name, or "" when no area up the chain has one
+ */
+string query_naming_citizenship()
+{
+  object area;
+  string held;
+  int steps;
+
+  area = this_object();
+  for (steps = 0; area && steps <= AREA_MAX_ANCESTRY; steps++)
+  {
+    held = (string)area->query_effective_citizenship();
+    if (strlen(held))
+      return held;
+    area = (object)area->query_parent_area();
+  }
+
+  return "";
+}
+
 // The citizenship whose naming pool applies to an NPC born in this area.
 //
 // Membership and naming are deliberately different questions. An area that

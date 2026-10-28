@@ -45,9 +45,11 @@ inherit "/lib/core/object.c";
 //                            "deities"  : ({ deity paths }),
 //                            "law"      : ([ offence : points ]),
 //                            "lethal"   : 0 or 1,
-//                            "prison"   : ({ location files }) ])
+//                            "prison"   : ({ location files }),
+//                            "races"    : ({ race paths }),
+//                            "names"    : name_style ])
 // A prison saved as a single location file is read as a list of one.
-// The last four are optional: absent until someone sets them.
+// Everything after "guard" is optional: absent until someone sets it.
 mapping citizenships;
 
 // The two relationship lists, each a list of unordered name pairs (every
@@ -100,6 +102,7 @@ void dest_me()
 // added.
 // defined further down, where the mutating side of the graph lives
 private mapping query_citizenship(string citizenship_name);
+private string query_key_holder(string citizenship_name, string key);
 
 private mapping citizenship_map()
 {
@@ -191,31 +194,59 @@ string query_root_citizenship(string citizenship_name)
   return current;
 }
 
-// Are name_a and name_b `type`-linked, directly or through a parent?
-// The relationship counts if it is declared between the two citizenships
-// themselves, between one and the other's parent, or between their two parents.
+/**
+ * A citizenship and every one above it, nearest first: a village, its town,
+ * the country. The walk is bounded so a graph edited into a cycle cannot hang.
+ *
+ * @param citizenship_name where the chain starts
+ * @return the names, the citizenship itself first
+ */
+private string * query_ancestry(string citizenship_name)
+{
+  string * chain;
+  string parent;
+  int steps;
+
+  chain = ({ citizenship_name });
+
+  for (steps = 0; steps < DIPLOMACY_MAX_DEPTH; steps++)
+  {
+    parent = query_parent(chain[sizeof(chain) - 1]);
+
+    if (!strlen(parent) || member_array(parent, chain) != -1)
+      break;
+
+    chain += ({ parent });
+  }
+
+  return chain;
+}
+
+// Are name_a and name_b `type`-linked, directly or through their parents?
+// The relationship counts if it is declared between any citizenship of one's
+// parent chain and any of the other's, however many levels up.
 // is_enemy / is_ally build on this; the single-pair check without the parent
 // cascade is check_citizenships_linked_by_type.
 private int check_citizenships_linked(string type,
                                       string name_a, string name_b)
 {
-  string parent_a, parent_b;
+  string * chain_a, * chain_b;
+  int i, j;
 
-  parent_a = query_parent(name_a);
-  parent_b = query_parent(name_b);
+  chain_a = query_ancestry(name_a);
+  chain_b = query_ancestry(name_b);
 
-  return check_citizenships_linked_by_type(type, name_a, name_b) ||
-         (strlen(parent_b) &&
-          check_citizenships_linked_by_type(type, name_a, parent_b)) ||
-         (strlen(parent_a) &&
-          check_citizenships_linked_by_type(type, parent_a, name_b)) ||
-         (strlen(parent_a) && strlen(parent_b) &&
-          check_citizenships_linked_by_type(type, parent_a, parent_b));
+  for (i = 0; i < sizeof(chain_a); i++)
+    for (j = 0; j < sizeof(chain_b); j++)
+      if (check_citizenships_linked_by_type(type, chain_a[i], chain_b[j]))
+        return 1;
+
+  return 0;
 }
 
 // Is `name_b` an enemy of `name_a`?
-// Enmity cascades through the parent: a citizenship is at war with whatever its
-// parent is at war with.
+// Enmity cascades through the parents: a citizenship is at war with whatever
+// any citizenship above it is at war with.
 int is_enemy(string name_a, string name_b)
 {
   if (!strlen(name_a) || !strlen(name_b))
@@ -224,25 +255,25 @@ int is_enemy(string name_a, string name_b)
                                    name_a, name_b);
 }
 
-// Is `name_b` an ally of `name_a` -- the same citizenship, two siblings under
-// one parent, a citizenship and its own parent, or an explicit ally? Alliances
-// cascade through the parent just as enmity does.
+// Is `name_b` an ally of `name_a` -- the same citizenship, one under the other,
+// two that share a citizenship above them, or an explicit ally? Alliances
+// cascade through the parents just as enmity does.
 int is_ally(string name_a, string name_b)
 {
-  string parent_a, parent_b;
+  string * chain_a, * chain_b;
+  int i;
 
   if (!strlen(name_a) || !strlen(name_b))
     return 0;
   if (name_a == name_b)
     return 1;                        // the same citizenship
 
-  // a citizenship allied to its own parent, or two siblings under one parent
-  parent_a = query_parent(name_a);
-  parent_b = query_parent(name_b);
-  if (strlen(parent_a) && (parent_a == name_b || parent_a == parent_b))
-    return 1;
-  if (strlen(parent_b) && parent_b == name_a)
-    return 1;
+  // one under the other, or both under a common one
+  chain_a = query_ancestry(name_a);
+  chain_b = query_ancestry(name_b);
+  for (i = 0; i < sizeof(chain_a); i++)
+    if (member_array(chain_a[i], chain_b) != -1)
+      return 1;
 
   return check_citizenships_linked(DIPLOMACY_RELATION_ALLY,
                                    name_a, name_b);
@@ -341,6 +372,95 @@ int remove_deity(string citizenship_name, string deity)
     return 0;
 
   citizenship[DIPLOMACY_DEITIES] -= ({ deity });
+  save_handler();
+  return 1;
+}
+
+/**
+ * The races the citizens of a node are drawn from: its own, or the nearest ones
+ * up the parent chain. Empty when nobody in the graph declares any, and the
+ * citizenship file of the top node decides.
+ *
+ * @param citizenship_name the node the citizen belongs to
+ * @return race paths, one entry per share
+ */
+string * query_people_races(string citizenship_name)
+{
+  string holder;
+  mixed races;
+
+  holder = query_key_holder(citizenship_name, DIPLOMACY_RACES);
+  if (!strlen(holder))
+    return ({ });
+
+  races = citizenship_map()[holder][DIPLOMACY_RACES];
+  return pointerp(races) ? races : ({ });
+}
+
+/**
+ * The wordlist the names of a node's citizens come from: its own, or the
+ * nearest one up the parent chain. "" when nobody in the graph declares one.
+ *
+ * @param citizenship_name the node the citizen belongs to
+ * @return a name style, or ""
+ */
+string query_people_name_style(string citizenship_name)
+{
+  string holder;
+  mixed style;
+
+  holder = query_key_holder(citizenship_name, DIPLOMACY_NAME_STYLE);
+  if (!strlen(holder))
+    return "";
+
+  style = citizenship_map()[holder][DIPLOMACY_NAME_STYLE];
+  return stringp(style) ? style : "";
+}
+
+/**
+ * Declare the races a node's citizens are born as. An empty list drops the
+ * node's own, so it takes them from its parent chain again.
+ *
+ * @param citizenship_name the node
+ * @param races race paths, one entry per share
+ * @return 1 when the node exists
+ */
+int set_people_races(string citizenship_name, string * races)
+{
+  mapping citizenship;
+
+  citizenship = query_citizenship(citizenship_name);
+  if (!citizenship)
+    return 0;
+
+  if (!races || !sizeof(races))
+    map_delete(citizenship, DIPLOMACY_RACES);
+  else
+    citizenship[DIPLOMACY_RACES] = ({ }) + races;
+  save_handler();
+  return 1;
+}
+
+/**
+ * Declare the wordlist a node's citizens are named from. "" drops the node's
+ * own, so it takes it from its parent chain again.
+ *
+ * @param citizenship_name the node
+ * @param style a name style (a namegen collection), or ""
+ * @return 1 when the node exists
+ */
+int set_people_name_style(string citizenship_name, string style)
+{
+  mapping citizenship;
+
+  citizenship = query_citizenship(citizenship_name);
+  if (!citizenship)
+    return 0;
+
+  if (!style || !strlen(style))
+    map_delete(citizenship, DIPLOMACY_NAME_STYLE);
+  else
+    citizenship[DIPLOMACY_NAME_STYLE] = style;
   save_handler();
   return 1;
 }
@@ -524,6 +644,8 @@ mapping query_relations()
                     DIPLOMACY_LAW     : query_own_law(name),
                     DIPLOMACY_LETHAL  : citizenship_map[name][DIPLOMACY_LETHAL],
                     DIPLOMACY_PRISON  : query_own_prisons(name),
+                    DIPLOMACY_RACES   : citizenship_map[name][DIPLOMACY_RACES],
+                    DIPLOMACY_NAME_STYLE : citizenship_map[name][DIPLOMACY_NAME_STYLE],
                     "allies"   : query_linked_names(DIPLOMACY_RELATION_ALLY, name),
                     "enemies"  : query_linked_names(DIPLOMACY_RELATION_ENEMY, name) ]);
   }

@@ -750,30 +750,40 @@ int remove_vacancy_spot(string job, string location_file)
 // generator draws it from the area citizenship's name style, in the form
 // matching the given gender (a GENDER_* id). It does not depend on the job.
 // `cpath` names the citizenship to draw from instead, for somebody born here
-// who comes from elsewhere. Returns nil when there is no citizenship, it
-// declares no name style, or the generator has no wordlist for it -- the NPC
-// then keeps its template's name.
-string generate_citizen_name(int gender, varargs string cpath)
+// who comes from elsewhere, and `style` the wordlist its node of the diplomacy
+// graph declares. Returns nil when there is no citizenship, no name style, or
+// the generator has no wordlist for it -- the NPC then keeps its template's
+// name.
+string generate_citizen_name(int gender, varargs string cpath, string style)
 {
-  string style, word;
+  string word;
   object cit;
 
-  // the naming style is a trait of the nationality, not of the town: every
-  // settlement under the same country draws its citizens' names from one pool,
-  // and an area with no citizenship of its own borrows the pool of the region
-  // it sits in without taking its nationality
-  if (!stringp(cpath))
-    cpath = (string)this_object()->query_naming_citizenship_path();
-  if (!strlen(cpath))
-    return nil;
+  // the people the area's node of the diplomacy graph says are born here, if
+  // it says so (a village of another people inside a realm)
+  if (!stringp(style))
+    style = (string)handler("diplomacy", this_object())->query_people_name_style(
+              (string)this_object()->query_naming_citizenship());
 
-  cit = load_object(cpath);
-  if (!cit)
-    return nil;
-
-  style = cit->query_name_style();
+  // otherwise the naming style is a trait of the nationality, not of the town:
+  // every settlement under the same country draws its citizens' names from one
+  // pool, and an area with no citizenship of its own borrows the pool of the
+  // region it sits in without taking its nationality
   if (!style || !strlen(style))
-    return nil;
+  {
+    if (!stringp(cpath))
+      cpath = (string)this_object()->query_naming_citizenship_path();
+    if (!strlen(cpath))
+      return nil;
+
+    cit = load_object(cpath);
+    if (!cit)
+      return nil;
+
+    style = cit->query_name_style();
+    if (!style || !strlen(style))
+      return nil;
+  }
 
   word = (gender == GENDER_FEMALE) ? "female" : "male";
   // order 3 with a length window keeps results name-like without copying the

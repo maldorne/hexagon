@@ -218,6 +218,11 @@ but has no effect on hiring.
   for a sentient, non-unique type; stored on the `npc.o` as the given name.
 - **Race** drawn from the naming citizenship's race pool, for the same kind of
   type; fauna and uniques keep the race their type gives.
+- A node of the diplomacy graph may declare the **people** born under it
+  (`diplomacy <cit> races <paths>`, `diplomacy <cit> names <style>`): the area's
+  node, or the nearest one up its parent chain that declares them, overrides the
+  citizenship file's race pool and name style, without changing the
+  nationality. A village of another people inside a realm is still its subject.
 - **Nationality** (`city_ob`): the citizenship at the top of the area's
   diplomacy chain, unless the template's `citizenship` says otherwise (a list
   draws one, an empty one makes them nobody's subjects).
@@ -407,6 +412,8 @@ parents and the ally and enemy pairs.
 - **Naming and race pool** come from the area's own citizenship, or from the
   nearest ancestor that has one when the area is stateless, so a road between
   two towns names its travellers like the region without making them subjects.
+  The races and name style a node of the diplomacy graph declares, its own or
+  inherited up the chain, come before the citizenship file's.
 - **Descent and surnames** for families come from the citizenship too.
 
 A watch is an ordinary vacancy staffed from a template that carries the `guard`

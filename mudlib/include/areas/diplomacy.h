@@ -20,6 +20,14 @@
 // ancestor that declares any accepts everything.
 #define DIPLOMACY_DEITIES "deities"
 
+// The people born under a citizenship: the races its citizens are drawn from
+// (race paths, one entry per share) and the wordlist their names come from. A
+// node that does not set them takes them from its parent chain; when nobody up
+// the chain does, the citizenship file of the top one decides. The nationality
+// is not touched: a village of another people is still a subject of its realm.
+#define DIPLOMACY_RACES      "races"
+#define DIPLOMACY_NAME_STYLE "names"
+
 // The law of a citizenship: its own law code (offence -> points, 0 = legal
 // there), whether its guards kill, and the location its prisoners are taken to.
 // A key a citizenship does not carry is inherited from its parent chain; what

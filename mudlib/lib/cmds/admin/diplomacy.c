@@ -15,6 +15,8 @@
 //   diplomacy <cit> guard <path>    set the NPC source its guards spawn from
 //   diplomacy <cit> deity <path>    accept a deity's worship on its ground
 //   diplomacy <cit> undeity <path>  stop accepting it
+//   diplomacy <cit> races <paths|none>  the races its people are born as
+//   diplomacy <cit> names <style|none>  the wordlist their names come from
 //   diplomacy <cit> ally <other>    mark <other> an ally
 //   diplomacy <cit> unally <other>  drop <other> as ally
 //   diplomacy <cit> enemy <other>   mark <other> an enemy (guards block them)
@@ -54,6 +56,10 @@ void setup()
     "  guard <path|none>          the NPC source those guards come from\n" +
     "  deity <path>               accept a god's worship on its ground\n" +
     "  undeity <path>             stop accepting it\n" +
+    "  races <path ...|none>      the races its people are born as (one\n" +
+    "                             path per share); none takes its parent's\n" +
+    "  names <style|none>         the wordlist their names come from\n" +
+    "                             (a namegen collection); none, its parent's\n" +
     "  ally <cit>, unally <cit>   mark or drop an ally\n" +
     "  enemy <cit>, unenemy <cit> mark or drop an enemy (guards block them)\n" +
     "\n" +
@@ -160,6 +166,11 @@ private string _detail(string name, mapping rec)
   if (pointerp(rec[DIPLOMACY_DEITIES]) && sizeof(rec[DIPLOMACY_DEITIES]))
     ret += sprintf("      %-9s %s\n", "deities:",
                    implode(rec[DIPLOMACY_DEITIES], ", "));
+  if (pointerp(rec[DIPLOMACY_RACES]) && sizeof(rec[DIPLOMACY_RACES]))
+    ret += sprintf("      %-9s %s\n", "races:",
+                   implode(rec[DIPLOMACY_RACES], ", "));
+  if (stringp(rec[DIPLOMACY_NAME_STYLE]) && strlen(rec[DIPLOMACY_NAME_STYLE]))
+    ret += sprintf("      %-9s %s\n", "names:", rec[DIPLOMACY_NAME_STYLE]);
 
   allies = pointerp(rec["allies"]) ? rec["allies"] : ({ });
   enemies = pointerp(rec["enemies"]) ? rec["enemies"] : ({ });
@@ -194,7 +205,8 @@ private string * _areas_of(string game, string cit)
 // The report for the area under your feet.
 private string _here(object area, object h)
 {
-  string out, held, born, named;
+  string out, held, born, named, node, style;
+  string * people;
   mapping g;
   object parent;
 
@@ -212,6 +224,15 @@ private string _here(object area, object h)
                  strlen(born) ? born : "(no nationality)");
   out += sprintf("  %-14s %s\n", "named from",
                  strlen(named) ? named : "(no name pool)");
+
+  // the people its node of the graph says are born here, over the pool above
+  node = (string)area->query_naming_citizenship();
+  people = (string *)h->query_people_races(node);
+  style = (string)h->query_people_name_style(node);
+  if (sizeof(people))
+    out += sprintf("  %-14s %s\n", "people", implode(people, ", "));
+  if (strlen(style))
+    out += sprintf("  %-14s %s\n", "names", style);
 
   held = (string)area->query_effective_citizenship();
   g = h->query_relations();
@@ -471,7 +492,7 @@ static int cmd(string str, object me, string verb)
   if (sizeof(words) < 3)
   {
     notify_fail("Usage: diplomacy <cit> <parent|security|guard|deity|" +
-                "undeity|ally|unally|enemy|unenemy> <value>\n");
+                "undeity|races|names|ally|unally|enemy|unenemy> <value>\n");
     return 0;
   }
 
@@ -496,6 +517,12 @@ static int cmd(string str, object me, string verb)
     case "undeity":
       h->remove_deity(cit, value);
       break;
+    case "races":
+      h->set_people_races(cit, (value == "none") ? ({ }) : words[2 ..]);
+      break;
+    case "names":
+      h->set_people_name_style(cit, (value == "none") ? "" : value);
+      break;
     case "ally":
       h->add_relationship(DIPLOMACY_RELATION_ALLY, cit, value);
       break;
@@ -510,8 +537,8 @@ static int cmd(string str, object me, string verb)
       break;
     default:
       notify_fail("Unknown field '" + field + "'. Use parent, security, " +
-                  "guard, deity, undeity, ally, unally, enemy or " +
-                  "unenemy.\n");
+                  "guard, deity, undeity, races, names, ally, unally, enemy " +
+                  "or unenemy.\n");
       return 0;
   }
 

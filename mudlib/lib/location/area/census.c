@@ -252,9 +252,10 @@ private object _clone_npc(string id)
   return npc;
 }
 
-// Where a person of the type `t` comes from: ({ nationality, naming }), the
-// citizenship they are a subject of and the one their name and race are drawn
-// from, as paths ("" for none). The area answers both, unless the type says its
+// Where a person of the type `t` comes from: ({ nationality, naming, people }),
+// the citizenship they are a subject of and the one their name and race are
+// drawn from, as paths ("" for none), and the node of the diplomacy graph whose
+// people they are born among, which may declare their races and names. The area answers both, unless the type says its
 // people come from elsewhere: a template "citizenship" names one, or a list to
 // draw one from, and an empty one makes them nobody's subjects while they are
 // still named like the land they are born in.
@@ -265,14 +266,16 @@ private string * query_birth_citizenships(mapping t)
 
   if (!t || undefinedp(t["citizenship"]))
     return ({ (string)this_object()->query_root_citizenship_path(),
-              (string)this_object()->query_naming_citizenship_path() });
+              (string)this_object()->query_naming_citizenship_path(),
+              (string)this_object()->query_naming_citizenship() });
 
   choice = t["citizenship"];
   if (pointerp(choice))
     choice = sizeof(choice) ? choice[random(sizeof(choice))] : "";
 
   if (!stringp(choice) || !strlen(choice))
-    return ({ "", (string)this_object()->query_naming_citizenship_path() });
+    return ({ "", (string)this_object()->query_naming_citizenship_path(),
+              (string)this_object()->query_naming_citizenship() });
 
   // a citizenship under another one carries the one at the top, as the area's
   // own does
@@ -282,7 +285,7 @@ private string * query_birth_citizenships(mapping t)
     root = choice;
 
   root = "/games/" + game + "/obj/citizenships/" + root + ".c";
-  return ({ root, root });
+  return ({ root, root, choice });
 }
 
 // Write the npc.o of a census row's person, complete. Who somebody is comes from
@@ -340,7 +343,8 @@ private int _build_npc(string id)
     // and it errors on nil -- which is what a citizenship with no name style
     // hands back.
     gname = this_object()->generate_citizen_name((int)npc->query_gender(),
-                                                 origin[1]);
+      origin[1],
+      (string)handler("diplomacy", this_object())->query_people_name_style(origin[2]));
     if (stringp(gname) && strlen(gname))
       npc->set_given_name(gname);
   }
@@ -385,19 +389,26 @@ private int _build_npc(string id)
   // between two towns makes nobody its subject, but its travellers are still
   // people of the region they walk through.
   //
+  // A node of the diplomacy graph may say which people are born under it (a
+  // village of another people inside a realm); it overrides the citizenship
+  // file's pool without changing the nationality.
+  //
   // set_race_ob unwinds the previous race's bonuses, languages and aliases
   // before applying the new one, so it is safe on top of what the template set.
   if (t && t["sentient"] && !t["proper_name"] && !t["unique"])
   {
-    cpath = origin[1];
-    if (stringp(cpath) && strlen(cpath))
-    {
-      mixed race;
+    string * people;
+    mixed race;
 
+    people = (string *)handler("diplomacy", this_object())->query_people_races(origin[2]);
+    cpath = origin[1];
+    if (sizeof(people))
+      race = people[random(sizeof(people))];
+    else if (stringp(cpath) && strlen(cpath))
       race = load_object(cpath)->query_random_race();
-      if (stringp(race) && strlen(race))
-        npc->set_race_ob(race);
-    }
+
+    if (stringp(race) && strlen(race))
+      npc->set_race_ob(race);
   }
 
   // this individual's concrete workplace, taken from the job it holds
