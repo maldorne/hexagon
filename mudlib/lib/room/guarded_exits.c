@@ -5,7 +5,9 @@
  * and exposes query_guards() in the shape the exit handler consumes
  * (exit_handler.c reads room_ob->query_guards() and calls each guard's
  * guardian_check(ob) when someone tries to leave through the guarded
- * direction). Nothing here clones or places the guards: that is
+ * direction). A guard may also be a thing that bars the way (a hedge, a wall
+ * of thorns): it answers guardian_check and guardian_message the same, but
+ * nobody sneaks past it, since it does not watch. Nothing here clones or places the guards: that is
  * placement-specific. A static room declares and clones them at load (see
  * /lib/room/room_guards.c); a location's diplomacy system materialises them
  * and registers them as it goes.

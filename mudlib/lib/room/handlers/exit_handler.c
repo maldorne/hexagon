@@ -378,6 +378,16 @@ int do_exit_command(mapping door_control,
           // npc does not allow
           if (!list[k]->guardian_check(ob) )
           {
+            // a thing that bars the way (a hedge) does not watch: nobody sneaks
+            // past it, and its guardian_check alone decides
+            if (!living(list[k]))
+            {
+              notify_fail(list[k]->guardian_message() ?
+                list[k]->guardian_message() :
+                capitalize(list[k]->query_short()) + " te impide el paso.\n");
+              return 0;
+            }
+
             if (ob->query_timed_property(file_name(list[k]) + "_guard_lock") )
             {
                 notify_fail(list[k]->query_short() + " ya se ha dado cuenta de lo que intentas.\n");
