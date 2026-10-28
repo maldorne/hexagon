@@ -4,6 +4,9 @@
 #include <room/location.h>
 #include <language.h>
 
+// below this many ticks left, an update of several files goes on in a call_out
+#define UPDATE_TICK_MARGIN 3000000
+
 // prototypes
 object *wiz_present(string str, object onobj, varargs int nogoout);
 void inform_of_call(object ob, mixed *argv);
@@ -15,9 +18,13 @@ private static object *dest_obj;
 private static int objn, majd;
 // update -v: one line per object updated; without it a batch prints only a count
 private static int update_verbose;
+// the batches of files being updated in call_outs: number -> state
+private static mapping update_batches;
+private static int last_update_batch;
 
 void create()
 {
+  update_batches = ([ ]);
 }
 
 void role_commands()
@@ -43,18 +50,173 @@ void role_commands()
   add_action("find_shadows", "shadows");
 }
 
-private int _update_objects(object * ov)
+/**
+ * Destruct an object and load it again from its file, keeping the players
+ * inside it and its place in the world.
+ *
+ * @param ob the object to update
+ * @param rsv the void room the players wait in meanwhile
+ * @return the new object, a message when it must not be updated, or 0 when it
+ *         could not be loaded again
+ */
+private mixed _update_object(object ob, object rsv)
 {
   string filename;
   int dummy, cloned, is_location;
-  int i, j;
-  object *invent, rsv, env, dup, loaded, ob;
+  int j;
+  object *invent, env, dup, loaded;
   // next three Hamlet's
   object totell;
   mapping load_junk, attributes;
   string itemname;
   object thing;
-  int updated;
+
+  if (!ob)
+    return 0;
+
+  env = environment(ob);
+  invent = all_inventory(ob);
+
+  // Added logging of "update <player>"  Radix, Dec 15, 1995
+  if (interactive(ob))
+  {
+    log_file("update", (string)this_player()->query_cap_name() +
+                " tries to update interactive object: " + ob->query_name() + 
+                " [" + ctime(time(), 4) + "]\n");
+
+    return _LANG_CODER_OBJECT_DO_NOT_UPDATE;
+  }
+
+  // if we don't have a file name, it's the base location object
+  if (ob->query_location() && strlen(ob->query_file_name()))
+  {
+    filename = ob->query_file_name();
+    is_location = true;
+  }
+  else
+  {
+    filename = file_name(ob);
+    is_location = false;
+  }
+
+  if ((strlen(filename) >= 10) && (filename[0..9] == "/lib/core/"))
+  {
+    return _LANG_CODER_OBJECT_DO_NOT_UPDATE_CORE;
+  }
+
+  if (sscanf(filename, "%s#%d", filename, dummy) != 2) // a room? a handler? something not cloned
+    cloned = false;
+  else
+    cloned = true;
+
+  if (ob)
+  {
+    load_junk = "/lib/core/basic/auto_load"->create_auto_load( ({ ob }) );
+    totell = environment(ob);
+    itemname = ob->query_short();
+    attributes = ob->query_auto_load_attributes();
+  }
+
+  for (j = 0; j < sizeof(invent); j++)
+  {
+    if (interactive(invent[j]))
+      invent[j]->move(rsv);
+    else
+      invent[j]->dest_me(); // Taniwha 1995, so rooms stop filling when updated
+  }
+
+  invent -= ({ nil });
+
+  if (ob)
+    ob->dest_me();
+  if (ob)
+    ob->dwep();
+  if (ob)
+    destruct(ob);
+
+  if (!cloned)
+  {
+    // special case first, locations are cloned but treated differently
+    if (is_location)
+    {
+      catch(loaded = load_object(LOCATION_HANDLER)->load_location(filename));
+      ob = loaded;
+    }
+    else
+    {
+      // reload after destruction
+      catch(loaded = load_object(filename));        
+      ob = find_object(filename);
+    }
+
+    if (loaded)
+      loaded->move(totell);
+    else
+    {
+      // Damn thing didn't reload... Oops...
+      if (totell)
+      {
+        if (interactive(totell))
+          if (strlen(itemname))
+            tell_object(totell, _LANG_CODER_OBJECT_NAME_BROKEN);
+        else
+          tell_object(totell, _LANG_CODER_OBJECT_BROKEN);
+        thing = clone_object("/lib/obj/iou");
+        thing->add_auto_load_info(filename, load_junk[filename]);
+        thing->move( totell );
+      }
+    }
+  }
+  else
+  {
+    catch(dup = clone_object(filename));
+
+    ob = dup;
+
+    if (!ob)
+    {
+      if (totell)
+      {
+        if (interactive(totell))
+          if (strlen(itemname))
+            tell_object(totell, _LANG_CODER_OBJECT_NAME_BROKEN);
+        else
+          tell_object(totell, _LANG_CODER_OBJECT_BROKEN);
+        thing = clone_object("/lib/obj/iou");
+        thing->add_auto_load_info(filename, load_junk[filename]);
+        thing->move( totell );
+      }
+      return 0;
+    }
+    // neverbot 01/2021
+    // hope this works :/
+    else
+    {
+      ob->init_auto_load_attributes(attributes);
+    }
+  }
+
+  // it did not load again: the players inside wait in the void room
+  if (!ob)
+    return 0;
+
+  // just players in this list, every other thing was destroyed
+  for (j = 0; j < sizeof(invent); j++)
+    if (invent[j])
+      invent[j]->move(ob);
+
+  // updating something in our inventory?
+  if (env)
+    ob->move(env);
+
+  return ob;
+}
+
+private int _update_objects(object * ov)
+{
+  object rsv;
+  mixed result;
+  int i, updated;
 
   if (this_player(1) != this_user())
     return 0;
@@ -70,142 +232,18 @@ private int _update_objects(object * ov)
 
   for (i = 0; i < sizeof(ov); i++)
   {
-    if (!ov[i])
+    result = _update_object(ov[i], rsv);
+
+    if (stringp(result))
+    {
+      notify_fail(result);
+      return 0;
+    }
+
+    if (!objectp(result))
       continue;
 
-    env = environment(ov[i]);
-    invent = all_inventory(ov[i]);
-
-    // Added logging of "update <player>"  Radix, Dec 15, 1995
-    if (interactive(ov[i]))
-    {
-      log_file("update", (string)this_player()->query_cap_name() +
-                  " tries to update interactive object: " + ov[i]->query_name() + 
-                  " [" + ctime(time(), 4) + "]\n");
-
-      notify_fail(_LANG_CODER_OBJECT_DO_NOT_UPDATE);
-      return 0;
-    }
-
-    // if we don't have a file name, it's the base location object
-    if (ov[i]->query_location() && strlen(ov[i]->query_file_name()))
-    {
-      filename = ov[i]->query_file_name();
-      is_location = true;
-    }
-    else
-    {
-      filename = file_name(ov[i]);
-      is_location = false;
-    }
-
-    if ((strlen(filename) >= 10) && (filename[0..9] == "/lib/core/"))
-    {
-      notify_fail(_LANG_CODER_OBJECT_DO_NOT_UPDATE_CORE);
-      return 0;
-    }
-
-    if (sscanf(filename, "%s#%d", filename, dummy) != 2) // a room? a handler? something not cloned
-      cloned = false;
-    else
-      cloned = true;
-
-    if (ov[i])
-    {
-      load_junk = "/lib/core/basic/auto_load"->create_auto_load( ({ ov[i] }) );
-      totell = environment(ov[i]);
-      itemname = ov[i]->query_short();
-      attributes = ov[i]->query_auto_load_attributes();
-    }
-
-    for (j = 0; j < sizeof(invent); j++)
-    {
-      if (interactive(invent[j]))
-        invent[j]->move(rsv);
-      else
-        invent[j]->dest_me(); // Taniwha 1995, so rooms stop filling when updated
-    }
-
-    invent -= ({ nil });
-
-    if (ov[i])
-      ov[i]->dest_me();
-    if (ov[i])
-      ov[i]->dwep();
-    if (ov[i])
-      destruct(ov[i]);
-
-    if (!cloned)
-    {
-      // special case first, locations are cloned but treated differently
-      if (is_location)
-      {
-        catch(loaded = load_object(LOCATION_HANDLER)->load_location(filename));
-        ov[i] = loaded;
-      }
-      else
-      {
-        // reload after destruction
-        catch(loaded = load_object(filename));        
-        ov[i] = find_object(filename);
-      }
-
-      if (loaded)
-        loaded->move(totell);
-      else
-      {
-        // Damn thing didn't reload... Oops...
-        if (totell)
-        {
-          if (interactive(totell))
-            if (strlen(itemname))
-              tell_object(totell, _LANG_CODER_OBJECT_NAME_BROKEN);
-          else
-            tell_object(totell, _LANG_CODER_OBJECT_BROKEN);
-          thing = clone_object("/lib/obj/iou");
-          thing->add_auto_load_info(filename, load_junk[filename]);
-          thing->move( totell );
-        }
-      }
-    }
-    else
-    {
-      catch(dup = clone_object(filename));
-
-      ov[i] = dup;
-
-      if (!ov[i])
-      {
-        if (totell)
-        {
-          if (interactive(totell))
-            if (strlen(itemname))
-              tell_object(totell, _LANG_CODER_OBJECT_NAME_BROKEN);
-          else
-            tell_object(totell, _LANG_CODER_OBJECT_BROKEN);
-          thing = clone_object("/lib/obj/iou");
-          thing->add_auto_load_info(filename, load_junk[filename]);
-          thing->move( totell );
-        }
-        continue;
-      }
-      // neverbot 01/2021
-      // hope this works :/
-      else
-      {
-        ov[i]->init_auto_load_attributes(attributes);
-      }
-    }
-
-    // just players in this list, every other thing was destroyed
-    for (j = 0; j < sizeof(invent); j++)
-      if (invent[j])
-        invent[j]->move(ov[i]);
-
-    // updating something in our inventory?
-    if (env)
-      ov[i]->move(env);
-
+    ov[i] = result;
     updated++;
     if (update_verbose || sizeof(ov) == 1)
       write(_LANG_CODER_OBJECT_UPDATED + desc_f_object(ov[i]) + ".\n");
@@ -216,6 +254,76 @@ private int _update_objects(object * ov)
 
   return 1;
 } /* _update_objects() */
+
+/**
+ * Go on with a batch of files being updated: as many as the ticks left allow,
+ * then on in a call_out, so a directory of any size is updated. A file not
+ * loaded yet is just loaded.
+ *
+ * @param batch number of the batch (its state stays in this object)
+ */
+void continue_update(int batch)
+{
+  mapping state;
+  string * files, str;
+  object me, ob, rsv;
+  mixed result;
+  int updated;
+
+  state = update_batches[batch];
+  if (!state)
+    return;
+
+  me = state["me"];
+  files = state["files"];
+  rsv = load_object(ROOM_VOID);
+
+  while (state["next"] < sizeof(files))
+  {
+    if (eval_cost() < UPDATE_TICK_MARGIN)
+    {
+      call_out("continue_update", 0, batch);
+      return;
+    }
+
+    str = files[state["next"]];
+    state["next"]++;
+
+    ob = find_object(str);
+    if (!ob)
+    {
+      catch(ob = load_object(str));
+      result = ob;
+    }
+    else if (rsv)
+      result = _update_object(ob, rsv);
+    else
+      result = 0;
+
+    if (stringp(result))
+    {
+      if (me)
+        tell_object(me, result);
+      continue;
+    }
+
+    if (!objectp(result))
+    {
+      if (me)
+        tell_object(me, _LANG_CODER_OBJECT_CANNOT_LOAD);
+      continue;
+    }
+
+    state["updated"]++;
+    if (me && state["verbose"])
+      tell_object(me, _LANG_CODER_OBJECT_UPDATED + desc_f_object(result) + ".\n");
+  }
+
+  map_delete(update_batches, batch);
+  updated = state["updated"];
+  if (me)
+    tell_object(me, _LANG_CODER_OBJECT_UPDATED_COUNT);
+}
 
 int do_update(string str)
 {
@@ -278,7 +386,22 @@ int do_update(string str)
   if (sizeof(obs))
     return _update_objects(obs);
 
-  // from here, obs is empty and filenames has file paths
+  // from here, obs is empty and filenames has file paths; several of them are
+  // updated by batches, so a big directory never runs out of ticks
+  if (sizeof(filenames) > 1)
+  {
+    if (!update_batches)
+      update_batches = ([ ]);
+    last_update_batch++;
+    update_batches[last_update_batch] = ([ "me": this_player(),
+                                           "files": filenames,
+                                           "next": 0,
+                                           "updated": 0,
+                                           "verbose": update_verbose ]);
+    continue_update(last_update_batch);
+    return 1;
+  }
+
   for (loop = 0; loop < sizeof(filenames); loop++)
   {
     str = filenames[loop];
