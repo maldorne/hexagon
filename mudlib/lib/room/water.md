@@ -25,8 +25,9 @@ A water place declares:
                                              // the current's exit by default
     set_water_depth(2);                      // 1 surface, 2 deep
 
-A coast declares its kind: `set_coast_kind("bank")` (beach, cliff, port,
-harbor, bank).
+A coast may declare its kind: `set_coast_kind("bank")` (beach, cliff, port,
+harbor, bank). Without one it is a plain coast; only a beach changes how the
+world map draws its sector.
 
 ## Swum exits
 

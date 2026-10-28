@@ -9,7 +9,7 @@
 // Its way into the water is a swum exit (the "swim" exit option): the map
 // shows it, but it is not listed and its direction does nothing. 'swim' alone
 // takes one in, and whoever reaches a coast knows from then on how to.
-//   kind   beach | cliff | port | harbor | bank
+//   kind   "" (plain coast, the default) | beach | cliff | port | harbor | bank
 
 #include <living/skills.h>
 #include <room/room.h>
@@ -21,7 +21,7 @@ object query_coast_place() { return this_object(); }
 
 int query_coast() { return 1; }
 
-string query_coast_kind() { return coast_kind ? coast_kind : "beach"; }
+string query_coast_kind() { return coast_kind ? coast_kind : ""; }
 void set_coast_kind(string kind) { coast_kind = kind; }
 
 // The swum exits, the ways into the water.

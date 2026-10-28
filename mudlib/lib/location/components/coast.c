@@ -4,7 +4,7 @@
 // so the world map can render the sector as shoreline.
 //
 // Classifier `kind` names the shape of the interface. No implicit
-// ordering — pick whichever fits:
+// ordering — pick whichever fits, or none for a plain coast:
 //   beach | cliff | port | harbor | bank
 //
 // The edge of water also works as one: the rules are in
