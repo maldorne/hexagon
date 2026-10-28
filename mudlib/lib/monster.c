@@ -329,6 +329,7 @@ int check_heart_beat()
     !this_object()->query_action_pending() &&
     !check_anyone_here() && !sizeof(query_effects()) &&
     !sizeof(query_lasting_effects()) &&
+    !map_sizeof(query_traits()) &&
     !this_object()->ai_actions_pending() &&
     !travelling())
   {

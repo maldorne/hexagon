@@ -110,6 +110,9 @@ int * stats_base;
 private int * stats_tmp;
 // Bonificador temporales a los bonificadores de caracteristica :(
 private int * bonus_to_stat_bonus; 
+// What the traits the living carries add to each stat; set by traits.c on
+// every change and never saved (the traits are, and rebuild it on restore).
+static int * stats_trait;
 
 int damage_bonus, tohit_bonus, body_ac;
 int extreme_str, kill_xp; 
@@ -139,6 +142,7 @@ void create()
   stats_bon = allocate_int(NUM_STATS);
   stats_tmp = allocate_int(NUM_STATS);
   bonus_to_stat_bonus = allocate_int(NUM_STATS);
+  stats_trait = allocate_int(NUM_STATS);
 
   for (i = 0; i < NUM_STATS; i++)
   {
@@ -149,14 +153,32 @@ void create()
   }  
 }
 
-int query_str() { return stats_base[STR_POS]+stats_tmp[STR_POS]+stats_bon[STR_POS]+extreme_str; }
-int query_int() { return stats_base[INT_POS]+stats_tmp[INT_POS]+stats_bon[INT_POS]; }
-int query_dex() { return stats_base[DEX_POS]+stats_tmp[DEX_POS]+stats_bon[DEX_POS]; }
-int query_wis() { return stats_base[WIS_POS]+stats_tmp[WIS_POS]+stats_bon[WIS_POS]; }
-int query_con() { return stats_base[CON_POS]+stats_tmp[CON_POS]+stats_bon[CON_POS]; }
-int query_cha() { return stats_base[CHA_POS]+stats_tmp[CHA_POS]+stats_bon[CHA_POS]; }
-int query_per() { return stats_base[PER_POS]+stats_tmp[PER_POS]+stats_bon[PER_POS]; }
-int query_wil() { return stats_base[WIL_POS]+stats_tmp[WIL_POS]+stats_bon[WIL_POS]; }
+int query_str() { return stats_base[STR_POS]+stats_tmp[STR_POS]+stats_bon[STR_POS]+stats_trait[STR_POS]+extreme_str; }
+int query_int() { return stats_base[INT_POS]+stats_tmp[INT_POS]+stats_bon[INT_POS]+stats_trait[INT_POS]; }
+int query_dex() { return stats_base[DEX_POS]+stats_tmp[DEX_POS]+stats_bon[DEX_POS]+stats_trait[DEX_POS]; }
+int query_wis() { return stats_base[WIS_POS]+stats_tmp[WIS_POS]+stats_bon[WIS_POS]+stats_trait[WIS_POS]; }
+int query_con() { return stats_base[CON_POS]+stats_tmp[CON_POS]+stats_bon[CON_POS]+stats_trait[CON_POS]; }
+int query_cha() { return stats_base[CHA_POS]+stats_tmp[CHA_POS]+stats_bon[CHA_POS]+stats_trait[CHA_POS]; }
+int query_per() { return stats_base[PER_POS]+stats_tmp[PER_POS]+stats_bon[PER_POS]+stats_trait[PER_POS]; }
+int query_wil() { return stats_base[WIL_POS]+stats_tmp[WIL_POS]+stats_bon[WIL_POS]+stats_trait[WIL_POS]; }
+
+/**
+ * Sets what the traits the living carries add to each stat, by position in
+ * <living/stats.h>. traits.c calls it whenever the traits change.
+ */
+void set_trait_stats(int * deltas)
+{
+  int old_str;
+
+  old_str = stats_trait[STR_POS];
+  stats_trait = deltas;
+
+  // what it can carry follows its strength
+  if (old_str != stats_trait[STR_POS] && environment(this_object()))
+    reset_carry_cap();
+
+  calc();
+}
 
 int query_real_str() { return stats_base[STR_POS]; }
 int query_real_int() { return stats_base[INT_POS]; }
@@ -1055,6 +1077,7 @@ mixed * stats()
      ({"Stats Base", stats_base, }),
      ({"Stats Bonus", stats_bon, }),
      ({"Stats Tmp (nosave)", stats_tmp, }),
+     ({"Stats Trait (nosave)", stats_trait, }),
      ({"Bonus To Stat Bonus (nosave)", bonus_to_stat_bonus, }),
      ({"Extreme Str", extreme_str, }),
      ({"Damage Bonus", damage_bonus, }),

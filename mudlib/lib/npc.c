@@ -359,6 +359,9 @@ int restore_npc()
   ok = restore_object(npc_save_dir(npc_game, npc_uuid) + NPC_SAVE_FILE, 1);
   if (ok)
   {
+    // the traits came back with the savefile; sum them up again
+    restore_traits();
+
     // what it can carry follows its strength, not the figure saved with it
     reset_carry_cap();
 

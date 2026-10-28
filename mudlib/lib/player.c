@@ -237,10 +237,18 @@ void reset()
 
 nomask int restore_me()
 {
+  int ok;
+
   if (!SECURE->valid_progname("/lib/core/login"))
     return 0;
 
-  return restore_object(player_save_dir(this_object()->query_name()) + "player.o", 1);
+  ok = restore_object(player_save_dir(this_object()->query_name()) + "player.o", 1);
+
+  // the traits come back with the savefile; sum them up again
+  if (ok)
+    this_object()->restore_traits();
+
+  return ok;
 }
 
 nomask int save_me()

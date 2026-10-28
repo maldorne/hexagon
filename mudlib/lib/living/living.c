@@ -25,6 +25,7 @@ inherit death     "/lib/living/death";
 inherit force     "/lib/living/force";
 inherit money     "/lib/living/money";
 inherit effects   "/lib/living/effects";
+inherit traits    "/lib/living/traits";
 inherit equip     "/lib/living/equip";
 inherit gender    "/lib/core/basic/gender";
 inherit stats     "/lib/living/stats";
@@ -100,6 +101,7 @@ string long(string str, int dark)
 
   // s += capitalize(query_pronoun())+" "+health_string(0)+".\n";
   s += capitalize(health_string(0))+".\n";
+  s += query_trait_look();
   s += calc_extra_look();
   s += query_living_contents(0);
   return s;
@@ -112,6 +114,7 @@ void create()
   force::create();
   money::create();
   effects::create();
+  traits::create();
   equip::create();
   gender::create();
   stats::create();
@@ -359,6 +362,12 @@ void heart_beat()
   if (!this_object())
     return;
 
+  // the traits tick at the same point, and may kill or destruct as well
+  traits::tick_traits();
+
+  if (!this_object())
+    return;
+
   combat::heart_beat();
 
   // Both of these can destruct us and everything below would then run on an
@@ -458,6 +467,7 @@ mixed * stats()
          force::stats() +
          money::stats() +
          effects::stats() +
+         traits::stats() +
          equip::stats() +
          gender::stats() + 
          stats::stats() + 

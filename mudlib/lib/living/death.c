@@ -13,6 +13,7 @@
 #include <basic/money.h>
 #include <living/quests.h>
 #include <living/effects.h>
+#include <living/traits.h>
 #include <language.h>
 
 // bring from /global/living/living.c, neverbot 4/03
@@ -256,6 +257,7 @@ int do_death(varargs object killed_by)
 
   // nothing keeps acting on the dead
   this_object()->clear_lasting_effects(LASTING_END_DEATH);
+  this_object()->clear_traits(TRAIT_END_DEATH);
 
   if (this_object()->query_riding())
     this_object()->destruct_ride_shadow();
