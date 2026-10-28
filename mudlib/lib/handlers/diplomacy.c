@@ -20,10 +20,9 @@
  * The graph has two parts, both persisted:
  *
  *   - Citizenship data (the `citizenships` mapping): the facts that belong to
- *     one citizenship alone -- its parent, how many guards it fields (security)
- *     and the file path of the NPC its guards are cloned from (guard). A
- *     citizenship's parent is the one it sits under (a town under its country or
- *     faction); the top-level ones have no parent.
+ *     one citizenship alone -- its parent, its deities, its law and the people
+ *     born under it. A citizenship's parent is the one it sits under (a town
+ *     under its country or faction); the top-level ones have no parent.
  *
  *   - Relationships (the `relationships` mapping): who is ally or enemy of
  *     whom. A relationship is mutual, so it is stored once, as an unordered pair
@@ -40,8 +39,6 @@
 inherit "/lib/core/object.c";
 
 //   citizenships[name] == ([ "parent"   : parent_name (or ""),
-//                            "security" : guard_count,
-//                            "guard"    : guard_npc_path (or ""),
 //                            "deities"  : ({ deity paths }),
 //                            "law"      : ([ offence : points ]),
 //                            "lethal"   : 0 or 1,
@@ -49,7 +46,7 @@ inherit "/lib/core/object.c";
 //                            "races"    : ({ race paths }),
 //                            "names"    : name_style ])
 // A prison saved as a single location file is read as a list of one.
-// Everything after "guard" is optional: absent until someone sets it.
+// Everything after "parent" is optional: absent until someone sets it.
 mapping citizenships;
 
 // The two relationship lists, each a list of unordered name pairs (every
@@ -59,6 +56,7 @@ mapping citizenships;
 mapping relationships;
 
 string query_save_file();
+private void drop_retired_keys();
 
 void create()
 {
@@ -66,6 +64,24 @@ void create()
   relationships = ([ ]);
   ::create();
   restore_object(query_save_file(), 1);
+  drop_retired_keys();
+}
+
+// Keys no citizenship carries any more, taken out of a save that still has
+// them: guards are jobs of their areas, not data of the graph.
+private void drop_retired_keys()
+{
+  string * names;
+  int i;
+
+  names = map_indices(citizenships);
+  for (i = 0; i < sizeof(names); i++)
+  {
+    if (!mappingp(citizenships[names[i]]))
+      continue;
+    map_delete(citizenships[names[i]], "security");
+    map_delete(citizenships[names[i]], "guard");
+  }
 }
 
 // Where this graph is kept. A game's own handler overrides it to point at
@@ -277,24 +293,6 @@ int is_ally(string name_a, string name_b)
 
   return check_citizenships_linked(DIPLOMACY_RELATION_ALLY,
                                    name_a, name_b);
-}
-
-// How many guards this citizenship fields at each of its guarded POIs.
-int query_security_level(string citizenship_name)
-{
-  mapping citizenship;
-  citizenship = citizenship_map()[citizenship_name];
-  return (citizenship && intp(citizenship["security"])) ? citizenship["security"] : 0;
-}
-
-// The file path of the NPC this citizenship's guards are cloned from, or "" if
-// none. Guards follow the citizenship, not the area: change an area's
-// citizenship and its guards respawn from the new citizenship's guard.
-string query_guard_path(string citizenship_name)
-{
-  mapping citizenship;
-  citizenship = citizenship_map()[citizenship_name];
-  return (citizenship && stringp(citizenship["guard"])) ? citizenship["guard"] : "";
 }
 
 // The deities this citizenship accepts, walking up to its parent when it
@@ -638,8 +636,6 @@ mapping query_relations()
     string name;
     name = names[i];
     view[name] = ([ "parent"   : citizenship_map[name]["parent"],
-                    "security" : citizenship_map[name]["security"],
-                    "guard"    : citizenship_map[name]["guard"],
                     DIPLOMACY_DEITIES : citizenship_map[name][DIPLOMACY_DEITIES],
                     DIPLOMACY_LAW     : query_own_law(name),
                     DIPLOMACY_LETHAL  : citizenship_map[name][DIPLOMACY_LETHAL],
@@ -687,7 +683,7 @@ int add_citizenship(string citizenship_name)
 
   if (!citizenships[citizenship_name])
     citizenships[citizenship_name] =
-      ([ "parent" : "", "security" : 0, "guard" : "" ]);
+      ([ "parent" : "" ]);
 
   save_handler();
   return 1;
@@ -739,28 +735,6 @@ int set_parent(string citizenship_name, string parent_name)
   if (!citizenship)
     return 0;
   citizenship["parent"] = parent_name ? parent_name : "";
-  save_handler();
-  return 1;
-}
-
-int set_security(string citizenship_name, int guard_count)
-{
-  mapping citizenship;
-  citizenship = query_citizenship(citizenship_name);
-  if (!citizenship)
-    return 0;
-  citizenship["security"] = guard_count < 0 ? 0 : guard_count;
-  save_handler();
-  return 1;
-}
-
-int set_guard(string citizenship_name, string guard_npc_path)
-{
-  mapping citizenship;
-  citizenship = query_citizenship(citizenship_name);
-  if (!citizenship)
-    return 0;
-  citizenship["guard"] = guard_npc_path ? guard_npc_path : "";
   save_handler();
   return 1;
 }

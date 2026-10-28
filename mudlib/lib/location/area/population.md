@@ -426,9 +426,8 @@ own citizenship and those under it. At a `town_square` it has no direction and
 stops nobody. Defending people is not the guard's: a template that should do it
 carries the `protector` component (names, citizenships, guilds or races it
 protects, wherever it stands; see `lib/npc/components/protector.c`).
-A guard is a `GENERIC_NPC` plus this component; the diplomacy
-graph's `security` count and `guard` source are stored but nothing reads them to
-place a guard. The barracks is the job's `home`, and shifts are two jobs.
+A guard is a `GENERIC_NPC` plus this component. The barracks is the job's
+`home`, and shifts are two jobs.
 
 Under a law a guard also attacks on sight the wanted and outlaws of its
 citizenship, and when a crime is recorded where no guard stands the crimes

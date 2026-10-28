@@ -11,8 +11,6 @@
 //   diplomacy add <cit>             create a citizenship
 //   diplomacy remove <cit>          delete a citizenship (scrubs it elsewhere)
 //   diplomacy <cit> parent <p>      set parent ("none" makes it top-level)
-//   diplomacy <cit> security <n>    set guard count its areas field
-//   diplomacy <cit> guard <path>    set the NPC source its guards spawn from
 //   diplomacy <cit> deity <path>    accept a deity's worship on its ground
 //   diplomacy <cit> undeity <path>  stop accepting it
 //   diplomacy <cit> races <paths|none>  the races its people are born as
@@ -52,8 +50,6 @@ void setup()
     "Editing one, as 'diplomacy <cit> <field> <value>':\n" +
     "  parent <cit|none>          the citizenship it hangs from; its people are\n" +
     "                             born citizens of the one at the top\n" +
-    "  security <n>               how many guards its areas field\n" +
-    "  guard <path|none>          the NPC source those guards come from\n" +
     "  deity <path>               accept a god's worship on its ground\n" +
     "  undeity <path>             stop accepting it\n" +
     "  races <path ...|none>      the races its people are born as (one\n" +
@@ -82,20 +78,17 @@ void setup()
 // box-drawing glyphs in a tree label still line up.
 
 // The physical lines for one citizenship: `label` in the first column (padded
-// to name_w columns), then security, parent, allies, enemies and the full
-// guard path.
+// to name_w columns), then parent, allies and enemies.
 private string _render(string label, mapping rec, int name_w)
 {
   string * allies, * enemies;
-  string parent, guard;
-  int sec, rows, i;
+  string parent;
+  int rows, i;
   string out;
 
-  sec = intp(rec["security"]) ? rec["security"] : 0;
   parent = (stringp(rec["parent"]) && strlen(rec["parent"])) ? rec["parent"] : "-";
   allies = sizeof(rec["allies"]) ? rec["allies"] : ({ "-" });
   enemies = sizeof(rec["enemies"]) ? rec["enemies"] : ({ "-" });
-  guard = (stringp(rec["guard"]) && strlen(rec["guard"])) ? rec["guard"] : "-";
 
   rows = (sizeof(allies) > sizeof(enemies)) ? sizeof(allies) : sizeof(enemies);
   out = "";
@@ -104,14 +97,12 @@ private string _render(string label, mapping rec, int name_w)
     string a, e;
     a = (i < sizeof(allies)) ? allies[i] : "";
     e = (i < sizeof(enemies)) ? enemies[i] : "";
-    // the first line carries the name / security / parent / guard; the extra
-    // ally / enemy names hang on the lines below with those columns blank
+    // the first line carries the name and the parent; the extra ally / enemy
+    // names hang on the lines below with those columns blank
     if (i == 0)
-      out += sprintf("  %-*s %4d  %-10s %-12s %-12s %s\n",
-                     name_w, label, sec, parent, a, e, guard);
+      out += sprintf("  %-*s %-10s %-12s %s\n", name_w, label, parent, a, e);
     else
-      out += sprintf("  %-*s %4s  %-10s %-12s %-12s\n",
-                     name_w, "", "", "", a, e);
+      out += sprintf("  %-*s %-10s %-12s %s\n", name_w, "", "", a, e);
   }
   return out;
 }
@@ -133,19 +124,16 @@ private string _table(mixed * label_rows, mapping graph)
       name_w = d;
   }
 
-  out = sprintf("  %-*s %4s  %-10s %-12s %-12s %s\n",
-                name_w, "citizenship", "sec", "parent", "allies",
-                "enemies", "guard");
+  out = sprintf("  %-*s %-10s %-12s %s\n",
+                name_w, "citizenship", "parent", "allies", "enemies");
   // underline: dashes the length of each header word, in the same columns.
   // sprintf("%p%*s", '-', n, "") sets '-' as the pad char and fills an n-wide
   // field with it, i.e. n dashes -- the plugin has no single repeat conversion.
-  out += sprintf("  %-*s %4s  %-10s %-12s %-12s %s\n",
+  out += sprintf("  %-*s %-10s %-12s %s\n",
                  name_w, sprintf("%p%*s", '-', strlen("citizenship"), ""),
-                 sprintf("%p%*s", '-', strlen("sec"), ""),
                  sprintf("%p%*s", '-', strlen("parent"), ""),
                  sprintf("%p%*s", '-', strlen("allies"), ""),
-                 sprintf("%p%*s", '-', strlen("enemies"), ""),
-                 sprintf("%p%*s", '-', strlen("guard"), ""));
+                 sprintf("%p%*s", '-', strlen("enemies"), ""));
   for (i = 0; i < sizeof(label_rows); i++)
     out += _render(label_rows[i][0], graph[label_rows[i][1]], name_w);
   return out;
@@ -157,12 +145,9 @@ private string _detail(string name, mapping rec)
   string ret;
   string * allies, * enemies;
 
-  ret = sprintf("  %-12s security %d\n", name,
-                intp(rec["security"]) ? rec["security"] : 0);
+  ret = sprintf("  %s\n", name);
   if (stringp(rec["parent"]) && strlen(rec["parent"]))
     ret += sprintf("      %-9s %s\n", "parent:", rec["parent"]);
-  if (stringp(rec["guard"]) && strlen(rec["guard"]))
-    ret += sprintf("      %-9s %s\n", "guard:", rec["guard"]);
   if (pointerp(rec[DIPLOMACY_DEITIES]) && sizeof(rec[DIPLOMACY_DEITIES]))
     ret += sprintf("      %-9s %s\n", "deities:",
                    implode(rec[DIPLOMACY_DEITIES], ", "));
@@ -491,8 +476,8 @@ static int cmd(string str, object me, string verb)
   // editing: diplomacy <cit> <field> <value>
   if (sizeof(words) < 3)
   {
-    notify_fail("Usage: diplomacy <cit> <parent|security|guard|deity|" +
-                "undeity|races|names|ally|unally|enemy|unenemy> <value>\n");
+    notify_fail("Usage: diplomacy <cit> <parent|deity|undeity|races|names|" +
+                "ally|unally|enemy|unenemy> <value>\n");
     return 0;
   }
 
@@ -504,12 +489,6 @@ static int cmd(string str, object me, string verb)
   {
     case "parent":
       h->set_parent(cit, (value == "none") ? "" : value);
-      break;
-    case "security":
-      h->set_security(cit, to_int(value));
-      break;
-    case "guard":
-      h->set_guard(cit, (value == "none") ? "" : value);
       break;
     case "deity":
       h->add_deity(cit, value);
@@ -536,9 +515,8 @@ static int cmd(string str, object me, string verb)
       h->remove_relationship(DIPLOMACY_RELATION_ENEMY, cit, value);
       break;
     default:
-      notify_fail("Unknown field '" + field + "'. Use parent, security, " +
-                  "guard, deity, undeity, races, names, ally, unally, enemy " +
-                  "or unenemy.\n");
+      notify_fail("Unknown field '" + field + "'. Use parent, deity, " +
+                  "undeity, races, names, ally, unally, enemy or unenemy.\n");
       return 0;
   }
 

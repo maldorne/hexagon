@@ -47,8 +47,8 @@ so (`CRIME_RECORD_NPCS`, off by default).
 
 ## The law
 
-Stored per citizenship in the diplomacy graph, next to its parent, security and
-guard: `law` (offence -> points), `lethal` (1 if its guards kill) and `prison`
+Stored per citizenship in the diplomacy graph, next to its parent and deities:
+`law` (offence -> points), `lethal` (1 if its guards kill) and `prison`
 (the list of cells prisoners are taken to; a save that holds a single location
 file is read as a list of one). A key a citizenship does not set is
 inherited from its parent chain; if nobody up the chain sets it, the crimes
