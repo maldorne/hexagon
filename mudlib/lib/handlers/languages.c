@@ -114,16 +114,58 @@ int language_exists(string lang)
 }
 
 /**
- * The display names of the languages, by id. A game's handler adds its own
- * languages to these.
+ * The object of a language, loaded, or nil when it has none or it fails.
  */
-mapping query_language_names() { return _LANG_LANGUAGE_NAMES; }
+private object _language_object(string lang)
+{
+  mixed path;
+  object ob;
+
+  path = query_garble_object(lang);
+  if (!stringp(path))
+    return nil;
+  catch(ob = load_object(path));
+  return ob;
+}
 
 /**
- * The words a player may type for each language, by id. A game's handler adds
- * its own languages to these.
+ * The display names of the languages, by id: what each language object
+ * names itself, over the mudlib's own translated names.
  */
-mapping query_language_aliases() { return _LANG_LANGUAGE_ALIASES; }
+mapping query_language_names()
+{
+  mapping names;
+  string * ids;
+  object ob;
+  int i;
+
+  names = ([ ]) + _LANG_LANGUAGE_NAMES;
+  ids = map_indices(languages);
+  for (i = 0; i < sizeof(ids); i++)
+    if ((ob = _language_object(ids[i])) && stringp(ob->query_language_name()))
+      names[ids[i]] = ob->query_language_name();
+  return names;
+}
+
+/**
+ * The words a player may type for each language, by id: the mudlib's own
+ * translated aliases plus those each language object declares.
+ */
+mapping query_language_aliases()
+{
+  mapping aliases;
+  string * ids, * own;
+  object ob;
+  int i;
+
+  aliases = ([ ]) + _LANG_LANGUAGE_ALIASES;
+  ids = map_indices(languages);
+  for (i = 0; i < sizeof(ids); i++)
+    if ((ob = _language_object(ids[i])) &&
+        sizeof(own = ob->query_language_aliases()))
+      aliases[ids[i]] = (aliases[ids[i]] ? aliases[ids[i]] : ({ })) + own;
+  return aliases;
+}
 
 // The real-world-language display name for a language id ("common" -> "común"
 // in ES, "Common" in EN). Unknown ids fall back to the capitalised id, so a

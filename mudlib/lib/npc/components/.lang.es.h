@@ -2,7 +2,7 @@
 
 // raise.c -- the service of returning a ghost to its body
 
-#define _LANG_RAISE_INFO_VERBS ({ "info", "información", "informacion" })
+#define _LANG_RAISE_INFO_VERBS ({ "preguntar" })
 #define _LANG_RAISE_VERBS ({ "resucitar", "resucitarme" })
 
 #define _LANG_RAISE_INFO "Uhmm, si de verdad deseas volver a tu forma mortal, " + \
@@ -20,7 +20,7 @@
 // heal-service.c -- the service of healing whoever asks, for a price
 // price_text is a price in words and who the player, set by heal-service.c
 
-#define _LANG_HEAL_SERVICE_INFO_VERBS ({ "info", "información", "informacion" })
+#define _LANG_HEAL_SERVICE_INFO_VERBS ({ "preguntar" })
 #define _LANG_HEAL_SERVICE_VERBS ({ "curar", "curarme" })
 
 #define _LANG_HEAL_SERVICE_INFO "Puedo atender tus heridas: escribe 'curar' y me " + \

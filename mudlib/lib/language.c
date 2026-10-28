@@ -12,6 +12,12 @@ string long()
   return _LANG_LANGUAGE_DEFAULT_DESC;
 }
 
+/** The name the players read for this language; nil leaves the handler's. */
+string query_language_name() { return nil; }
+
+/** What else a player may type to name this language. */
+string * query_language_aliases() { return ({ }); }
+
 string garbler(string mess);
 string scramble_sentence(string text, int speaker, int listener);
 
