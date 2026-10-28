@@ -1108,6 +1108,13 @@ void save_me()
   if (file_name && strlen(file_name))
   {
     mapping runtime_exits;
+    int slash;
+
+    // the first location of a new area finds no directory to save into
+    // (mkdir is recursive)
+    slash = strsrch(file_name, "/", -1);
+    if (slash > 0 && file_size(file_name[0..slash - 1]) != -2)
+      mkdir(file_name[0..slash]);
 
     // persist canonical English direction keys, then restore the
     // localized runtime map so nothing downstream sees English keys.
