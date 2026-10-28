@@ -220,7 +220,8 @@
 #define MAP_GLYPH_MOUNTAIN     44
 #define MAP_GLYPH_TAIGA        45
 #define MAP_GLYPH_RUINS        46
-#define MAP_GLYPH_COUNT        47
+#define MAP_GLYPH_BEACH        47  // a coast whose locations are mostly beach
+#define MAP_GLYPH_COUNT        48
 
 // The fixed glyphs as they are drawn, colour included.
 #define MAP_GLYPHS ({ \

@@ -108,6 +108,9 @@ void create()
   glyphs[MAP_GLYPH_MOUNTAIN] = "%^ORANGE%^" + GLYPH_MAP_MOUNTAIN + "%^RESET%^";
   glyphs[MAP_GLYPH_TAIGA] = "%^GREEN%^" + GLYPH_MAP_TAIGA + "%^RESET%^";
   glyphs[MAP_GLYPH_RUINS]    = GLYPH_MAP_RUINS;
+  // the shore in the colour of the water, a beach in the colour of sand
+  glyphs[MAP_GLYPH_COAST]    = COLOUR_RIVER + GLYPH_MAP_COAST + "%^RESET%^";
+  glyphs[MAP_GLYPH_BEACH]    = "%^YELLOW%^" + GLYPH_MAP_COAST + "%^RESET%^";
 
   // a bridge is part of the road, so it is drawn in the road's plain colour
   glyphs[MAP_GLYPH_BRIDGE_V] =
@@ -409,7 +412,8 @@ private int sector_code(string game, string map_name, int sx, int sy, int sz)
   if (type == SECTOR_TYPE_PLAINS)      return _plains_code(sx, sy, sz);
 
   if (type == SECTOR_TYPE_CITY)        return MAP_GLYPH_CITY;
-  if (type == SECTOR_TYPE_COAST)       return MAP_GLYPH_COAST;
+  if (type == SECTOR_TYPE_COAST)
+    return sect->query_beach() ? MAP_GLYPH_BEACH : MAP_GLYPH_COAST;
   if (type == SECTOR_TYPE_UNDERGROUND) return MAP_GLYPH_UNDERGROUND;
 
   return MAP_GLYPH_EMPTY;
@@ -951,7 +955,8 @@ mapping query_legend_glyphs()
     "taiga":       ({ "%^GREEN%^" + GLYPH_MAP_TAIGA, glyphs[MAP_GLYPH_TAIGA] }),
     "ruins":       ({ GLYPH_MAP_RUINS, glyphs[MAP_GLYPH_RUINS] }),
     "river":       ({ COLOUR_RIVER, glyphs[MAP_GLYPH_RIVERS + 12] }),
-    "coast":       ({ glyphs[MAP_GLYPH_COAST], glyphs[MAP_GLYPH_COAST] }),
+    "coast":       ({ COLOUR_RIVER + GLYPH_MAP_COAST, glyphs[MAP_GLYPH_COAST] }),
+    "beach":       ({ "%^YELLOW%^" + GLYPH_MAP_COAST, glyphs[MAP_GLYPH_BEACH] }),
     "underground": ({ glyphs[MAP_GLYPH_UNDERGROUND], glyphs[MAP_GLYPH_UNDERGROUND] }),
   ]);
 }

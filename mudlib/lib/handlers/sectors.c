@@ -296,6 +296,15 @@ string add_location(object location)
     if (sizeof(my_types))
       location_data["types"] = my_types;
 
+    // the kind of shore, so the map can tell a beach from the rest
+    if (location->has_component(LOCATION_COMPONENT_COAST))
+    {
+      object coast;
+      coast = location->query_component_by_type(LOCATION_COMPONENT_COAST);
+      if (coast && coast->query_kind() == "beach")
+        location_data["beach"] = 1;
+    }
+
     // Lift the location's path / road exits (direction -> way_type) so
     // the sector can answer border-crossing and pathfinding queries
     // without reloading the location. Only the cartographic exit types

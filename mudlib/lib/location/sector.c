@@ -495,6 +495,33 @@ int has_locations_of_type(string type)
   return count_locations_of_type(type) > 0;
 }
 
+/**
+ * Whether most of the coast locations of the sector are beaches.
+ *
+ * @return 1 when more than half of them are, 0 otherwise
+ */
+int query_beach()
+{
+  string * files;
+  int coast, beach, i;
+
+  if (!locations)
+    return 0;
+
+  files = map_indices(locations);
+  for (i = 0; i < sizeof(files); i++)
+  {
+    if (!mappingp(locations[files[i]]) || !arrayp(locations[files[i]]["types"]) ||
+        member_array(SECTOR_TYPE_COAST, locations[files[i]]["types"]) == -1)
+      continue;
+    coast++;
+    if (locations[files[i]]["beach"])
+      beach++;
+  }
+
+  return coast && beach * 2 > coast;
+}
+
 // The sector's dominant type: whichever cartography component is
 // attached to the most locations here. Iterates SECTOR_MAP_COMPONENTS
 // in priority order with a strict `>`, so ties go to the earlier entry
