@@ -36,6 +36,7 @@ androgynous cultures can stay in one list. The `collections/` folder ships a
 starter set, named `<culture>[.<origin>].<gender>.names`:
 
 - `elvish.names` — unisex, invented.
+- `saurians.lizard.names` — unisex, invented, harsh and hissing.
 - `humans.fantasy.male.names`, `humans.fantasy.female.names` — invented,
   medieval-fantasy flavour.
 - `humans.latin.male.names`, `humans.latin.female.names` — ordinary Spanish /
