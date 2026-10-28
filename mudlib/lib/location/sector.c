@@ -233,9 +233,54 @@ int restore_from_file_name(string name)
   return 0;
 }
 
+/**
+ * Whether the file still owns a coordinate of this sector.
+ *
+ * @param file the location file
+ * @return 1 if some node points at it, 0 otherwise
+ */
+private int _file_has_node(string file)
+{
+  string * pos_keys;
+  int i;
+
+  pos_keys = map_indices(nodes);
+  for (i = 0; i < sizeof(pos_keys); i++)
+    if (nodes[pos_keys[i]]["file"] == file)
+      return 1;
+
+  return 0;
+}
+
+/**
+ * Drops a file's record from the sector and rolls back its type tally. The
+ * caller has already removed its coordinates.
+ *
+ * @param file the location file
+ */
+private void _forget_file(string file)
+{
+  mapping previous;
+  string * old_types;
+  int i, prev_count;
+
+  previous = locations[file];
+  old_types = (previous && previous["types"]) ? previous["types"] : ({ });
+  for (i = 0; i < sizeof(old_types); i++)
+  {
+    prev_count = undefinedp(type_counts[old_types[i]]) ?
+                 0 : type_counts[old_types[i]];
+    if (prev_count > 1)
+      type_counts[old_types[i]] = prev_count - 1;
+    else
+      map_delete(type_counts, old_types[i]);
+  }
+  map_delete(locations, file);
+}
+
 void add_location(string location_file_name, int x, int y, int z, mapping location_data)
 {
-  string key;
+  string key, displaced;
   mapping previous;
   string * old_types, * new_types;
   int i;
@@ -251,11 +296,19 @@ void add_location(string location_file_name, int x, int y, int z, mapping locati
   previous = locations[location_file_name];
   locations[location_file_name] = map_copy(location_data);
 
+  // a coordinate taken over from another file: that file goes too when this
+  // was its last coordinate here, so no record outlives its place
+  displaced = (nodes[key] && nodes[key]["file"] != location_file_name) ?
+              nodes[key]["file"] : nil;
+
   // The node record for this coordinate: its file and whether it is a maze
   // (lifted from the location's component set so pathfinding can filter without
   // loading the location). Extend this record when more per-node data is needed.
   nodes[key] = ([ "file": location_file_name,
                   "maze": (location_data && location_data["maze"]) ? 1 : 0 ]);
+
+  if (displaced && !_file_has_node(displaced))
+    _forget_file(displaced);
 
   // the exits of this coordinate that only an action can take (sealed): still
   // edges of the graph, but a walker has to be told it may use them
@@ -323,8 +376,10 @@ void add_location(string location_file_name, int x, int y, int z, mapping locati
     int prev_count;
     prev_count = undefinedp(type_counts[old_types[i]]) ?
                  0 : type_counts[old_types[i]];
-    if (prev_count > 0)
+    if (prev_count > 1)
       type_counts[old_types[i]] = prev_count - 1;
+    else
+      map_delete(type_counts, old_types[i]);
   }
 
   new_types = (location_data && location_data["types"]) ?
@@ -365,8 +420,10 @@ void remove_location(string location_file_name)
     int prev_count;
     prev_count = undefinedp(type_counts[old_types[i]]) ?
                  0 : type_counts[old_types[i]];
-    if (prev_count > 0)
+    if (prev_count > 1)
       type_counts[old_types[i]] = prev_count - 1;
+    else
+      map_delete(type_counts, old_types[i]);
   }
 
   map_delete(locations, location_file_name);
@@ -396,13 +453,12 @@ void remove_location(string location_file_name)
 void remove_position(string coord_key)
 {
   string file;
-  string * pos_keys;
-  int i, still_here;
 
   if (!nodes) nodes = ([ ]);
   if (!edges) edges = ([ ]);
   if (!type_counts) type_counts = ([ ]);
   if (!way_exits) way_exits = ([ ]);
+  if (!river_exits) river_exits = ([ ]);
   if (!boundary_exits) boundary_exits = ([ ]);
 
   if (undefinedp(nodes[coord_key]))
@@ -412,39 +468,88 @@ void remove_position(string coord_key)
   map_delete(nodes, coord_key);
   map_delete(edges, coord_key);
   map_delete(way_exits, coord_key);
+  map_delete(river_exits, coord_key);
   map_delete(boundary_exits, coord_key);
 
-  // is the file still present under any other coordinate here?
-  still_here = 0;
-  pos_keys = map_indices(nodes);
-  for (i = 0; i < sizeof(pos_keys); i++)
-    if (nodes[pos_keys[i]]["file"] == file)
-    {
-      still_here = 1;
-      break;
-    }
-
   // last entry for this file in the sector: roll back its type tally too
-  if (!still_here)
-  {
-    mapping previous;
-    string * old_types;
-    int j;
-
-    previous = locations[file];
-    old_types = (previous && previous["types"]) ? previous["types"] : ({ });
-    for (j = 0; j < sizeof(old_types); j++)
-    {
-      int prev_count;
-      prev_count = undefinedp(type_counts[old_types[j]]) ?
-                   0 : type_counts[old_types[j]];
-      if (prev_count > 0)
-        type_counts[old_types[j]] = prev_count - 1;
-    }
-    map_delete(locations, file);
-  }
+  if (!_file_has_node(file))
+    _forget_file(file);
 
   save_me();
+}
+
+/**
+ * Drops every file record that no coordinate of the sector points at, and
+ * every per-coordinate entry with no node, then counts the types again from
+ * the records that remain.
+ *
+ * @return how many entries were dropped
+ */
+int prune_records()
+{
+  string * keys, * types;
+  mapping owners, counts, * per_coord;
+  int i, j, removed;
+
+  if (!nodes) nodes = ([ ]);
+  if (!edges) edges = ([ ]);
+  if (!way_exits) way_exits = ([ ]);
+  if (!river_exits) river_exits = ([ ]);
+  if (!boundary_exits) boundary_exits = ([ ]);
+
+  owners = ([ ]);
+  keys = map_indices(nodes);
+  for (i = 0; i < sizeof(keys); i++)
+    owners[nodes[keys[i]]["file"]] = 1;
+
+  removed = 0;
+  keys = map_indices(locations);
+  for (i = 0; i < sizeof(keys); i++)
+    if (undefinedp(owners[keys[i]]))
+    {
+      map_delete(locations, keys[i]);
+      removed++;
+    }
+
+  per_coord = ({ edges, way_exits, river_exits, boundary_exits });
+  for (j = 0; j < sizeof(per_coord); j++)
+  {
+    keys = map_indices(per_coord[j]);
+    for (i = 0; i < sizeof(keys); i++)
+      if (undefinedp(nodes[keys[i]]))
+      {
+        map_delete(per_coord[j], keys[i]);
+        removed++;
+      }
+  }
+
+  counts = ([ ]);
+  keys = map_indices(locations);
+  for (i = 0; i < sizeof(keys); i++)
+  {
+    types = (locations[keys[i]] && locations[keys[i]]["types"]) ?
+            locations[keys[i]]["types"] : ({ });
+    for (j = 0; j < sizeof(types); j++)
+      counts[types[j]] = (undefinedp(counts[types[j]]) ?
+                          0 : counts[types[j]]) + 1;
+  }
+
+  // a tally that drifted counts as one entry fixed
+  if (!type_counts)
+    type_counts = ([ ]);
+  keys = map_indices(counts + type_counts);
+  for (i = 0; i < sizeof(keys); i++)
+    if (counts[keys[i]] != type_counts[keys[i]])
+    {
+      removed++;
+      break;
+    }
+  type_counts = counts;
+
+  // saving works the glyph out again: only when something changed
+  if (removed)
+    save_me();
+  return removed;
 }
 
 mapping query_type_counts()

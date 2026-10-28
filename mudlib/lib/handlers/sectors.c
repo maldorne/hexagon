@@ -546,6 +546,8 @@ static mapping purge_queue;
  * belong to the sector holding it. These are left behind by reloads that
  * re-guessed coordinates before add_location's ghost-prevention existed, and
  * by an older sector index that rounded negative multiples of ten wrongly.
+ * Then each sector drops the records and per-coordinate entries no coordinate
+ * points at, and counts its types again.
  *
  * Only the stale coordinate is removed, so a location that legitimately keeps
  * another entry in the same sector is untouched (see sector.c::remove_position).
@@ -687,6 +689,9 @@ void purge_step(string base)
       }
     }
 
+    // records and per-coordinate entries left without a coordinate
+    removed += (int)sector->prune_records();
+
     if (!map_sizeof(live) && !strlen(sector->query_manual_type()))
       sector->set_manual_type(SECTOR_TYPE_EMPTY);
 
@@ -791,9 +796,11 @@ static mapping reindex_queue;
  * Index every location of a map again, so each one lands in the sector its
  * coordinate belongs to and the border data of every sector is rebuilt.
  * First, without loading any location, every entry whose coordinate does not
- * belong to the sector holding it is dropped; then the locations are added
+ * belong to the sector holding it is dropped, with the records left without a
+ * coordinate; then the locations are added
  * again in batches of REINDEX_BATCH, one call_out each, since loading them
- * all at once runs out of ticks. Manual types stay. `who` is told when it
+ * all at once runs out of ticks; a location whose save is gone leaves the
+ * index instead. Manual types stay. `who` is told when it
  * ends. Returns the number of locations queued.
  */
 #define REINDEX_BATCH 10
@@ -845,7 +852,7 @@ int reindex_map(string game, string map_name, varargs object who)
         {
           int kx, ky, kz;
 
-          seen[positions[keys[ki]]] = 1;
+          seen[positions[keys[ki]]] = sector_path;
           if (sscanf(keys[ki], "%d_%d_%d", kx, ky, kz) != 3)
             continue;
           if (SECTOR_INDEX(kx) != sx || SECTOR_INDEX(ky) != sy ||
@@ -856,6 +863,8 @@ int reindex_map(string game, string map_name, varargs object who)
           }
         }
 
+        sector->prune_records();
+
         if (!map_sizeof(sector->query_positions()) &&
             !strlen(sector->query_manual_type()))
           sector->set_manual_type(SECTOR_TYPE_EMPTY);
@@ -865,7 +874,7 @@ int reindex_map(string game, string map_name, varargs object who)
 
   if (!reindex_queue)
     reindex_queue = ([ ]);
-  reindex_queue[base] = ({ map_indices(seen), who, 0 });
+  reindex_queue[base] = ({ map_indices(seen), who, 0, seen });
   call_out("reindex_batch", 0, base);
 
   return map_sizeof(seen);
@@ -956,9 +965,10 @@ void refresh_glyphs_batch(string base)
 // schedule the next batch or tell whoever asked that it is done.
 void reindex_batch(string base)
 {
-  string * files;
-  object who;
-  int i, done;
+  string * files, * keys;
+  mapping sector_paths, positions;
+  object who, sector;
+  int i, ki, done;
 
   if (!reindex_queue || undefinedp(reindex_queue[base]))
     return;
@@ -966,10 +976,25 @@ void reindex_batch(string base)
   files = reindex_queue[base][0];
   who = reindex_queue[base][1];
   done = reindex_queue[base][2];
+  sector_paths = reindex_queue[base][3];
 
   for (i = 0; i < REINDEX_BATCH && sizeof(files); i++)
   {
     object loc;
+
+    // a location whose save is gone leaves the index, pointer files too
+    if (file_size(files[0]) < 0)
+    {
+      sector = create_sector(sector_paths[files[0]]);
+      positions = sector->query_positions();
+      keys = map_indices(positions);
+      for (ki = 0; ki < sizeof(keys); ki++)
+        if (positions[keys[ki]] == files[0])
+          remove_file(sector_paths[files[0]] + keys[ki] + ".o");
+      sector->remove_location(files[0]);
+      files = files[1..];
+      continue;
+    }
 
     loc = load_object(LOCATION_HANDLER)->load_location(files[0]);
     files = files[1..];
@@ -981,7 +1006,7 @@ void reindex_batch(string base)
 
   if (sizeof(files))
   {
-    reindex_queue[base] = ({ files, who, done });
+    reindex_queue[base] = ({ files, who, done, sector_paths });
     call_out("reindex_batch", 0, base);
     return;
   }
