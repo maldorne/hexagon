@@ -839,9 +839,6 @@ string add_location(object location)
   area_storage->add_location(location->query_file_name(), ([ ]));
   area_storage->add_loaded_location(location);
 
-  // write a file in path + file_name with the location data
-  remove_file(file_name);
-  write_file(file_name, location->query_file_name());
-
+  // the location writes its own file; this only puts it on the area's books
   return dir_name + file_name;
 }

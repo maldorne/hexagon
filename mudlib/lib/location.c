@@ -1103,13 +1103,8 @@ void save_me()
   // /lib/location/component.c for the persistence contract).
   sync_component_info();
 
-  // save in the map system every location with coordinates
-  if (query_coordinates() != nil)
-    SECTORS_HANDLER->add_location(this_object());
-
-  // save it in the area system also
-  AREA_HANDLER->add_location(this_object());
-
+  // the file goes first: an index entry can be rebuilt from the file (a load
+  // indexes what is not indexed), a file that was never written cannot
   if (file_name && strlen(file_name))
   {
     mapping runtime_exits;
@@ -1121,6 +1116,13 @@ void save_me()
     save_object(file_name);
     _exit_map = runtime_exits;
   }
+
+  // save in the map system every location with coordinates
+  if (query_coordinates() != nil)
+    SECTORS_HANDLER->add_location(this_object());
+
+  // save it in the area system also
+  AREA_HANDLER->add_location(this_object());
 }
 
 // Passive eviction entry point. The cleaner decides WHEN to reclaim a

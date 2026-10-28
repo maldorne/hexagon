@@ -200,16 +200,24 @@ string build_house_on_plot(string * residents)
 
   residents = residents ? residents : ({ });
 
-  if (!plots || !sizeof(plots))
+  // a plot whose location no longer loads leaves the books, and another is
+  // tried, so one lost file does not stop the housing of everybody else
+  while (plots && sizeof(plots))
   {
-    this_object()->log_event("No free plot available to house " +
-              (sizeof(residents) ? implode(residents, ", ") : "an NPC") + ".");
-    return nil;
+    plot_file = plots[random(sizeof(plots))];
+    if (load_object(LOCATION_HANDLER)->load_location(plot_file))
+    {
+      _raise_house(plot_file, residents, 0);
+      return is_house(plot_file) ? plot_file : nil;
+    }
+    remove_plot(plot_file);
+    this_object()->log_event("Dropped the plot " + plot_file +
+              ": its location does not load.");
   }
 
-  plot_file = plots[random(sizeof(plots))];
-  _raise_house(plot_file, residents, 0);
-  return is_house(plot_file) ? plot_file : nil;
+  this_object()->log_event("No free plot available to house " +
+            (sizeof(residents) ? implode(residents, ", ") : "an NPC") + ".");
+  return nil;
 }
 
 // Raise a house on one named plot, rather than on whichever one is free. Used

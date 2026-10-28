@@ -389,7 +389,13 @@ object load_location(string location_file_name)
   if (!location)
     return nil;
 
-  location->restore_from_file_name(location_file_name);
+  // a file that is gone leaves nothing to load: an empty clone kept here
+  // would be handed out as the location from then on
+  if (!location->restore_from_file_name(location_file_name))
+  {
+    destruct(location);
+    return nil;
+  }
   loaded_locations[location_file_name] = location;
 
   // The only path from unloaded to loaded, so the only place its people are
