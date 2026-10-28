@@ -126,6 +126,18 @@ void end_practise(object loser, object winner)
   loser->add_timed_property(PASSED_OUT_PROP, _LANG_HEALTH_PRACTICE_PASSED_PROP, 5);
 }
 
+/**
+ * Tells the crimes handler that a player has beaten this NPC in non-lethal
+ * combat; it decides whether a guard comes for it.
+ *
+ * @param winner the player who won
+ */
+void report_beaten(object winner)
+{
+  if (winner)
+    catch(handler("crimes", this_object())->capture(winner, this_object()));
+}
+
 int adjust_aggro(int i, object aggro_doer)
 {
   if (aggro_doer && !(int)aggro_doer->query_dead() )
@@ -212,7 +224,13 @@ int adjust_hp(int i, varargs object hp_remover)
 
       // quests of winning in combat (non lethal)
       if (hp_remover->query_player())
+      {
         handler(QUESTS_HANDLER, hp_remover)->beaten(hp_remover, this_object());
+
+        // the law may take a beaten NPC to prison, once the fight has ended
+        if (!this_object()->query_player())
+          call_out("report_beaten", 1, hp_remover);
+      }
     }
     else // non safe combat, they die
     {

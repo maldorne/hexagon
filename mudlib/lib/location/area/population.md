@@ -447,13 +447,14 @@ for `query_pursuit_give_up()` seconds and goes back to its schedule. See
 
 An area answers who of its census can be sent somewhere, for any piece that
 needs people to come: `query_census_uuids_of(sources)` gives the people made
-from some templates, and `pick_nearest_npcs(place, uuids, wanted)` picks at
+from some templates, and `pick_nearest_npcs(place, uuids, wanted [, max_distance])` picks at
 most `wanted` of them that are free (`is_free_npc`: alive, standing somewhere,
-not fighting, not on a `responder` errand) and not posted on a door
+not fighting, not on a `responder` or `escort` errand) and not posted on a door
 (`is_posted_on_door`: a guard whose component names a direction, or who works
 at a `town_entrance` with a `guard_dir`), the nearest to the place first by
-coordinates, loading the location of whoever is out of the world. It moves
-nobody. The crimes handler sends guards with it; the `reinforcements`
+coordinates, loading the location of whoever is out of the world; with a
+`max_distance`, only those closer than it (the larger of the differences in x and
+y, plus the difference in z). It moves nobody. The crimes handler sends guards with it; the `reinforcements`
 component (`lib/npc/components/reinforcements.c`) sends the owner's
 community's helpers to its fights, each with the `responder` component. A
 pacifist helper (template field `pacifist`) goes to the fight and stays there

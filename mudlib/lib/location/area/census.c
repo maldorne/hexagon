@@ -991,13 +991,14 @@ private int coord_distance(int * a, int * b)
 
 /**
  * Whether a loaded person of the census can be sent somewhere: alive, standing
- * somewhere, not fighting and not already on an errand (a responder).
+ * somewhere, not fighting and not already on an errand (a responder or an
+ * escort).
  */
 int is_free_npc(object npc)
 {
   return npc && !npc->query_dead() && environment(npc) &&
          !sizeof(npc->query_attacker_list()) &&
-         !npc->has_component("responder");
+         !npc->has_component("responder") && !npc->has_component("escort");
 }
 
 /**
@@ -1077,9 +1078,13 @@ string * query_census_uuids_of(string * sources)
  * @param place where they are wanted
  * @param uuids the candidates, people of this area's census
  * @param wanted how many at most
+ * @param max_distance when positive, only those closer than this: the larger
+ *        of the differences in x and y, plus the difference in z, between
+ *        their coordinates and the place's
  * @return the people chosen, nearest first
  */
-object * pick_nearest_npcs(object place, string * uuids, int wanted)
+object * pick_nearest_npcs(object place, string * uuids, int wanted,
+                           varargs int max_distance)
 {
   mapping rows;
   string * candidates;
@@ -1110,6 +1115,9 @@ object * pick_nearest_npcs(object place, string * uuids, int wanted)
       continue;
 
     there = place_coordinates(npc ? environment(npc) : nil, file);
+    if (max_distance > 0 && coord_distance(here, there) >= max_distance)
+      continue;
+
     candidates += ({ uuids[i] });
     dist += ({ coord_distance(here, there) });
   }

@@ -318,6 +318,18 @@
 #define _LANG_CRIMES_BAILED "Somebody has paid your bail: you are free.\n"
 #define _LANG_CRIMES_PUT_BACK "The guards take you back to your cell: you have not served your sentence yet.\n"
 
+// crimes: capture of a beaten target
+
+#define _LANG_CRIMES_CAPTURE_NO_LAW "The law that asked for this capture does not rule here: nobody will take $who$ away, who will come round in time, and this victory does not count.\n"
+#define _LANG_CRIMES_CAPTURE_NO_CELL "The law of this place has no cell for $who$, who will come round in time, and this victory does not count.\n"
+#define _LANG_CRIMES_CAPTURE_NO_GUARD "No free guard is close enough to take $who$ away. $who$ will come round and this victory does not count.\n"
+#define _LANG_CRIMES_CAPTURE_COMING "A guard is coming to take charge of $who$.\n"
+#define _LANG_CRIMES_CAPTURE_HELD "You are unconscious, at the guards' mercy.\n"
+#define _LANG_CRIMES_CAPTURE_FAILED "The arrest of $who$ has failed.\n"
+#define _LANG_CRIMES_CAPTURE_JAILED "The guards have locked $who$ up.\n"
+#define _LANG_CRIMES_CAPTURE_JAILED_ROOM "The guard throws $who$ into the cell and locks it behind.\n"
+#define _LANG_CRIMES_CAPTIVE_GONE "$who$ serves the sentence and leaves the cell for good.\n"
+
 // rules (the normas of a guild or a job). `level` is the guild level a skill
 // is taught from; `next`, `cost` and `have` the reader's next level, what it
 // costs and the experience they have

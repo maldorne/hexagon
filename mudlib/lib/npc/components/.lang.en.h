@@ -70,3 +70,10 @@
 
 // verb-response
 #define _LANG_VERB_RESPONSE_BUSY "$npc$ is in the middle of a fight and cannot attend to you right now."
+
+// escort.c -- a guard taking a beaten criminal to prison
+
+#define _LANG_ESCORT_ARRESTS "$guard$ stands over $who$, puts shackles on the prisoner and declares: 'In the name of the law, you are under arrest!'\n"
+#define _LANG_ESCORT_ARRESTS_AWAY "A guard has reached $who$ and made the arrest.\n"
+#define _LANG_ESCORT_DRAG_FROM "$guard$ drags $who$ away.\n"
+#define _LANG_ESCORT_DRAG_TO "$guard$ arrives dragging $who$, unconscious.\n"

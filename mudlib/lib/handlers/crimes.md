@@ -216,8 +216,8 @@ counts `query_npc_arrest_points()`). With no points the guards leave the victim
 lying. Otherwise:
 
 - **The citizenship has a prison** (`query_prisons`, inherited): the victim is
-  moved to one of its cells, picked at random (`move_living("X", cell)`; player
-  or NPC), and the sentence remembers which. A cell that does not load counts
+  moved to one of its cells, the least occupied (`query_cells`; `move_living("X",
+  cell)`; player or NPC), and the sentence remembers which. A cell that does not load counts
   as no prison. The sentence is
   `points * query_jail_seconds_per_point()` seconds, at most
   `query_jail_max_seconds()`, in real time. It is kept in the handler: players'
@@ -283,9 +283,63 @@ Conversion (`room2loc`) gives a room that inherits `fines-office.c` the `fines`
 component (keeping the law it named) and one that inherits `jail-cell.c` the
 `jail` component.
 
+## Capture: a guard takes a beaten target to prison
+
+A quest can ask the player to beat an NPC and have it jailed: an `OBJECTIVE_CAPTURE`
+on the NPC's template id, with `set_capture_citizenship("<citizenship>")` naming whose
+guards take it. The objective advances when the NPC is jailed.
+
+`adjust_hp` (`lib/living/health.c`), when a player wins a non-lethal fight against an
+NPC, calls out `report_beaten`, which calls `capture(winner, creature)` of the
+crimes handler. In order, it stops quietly unless the quests handler gives a capture
+citizenship (`query_capture_citizenship`: the winner has such an objective on that
+NPC, not met yet) and no arrest is already under way for it. Then:
+
+1. **Law and cells.** The law of the place (`query_jurisdiction`) must be the capture
+   citizenship or one under it (the same root of the diplomacy graph). The cells are
+   those of the place's law, or, when it has none, those of the capture citizenship
+   (`query_cells`: the cells of `query_prisons` that load, the least occupied first,
+   equal ones in random order). Without such a law or a cell, the player is told that
+   nobody will take the NPC and that the victory does not count.
+2. **A free guard.** `pick_guards` over the census of the place's community, with
+   `query_arrest_guard_range()` (`CRIME_ARREST_GUARD_RANGE`, 30): a person whose
+   template carries the `guard` component, not posted on a door (`direction` or a
+   `town_entrance` `guard_dir`), alive, not fighting, not responding or escorting. The
+   range is the distance of `pick_nearest_npcs`: the larger of the differences in x
+   and y between the guard's place and the NPC's, plus the difference in z. With none,
+   the player is told that no free guard is near enough, nothing counts and the NPC
+   comes round.
+3. **The escort.** The chosen guard gets the `escort` component
+   (`lib/npc/components/escort.c`) and `escort(criminal, winner, citizenship,
+   seconds)` with `query_arrest_seconds()` (`CRIME_ARREST_SECONDS`, 900). The NPC is
+   held unconscious: `hold_captive` renews its `PASSED_OUT_PROP` (`CRIME_CAPTIVE_HOLD`
+   heart beats) on every look of the escort, so it does not wake and fight while the
+   guard walks. A `capture_expired` call out at the end of the time lets it go if the
+   guard died on the way.
+4. **Custody.** Every two seconds the escort walks to where the NPC lies (`travel_to`).
+   When it stands there it announces the arrest and calls `take_custody`, and the player
+   who beat the NPC is told (if they still play). A broken escort (the NPC dies or is
+   gone, no route, the time is up, the guard dies) counts nothing: `release_captive`
+   lets the NPC wake and tells the player the arrest failed.
+5. **To the cell.** The escort picks the first cell of `query_cells` it has a route to
+   and walks there; on every look the NPC is moved (`move_living`) to where the guard
+   stands, with a line in each room. When both stand in the cell, `deliver_prisoner`
+   jails the NPC (`imprison`, shared with `arrest`: `query_npc_arrest_points()` worth
+   of sentence), the quests handler's `captured` advances the winner's objective (if
+   they still play) and the guard goes back to its schedule (`resume_schedule`).
+6. **The end.** When the sentence is up (`end_sentence`, a call out), a person of the
+   census is retired from it with `retire_npc`, so the population brings somebody
+   else; any other NPC is removed. If it dies in the cell the sentence ends as any
+   death does.
+
+The cells must be locations (the escort walks to them with the pathfinder). Tunables:
+`query_arrest_guard_range`, `query_arrest_seconds`.
+
 ### Handler API
 
-`spare_blow(guard, victim)`, `query_fine_of(who, cit)`, `pay_fine(payer, who,
+`capture(winner, creature)`, `query_cells(cit)`, `hold_captive(creature)`,
+`take_custody(guard, creature)`, `deliver_prisoner(guard, creature, prison)`,
+`release_captive(creature)`, `spare_blow(guard, victim)`, `query_fine_of(who, cit)`, `pay_fine(payer, who,
 cit)`, `bail(payer, prisoner, cit)`, `bribe(who)`, `query_bribe_cost(who)`,
 `query_jail_left(who)`, `query_jail_prison(who)`, `release(who)`,
 `watch_login(who)`. Tunables, in `include/crimes.h` and overridable per game:

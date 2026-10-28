@@ -570,6 +570,56 @@ void beaten(object who, object creature)
   advance(who, OBJECTIVE_BEAT, creature_id(who, creature), 1);
 }
 
+/**
+ * The citizenship whose guards would take a creature to a cell for a player:
+ * that of the first quest the player is doing with a capture objective on the
+ * creature not met yet. The crimes handler asks it after the player beats a
+ * creature.
+ *
+ * @param who the player
+ * @param creature the creature
+ * @return the quest's capture citizenship, or "" when no quest wants it
+ */
+string query_capture_citizenship(object who, object creature)
+{
+  string game, target;
+  string * ids;
+  object quest;
+  mapping * objectives;
+  int i, j;
+
+  if (!who || !creature)
+    return "";
+
+  game = game_of(who);
+  target = creature_id(who, creature);
+  ids = map_indices(who->query_active_quests(game));
+
+  for (i = 0; i < sizeof(ids); i++)
+  {
+    quest = query_quest(ids[i]);
+    if (!quest || !strlen(quest->query_capture_citizenship()))
+      continue;
+
+    objectives = quest->query_objectives();
+    for (j = 0; j < sizeof(objectives); j++)
+      if (objectives[j][OBJ_KIND] == OBJECTIVE_CAPTURE &&
+          objectives[j][OBJ_TARGET] == target &&
+          query_objective_progress(who, ids[i], j) < objectives[j][OBJ_COUNT])
+        return quest->query_capture_citizenship();
+  }
+
+  return "";
+}
+
+/**
+ * Something a player beat was brought into a cell.
+ */
+void captured(object who, object creature)
+{
+  advance(who, OBJECTIVE_CAPTURE, creature_id(who, creature), 1);
+}
+
 // A player reached a place.
 void reached(object who, string where)
 {

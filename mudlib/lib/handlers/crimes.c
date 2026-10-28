@@ -35,6 +35,11 @@
  * there is none.
  * A sentence is kept here and served in a location with the jail component;
  * the fines office (fines component) charges what a record owes.
+ *
+ * Capture: a player who beats, in non-lethal combat, an NPC that is the target
+ * of a capture objective of a quest (see capture) gets a free guard of the
+ * community to take it to a cell; the NPC is held unconscious until it is
+ * jailed, and the objective counts when it is.
  */
 
 #include <mud/config.h>
@@ -46,6 +51,7 @@
 #include <room/location.h>
 #include <sector/sector.h>
 #include <crimes.h>
+#include <living/quests.h>
 #include <language.h>
 
 inherit "/lib/core/object.c";
@@ -67,25 +73,37 @@ mapping records;
 mapping jailed;
 static mapping jailed_npcs;
 
+// Arrests under way, not saved: the NPC being taken -> ([
+//   "winner"      : name of the player who beat it,
+//   "citizenship" : the citizenship whose cells receive it,
+//   "guard"       : the guard taking it,
+//   "until"       : the time the arrest is given up
+// ])
+static mapping captures;
+
 // Who started each fight, not saved: victim -> ([ aggressor : time ]). Lets a
 // repeated attack go unreported and a death be told from self-defence.
 static mapping fights;
 
 string query_save_file();
 void release(object who);
+void hold_captive(object creature);
 
 void create()
 {
   records = ([ ]);
   jailed = ([ ]);
   jailed_npcs = ([ ]);
+  captures = ([ ]);
   fights = ([ ]);
   ::create();
   restore_object(query_save_file(), 1);
 }
 
-// Where the records are kept. A game's own handler overrides it to point at
-// /save/games/<game>/crimes.o.
+/**
+ * Where the records are kept. A game's own handler overrides it to point at
+ * /save/games/<game>/crimes.o.
+ */
 string query_save_file()
 {
   return CRIMES_SAVE;
@@ -182,6 +200,12 @@ int query_release_keep_percent() { return CRIME_RELEASE_KEEP_PERCENT; }
 /** Points a sentence is counted from for an NPC with no record. */
 int query_npc_arrest_points() { return CRIME_NPC_ARREST_POINTS; }
 
+/** Closest a guard must stand to the place a target fell to be sent for it. */
+int query_arrest_guard_range() { return CRIME_ARREST_GUARD_RANGE; }
+
+/** Seconds an arrest may take before it is given up. */
+int query_arrest_seconds() { return CRIME_ARREST_SECONDS; }
+
 /** Percentage the fine grows by for each level of whoever pays it. */
 int query_fine_level_percent() { return CRIME_FINE_LEVEL_PERCENT; }
 
@@ -196,13 +220,17 @@ int query_bribe_fail_points() { return CRIME_BRIBE_FAIL_POINTS; }
 
 // --- The law ----------------------------------------------------------------
 
-// The diplomacy graph of this handler's game.
+/**
+ * The diplomacy graph of this handler's game.
+ */
 private object diplomacy()
 {
   return handler("diplomacy", this_object());
 }
 
-// The country at the top of a citizenship's parent chain.
+/**
+ * The country at the top of a citizenship's parent chain.
+ */
 private string root_of(string citizenship)
 {
   string root;
@@ -292,7 +320,9 @@ string * query_prisons(string citizenship)
 
 // --- Records ----------------------------------------------------------------
 
-// Brings an entry's points up to date with the time elapsed since its stamp.
+/**
+ * Brings an entry's points up to date with the time elapsed since its stamp.
+ */
 private void decay(mapping entry)
 {
   int periods, period;
@@ -321,8 +351,10 @@ private void decay(mapping entry)
     entry["stamp"] += periods * period;
 }
 
-// The record of a player under a root citizenship, decayed up to now; nil when
-// there is none and `create` is 0.
+/**
+ * The record of a player under a root citizenship, decayed up to now; nil when
+ * there is none and `create` is 0.
+ */
 private mapping find_entry(string name, string root, int create)
 {
   mapping entry;
@@ -349,7 +381,9 @@ private mapping find_entry(string name, string root, int create)
   return entry;
 }
 
-// The status a number of points amounts to.
+/**
+ * The status a number of points amounts to.
+ */
 private string status_for(int points)
 {
   string * statuses;
@@ -499,8 +533,10 @@ mapping query_record(string name)
 
 // --- Sentences ----------------------------------------------------------------
 
-// The sentence a living is serving, nil when none. Players' are saved by name,
-// NPCs' are kept in memory.
+/**
+ * The sentence a living is serving, nil when none. Players' are saved by name,
+ * NPCs' are kept in memory.
+ */
 private mapping find_sentence(object who)
 {
   if (!who)
@@ -539,8 +575,10 @@ private void clear_sentence(object who)
 
 // --- Reporting a crime ------------------------------------------------------
 
-// Whether a living, standing where the crime happened, could make out the
-// culprit.
+/**
+ * Whether a living, standing where the crime happened, could make out the
+ * culprit.
+ */
 private int sees(object witness, object place)
 {
   if (witness->query_dead() ||
@@ -557,8 +595,10 @@ private int sees(object witness, object place)
   return place->query_light() >= query_witness_min_light();
 }
 
-// Whether somebody in the place with a citizenship saw who did it. A hidden
-// culprit is seen by nobody.
+/**
+ * Whether somebody in the place with a citizenship saw who did it. A hidden
+ * culprit is seen by nobody.
+ */
 private int is_witnessed(object criminal, object victim, object place)
 {
   object * inv;
@@ -585,7 +625,9 @@ private int is_witnessed(object criminal, object victim, object place)
   return 0;
 }
 
-// Adds an offence to a player's record under a root citizenship.
+/**
+ * Adds an offence to a player's record under a root citizenship.
+ */
 private void record_offence(string name, string root, string type, int points,
                             object victim, object place)
 {
@@ -614,8 +656,10 @@ private void record_offence(string name, string root, string type, int points,
 
 // --- Sending guards ---------------------------------------------------------
 
-// The place's community: the root of its area's parent chain, whose books hold
-// the census.
+/**
+ * The place's community: the root of its area's parent chain, whose books hold
+ * the census.
+ */
 private object community_of(object place)
 {
   object area, owner;
@@ -628,7 +672,9 @@ private object community_of(object place)
   return owner ? owner : area;
 }
 
-// Whether a guard is standing in the place.
+/**
+ * Whether a guard is standing in the place.
+ */
 private int guard_in(object place)
 {
   object * inv;
@@ -643,8 +689,10 @@ private int guard_in(object place)
   return 0;
 }
 
-// The attributes of the guard component in the template of a census source, nil
-// when the type is not a guard. `cache` keeps what was read for each source.
+/**
+ * The attributes of the guard component in the template of a census source, nil
+ * when the type is not a guard. `cache` keeps what was read for each source.
+ */
 private mapping guard_attrs(object community, string game, string source,
                             mapping cache)
 {
@@ -661,10 +709,13 @@ private mapping guard_attrs(object community, string game, string source,
   return mappingp(cache[source]) ? (mapping)cache[source] : nil;
 }
 
-// The guards to send: every free guard of the community, loaded or not, the
-// nearest to the place first (pick_nearest_npcs of the community, which never
-// sends one posted on a door).
-private object * pick_guards(object community, object place, int wanted)
+/**
+ * The guards to send: every free guard of the community, loaded or not, the
+ * nearest to the place first (pick_nearest_npcs of the community, which never
+ * sends one posted on a door). With a range, only those closer than it.
+ */
+private object * pick_guards(object community, object place, int wanted,
+                             varargs int range)
 {
   mapping rows, cache;
   string * uuids, * guards;
@@ -681,13 +732,15 @@ private object * pick_guards(object community, object place, int wanted)
     if (guard_attrs(community, game, rows[uuids[i]]["source"], cache))
       guards += ({ uuids[i] });
 
-  return (object *)community->pick_nearest_npcs(place, guards, wanted);
+  return (object *)community->pick_nearest_npcs(place, guards, wanted, range);
 }
 
-// Sends the guards of the place's community after a culprit. Called out after
-// the report, so loading locations never happens inside the reporting skill.
-// Nothing happens when a guard is already in the place (it answers the event
-// itself) or the place belongs to no community.
+/**
+ * Sends the guards of the place's community after a culprit. Called out after
+ * the report, so loading locations never happens inside the reporting skill.
+ * Nothing happens when a guard is already in the place (it answers the event
+ * itself) or the place belongs to no community.
+ */
 void dispatch_guards(object criminal, object place)
 {
   object community, comp;
@@ -780,7 +833,9 @@ int report_crime(object criminal, string type, object victim, object place,
 
 // --- Offences found in combat -------------------------------------------------
 
-// The name of a living's citizenship in the diplomacy graph, "" if it has none.
+/**
+ * The name of a living's citizenship in the diplomacy graph, "" if it has none.
+ */
 private string citizenship_of(object who)
 {
   mixed city, name;
@@ -795,14 +850,18 @@ private string citizenship_of(object who)
   return stringp(name) ? name : "";
 }
 
-// Whether a living enforces the law: a guard, or one sent after a criminal.
+/**
+ * Whether a living enforces the law: a guard, or one sent after a criminal.
+ */
 private int is_enforcer(object who)
 {
   return who->has_component("guard") || who->has_component("responder");
 }
 
-// Whether any of the living's attackers is an enforcer: a criminal being
-// pursued.
+/**
+ * Whether any of the living's attackers is an enforcer: a criminal being
+ * pursued.
+ */
 private int is_pursued(object victim)
 {
   mixed * attackers;
@@ -816,9 +875,11 @@ private int is_pursued(object victim)
   return 0;
 }
 
-// Whether the law of a jurisdiction protects a living: any player, and any
-// NPC with a citizenship that is not an enemy of the jurisdiction. Not the
-// wanted and outlaws, nor a criminal the guards are already after.
+/**
+ * Whether the law of a jurisdiction protects a living: any player, and any
+ * NPC with a citizenship that is not an enemy of the jurisdiction. Not the
+ * wanted and outlaws, nor a criminal the guards are already after.
+ */
 private int is_protected(object victim, string jurisdiction)
 {
   string status, citizenship;
@@ -841,7 +902,9 @@ private int is_protected(object victim, string jurisdiction)
          !diplomacy()->is_enemy(jurisdiction, citizenship);
 }
 
-// Whether `aggressor` was recorded starting a fight against `victim` recently.
+/**
+ * Whether `aggressor` was recorded starting a fight against `victim` recently.
+ */
 private int started(object aggressor, object victim)
 {
   mapping mine;
@@ -959,8 +1022,10 @@ void report_death(object killer, object victim)
 
 // --- Justice: beating, arrest, sentence, fines ----------------------------------
 
-// The prison as a place: a location file (.o) or a plain room; nil when it
-// cannot be loaded.
+/**
+ * The prison as a place: a location file (.o) or a plain room; nil when it
+ * cannot be loaded.
+ */
 private object prison_place(string file)
 {
   object place;
@@ -999,7 +1064,9 @@ int query_fine_of(object who, string citizenship)
          (100 + query_fine_level_percent() * (int)who->query_level()) / 100;
 }
 
-// Takes `amount` base coins from a living that has them.
+/**
+ * Takes `amount` base coins from a living that has them.
+ */
 private void take_money(object who, int amount)
 {
   who->pay_money(handler("money", this_object())->create_money_array(amount));
@@ -1190,22 +1257,97 @@ int bribe(object who)
   return 0;
 }
 
-// Ends a pending beating that did not end in an arrest.
+/**
+ * Ends a pending beating that did not end in an arrest.
+ */
 private void let_go(object victim)
 {
   tell_object(victim, _LANG_CRIMES_LET_GO);
 }
 
-// What follows the beating: a sentence in the prison of the citizenship, or,
-// where it has none, the fine on the spot if the culprit can pay. Called out so
-// the blow that caused it has finished.
+/**
+ * Writes the sentence of a living that is taken to a cell, `points` worth of
+ * time within the longest sentence. It does not move the living.
+ *
+ * @return the seconds of the sentence
+ */
+private int imprison(object victim, string citizenship, string prison,
+                     int points)
+{
+  int seconds;
+
+  seconds = points * query_jail_seconds_per_point();
+  if (seconds > query_jail_max_seconds())
+    seconds = query_jail_max_seconds();
+
+  set_sentence(victim, ([ "prison" : prison, "until" : time() + seconds,
+                          "root" : root_of(citizenship) ]));
+  return seconds;
+}
+
+/**
+ * The cells of a citizenship that can be loaded, the least occupied first and
+ * those with the same number of occupants in random order.
+ *
+ * @param citizenship a diplomacy-graph name
+ * @return the files of the cells, as the citizenship lists them
+ */
+string * query_cells(string citizenship)
+{
+  string * prisons, * cells, * ordered;
+  object cell;
+  object * inv;
+  int * keys;
+  int i, j, n, best;
+
+  prisons = query_prisons(citizenship);
+  cells = ({ });
+  keys = ({ });
+
+  for (i = 0; i < sizeof(prisons); i++)
+  {
+    cell = prison_place(prisons[i]);
+    if (!cell)
+      continue;
+
+    // each occupant weighs more than any random tie-break
+    inv = all_inventory(cell);
+    n = 0;
+    for (j = 0; j < sizeof(inv); j++)
+      if (inv[j] && living(inv[j]))
+        n++;
+
+    cells += ({ prisons[i] });
+    keys += ({ n * 1000 + random(1000) });
+  }
+
+  // the smallest key first, each one used up as it is taken
+  ordered = ({ });
+  for (i = 0; i < sizeof(cells); i++)
+  {
+    best = 0;
+    for (j = 1; j < sizeof(cells); j++)
+      if (keys[j] < keys[best])
+        best = j;
+
+    ordered += ({ cells[best] });
+    keys[best] = 0x7fffffff;
+  }
+
+  return ordered;
+}
+
+/**
+ * What follows the beating: a sentence in the prison of the citizenship, or,
+ * where it has none, the fine on the spot if the culprit can pay. Called out so
+ * the blow that caused it has finished.
+ */
 void arrest(string citizenship, object victim)
 {
-  mapping sentence;
   object place, cell;
   string root, name, prison;
-  string * prisons;
-  int points, seconds, fine;
+  string * cells;
+  int points, fine;
 
   if (!victim || victim->query_dead())
     return;
@@ -1226,20 +1368,14 @@ void arrest(string citizenship, object victim)
     return;
   }
 
-  // one of the cells at random; one that does not load counts as none
-  prisons = query_prisons(citizenship);
-  prison = sizeof(prisons) ? prisons[random(sizeof(prisons))] : "";
+  // the cell with fewest prisoners; one that does not load counts as none
+  cells = query_cells(citizenship);
+  prison = sizeof(cells) ? cells[0] : "";
   cell = strlen(prison) ? prison_place(prison) : nil;
 
   if (cell)
   {
-    seconds = points * query_jail_seconds_per_point();
-    if (seconds > query_jail_max_seconds())
-      seconds = query_jail_max_seconds();
-
-    sentence = ([ "prison" : prison, "until" : time() + seconds,
-                  "root" : root ]);
-    set_sentence(victim, sentence);
+    imprison(victim, citizenship, prison, points);
 
     tell_object(victim, _LANG_CRIMES_ARRESTED);
     if (place)
@@ -1319,7 +1455,9 @@ int spare_blow(object guard, object victim)
   return 1;
 }
 
-// A prisoner who logs in is checked a moment later, once it stands somewhere.
+/**
+ * A prisoner who logs in is checked a moment later, once it stands somewhere.
+ */
 void check_prisoner(object who)
 {
   mapping sentence;
@@ -1352,4 +1490,240 @@ void watch_login(object who)
 {
   if (who && find_sentence(who))
     call_out("check_prisoner", 2, who);
+}
+
+// --- Capture: a guard takes a beaten target to prison ---------------------------
+
+/**
+ * Tells a player, by name, if they are still playing.
+ */
+private void tell_winner(string name, string text, object creature)
+{
+  object winner;
+
+  winner = find_player(name);
+  if (winner)
+    tell_object(winner, replace_string(text, "$who$",
+                                       creature->query_cap_name()));
+}
+
+/**
+ * A player has beaten an NPC in non-lethal combat (called by the health code
+ * a moment after the fight ends). Nothing happens unless the NPC is the target
+ * of a capture objective of a quest the player is doing, no arrest is already
+ * under way for it, and the law of the place is the quest's capture
+ * citizenship or one under it, with cells.
+ *
+ * Then the nearest free guard of the place's community closer than
+ * query_arrest_guard_range() is given the escort component and sent for the
+ * NPC (see lib/npc/components/escort.c). A free guard is a person of the
+ * community's census whose template carries the guard component, not posted on
+ * a door, alive, not fighting and not on another errand. If there is none the
+ * player is told, nothing counts and the NPC comes round. Otherwise the NPC
+ * is held unconscious until it is jailed or the arrest is given up.
+ *
+ * @param winner the player who won the fight
+ * @param creature the NPC that lost it
+ */
+void capture(object winner, object creature)
+{
+  object place, community, comp, guard;
+  object * guards;
+  string citizenship, wanted_by;
+  mapping record;
+
+  if (!winner || !creature || !winner->query_player() ||
+      creature->query_player() || creature->query_dead())
+    return;
+
+  // only a target of the winner's quests is worth the guards' time
+  wanted_by = (string)handler(QUESTS_HANDLER, winner)->
+    query_capture_citizenship(winner, creature);
+  if (!strlen(wanted_by))
+    return;
+
+  record = captures[creature];
+  if ((record && record["until"] > time()) || find_sentence(creature))
+    return;
+
+  // the law of the place must be the one that wants it, or one under it
+  place = environment(creature);
+  citizenship = query_jurisdiction(place);
+  if (!strlen(citizenship) || root_of(citizenship) != root_of(wanted_by))
+  {
+    tell_winner(winner->query_name(), _LANG_CRIMES_CAPTURE_NO_LAW, creature);
+    return;
+  }
+
+  // the cells of the place's law, or else those of the one that wants it
+  if (!sizeof(query_cells(citizenship)))
+    citizenship = wanted_by;
+  if (!sizeof(query_cells(citizenship)))
+  {
+    tell_winner(winner->query_name(), _LANG_CRIMES_CAPTURE_NO_CELL, creature);
+    return;
+  }
+
+  community = community_of(place);
+  guards = community ? pick_guards(community, place, 1,
+                                   query_arrest_guard_range()) : ({ });
+  if (!sizeof(guards))
+  {
+    tell_winner(winner->query_name(), _LANG_CRIMES_CAPTURE_NO_GUARD, creature);
+    return;
+  }
+
+  guard = guards[0];
+  guard->add_component("escort", ([ ]));
+  comp = (object)guard->query_component_by_type("escort");
+  if (!comp)
+  {
+    tell_winner(winner->query_name(), _LANG_CRIMES_CAPTURE_NO_GUARD, creature);
+    return;
+  }
+
+  captures[creature] = ([ "winner" : winner->query_name(),
+                          "citizenship" : citizenship,
+                          "guard" : guard,
+                          "until" : time() + query_arrest_seconds() ]);
+  hold_captive(creature);
+
+  // if the guard dies on the way, nobody is left to let the target go
+  call_out("capture_expired", query_arrest_seconds() + 10, creature);
+
+  comp->escort(creature, winner->query_name(), citizenship,
+               query_arrest_seconds());
+  tell_object(winner, replace_string(_LANG_CRIMES_CAPTURE_COMING, "$who$",
+                                     creature->query_cap_name()));
+}
+
+/**
+ * The escort calls it when the guard stands over the target: it is in custody
+ * and stays held until it is jailed.
+ *
+ * @param guard the guard, with the escort component
+ * @param creature the NPC being taken
+ */
+void take_custody(object guard, object creature)
+{
+  mapping record;
+
+  record = creature ? captures[creature] : nil;
+  if (!record || record["guard"] != guard || record["custody"])
+    return;
+
+  record["custody"] = 1;
+}
+
+/**
+ * Keeps a target of an arrest unconscious a few more seconds. The escort asks
+ * it on every look, so the target stays down while the arrest lasts and wakes
+ * soon after it ends.
+ *
+ * @param creature the NPC being taken
+ */
+void hold_captive(object creature)
+{
+  if (creature && captures[creature])
+    creature->add_timed_property(PASSED_OUT_PROP, _LANG_CRIMES_CAPTURE_HELD,
+                                 CRIME_CAPTIVE_HOLD);
+}
+
+/**
+ * Gives an arrest up: the target is let wake and the winner is told.
+ *
+ * @param creature the NPC that was being taken
+ */
+void release_captive(object creature)
+{
+  mapping record;
+
+  record = creature ? captures[creature] : nil;
+  if (!record)
+    return;
+
+  captures[creature] = nil;
+  creature->remove_timed_property(PASSED_OUT_PROP);
+  tell_winner(record["winner"], _LANG_CRIMES_CAPTURE_FAILED, creature);
+}
+
+/**
+ * An arrest whose guard never finished it, such as one killed on the way.
+ */
+void capture_expired(object creature)
+{
+  if (creature && captures[creature] && !find_sentence(creature))
+    release_captive(creature);
+}
+
+/**
+ * The escort calls it when the guard stands in a cell with the target. The
+ * target is jailed for query_npc_arrest_points() worth of sentence, the
+ * capture objective of the winner advances, and the sentence is served out in
+ * the cell, after which the NPC is gone for good.
+ *
+ * @param guard the guard, with the escort component
+ * @param creature the NPC being taken
+ * @param prison the file of the cell the escort walked to
+ * @return 1 if it was jailed, 0 if the guard and the target are not both in
+ *         that cell
+ */
+int deliver_prisoner(object guard, object creature, string prison)
+{
+  mapping record;
+  object cell, winner;
+  int seconds;
+
+  record = creature ? captures[creature] : nil;
+  if (!record || !guard || record["guard"] != guard)
+    return 0;
+
+  cell = prison_place(prison);
+  if (!cell || environment(guard) != cell || environment(creature) != cell)
+    return 0;
+
+  captures[creature] = nil;
+  seconds = imprison(creature, record["citizenship"], prison,
+                     query_npc_arrest_points());
+
+  tell_room(cell, replace_string(_LANG_CRIMES_CAPTURE_JAILED_ROOM, "$who$",
+                                 creature->query_cap_name()), ({ creature }));
+
+  winner = find_player(record["winner"]);
+  if (winner)
+  {
+    tell_object(winner, replace_string(_LANG_CRIMES_CAPTURE_JAILED, "$who$",
+                                       creature->query_cap_name()));
+    catch(handler(QUESTS_HANDLER, winner)->captured(winner, creature));
+  }
+
+  call_out("end_sentence", seconds, creature);
+  return 1;
+}
+
+/**
+ * The sentence of a jailed NPC is served: it leaves for good. A person of a
+ * census is retired from it, so the population brings somebody else; anything
+ * else is just removed.
+ */
+void end_sentence(object creature)
+{
+  object area;
+
+  if (!creature || !find_sentence(creature))
+    return;
+
+  clear_sentence(creature);
+  if (environment(creature))
+    tell_room(environment(creature),
+              replace_string(_LANG_CRIMES_CAPTIVE_GONE, "$who$",
+                             creature->query_cap_name()), ({ creature }));
+
+  area = creature->query_persisted() ?
+    (object)load_object(AREA_HANDLER)->query_area(creature->query_npc_area_path())
+    : nil;
+  if (area)
+    area->retire_npc(creature->query_uuid());
+  else
+    creature->dest_me();
 }

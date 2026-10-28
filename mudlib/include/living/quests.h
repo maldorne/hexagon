@@ -14,6 +14,7 @@
 // so translating or renaming something cannot break a quest.
 #define OBJECTIVE_KILL  "kill"
 #define OBJECTIVE_BEAT  "beat"   // win a practice fight, nobody dies
+#define OBJECTIVE_CAPTURE "capture" // beat it, and it is brought into a cell
 #define OBJECTIVE_GET   "get"
 #define OBJECTIVE_REACH "reach"
 #define OBJECTIVE_TALK  "talk"

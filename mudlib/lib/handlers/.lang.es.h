@@ -327,6 +327,18 @@
 #define _LANG_CRIMES_BAILED "Alguien ha pagado tu fianza: eres libre.\n"
 #define _LANG_CRIMES_PUT_BACK "Los guardias te devuelven a tu celda: aún no has cumplido tu condena.\n"
 
+// crimes: capture of a beaten target
+
+#define _LANG_CRIMES_CAPTURE_NO_LAW "Aquí no manda la ley que te encargó esta captura: nadie se hará cargo de $who$, que acabará por recobrar el sentido, y esta victoria no cuenta.\n"
+#define _LANG_CRIMES_CAPTURE_NO_CELL "La ley de este lugar no tiene celda donde meter a $who$, que acabará por recobrar el sentido, y esta victoria no cuenta.\n"
+#define _LANG_CRIMES_CAPTURE_NO_GUARD "No hay ningún guardia libre lo bastante cerca para llevarse a $who$. Recobrará el sentido y esta victoria no cuenta.\n"
+#define _LANG_CRIMES_CAPTURE_COMING "Un guardia acude a hacerse cargo de $who$.\n"
+#define _LANG_CRIMES_CAPTURE_HELD "Estás inconsciente, a merced de los guardias.\n"
+#define _LANG_CRIMES_CAPTURE_FAILED "La detención de $who$ ha fracasado.\n"
+#define _LANG_CRIMES_CAPTURE_JAILED "Los guardias han encerrado a $who$.\n"
+#define _LANG_CRIMES_CAPTURE_JAILED_ROOM "El guardia arroja a $who$ a la celda y cierra tras de sí.\n"
+#define _LANG_CRIMES_CAPTIVE_GONE "$who$ cumple su condena y se marcha de la celda para no volver.\n"
+
 // rules (the normas of a guild or a job). `level` is the guild level a skill
 // is taught from; `next`, `cost` and `have` the reader's next level, what it
 // costs and the experience they have

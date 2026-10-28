@@ -109,6 +109,20 @@
 // the fine grows by this percentage for each level of whoever pays it
 #define CRIME_FINE_LEVEL_PERCENT 5
 
+// --- capture: a guard takes a beaten target to prison ------------------------
+
+// a guard is sent for a beaten target only when it stands closer than this: the
+// larger of the differences in x and y between its place and the target's,
+// plus the difference in z (what the pathfinding counts as steps)
+#define CRIME_ARREST_GUARD_RANGE 30
+
+// heart beats the target of an arrest stays unconscious past each look of the
+// escort
+#define CRIME_CAPTIVE_HOLD 5
+
+// seconds the whole arrest may take, from the call to the cell door
+#define CRIME_ARREST_SECONDS 900
+
 // bribing a jailer: base coins for each point owed, chance of success in
 // percent, and the points a failed attempt adds
 #define CRIME_BRIBE_COST_PER_POINT 10

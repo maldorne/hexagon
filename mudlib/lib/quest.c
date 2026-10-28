@@ -62,6 +62,8 @@ private int needs_level;
 private int repeatable;
 // a daily quest is taken again once per real day, see set_daily
 private int daily;
+// the citizenship whose guards take the targets of its capture objectives
+private string capture_citizenship;
 
 void create()
 {
@@ -82,6 +84,7 @@ void create()
   chain_description = "";
   repeatable = 0;
   daily = 0;
+  capture_citizenship = "";
 
   // /lib/core/object's create() is what calls setup()
   ::create();
@@ -125,6 +128,14 @@ void set_daily(int i)
     repeatable = 1;
 }
 int query_daily() { return daily; }
+
+/**
+ * The citizenship (a diplomacy-graph name) whose guards take the targets of
+ * this quest's capture objectives to a cell: only where the law is that
+ * citizenship or one under it (see capture in handlers/crimes.md).
+ */
+void set_capture_citizenship(string name) { capture_citizenship = name ? name : ""; }
+string query_capture_citizenship() { return capture_citizenship; }
 
 // Which chain this quest belongs to, and its place in it, counting from one.
 void set_chain(string chain_id, int step) { chain = chain_id; chain_step = step; }
