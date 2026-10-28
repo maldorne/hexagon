@@ -9,6 +9,7 @@
 #define _LANG_TRAIT_BLEEDING_ROOM "The wound on " + living->query_cap_name() + "'s " + \
       part + " bleeds.\n"
 #define _LANG_TRAIT_BLEEDING_ENDS "The wound on your " + part + " finally closes.\n"
+#define _LANG_TRAIT_BLEEDING_CURED "The wound on your " + part + " closes.\n"
 #define _LANG_TRAIT_BLEEDING_LOOK "A wound bleeds on " + article + " " + part + ".\n"
 #define _LANG_TRAIT_POSSESSIVE "your"
 #define _LANG_TRAIT_POSSESSIVE_PLURAL "your"

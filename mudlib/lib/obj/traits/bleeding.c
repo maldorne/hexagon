@@ -60,14 +60,15 @@ void trait_pulse(object living, mapping data)
 }
 
 /**
- * The wound closes by itself after its last bleeding.
+ * The wound closes, by itself after its last bleeding or when it is healed.
  */
 void trait_removed(object living, mapping data, string reason)
 {
   string * words;
   string part, article, possessive;
 
-  if (reason != TRAIT_END_EXPIRED || living->query_dead())
+  if ((reason != TRAIT_END_EXPIRED && reason != TRAIT_END_CURED) ||
+      living->query_dead())
     return;
 
   words = wound_words(data);
@@ -75,7 +76,8 @@ void trait_removed(object living, mapping data, string reason)
   article = words[1];
   possessive = words[2];
 
-  tell_object(living, _LANG_TRAIT_BLEEDING_ENDS);
+  tell_object(living, reason == TRAIT_END_CURED ? _LANG_TRAIT_BLEEDING_CURED :
+                                                  _LANG_TRAIT_BLEEDING_ENDS);
 }
 
 string trait_look(object living, mapping data)

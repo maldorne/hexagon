@@ -9,6 +9,7 @@
 #define _LANG_TRAIT_BLEEDING_ROOM "La herida de " + article + " " + part + " de " + \
       living->query_cap_name() + " sangra.\n"
 #define _LANG_TRAIT_BLEEDING_ENDS "La herida de " + possessive + " " + part + " se cierra por fin.\n"
+#define _LANG_TRAIT_BLEEDING_CURED "La herida de " + possessive + " " + part + " se cierra.\n"
 #define _LANG_TRAIT_BLEEDING_LOOK "Sangra por una herida en " + article + " " + part + ".\n"
 #define _LANG_TRAIT_POSSESSIVE "tu"
 #define _LANG_TRAIT_POSSESSIVE_PLURAL "tus"

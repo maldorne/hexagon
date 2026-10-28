@@ -59,7 +59,7 @@ Strings go in the directory's `.lang.<lang>.h` as everywhere. `damage-over-time.
 
 ## Traits in the tree
 
-- `bleeding.c`: a wound on a body part (`part` and its `article`, named by whoever adds it); raises the flag `bleeding`.
+- `bleeding.c`: a wound on a body part (`part` and its `article`, named by whoever adds it); raises the flag `bleeding`. Healing closes it by removing it with the reason `cured` (a game's healing spells decide how often), which tells the living the wound closes.
 - `poisoned.c`: venom in the blood; raises the flag `poisoned`.
 
 ## Wired and pending
