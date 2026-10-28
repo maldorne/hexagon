@@ -10,8 +10,8 @@ The rules live in two shared files, `/lib/room/water.c` and
 `/lib/room/coast.c`. A game on rooms builds on the room bases `/lib/water.c`
 and `/lib/coast.c`; a game on locations gets the same behaviour from the
 `water` and `coast` components, which `room2loc` attaches from those bases
-with the room's settings. Both room bases are open to the sky (they build on
-`/lib/outside.c`). Water or a shore below the surface is a location with the
+with the room's settings. The room bases (and `/lib/bridge.c`, below) are open
+to the sky: they build on `/lib/outside.c`. Water or a shore below the surface is a location with the
 `underground` component as well: its room answers `query_outside()` with 0 and
 `query_underground()` with 1, so `room2loc` attaches `underground` instead of
 `outside`.

@@ -1,25 +1,13 @@
-// A room that is a bridge and water at once. The rules are in
+// A room that is a bridge and water at once, open to the sky. The rules are in
 // /lib/room/bridge.c; converted to a location, the room becomes a bridge
 // component with the same settings. Its exits of type "bridge" are walked,
-// every other exit is swum.
-//
-// A bridge below the surface calls set_underground_kind() and counts as
-// underground as well.
+// every other exit is swum. A bridge below the surface is a location with the
+// underground component as well.
 
-inherit room   "/lib/underground.c";
+inherit room   "/lib/outside.c";
 inherit bridge "/lib/room/bridge.c";
 
 #include <room/bridge.h>
-
-private int below_surface;
-
-int query_underground() { return below_surface; }
-
-void set_underground_kind(string kind)
-{
-  below_surface = 1;
-  room::set_underground_kind(kind);
-}
 
 // Every exit is swum but the bridge ones (and a door, a gate, a road or a
 // path across it).
