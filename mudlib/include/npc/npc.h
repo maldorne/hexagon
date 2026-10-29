@@ -3,6 +3,12 @@
 
 #define NO_SPAM      "no_spam"
 
+// Votes of the flee chain (see query_wants_to_flee in /lib/npc.c): a veto
+// keeps the NPC fighting whatever the others say, a force sends it away.
+#define FLEE_VETO     -1
+#define FLEE_ABSTAIN   0
+#define FLEE_FORCE     1
+
 // Chance, in percent per heart beat, that a monster in a fight tries to use one
 // of its combat effects (see combat_effects_heart_beat in /lib/monster/combat.c)
 #define NPC_CAST_CHANCE 20

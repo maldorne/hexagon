@@ -212,6 +212,47 @@ void event_fight_in_progress(object ob, object * fighters)
   run_on_components("event_fight_in_progress", ob, fighters);
 }
 
+/**
+ * Whether the NPC runs from the fight: its wimpy proposes, its components vote
+ * (FLEE_VETO, FLEE_ABSTAIN, FLEE_FORCE in <npc/npc.h>). A veto wins over
+ * everything, a force over the wimpy.
+ *
+ * @return 1 to run away
+ */
+int query_wants_to_flee()
+{
+  int verdict;
+
+  verdict = run_reduce("flee", ({ }), FLEE_ABSTAIN, "_flee_verdict");
+  if (verdict == FLEE_VETO)
+    return 0;
+  if (verdict == FLEE_FORCE)
+    return 1;
+  return monster::query_wants_to_flee();
+}
+
+/**
+ * Combinator of the flee votes: whatever order the components answer in, a
+ * veto stays a veto and a force only replaces an abstention.
+ */
+int _flee_verdict(mixed acc, mixed piece)
+{
+  if (acc == FLEE_VETO || piece == FLEE_VETO)
+    return FLEE_VETO;
+  if (acc == FLEE_FORCE || piece == FLEE_FORCE)
+    return FLEE_FORCE;
+  return FLEE_ABSTAIN;
+}
+
+/**
+ * The NPC's components take part in its combat decisions: the chain of the
+ * question runs over the context (see choose_effect in /lib/monster/combat.c).
+ */
+mixed * combat_decision(string question, mixed * args)
+{
+  return run_pipeline(question, args);
+}
+
 // A crime in this NPC's place (crimes handler): the components react to it.
 // criminal is nil when nobody could name the culprit.
 void event_crime(object who, object criminal, string type, object victim,

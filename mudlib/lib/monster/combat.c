@@ -321,13 +321,67 @@ private object * take_some(object * list, int n)
 }
 
 /**
- * The choice of what the monster casts in a fight: one of its combat effects
- * it can use now, at random, and whom it goes at, by the effect's target type and
- * intent. A harm goes at its attackers, a help at itself (and its allies for a
- * many-target one); an effect that reaches a place or needs no target is just
- * cast. This is the hook an AI component replaces: override it (or the
- * component answers before it) to choose with some reason; cast_chosen_effect
- * only carries out what it returns.
+ * The targets a monster aims an effect at, by its target type and intent: a
+ * harm at its attackers, a help at itself (and its allies for a many-target
+ * one).
+ *
+ * @param  effect     the effect object
+ * @param  attackers  who is fighting the monster here
+ * @return the targets, empty when the effect finds its own, nil when it is
+ *         nothing a monster aims in a fight
+ */
+object * aim_effect(object effect, object * attackers)
+{
+  string intent;
+
+  intent = effect->query_effect_intent();
+
+  switch (effect->query_target_type())
+  {
+    case TARGET_TYPE_ONE:
+    case TARGET_TYPE_TOUCH:
+      if (intent == EFFECT_INTENT_HARM)
+        return take_some(attackers, 1);
+      return ({ this_object() });
+
+    case TARGET_TYPE_MANY:
+      // every attacker for a harm, itself and every ally for a help
+      if (intent == EFFECT_INTENT_HARM)
+        return attackers;
+      return present_allies(attackers) + ({ this_object() });
+
+    case TARGET_TYPE_SELF:
+    case TARGET_TYPE_ALL:
+    case TARGET_TYPE_NONE:
+      // it works out its own targets
+      return ({ });
+  }
+
+  // an item or a pass: nothing a monster aims in a fight
+  return nil;
+}
+
+/**
+ * Lets whoever decides for this monster change a combat decision. A plain
+ * monster has nobody, so the args come back as they went; an NPC runs the
+ * chain of its components here (see /lib/npc.c).
+ *
+ * @param  question  the decision ("choose_effect")
+ * @param  args      ({ context })
+ * @return the args, possibly changed
+ */
+mixed * combat_decision(string question, mixed * args)
+{
+  return args;
+}
+
+/**
+ * The choice of what the monster casts in a fight. The context holds who is
+ * fighting it ("attackers"), the effects it can use now ("usable") and the
+ * choice ("choice", ({ effect, targets })). Whoever decides for the monster
+ * (combat_decision) may narrow the pool or make the choice; when nobody
+ * chooses, one of the usable effects is taken at random and aimed with
+ * aim_effect. cast_chosen_effect only carries out what it returns.
  *
  * @return ({ effect object, targets }) (targets empty when the effect finds
  *         its own), or nil when there is nothing to cast
@@ -336,7 +390,7 @@ mixed * choose_effect()
 {
   object * known, * usable, * attackers, * targets;
   object effect;
-  string type, intent;
+  mapping ctx;
   int i;
 
   attackers = present_attackers();
@@ -349,44 +403,19 @@ mixed * choose_effect()
     if (can_use_effect(known[i]))
       usable += ({ known[i] });
 
-  if (!sizeof(usable))
+  ctx = ([ "attackers": attackers, "usable": usable, "choice": nil ]);
+  ctx = this_object()->combat_decision("choose_effect", ({ ctx }))[0];
+
+  if (ctx["choice"])
+    return ctx["choice"];
+
+  if (!sizeof(ctx["usable"]))
     return nil;
 
-  effect = usable[random(sizeof(usable))];
-  type = effect->query_target_type();
-  intent = effect->query_effect_intent();
-  targets = ({ });
+  effect = ctx["usable"][random(sizeof(ctx["usable"]))];
+  targets = aim_effect(effect, attackers);
 
-  switch (type)
-  {
-    case TARGET_TYPE_ONE:
-    case TARGET_TYPE_TOUCH:
-      if (intent == EFFECT_INTENT_HARM)
-        targets = take_some(attackers, 1);
-      else
-        targets = ({ this_object() });
-      break;
-
-    case TARGET_TYPE_MANY:
-      // every attacker for a harm, itself and every ally for a help
-      if (intent == EFFECT_INTENT_HARM)
-        targets = attackers;
-      else
-        targets = present_allies(attackers) + ({ this_object() });
-      break;
-
-    case TARGET_TYPE_SELF:
-    case TARGET_TYPE_ALL:
-    case TARGET_TYPE_NONE:
-      // it works out its own targets
-      break;
-
-    default:
-      // an item or a pass: nothing a monster aims in a fight
-      return nil;
-  }
-
-  return ({ effect, targets });
+  return targets ? ({ effect, targets }) : nil;
 }
 
 /**

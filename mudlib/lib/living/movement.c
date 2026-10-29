@@ -221,7 +221,11 @@ void run_away()
     return;
   }
 
+  // nowhere to run: stay and fight
   direcs = (mixed *)environment()->query_dest_dir();
+  if (!sizeof(direcs))
+    return;
+
   i = random(sizeof(direcs)/2)*2;
 
   tell_object(this_object(), _LANG_RUN_AWAY_RUN_AWAY);

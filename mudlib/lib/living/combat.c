@@ -171,12 +171,21 @@ void heart_beat()
 
   combat_counter++;
 
-  if (sizeof(attacker_list) && 
-      this_object()->query_wimpy() && 
-     (this_object()->query_hp() < this_object()->query_max_hp() * this_object()->query_wimpy() / 100))
-  {
+  if (sizeof(attacker_list) && this_object()->query_wants_to_flee())
     this_object()->run_away();
-  }
+}
+
+/**
+ * Whether the living wants to run from the fight now: its health is under its
+ * wimpy. An NPC also asks its components (see /lib/npc.c).
+ *
+ * @return 1 to run away
+ */
+int query_wants_to_flee()
+{
+  return this_object()->query_wimpy() &&
+         this_object()->query_hp() <
+           this_object()->query_max_hp() * this_object()->query_wimpy() / 100;
 }
 
 object query_attackee() { return attackee; }
