@@ -170,6 +170,13 @@ void resume_schedule(int hour)
   if (!npc)
     return;
 
+  // in a fight the hour waits: the walk starts when the fight is over
+  if (sizeof(npc->query_attacker_list()))
+  {
+    call_out("resume_schedule", 30, hour);
+    return;
+  }
+
   entry = _entry_in_effect(hour);
   if (!entry)
     return;
@@ -203,6 +210,13 @@ void do_schedule(int hour)
   npc = query_entity();
   if (!npc)
     return;
+
+  // in a fight the hour waits: the walk starts when the fight is over
+  if (sizeof(npc->query_attacker_list()))
+  {
+    call_out("resume_schedule", 30, hour);
+    return;
+  }
 
   entry = timetable[hour];
   if (!entry)

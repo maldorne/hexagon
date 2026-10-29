@@ -16,6 +16,7 @@
 #include <areas/area.h>
 #include <common/properties.h>
 #include <living/effects.h>
+#include <ecs/ecs.h>
 
 inherit component "/lib/npc/component.c";
 
@@ -165,6 +166,30 @@ private object usable_effect(object me)
   }
 
   return sizeof(usable) ? usable[random(sizeof(usable))] : nil;
+}
+
+mapping query_hooks()
+{
+  return ([ "choose_effect": HOOK_PRIORITY_GATE ]);
+}
+
+// Its healing effects are cast by heal_round on whoever needs them; they are
+// kept out of the pool the NPC casts from in a fight.
+mixed * hook_choose_effect(mixed * args)
+{
+  mapping ctx;
+  object effect;
+  int i;
+
+  ctx = args[0];
+  for (i = 0; i < sizeof(heal_effects); i++)
+  {
+    effect = find_object(heal_effects[i]);
+    if (effect)
+      ctx["usable"] -= ({ effect });
+  }
+
+  return args;
 }
 
 // A blow in the healer's place: start looking after its side.

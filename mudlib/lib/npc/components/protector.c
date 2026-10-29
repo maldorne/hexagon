@@ -24,6 +24,9 @@
 // consent of the protected, which every NPC gives by default). Blows from an NPC that is itself protected by the rule are not answered: the
 // guards of a city arresting one of its citizens are not an attack to defend.
 
+#include <ecs/ecs.h>
+#include <npc/npc.h>
+
 inherit component "/lib/npc/component.c";
 
 #define PROTECT_SKILL "/lib/obj/skills/protect.c"
@@ -156,6 +159,31 @@ void event_fight_in_progress(object ob, object * fighters)
 
   if (member_array(attacker, me->query_attacker_list()) < 0)
     me->attack_ob(attacker);
+}
+
+mapping query_hooks()
+{
+  return ([ "flee": HOOK_PRIORITY_GATE ]);
+}
+
+// Somebody it protects is fighting here: it stays.
+int hook_flee(mixed * args)
+{
+  object me;
+  object * here;
+  int i;
+
+  me = query_entity();
+  if (!me || !environment(me))
+    return FLEE_ABSTAIN;
+
+  here = all_inventory(environment(me));
+  for (i = 0; i < sizeof(here); i++)
+    if (here[i] != me && living(here[i]) && is_protected(here[i]) &&
+        sizeof(here[i]->query_attacker_list()))
+      return FLEE_VETO;
+
+  return FLEE_ABSTAIN;
 }
 
 /**

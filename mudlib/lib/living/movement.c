@@ -222,6 +222,8 @@ void run_away()
   }
 
   // nowhere to run: stay and fight
+  if (!environment())
+    return;
   direcs = (mixed *)environment()->query_dest_dir();
   if (!sizeof(direcs))
     return;

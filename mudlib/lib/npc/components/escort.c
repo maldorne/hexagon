@@ -19,6 +19,9 @@
 #include <areas/area.h>
 #include <language.h>
 
+#include <ecs/ecs.h>
+#include <npc/npc.h>
+
 inherit component "/lib/npc/component.c";
 
 // seconds between two looks
@@ -282,6 +285,17 @@ void tick()
   }
 
   call_out("tick", ESCORT_TICK);
+}
+
+mapping query_hooks()
+{
+  return ([ "flee": HOOK_PRIORITY_GATE ]);
+}
+
+// Sent on an errand: it does not run from the fight that is part of it.
+int hook_flee(mixed * args)
+{
+  return FLEE_VETO;
 }
 
 string query_info()
