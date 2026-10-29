@@ -81,9 +81,30 @@ private mapping index_level;
 // of the glyph header are evaluated a single time.
 private string * glyphs;
 
+/**
+ * The shoreline glyph for a set of arms (n*8 + s*4 + e*2 + w): the light line
+ * of a way with its corners rounded, or a dot for a coast with no arm.
+ */
+private string _shore_glyph(int arms)
+{
+  string * table;
+
+  switch (arms)
+  {
+    case 0:  return GLYPH_SHORE_SPOT;
+    case 5:  return GLYPH_SHORE_ARC_SW;
+    case 6:  return GLYPH_SHORE_ARC_SE;
+    case 9:  return GLYPH_SHORE_ARC_NW;
+    case 10: return GLYPH_SHORE_ARC_NE;
+  }
+  table = BOX_GLYPHS_INDEXED;
+  return table[((arms >> 3) & 1) * 27 + ((arms >> 2) & 1) * 9 +
+               ((arms >> 1) & 1) * 3 + (arms & 1)];
+}
+
 void create()
 {
-  string * way_table, * river_table, * shapes, * colours;
+  string * way_table, * river_table, * colours;
   int i, n, s, e, w;
 
   ::create();
@@ -105,17 +126,17 @@ void create()
   glyphs[MAP_GLYPH_MOUNTAIN] = "%^ORANGE%^" + GLYPH_MAP_MOUNTAIN + "%^RESET%^";
   glyphs[MAP_GLYPH_TAIGA] = "%^GREEN%^" + GLYPH_MAP_TAIGA + "%^RESET%^";
   glyphs[MAP_GLYPH_RUINS]    = GLYPH_MAP_RUINS;
-  // the shore in the colour of the water, a beach in the colour of sand
-  glyphs[MAP_GLYPH_COAST]    = COLOUR_SHORE_COAST + GLYPH_MAP_COAST + "%^RESET%^";
-  glyphs[MAP_GLYPH_BEACH]    = COLOUR_SHORE_BEACH + GLYPH_MAP_COAST + "%^RESET%^";
+  // a coast or a beach whose stored code predates its shoreline arms
+  glyphs[MAP_GLYPH_COAST]    = COLOUR_SHORE_COAST + GLYPH_BOX_1100 + "%^RESET%^";
+  glyphs[MAP_GLYPH_BEACH]    = COLOUR_SHORE_BEACH + GLYPH_BOX_1100 + "%^RESET%^";
 
-  // the shoreline of each kind of coast, one glyph per shape
-  shapes = GLYPH_SHORE_SHAPES;
-  colours = ({ COLOUR_SHORE_COAST, COLOUR_SHORE_BEACH, COLOUR_SHORE_CLIFF });
+  // the shoreline of each kind of coast, one glyph per set of arms; a beach in
+  // the colour of sand
+  colours = ({ COLOUR_SHORE_COAST, COLOUR_SHORE_BEACH });
   for (i = 0; i < MAP_SHORE_KINDS; i++)
-    for (n = 0; n < MAP_SHORE_SHAPES; n++)
-      glyphs[MAP_GLYPH_SHORE + i * MAP_SHORE_SHAPES + n] =
-        colours[i] + shapes[n] + "%^RESET%^";
+    for (n = 0; n < MAP_SHORE_ARMS; n++)
+      glyphs[MAP_GLYPH_SHORE + i * MAP_SHORE_ARMS + n] =
+        colours[i] + _shore_glyph(n) + "%^RESET%^";
 
   // a bridge is part of the road, so it is drawn in the road's plain colour
   glyphs[MAP_GLYPH_BRIDGE_V] =
@@ -345,67 +366,52 @@ private int _plains_code(int sx, int sy, int sz)
 #define RUINS_OVERRIDE_MIN 5
 
 /**
- * Whether the sector at (sx, sy, sz) counts as sea for a shoreline: it does
- * not exist or has no locations.
+ * Whether the sector at (sx, sy, sz) is drawn as coast.
  */
-private int _is_sea(string game, string map_name, int sx, int sy, int sz)
+private int _is_coast(string game, string map_name, int sx, int sy, int sz)
 {
   object sect;
-  mapping locs;
 
   sect = cached_sector(game, map_name, sx, sy, sz);
-  if (!sect)
-    return 1;
-  locs = sect->query_locations();
-  return !mappingp(locs) || !map_sizeof(locs);
+  return sect && sect->query_sector_type() == SECTOR_TYPE_COAST;
 }
 
 /**
- * The code of a coast sector: the shoreline on its sea side, in the colour of
- * its kind (beach, cliff, any other coast). Sea on one side gives that side's
- * line; on two adjacent sides, or on a diagonal alone, a slash (sea north-west
- * or south-east) or a backslash (north-east or south-west). Sea on opposite
- * sides, on three or more, or nowhere keeps the plain coast glyph.
+ * The code of a coast sector: a line to each coast sector beside it, in the
+ * colour of its kind (beach or any other coast). A coast sector touching
+ * another only by a corner, with no coast on the two sectors between them,
+ * reaches it through the one of those two in the northern sector's row: the
+ * southern sector draws an arm north, the northern one an arm east or west,
+ * and _overlay_shore_steps draws the corner between them.
  *
  * Neighbour convention as in _arms_code: north is a larger y, east a larger x.
  */
 private int _shore_code(object sect, string game, string map_name,
                         int sx, int sy, int sz)
 {
-  int n, s, e, w, kind, shape;
+  int n, s, e, w, dx, dy;
 
-  n = _is_sea(game, map_name, sx, sy + 1, sz);
-  s = _is_sea(game, map_name, sx, sy - 1, sz);
-  e = _is_sea(game, map_name, sx + 1, sy, sz);
-  w = _is_sea(game, map_name, sx - 1, sy, sz);
+  n = _is_coast(game, map_name, sx, sy + 1, sz);
+  s = _is_coast(game, map_name, sx, sy - 1, sz);
+  e = _is_coast(game, map_name, sx + 1, sy, sz);
+  w = _is_coast(game, map_name, sx - 1, sy, sz);
 
-  kind = sect->query_beach() ? 1 : (sect->query_cliff() ? 2 : 0);
-  shape = -1;
+  for (dx = -1; dx <= 1; dx += 2)
+    for (dy = -1; dy <= 1; dy += 2)
+      if (_is_coast(game, map_name, sx + dx, sy + dy, sz) &&
+          !_is_coast(game, map_name, sx + dx, sy, sz) &&
+          !_is_coast(game, map_name, sx, sy + dy, sz))
+      {
+        if (dy > 0)
+          n = 1;
+        else if (dx > 0)
+          e = 1;
+        else
+          w = 1;
+      }
 
-  switch (n + s + e + w)
-  {
-    case 0:
-      if (_is_sea(game, map_name, sx - 1, sy + 1, sz) ||
-          _is_sea(game, map_name, sx + 1, sy - 1, sz))
-        shape = 4;
-      else if (_is_sea(game, map_name, sx + 1, sy + 1, sz) ||
-               _is_sea(game, map_name, sx - 1, sy - 1, sz))
-        shape = 5;
-      break;
-    case 1:
-      shape = n ? 0 : (s ? 1 : (w ? 2 : 3));
-      break;
-    case 2:
-      if ((n && w) || (s && e))
-        shape = 4;
-      else if ((n && e) || (s && w))
-        shape = 5;
-      break;
-  }
-
-  if (shape < 0)
-    return kind == 1 ? MAP_GLYPH_BEACH : MAP_GLYPH_COAST;
-  return MAP_GLYPH_SHORE + kind * MAP_SHORE_SHAPES + shape;
+  return MAP_GLYPH_SHORE + (sect->query_beach() ? MAP_SHORE_ARMS : 0) +
+         _arms_code(({ n, s, e, w }));
 }
 
 // Display priority for a sector (highest first):
@@ -593,6 +599,46 @@ private void _overlay_city_walls(string ** grid, int ** is_city,
 
       _put(grid, w, h, r, c, _wall_glyph(mask));
     }
+}
+
+// Post-processing pass: the corner of each step of a shoreline. Two coast
+// sectors touching only by a corner meet in the blank sector north of the
+// southern one (see _shore_code), which gets an arc joining them in the
+// southern one's colour. A sector with something drawn on it is left alone.
+private void _overlay_shore_steps(string ** grid, int ** shore, int w, int h)
+{
+  mapping arms, kinds;
+  string key;
+  string * keys;
+  int r, c, k, nr, nc;
+
+  arms = ([ ]);
+  kinds = ([ ]);
+  // shore[r][c] is 0 off the coast, else 1 + the kind of shore
+  for (r = 1; r < h; r++)
+    for (c = 0; c < w; c++)
+    {
+      if (!shore[r][c] || shore[r - 1][c])
+        continue;
+      for (k = -1; k <= 1; k += 2)
+      {
+        nc = c + k;
+        if (nc < 0 || nc >= w || !shore[r - 1][nc] || shore[r][nc])
+          continue;
+        // south arm (to this sector) and east or west (to the northern one)
+        key = (r - 1) + "_" + c;
+        arms[key] = (undefinedp(arms[key]) ? 0 : arms[key]) | 4 | (k > 0 ? 2 : 1);
+        kinds[key] = shore[r][c] - 1;
+      }
+    }
+
+  keys = map_indices(arms);
+  for (k = 0; k < sizeof(keys); k++)
+  {
+    sscanf(keys[k], "%d_%d", nr, nc);
+    _put(grid, w, h, nr, nc,
+         glyphs[MAP_GLYPH_SHORE + kinds[keys[k]] * MAP_SHORE_ARMS + arms[keys[k]]]);
+  }
 }
 
 // The code of the glyph a sector shows on the world map (MAP_GLYPH_* in
@@ -932,7 +978,7 @@ string render(int center_x, int center_y, int center_z,
   int col0, row_top;
   int row_i, col, left, code;
   string ** grid;
-  int ** is_city;
+  int ** is_city, ** shore;
   string result;
 
   sector_cache = ([ ]);
@@ -956,12 +1002,14 @@ string render(int center_x, int center_y, int center_z,
   index_level = sectors->query_map_index(game, map_name)->query_level(sz0);
   grid = allocate(height);
   is_city = allocate(height);
+  shore = allocate(height);
   for (row_i = 0; row_i < height; row_i++)
   {
     mapping row;
 
     grid[row_i] = allocate(width);
     is_city[row_i] = allocate_int(width);
+    shore[row_i] = allocate_int(width);
     row = index_level[row_top - row_i];
     for (col = 0; col < width; col++)
     {
@@ -971,8 +1019,14 @@ string render(int center_x, int center_y, int center_z,
       // forest city is a city too) — still before the player marker
       // overwrites it below.
       is_city[row_i][col] = code == MAP_GLYPH_CITY || code == MAP_GLYPH_FOREST_CITY;
+      // 1 + the kind of shore for a coast, for the steps of the shoreline
+      if (code >= MAP_GLYPH_SHORE &&
+          code < MAP_GLYPH_SHORE + MAP_SHORE_KINDS * MAP_SHORE_ARMS)
+        shore[row_i][col] = 1 + (code - MAP_GLYPH_SHORE) / MAP_SHORE_ARMS;
     }
   }
+
+  _overlay_shore_steps(grid, shore, width, height);
 
   // centre marker (before the overlay, which never overwrites it)
   if (marker)
@@ -1022,15 +1076,13 @@ string render(int center_x, int center_y, int center_z,
 // legend to look for in a rendered map.
 private string * _shore_glyphs(string colour)
 {
-  string * shapes, * found;
+  string * found;
   int i;
 
-  shapes = GLYPH_SHORE_SHAPES;
   found = ({ });
-  for (i = 0; i < sizeof(shapes); i++)
-    found += ({ colour + shapes[i] });
-  // the plain glyph of a coast with no sea side
-  return found + ({ colour + GLYPH_MAP_COAST });
+  for (i = 0; i < MAP_SHORE_ARMS; i++)
+    found += ({ colour + _shore_glyph(i) });
+  return found;
 }
 
 // What a legend needs, by kind of sector: the glyph to look for in a rendered
@@ -1050,9 +1102,8 @@ mapping query_legend_glyphs()
     "taiga":       ({ "%^GREEN%^" + GLYPH_MAP_TAIGA, glyphs[MAP_GLYPH_TAIGA] }),
     "ruins":       ({ GLYPH_MAP_RUINS, glyphs[MAP_GLYPH_RUINS] }),
     "river":       ({ COLOUR_RIVER, glyphs[MAP_GLYPH_RIVERS + 12] }),
-    "coast":       ({ _shore_glyphs(COLOUR_SHORE_COAST), glyphs[MAP_GLYPH_SHORE + 4] }),
-    "beach":       ({ _shore_glyphs(COLOUR_SHORE_BEACH), glyphs[MAP_GLYPH_SHORE + MAP_SHORE_SHAPES + 4] }),
-    "cliff":       ({ _shore_glyphs(COLOUR_SHORE_CLIFF), glyphs[MAP_GLYPH_SHORE + 2 * MAP_SHORE_SHAPES + 4] }),
+    "coast":       ({ _shore_glyphs(COLOUR_SHORE_COAST), glyphs[MAP_GLYPH_SHORE + 12] }),
+    "beach":       ({ _shore_glyphs(COLOUR_SHORE_BEACH), glyphs[MAP_GLYPH_SHORE + MAP_SHORE_ARMS + 12] }),
     "underground": ({ glyphs[MAP_GLYPH_UNDERGROUND], glyphs[MAP_GLYPH_UNDERGROUND] }),
   ]);
 }

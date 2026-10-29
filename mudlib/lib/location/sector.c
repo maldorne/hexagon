@@ -603,7 +603,7 @@ int has_locations_of_type(string type)
 /**
  * Whether more than half of the coast locations of the sector carry a flag.
  *
- * @param flag the key recorded in the location data ("beach", "cliff")
+ * @param flag the key recorded in the location data ("beach")
  * @return 1 when more than half of them do, 0 otherwise
  */
 private int _coast_majority(string flag)
@@ -636,16 +636,6 @@ private int _coast_majority(string flag)
 int query_beach()
 {
   return _coast_majority("beach");
-}
-
-/**
- * Whether most of the coast locations of the sector are cliffs.
- *
- * @return 1 when more than half of them are, 0 otherwise
- */
-int query_cliff()
-{
-  return _coast_majority("cliff");
 }
 
 // The sector's dominant type: whichever cartography component is

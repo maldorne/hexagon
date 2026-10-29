@@ -193,23 +193,20 @@
 #define GLYPH_MAP_MOUNTAIN (chr(226) + chr(150) + chr(178))         // U+25B2 black up-pointing triangle
 #define GLYPH_MAP_TAIGA    (chr(226) + chr(153) + chr(167))         // U+2667 white club suit
 #define GLYPH_MAP_RUINS    (chr(226) + chr(136) + chr(180))         // U+2234 therefore
-#define GLYPH_MAP_COAST       "~"
 #define GLYPH_MAP_UNDERGROUND "."
 
-// Shoreline glyphs, drawn on the sea side of a coast sector.
-#define GLYPH_SHORE_N      (chr(226) + chr(150) + chr(148))         // U+2594 upper one eighth block
-#define GLYPH_SHORE_S      (chr(226) + chr(150) + chr(129))         // U+2581 lower one eighth block
-#define GLYPH_SHORE_W      (chr(226) + chr(150) + chr(143))         // U+258F left one eighth block
-#define GLYPH_SHORE_E      (chr(226) + chr(150) + chr(149))         // U+2595 right one eighth block
-#define GLYPH_SHORE_SLASH  (chr(226) + chr(149) + chr(177))         // U+2571 diagonal up right (sea north-west or south-east)
-#define GLYPH_SHORE_BACK   (chr(226) + chr(149) + chr(178))         // U+2572 diagonal up left (sea north-east or south-west)
-#define GLYPH_SHORE_SHAPES ({ GLYPH_SHORE_N, GLYPH_SHORE_S, GLYPH_SHORE_W, \
-                              GLYPH_SHORE_E, GLYPH_SHORE_SLASH, GLYPH_SHORE_BACK })
+// Shoreline glyphs: a coast is a line joining the coast sectors around it, as
+// a way joins its arms, with rounded corners so it never reads as a road.
+#define GLYPH_SHORE_SPOT   (chr(194) + chr(183))                    // U+00B7 middle dot (no coast around)
+#define GLYPH_SHORE_ARC_SE (chr(226) + chr(149) + chr(173))         // U+256D arc down and right
+#define GLYPH_SHORE_ARC_SW (chr(226) + chr(149) + chr(174))         // U+256E arc down and left
+#define GLYPH_SHORE_ARC_NW (chr(226) + chr(149) + chr(175))         // U+256F arc up and left
+#define GLYPH_SHORE_ARC_NE (chr(226) + chr(149) + chr(176))         // U+2570 arc up and right
 
-// Colour of each kind of shore.
-#define COLOUR_SHORE_COAST "%^BLUE%^"
+// Colour of each kind of shore: a beach in the colour of sand, any other coast
+// in the colour of the sea.
+#define COLOUR_SHORE_COAST "%^CYAN%^"
 #define COLOUR_SHORE_BEACH "%^YELLOW%^"
-#define COLOUR_SHORE_CLIFF "%^WHITE%^"
 
 // What a sector shows on the world map is one of these codes (a sector keeps
 // its code, see /lib/location/sector.c). The fixed glyphs come first, in
@@ -236,12 +233,12 @@
 #define MAP_GLYPH_TAIGA        45
 #define MAP_GLYPH_RUINS        46
 #define MAP_GLYPH_BEACH        47  // a coast whose locations are mostly beach
-// The shoreline codes: MAP_GLYPH_SHORE + kind * MAP_SHORE_SHAPES + shape, with
-// kind 0 coast, 1 beach, 2 cliff and shape the index in GLYPH_SHORE_SHAPES.
+// The shoreline codes: MAP_GLYPH_SHORE + kind * MAP_SHORE_ARMS + arms, with
+// kind 0 coast, 1 beach and arms n*8 + s*4 + e*2 + w as for a way.
 #define MAP_GLYPH_SHORE        48
-#define MAP_SHORE_SHAPES       6
-#define MAP_SHORE_KINDS        3
-#define MAP_GLYPH_COUNT        (MAP_GLYPH_SHORE + MAP_SHORE_KINDS * MAP_SHORE_SHAPES)
+#define MAP_SHORE_ARMS         16
+#define MAP_SHORE_KINDS        2
+#define MAP_GLYPH_COUNT        (MAP_GLYPH_SHORE + MAP_SHORE_KINDS * MAP_SHORE_ARMS)
 
 // The fixed glyphs as they are drawn, colour included.
 #define MAP_GLYPHS ({ \
@@ -250,7 +247,7 @@
   GLYPH_FOREST_CITY, \
   "%^GREEN%^" + GLYPH_MAP_FOREST + "%^RESET%^", \
   "%^YELLOW%^" + GLYPH_MAP_FARM + "%^RESET%^", \
-  GLYPH_MAP_COAST, \
+  " ", \
   GLYPH_MAP_UNDERGROUND, \
 })
 #define GLYPH_WALL_N_ROAD  (chr(226) + chr(149) + chr(168))         // U+2568 up double, horiz single

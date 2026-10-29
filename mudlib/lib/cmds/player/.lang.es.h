@@ -437,7 +437,6 @@
 #define _LANG_CMD_WORLDMAP_RIVER       "Río"
 #define _LANG_CMD_WORLDMAP_COAST       "Costa"
 #define _LANG_CMD_WORLDMAP_BEACH       "Playa"
-#define _LANG_CMD_WORLDMAP_CLIFF       "Acantilado"
 #define _LANG_CMD_WORLDMAP_UNDERGROUND "Subterráneo"
 
 // idle.c
