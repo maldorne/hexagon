@@ -60,6 +60,10 @@ priority (lower first, ties in load order) and runs it in one of two ways:
   its long, short and light this way. A piece `({ HOOK_EXCLUSIVE, value })`
   replaces everything gathered so far.
 
+An NPC runs two chains in a fight (`/lib/npc.c`): `choose_effect`, a pipeline over
+the context of what it casts (see `lib/living/combat.md`), and `flee`, a reduce
+of votes with the `_flee_verdict` combinator, where a veto always wins.
+
 ### Verbs
 
 A component stands nowhere, so it cannot carry a verb. One that wants a verb

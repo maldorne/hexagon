@@ -153,12 +153,26 @@ knowing it as a spell or skill, like a bite or a breath. They have no chance,
 name or target of their own; a creature-only effect marks itself common in its
 file (`set_common_effect(1)`) to pass the same checks. Only effects it can
 use now are drawn (`can_use_effect`: an intent other than none, common or allowed by its guild or job,
-gp enough, none of the effect's lockout properties set). `choose_effect()` picks one
-at random and its targets by intent and target type: a harmful `one`/`touch` goes at
+gp enough, none of the effect's lockout properties set). `choose_effect()` puts them
+in a context (`attackers`, `usable`, `choice`) and hands it to `combat_decision()`:
+a plain monster gives it back untouched, an NPC runs its components' `choose_effect`
+chain over it (a healer takes its heals out of `usable`; a component may also set
+`choice`). When nobody has chosen, it picks one of `usable` at random and
+`aim_effect()` gives its targets by intent and target type: a harmful `one`/`touch` goes at
 an attacker, a harmful `many` at all of them, a helpful
 `one`/`touch` at itself, a helpful `many` at itself and all the allies fighting the same
 attackers; `all`, `self` and `none` are cast as they are. `cast_chosen_effect()`
 runs it through `cast_effect_on` (chosen targets) or `cast_effect`, so the effect
-makes the same refusals as for a player. An AI component replaces `choose_effect()`
-and leaves the rest. The template option `guild_abilities` adds everything the
+makes the same refusals as for a player. The template option `guild_abilities` adds everything the
 NPC's guild teaches up to its guild level to what it knows.
+
+## Running away
+
+Each round of a fight, a living with attackers asks `query_wants_to_flee()` and
+runs (`run_away()`, a random exit; none, it stays) when it answers yes. The
+default is its wimpy: health under `wimpy` percent of its maximum. An NPC asks
+its components first through the `flee` chain: each votes `FLEE_VETO`,
+`FLEE_ABSTAIN` or `FLEE_FORCE` (`include/npc/npc.h`), a veto wins over
+everything and a force over the wimpy, whatever the order they answer in. A
+protector vetoes while somebody it protects is fighting there; a responder or an
+escort vetoes while on its errand.
