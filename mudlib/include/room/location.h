@@ -19,6 +19,9 @@
 // Leads astray whoever leaves without keeping their bearings. See
 // /lib/location/components/crossing.c.
 #define LOCATION_COMPONENT_CROSSING    "crossing"
+// A rope tied to something opens an exit that is sealed without it. See
+// /lib/location/components/rope.c.
+#define LOCATION_COMPONENT_ROPE        "rope"
 #define LOCATION_COMPONENT_PROPS       "props"
 #define LOCATION_COMPONENT_SIGN        "sign"
 #define LOCATION_COMPONENT_POST_OFFICE "post-office"

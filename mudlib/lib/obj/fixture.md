@@ -25,6 +25,23 @@ location (`/lib/room/exits.c`) use it:
 NPCs walking a route (`find_path`) leave sealed exits out unless asked to take
 them.
 
+## Ropes
+
+A rope tied to something opens an exit that is sealed without it. The room
+declares the exit as usual with the type `"rope"` and names it:
+
+    add_exit(DIR_DOWN, ROOMS + "ravine.c", "rope");
+    string query_rope_anchor() { return DIR_DOWN; }
+    string query_rope_anchor_name() { return "a tree"; }  // optional
+
+`room2loc` seals that exit and attaches the `rope` component
+(`/lib/location/components/rope.c`). "tie rope" takes the first thing the player
+carries that answers `query_rope()` (`/lib/obj/rope.c`), destroys it and
+reveals the exit; "untie rope" clones it again into the player (or the floor)
+and seals the exit. The file of the tied rope is saved with the location, so the
+exit is open again on every load while a rope is tied. While tied, the look of
+the location gets a line about it and `look rope` describes it.
+
 ## Fixtures
 
 A fixture is an object that belongs to the place: it cannot be taken, weighs

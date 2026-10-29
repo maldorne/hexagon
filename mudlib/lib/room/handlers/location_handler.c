@@ -1089,8 +1089,8 @@ object convert_room_to_location(object room)
   object location, area, old;
   string file_name, * exits, ret, board_name;
   string * inferred, * added, * suggested, * venture_kinds, * blueprints, * missing;
-  string game;
-  mapping exit_map, clones, npc_clones, fixtures;
+  string game, rope_direction;
+  mapping exit_map, clones, npc_clones, fixtures, rope_options;
   int i, c, k;
 
   if (!room)
@@ -1138,6 +1138,23 @@ object convert_room_to_location(object room)
   exit_map = room->query_exit_map();
 
   // write("Exits:\n" + to_string(exit_map) + "\n");
+
+  // the exit a rope opens (query_rope_anchor) starts sealed; the rope
+  // component opens it while a rope is tied
+  rope_direction = function_exists("query_rope_anchor", room) ?
+                   room->query_rope_anchor() : nil;
+  if (rope_direction && exit_map[rope_direction])
+  {
+    mixed * tuple;
+
+    tuple = exit_map[rope_direction];
+    rope_options = ([ ]);
+    if (sizeof(tuple) > 3 && mappingp(tuple[3]))
+      rope_options = ([ ]) + tuple[3];
+    rope_options["sealed"] = 1;
+    exit_map = ([ ]) + exit_map;
+    exit_map[rope_direction] = tuple[0..2] + ({ rope_options });
+  }
 
   location->set_exits_from_exit_map(exit_map);
 
@@ -1405,6 +1422,22 @@ object convert_room_to_location(object room)
     location->add_component(LOCATION_COMPONENT_CROSSING,
                             ([ "free_races": free_races ]));
     ret += "   Adding component crossing.\n";
+  }
+
+  // A room that answers query_rope_anchor() with the direction of an exit
+  // gets a rope component: the exit stays sealed until a rope is tied
+  // (query_rope_anchor_name() says to what, for the messages). On a
+  // reconversion the rope already tied stays.
+  if (rope_direction && exit_map[rope_direction])
+  {
+    string anchor_name;
+
+    anchor_name = function_exists("query_rope_anchor_name", room) ?
+                  room->query_rope_anchor_name() : "";
+    location->add_component(LOCATION_COMPONENT_ROPE,
+                            ([ "direction": rope_direction,
+                               "anchor": anchor_name ? anchor_name : "" ]));
+    ret += "   Adding component rope.\n";
   }
 
   // A sign posted in the room (add_sign) becomes a sign component on the
