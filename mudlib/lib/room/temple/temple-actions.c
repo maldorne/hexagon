@@ -25,6 +25,10 @@
 // the deity the temple is given to, its full path with ".c"; "" for none
 string temple_deity;
 static object temple_sign;
+// the room or location that holds the sign
+static object temple_sign_place;
+
+object create_temple_sign(object where);
 
 /** Marks the place as a temple; the conversion and the pray skill look for it. */
 int query_temple() { return 1; }
@@ -32,8 +36,16 @@ int query_temple() { return 1; }
 /** The room or location the temple stands in. */
 object query_temple_place() { return this_object(); }
 
-/** Gives the temple to a deity: its full path with ".c", or "" for none. */
-void set_temple_deity(string path) { temple_deity = path ? path : ""; }
+/**
+ * Gives the temple to a deity: its full path with ".c", or "" for none. A sign
+ * already up is put up again, since it names the deity.
+ */
+void set_temple_deity(string path)
+{
+  temple_deity = path ? path : "";
+  if (temple_sign && temple_sign_place)
+    create_temple_sign(temple_sign_place);
+}
 
 string query_temple_deity() { return temple_deity ? temple_deity : ""; }
 
@@ -41,19 +53,27 @@ string query_temple_deity() { return temple_deity ? temple_deity : ""; }
 int query_temple_closed() { return 0; }
 
 /**
- * Puts up the sign with the instructions, read now from the help document so
- * changing it changes every temple sign.
+ * Puts up the sign with the deity the temple is given to and the instructions,
+ * read now from the help document so changing it changes every temple sign.
  *
  * @param where the room or location that holds the sign
  * @return the sign
  */
 object create_temple_sign(object where)
 {
+  object god;
+  string text;
+
   if (temple_sign)
     temple_sign->dest_me();
 
-  temple_sign = where->add_sign(_LANG_TEMPLE_SIGN_LONG,
-    handler("help")->query_document_text(doc(TEMPLE_SIGN_DOC)),
+  text = handler("help")->query_document_text(doc(TEMPLE_SIGN_DOC));
+  god = strlen(query_temple_deity()) ? load_object(query_temple_deity()) : nil;
+  if (god)
+    text = god->fill_text(_LANG_TEMPLE_SIGN_DEITY) + text;
+
+  temple_sign_place = where;
+  temple_sign = where->add_sign(_LANG_TEMPLE_SIGN_LONG, text,
     nil, nil, nil, STD_LANG);
   return temple_sign;
 }
@@ -64,6 +84,7 @@ void take_down_temple_sign()
   if (temple_sign)
     temple_sign->dest_me();
   temple_sign = nil;
+  temple_sign_place = nil;
 }
 
 void init()

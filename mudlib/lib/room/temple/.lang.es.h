@@ -32,6 +32,7 @@
 #define _LANG_TEMPLE_OFFER_ITEM_ROOM "$who$ deja $item$ sobre el altar, y desaparece.\n"
 
 #define _LANG_TEMPLE_SIGN_LONG "Es una placa de mármol junto a la entrada.\n"
+#define _LANG_TEMPLE_SIGN_DEITY "Este templo está consagrado a $god$.\n"
 #define _LANG_TEMPLE_ROOM_SHORT "Templo"
 #define _LANG_TEMPLE_ROOM_LONG "Una sala de techos altos y luz tenue, con un altar al fondo. " + \
       "Aquí se adora a un dios y se le hacen ofrendas.\n"

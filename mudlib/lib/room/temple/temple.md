@@ -6,7 +6,7 @@ A deity is a social object (`lib/deity.c`, a game's own under `/games/<game>/obj
 
 A temple is a room built on `lib/room/temple/temple-room.c` (`set_temple_deity("<path>.c")` in its setup) or a location with the `temple` component (`locations temple <path>`). Both share `temple-actions.c`:
 
-- a sign with the instructions, put up on every load from the help document `help/world/temples` (editing it changes every temple);
+- a sign naming the deity and giving the instructions, put up on every load from the help document `help/world/temples` (editing it changes every temple) and again when the deity changes;
 - `adorar` / `worship`: takes the temple's deity, after a yes/no confirmation; asked again on the answer;
 - `ofrecer` / `offer <item | n coins | n <coin type>>`: an offering, followers only. What is offered is carried, except a corpse, which may lie in the temple; what the corpse holds stays on the floor.
 
