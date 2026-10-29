@@ -172,6 +172,17 @@ A scroll (`/lib/obj/scroll.c`, an item) holds one spell. An item inherits it and
 - **With a power.** The scroll is written with a power too (`set_scroll_power`, 1 minor to 3 major, default 2 neutral): `cast_effect_at` holds it as `PROPERTY_CAST_POWER` and `query_effect_power` returns it while the rounds last, so the formulas follow the writer's knowledge, not the reader's. The reader's own power only decides whether they can read it and whether they botch it, both checked before the cast.
 - **Selling them.** A shop stocks by file: one small item per scroll (`scroll-of-<spell>.c` in the guild's `items/`, inheriting the scroll and writing its spell and level in `setup`), added with `add_permanent_goods`.
 
+## Sneak and silent doors
+
+`sneak` (`sigilar <direction>`, `sneak.c`) is a guild skill (not common): the drow warriors teach it. It takes one step with the `sneaking` flag of the living set (`set_sneaking` / `query_sneaking` in `lib/living/movement.c`): `move_living` then tells nobody, leaving or arriving, and nobody follows; the hide shadow does not break on a sneaking move, so a hidden living keeps hidden.
+
+- **Witnesses.** The livings in the place left and in the place entered, other than the walker, that are not dead, asleep (`SLEEP_PROP`) or passed out (`PASSED_OUT_PROP`). With none, the step is always silent, with no roll and no cost.
+- **Roll.** With witnesses: skill ability + (dex - 15) * 2 + armour malus * 3, +10 in a dark place (light 40 or less), against 1d100. It is never told: a failed roll is an ordinary visible step.
+- **Cost.** The skill's `gp_cost` is 0; `try_unnoticed` spends 1 gp, only when the step is made unseen in front of witnesses. Without that gp the roll is not made and the step is visible. A step that does not happen (a closed door) costs nothing.
+- **Refusals.** Not in combat, not mounted, not with a light over 20 on the walker, not in a place with the `no_sneak` property.
+- **Silent doors.** `door.c` (open and close) asks `try_quiet_door` of the skill for a living that is hidden (`query_hidden`), knows the skill and may use it: the same witnesses (both sides of the door), roll and cost. On success nobody else is told, on either side, and the hiding is kept; otherwise the room is told as always.
+- **Strategies.** An NPC sets `set_sneaking(1)` itself for a walk; `try_unnoticed(who, place [, other])` is the public roll.
+
 ## Body parts
 
 `skinning`, `gutting`, `dismembering` and `pulling` take parts from a corpse, each the parts its race gives that skill; they share `base-extraction.c`. See `/lib/obj/death/body-parts.md`.

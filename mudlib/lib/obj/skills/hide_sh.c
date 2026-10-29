@@ -65,10 +65,11 @@ string pretty_short(varargs int dark) { return visible() ? player->pretty_short(
 string query_plural() { return visible() ? player->query_plural() : nil; }
 string pretty_plural() { return visible() ? player->pretty_plural() : nil; }
 
-// Acting breaks the hiding.
+// Acting breaks the hiding, but a sneaking step does not.
 int move_living(string dir, mixed dest, varargs mixed message, mixed enter)
 {
-  dest_hide_shadow();
+  if (!player->query_sneaking())
+    dest_hide_shadow();
   return player->move_living(dir, dest, message, enter);
 }
 

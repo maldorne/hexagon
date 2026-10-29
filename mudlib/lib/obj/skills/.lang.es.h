@@ -346,3 +346,23 @@
 #define _LANG_SKILL_PULLING_HELP "Con 'arrancar <cuerpo>' o 'arrancar <parte> de <cuerpo>', " + \
       "empuñando un cuchillo o una daga, le sacas a un cuerpo los dientes, los colmillos, " + \
       "las garras o los cuernos. No se pudren. Mejora con la práctica.\n"
+
+// sneak.c
+
+#define _LANG_SKILL_SNEAK_NAME "sigilar"
+#define _LANG_SKILL_SNEAK_ALIASES ({ })
+#define _LANG_SKILL_SNEAK_HELP "Con 'sigilar <dirección>' das un paso hacia allí sin que " + \
+      "nadie vea cómo sales ni cómo entras. Si no hay nadie que pueda verte, siempre lo " + \
+      "consigues y no te cuesta nada. Si hay alguien, depende de lo bien que conozcas la " + \
+      "habilidad y de tu destreza, la oscuridad ayuda y te cuesta un punto de energía; sin " + \
+      "ella no lo intentas y das un paso como cualquiera. No te dice si lo consigues: si " + \
+      "fallas, te ven pasar. Un paso sigiloso no rompe tu escondite. Escondido, abrir o " + \
+      "cerrar una puerta tiene la misma probabilidad de hacerse en silencio y sin " + \
+      "delatarte. No sirve con mucha luz encima, ni en mitad de una pelea.\n"
+#define _LANG_SKILL_SNEAK_WHICH_WAY "¿Hacia dónde quieres sigilar?\n"
+#define _LANG_SKILL_SNEAK_NOT_THERE "No ves cómo sigilar en esa dirección.\n"
+#define _LANG_SKILL_SNEAK_BRIGHT "Es inútil intentar sigilar con tanta luz encima: " + \
+      "pareces una antorcha andante.\n"
+#define _LANG_SKILL_SNEAK_NO_SURFACE "El suelo de aquí no te deja pasar desapercibido.\n"
+#define _LANG_SKILL_SNEAK_STUCK "No consigues andar sigilosamente por ahí.\n"
+#define _LANG_SKILL_SNEAK_GO "Andas sigilosamente hacia " + dir + ".\n"

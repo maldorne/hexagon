@@ -31,6 +31,7 @@
 #define SKILL_ORIENTATION "orientation"
 #define SKILL_SEARCH      "search"
 #define SKILL_HIDE        "hide"
+#define SKILL_SNEAK       "sneak"
 #define SKILL_CLIMB       "climb"
 #define SKILL_REPAIR      "repair"
 #define SKILL_SLICE       "slice"

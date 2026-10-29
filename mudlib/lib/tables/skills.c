@@ -35,6 +35,11 @@ void create()
     SKILL_HIDE :
       ({ SKILLS_PATH + SKILL_HIDE, 10, 0, ACTIVE_SKILL, }),
 
+    // active skill: 'sneak <direction>' (sigilar), a step nobody sees, and
+    // opening or closing doors in silence. Taught by a guild or job.
+    SKILL_SNEAK :
+      ({ SKILLS_PATH + SKILL_SNEAK, 10, 0, ACTIVE_SKILL, }),
+
     // active skill: 'climb <something>'. Not learned by wandering: somebody
     // has to teach it, or a quest has to pay it.
     SKILL_CLIMB :

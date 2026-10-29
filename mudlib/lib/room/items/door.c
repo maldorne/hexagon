@@ -265,6 +265,20 @@ int query_known_exit(string name)
 void open_msg(string door, object ob, int flag);
 void close_msg(string door, object ob, int flag);
 
+// set while a hidden living opens or closes the door unnoticed: nobody is told
+private int quiet;
+
+// Whether a hidden living working the door goes unnoticed, in this room and in
+// the one on the other side (see the sneak skill).
+private int try_quiet(object who)
+{
+  object other_door;
+
+  other_door = query_other_side_door(0);
+  return (int)load_object("/lib/obj/skills/sneak")->try_quiet_door(who,
+    environment(), other_door ? environment(other_door) : nil);
+}
+
 // Whether somebody carries the right of the house this door belongs to. A
 // family's own door is locked to everybody else and opens for its members with
 // no key at all: what they have instead of one is being of the house.
@@ -416,7 +430,8 @@ int do_open(varargs string str)
     }
 
     set_status(1);
-    
+
+    quiet = try_quiet(this_player());
     open_msg(dest, this_player(), 0); 
 
     other_door = query_other_side_door(1);    
@@ -425,6 +440,7 @@ int do_open(varargs string str)
       other_door->set_status(1);
       open_msg(dir_other_side, other_door, 1);
     }
+    quiet = 0;
     return 1; 
   }
 }
@@ -550,6 +566,7 @@ int do_close(varargs string str)
   else 
   {
     set_status(0);
+    quiet = try_quiet(this_player());
     close_msg(dest, this_player(), 0);
 
     other_door = query_other_side_door(1);
@@ -559,6 +576,7 @@ int do_close(varargs string str)
       other_door->set_status(0);
       close_msg(dir_other_side, other_door, 1);
     }
+    quiet = 0;
   }
 
   if (with_key)
@@ -583,9 +601,10 @@ void open_msg(string door, object ob, int flag)
   if (flag == 0)
   {
     tell_object(ob, _LANG_DOOR_YOU_OPEN);
-    tell_room(environment(ob), _LANG_DOOR_PLAYER_OPENS, ({ ob }));
+    if (!quiet)
+      tell_room(environment(ob), _LANG_DOOR_PLAYER_OPENS, ({ ob }));
   }
-  else
+  else if (!quiet)
     tell_room(environment(ob), _LANG_DOOR_SOMEBODY_OPENS);
 }
 
@@ -594,9 +613,10 @@ void close_msg(string door, object ob, int flag)
   if (flag == 0)
   {
     tell_object(ob, _LANG_DOOR_YOU_CLOSE);
-    tell_room(environment(ob), _LANG_DOOR_PLAYER_CLOSES, ({ ob }));
+    if (!quiet)
+      tell_room(environment(ob), _LANG_DOOR_PLAYER_CLOSES, ({ ob }));
   }
-  else
+  else if (!quiet)
     tell_room(environment(ob), _LANG_DOOR_SOMEBODY_CLOSES);
 }
 

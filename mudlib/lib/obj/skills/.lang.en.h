@@ -341,3 +341,24 @@
 #define _LANG_SKILL_PULLING_HELP "With 'pull <corpse>' or 'pull <part> from <corpse>', " + \
       "wielding a knife or a dagger, you take the teeth, fangs, claws or horns out of a " + \
       "body. They do not rot. It improves with practice.\n"
+
+// sneak.c
+
+#define _LANG_SKILL_SNEAK_NAME "sneak"
+#define _LANG_SKILL_SNEAK_ALIASES ({ })
+#define _LANG_SKILL_SNEAK_HELP "With 'sneak <direction>' you take a step that nobody sees " + \
+      "you leave or arrive. With nobody around to notice you it always works and costs " + \
+      "nothing. With somebody there it depends on how well you know the skill and on your " + \
+      "dexterity, darkness helps, and it costs one point of energy; without it you do not " + \
+      "try and take a step like anyone else. It does not tell you whether it worked: if " + \
+      "you fail, you are seen. A sneaking step does not break your hiding. While hidden, " + \
+      "opening or closing a door has the same chance of being done in silence without " + \
+      "giving you away. It is useless with a lot of light on you, or in the middle of a " + \
+      "fight.\n"
+#define _LANG_SKILL_SNEAK_WHICH_WAY "Which way do you want to sneak?\n"
+#define _LANG_SKILL_SNEAK_NOT_THERE "You see no way to sneak there.\n"
+#define _LANG_SKILL_SNEAK_BRIGHT "It is useless to sneak with so much light on you: " + \
+      "you look like a walking torch.\n"
+#define _LANG_SKILL_SNEAK_NO_SURFACE "The ground here will not let you pass unnoticed.\n"
+#define _LANG_SKILL_SNEAK_STUCK "You fail to sneak that way.\n"
+#define _LANG_SKILL_SNEAK_GO "You sneak " + dir + ".\n"

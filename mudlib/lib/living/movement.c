@@ -28,9 +28,13 @@ inherit container "/lib/core/basic/container";
 
 string * move_msgs;
 
+// moving without being seen (see the sneak skill): not saved
+static int sneaking;
+
 void create()
 {
   move_msgs = ({ "", "", "", "" });
+  sneaking = 0;
 
   // from here we inherit object.c, were the call to
   // setup is, so it must be the last create call
@@ -59,6 +63,9 @@ private void _ensure_move_msgs()
   if (!move_msgs || sizeof(move_msgs) < 4)
     move_msgs = ({ "", "", "", "" });
 }
+
+int query_sneaking() { return sneaking; }
+void set_sneaking(int i) { sneaking = i; }
 
 // Resolved messages (defaults filled in), the public 4-tuple contract.
 string * query_move_messages()
@@ -92,8 +99,13 @@ int move_living(string dir, mixed dest, varargs mixed message, mixed enter)
 
   last = environment();
 
+  // sneaking: nobody sees us leave or arrive, and nobody comes along
+  if (sneaking)
+    message = "none";
+
   // those following us here, who will try to come along
-  group = (dir && dir != "X") ? this_object()->query_followers_here() : ({ });
+  group = (dir && dir != "X" && !sneaking) ?
+            this_object()->query_followers_here() : ({ });
 
   if (!this_object()->query_invis())
   {
