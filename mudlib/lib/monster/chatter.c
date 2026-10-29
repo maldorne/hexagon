@@ -283,7 +283,7 @@ string chat_expand_string(object me, string in_str, varargs object on, object at
     }
   }
 
-  if (ret[strlen(ret)-1] == '$')
+  if (strlen(ret) && ret[strlen(ret)-1] == '$')
     ret = ret[0..strlen(ret)-2];
   
   if (!stringp(ret))
