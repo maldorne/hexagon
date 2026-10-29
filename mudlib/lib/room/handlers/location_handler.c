@@ -1391,6 +1391,22 @@ object convert_room_to_location(object room)
     ret += "   Adding component maze.\n";
   }
 
+  // A room that answers query_crossing() leads astray whoever leaves it
+  // without keeping their bearings; query_crossing_races() lists the races
+  // that always find their way
+  if (function_exists("query_crossing", room) && room->query_crossing())
+  {
+    string * free_races;
+
+    free_races = function_exists("query_crossing_races", room) ?
+                 room->query_crossing_races() : ({ });
+    if (location->has_component(LOCATION_COMPONENT_CROSSING))
+      location->remove_component(LOCATION_COMPONENT_CROSSING);
+    location->add_component(LOCATION_COMPONENT_CROSSING,
+                            ([ "free_races": free_races ]));
+    ret += "   Adding component crossing.\n";
+  }
+
   // A sign posted in the room (add_sign) becomes a sign component on the
   // location, which re-materialises the read-able item on every load.
   // Ventures (pub, shop), post offices, vaults, fines offices, temples, libraries and the

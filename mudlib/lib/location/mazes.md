@@ -122,3 +122,26 @@ specific maze) opt in explicitly by removing the maze filter.
 - `lib/location/area.c::query_maze_locations` — area-side derived accessor.
 - `lib/handlers/sectors.c::add_location` — lifts flag, forwards to sector, collision warning.
 - `lib/location/sector.c` — `maze_positions` mapping, `is_maze_at`, accessors.
+
+## 6. Crossings
+
+A crossing is a single location where whoever does not keep their bearings
+leaves by a random exit instead of the one typed. It is not a maze: no maze
+flag, no sector index entry.
+
+A room declares it with two functions: `query_crossing()` returning 1 and,
+optionally, `query_crossing_races()` returning the race ids that always find
+their way. `room2loc` then attaches `LOCATION_COMPONENT_CROSSING`
+(`/lib/location/components/crossing.c`) with those races, which hooks
+`do_exit_command` like the maze component. The mover keeps the typed exit when,
+in order:
+
+1. its race id is in the free races;
+2. its orientation skill is above `sure_orientation` (40);
+3. it passes a perception roll, `random(query_per()) > roll` (6), which also
+   raises the orientation by one point.
+
+Otherwise it is told it is disoriented and takes one of the visible (not
+sealed) exits at random. A mover without the orientation skill learns it at
+the first crossing. The three tunables (`free_races`, `sure_orientation`,
+`roll`) are saved with the component.

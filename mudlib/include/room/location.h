@@ -16,6 +16,9 @@
 #define LOCATION_COMPONENT_PUB         "pub"
 #define LOCATION_COMPONENT_OUTSIDE     "outside"
 #define LOCATION_COMPONENT_MAZE        "maze"
+// Leads astray whoever leaves without keeping their bearings. See
+// /lib/location/components/crossing.c.
+#define LOCATION_COMPONENT_CROSSING    "crossing"
 #define LOCATION_COMPONENT_PROPS       "props"
 #define LOCATION_COMPONENT_SIGN        "sign"
 #define LOCATION_COMPONENT_POST_OFFICE "post-office"
