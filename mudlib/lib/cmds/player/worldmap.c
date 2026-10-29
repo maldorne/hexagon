@@ -51,12 +51,54 @@ private int legend_width()
   return best;
 }
 
+/**
+ * Lays the legend entries out in two columns, filling the first top to
+ * bottom and then the second. Each column is padded to the widest entry of
+ * the first one; with one entry, or when two columns do not fit in `avail`
+ * visible columns, it falls back to one column.
+ *
+ * @param entries the legend lines, colour codes allowed
+ * @param avail the visible width the frame content has
+ * @return the lines joined, each ending in a line break
+ */
+private string legend_columns(string * entries, int avail)
+{
+  string out;
+  int i, rows, pad, widest, size;
+
+  size = sizeof(entries);
+  widest = 0;
+  rows = (size + 1) / 2;
+  for (i = 0; i < rows; i++)
+    if (strlen(fix_string(entries[i]), 1) > widest)
+      widest = strlen(fix_string(entries[i]), 1);
+
+  // one column when the second would not fit
+  if (size < 2 || widest + 2 + widest > avail)
+    rows = size;
+
+  out = "";
+  for (i = 0; i < rows; i++)
+  {
+    out += entries[i];
+    if (i + rows < size)
+    {
+      for (pad = widest - strlen(fix_string(entries[i]), 1) + 2; pad > 0; pad--)
+        out += " ";
+      out += entries[i + rows];
+    }
+    out += "\n";
+  }
+
+  return out;
+}
+
 // The legend under the map: your position always, and each other kind of
-// sector only when the map shows one.
-private string legend(string map)
+// sector only when the map shows one. `avail` is the width of the frame.
+private string legend(string map, int avail)
 {
   mapping glyphs;
-  string * kinds, * labels;
+  string * kinds, * labels, * entries;
   string out;
   int i;
 
@@ -64,7 +106,7 @@ private string legend(string map)
   kinds = ({ "player", "city", "forest", "forest-city", "farm", "plains", "swamp", "mountain", "taiga", "ruins", "river", "coast", "beach", "underground" });
   labels = legend_labels();
 
-  out = "\n" + _LANG_CMD_WORLDMAP_LEGEND + ":\n";
+  entries = ({ });
   for (i = 0; i < sizeof(kinds); i++)
   {
     mixed seen;
@@ -84,10 +126,11 @@ private string legend(string map)
       shown = sizeof(explode("#" + map + "#", seen[j])) > 1;
 
     if (shown)
-      out += "  " + glyphs[kinds[i]][1] + " : " + labels[i] + "\n";
+      entries += ({ "  " + glyphs[kinds[i]][1] + " : " + labels[i] });
   }
 
-  return out;
+  out = "\n" + _LANG_CMD_WORLDMAP_LEGEND + ":\n";
+  return out + legend_columns(entries, avail);
 }
 
 static int cmd(string str, object me, string verb)
@@ -144,6 +187,6 @@ static int cmd(string str, object me, string verb)
 
   // wrap the grid in the parchment frame, matching the location-level
   // map command's presentation
-  write("\n" + handler("frames")->frame(map + legend(map), "", 0, 0, "scroll") + "\n");
+  write("\n" + handler("frames")->frame(map + legend(map, (width > legend_width() ? width : legend_width())), "", 0, 0, "scroll") + "\n");
   return 1;
 }
