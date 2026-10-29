@@ -269,9 +269,11 @@ private string render_table(object env, mixed * checks, varargs int full)
   {
     string dest;
 
+    // a destination too long loses its start: the file name is what tells
+    // the exits apart
     dest = dests[i];
     if (strlen(dest) > dest_width)
-      dest = dest[0 .. dest_width - 4] + "...";
+      dest = "..." + dest[strlen(dest) - dest_width + 3 ..];
 
     ret += sprintf("  %-9s %-8s %-*s  ", checks[i][0],
                    env->query_ex_type(checks[i][0]), dest_width, dest) +
