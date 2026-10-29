@@ -290,7 +290,8 @@ void attack()
 
   if (sizeof(away_attackers) > 0)
     tell_object(this_object(), _LANG_COMBAT_CHASING(
-                query_multiple_short(away_attackers), sizeof(away_attackers) > 1));
+                capitalize(query_multiple_short(away_attackers)),
+                sizeof(away_attackers) > 1));
 
   // dw check the not correct environ list to see if any one has come back.  
   expire_chases();
