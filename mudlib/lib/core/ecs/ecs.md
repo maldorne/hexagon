@@ -64,6 +64,26 @@ An NPC runs two chains in a fight (`/lib/npc.c`): `choose_effect`, a pipeline ov
 the context of what it casts (see `lib/living/combat.md`), and `flee`, a reduce
 of votes with the `_flee_verdict` combinator, where a veto always wins.
 
+#### The strategy component
+
+`strategy` (`/lib/npc/components/strategy.c`) holds one clone of a strategy, the
+state machine of a boss (`/lib/npc/strategy.c` is the base; a game's own live
+in `/games/<game>/strategies/<id>.c`, the shared ones in `/lib/npc/strategies/`).
+Template: `"strategy": { "id": "<id>" }`. It joins the `choose_effect` chain
+(last) and the `flee` chain, passes on `placed`, `event_enter`, `event_exit`,
+`event_fight_in_progress`, `event_revealed` and `died`, and runs a `call_out`
+tick only while the current state asks for one. Only `id` and `home` (the
+location file it returns to, set at the first placement) are persisted; a
+restored NPC starts again from `placed()`.
+
+A strategy declares the functions it owns in `query_owned()`, and the lower
+level is off for them: `"wander"` (`query_staying_put` in `/lib/npc.c`),
+`"follow"` (`event_exit` in `/lib/monster.c`), `"flee"`, `"choice"`, `"target"`
+and `"hiding"` (the `hidden` component is dropped at placement).
+`query_strategy_owns(what)` on the NPC answers it. A strategy never tries what
+the NPC cannot do now: it picks from the usable effects and `use_skill` checks
+`can_use_effect` first.
+
 ### Verbs
 
 A component stands nowhere, so it cannot carry a verb. One that wants a verb

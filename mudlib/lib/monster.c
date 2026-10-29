@@ -653,7 +653,8 @@ void event_exit(object ob, varargs string mess, object dest, mixed avoid)
 
   ::event_exit(ob, mess, dest, avoid);
 
-  if (!move_after) // we dont move :(
+  // we dont move :(, or a strategy decides where this one goes
+  if (!move_after || this_object()->query_strategy_owns("follow"))
     return;
 
   // follow the suckers.

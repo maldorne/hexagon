@@ -110,11 +110,29 @@ void set_work(string file) { npc_work = file; }
 
 string query_component_dir() { return NPC_COMPONENT_DIR; }
 
+/**
+ * Whether this NPC's strategy owns a function (see /lib/npc/strategy.c), so
+ * the lower level is off for it.
+ *
+ * @param  what  the function: "wander", "follow", "flee", ...
+ * @return 1 when the strategy owns it
+ */
+int query_strategy_owns(string what)
+{
+  object s;
+
+  s = query_component_by_type("strategy");
+  return s ? (int)s->query_owns(what) : 0;
+}
+
 // Whether this NPC's routine keeps it where it is (at home for the night), so
 // it does not wander off.
 int query_staying_put()
 {
   object sched;
+
+  if (query_strategy_owns("wander"))
+    return 1;
 
   sched = query_component_by_type("schedule");
   return sched ? (int)sched->query_staying_put() : 0;
