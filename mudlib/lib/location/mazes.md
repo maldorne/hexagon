@@ -22,16 +22,18 @@ void setup()
 ```
 
 `MAZE_PROP` lives in `include/room/room.h`. Exits stay
-geographically coherent — the maze **is not** randomised at runtime;
-disorientation is achieved through the intentionally contradictory
-exit graph the builder declares.
+geographically coherent: the maze feel comes from the component, which
+scrambles the direction a mover types (section 2).
 
 ## 2. Conversion to a location
 
 `room2loc` runs `LOCATION_HANDLER::convert_room_to_location`, which
 detects `room->query_property(MAZE_PROP)` and attaches the
-`LOCATION_COMPONENT_MAZE` component to the new location. The
-component itself carries no data today — it is a marker.
+`LOCATION_COMPONENT_MAZE` component to the new location. The component
+carries no data; it hooks `do_exit_command` and, unless the mover passes
+an orientation check (`random(100) < ability`), swaps the typed direction
+for a random one among the location's exits. A mover without the skill
+learns it the first time the swap lands on the direction typed.
 
 ```c
 #define LOCATION_COMPONENT_MAZE "maze"   // include/room/location.h
