@@ -83,7 +83,7 @@ private string * glyphs;
 
 void create()
 {
-  string * way_table, * river_table;
+  string * way_table, * river_table, * shapes, * colours;
   int i, n, s, e, w;
 
   ::create();
@@ -106,8 +106,16 @@ void create()
   glyphs[MAP_GLYPH_TAIGA] = "%^GREEN%^" + GLYPH_MAP_TAIGA + "%^RESET%^";
   glyphs[MAP_GLYPH_RUINS]    = GLYPH_MAP_RUINS;
   // the shore in the colour of the water, a beach in the colour of sand
-  glyphs[MAP_GLYPH_COAST]    = COLOUR_RIVER + GLYPH_MAP_COAST + "%^RESET%^";
-  glyphs[MAP_GLYPH_BEACH]    = "%^YELLOW%^" + GLYPH_MAP_COAST + "%^RESET%^";
+  glyphs[MAP_GLYPH_COAST]    = COLOUR_SHORE_COAST + GLYPH_MAP_COAST + "%^RESET%^";
+  glyphs[MAP_GLYPH_BEACH]    = COLOUR_SHORE_BEACH + GLYPH_MAP_COAST + "%^RESET%^";
+
+  // the shoreline of each kind of coast, one glyph per shape
+  shapes = GLYPH_SHORE_SHAPES;
+  colours = ({ COLOUR_SHORE_COAST, COLOUR_SHORE_BEACH, COLOUR_SHORE_CLIFF });
+  for (i = 0; i < MAP_SHORE_KINDS; i++)
+    for (n = 0; n < MAP_SHORE_SHAPES; n++)
+      glyphs[MAP_GLYPH_SHORE + i * MAP_SHORE_SHAPES + n] =
+        colours[i] + shapes[n] + "%^RESET%^";
 
   // a bridge is part of the road, so it is drawn in the road's plain colour
   glyphs[MAP_GLYPH_BRIDGE_V] =
@@ -336,6 +344,70 @@ private int _plains_code(int sx, int sy, int sz)
 // the ruins glyph over everything but a city.
 #define RUINS_OVERRIDE_MIN 5
 
+/**
+ * Whether the sector at (sx, sy, sz) counts as sea for a shoreline: it does
+ * not exist or has no locations.
+ */
+private int _is_sea(string game, string map_name, int sx, int sy, int sz)
+{
+  object sect;
+  mapping locs;
+
+  sect = cached_sector(game, map_name, sx, sy, sz);
+  if (!sect)
+    return 1;
+  locs = sect->query_locations();
+  return !mappingp(locs) || !map_sizeof(locs);
+}
+
+/**
+ * The code of a coast sector: the shoreline on its sea side, in the colour of
+ * its kind (beach, cliff, any other coast). Sea on one side gives that side's
+ * line; on two adjacent sides, or on a diagonal alone, a slash (sea north-west
+ * or south-east) or a backslash (north-east or south-west). Sea on opposite
+ * sides, on three or more, or nowhere keeps the plain coast glyph.
+ *
+ * Neighbour convention as in _arms_code: north is a larger y, east a larger x.
+ */
+private int _shore_code(object sect, string game, string map_name,
+                        int sx, int sy, int sz)
+{
+  int n, s, e, w, kind, shape;
+
+  n = _is_sea(game, map_name, sx, sy + 1, sz);
+  s = _is_sea(game, map_name, sx, sy - 1, sz);
+  e = _is_sea(game, map_name, sx + 1, sy, sz);
+  w = _is_sea(game, map_name, sx - 1, sy, sz);
+
+  kind = sect->query_beach() ? 1 : (sect->query_cliff() ? 2 : 0);
+  shape = -1;
+
+  switch (n + s + e + w)
+  {
+    case 0:
+      if (_is_sea(game, map_name, sx - 1, sy + 1, sz) ||
+          _is_sea(game, map_name, sx + 1, sy - 1, sz))
+        shape = 4;
+      else if (_is_sea(game, map_name, sx + 1, sy + 1, sz) ||
+               _is_sea(game, map_name, sx - 1, sy - 1, sz))
+        shape = 5;
+      break;
+    case 1:
+      shape = n ? 0 : (s ? 1 : (w ? 2 : 3));
+      break;
+    case 2:
+      if ((n && w) || (s && e))
+        shape = 4;
+      else if ((n && e) || (s && w))
+        shape = 5;
+      break;
+  }
+
+  if (shape < 0)
+    return kind == 1 ? MAP_GLYPH_BEACH : MAP_GLYPH_COAST;
+  return MAP_GLYPH_SHORE + kind * MAP_SHORE_SHAPES + shape;
+}
+
 // Display priority for a sector (highest first):
 //   1. city        — any city presence wins; drawn as a solid block, the
 //                    surrounding wall added later by _overlay_city_walls.
@@ -421,7 +493,7 @@ private int sector_code(string game, string map_name, int sx, int sy, int sz)
 
   if (type == SECTOR_TYPE_CITY)        return MAP_GLYPH_CITY;
   if (type == SECTOR_TYPE_COAST)
-    return sect->query_beach() ? MAP_GLYPH_BEACH : MAP_GLYPH_COAST;
+    return _shore_code(sect, game, map_name, sx, sy, sz);
   if (type == SECTOR_TYPE_UNDERGROUND) return MAP_GLYPH_UNDERGROUND;
 
   return MAP_GLYPH_EMPTY;
@@ -946,6 +1018,21 @@ string render(int center_x, int center_y, int center_z,
   return result;
 }
 
+// Every glyph a coast of one kind can be drawn with, colour included, for the
+// legend to look for in a rendered map.
+private string * _shore_glyphs(string colour)
+{
+  string * shapes, * found;
+  int i;
+
+  shapes = GLYPH_SHORE_SHAPES;
+  found = ({ });
+  for (i = 0; i < sizeof(shapes); i++)
+    found += ({ colour + shapes[i] });
+  // the plain glyph of a coast with no sea side
+  return found + ({ colour + GLYPH_MAP_COAST });
+}
+
 // What a legend needs, by kind of sector: the glyph to look for in a rendered
 // map and the same glyph as it is drawn there (with its colour). Ways are left
 // out: a line reads as a road without being told.
@@ -963,8 +1050,9 @@ mapping query_legend_glyphs()
     "taiga":       ({ "%^GREEN%^" + GLYPH_MAP_TAIGA, glyphs[MAP_GLYPH_TAIGA] }),
     "ruins":       ({ GLYPH_MAP_RUINS, glyphs[MAP_GLYPH_RUINS] }),
     "river":       ({ COLOUR_RIVER, glyphs[MAP_GLYPH_RIVERS + 12] }),
-    "coast":       ({ COLOUR_RIVER + GLYPH_MAP_COAST, glyphs[MAP_GLYPH_COAST] }),
-    "beach":       ({ "%^YELLOW%^" + GLYPH_MAP_COAST, glyphs[MAP_GLYPH_BEACH] }),
+    "coast":       ({ _shore_glyphs(COLOUR_SHORE_COAST), glyphs[MAP_GLYPH_SHORE + 4] }),
+    "beach":       ({ _shore_glyphs(COLOUR_SHORE_BEACH), glyphs[MAP_GLYPH_SHORE + MAP_SHORE_SHAPES + 4] }),
+    "cliff":       ({ _shore_glyphs(COLOUR_SHORE_CLIFF), glyphs[MAP_GLYPH_SHORE + 2 * MAP_SHORE_SHAPES + 4] }),
     "underground": ({ glyphs[MAP_GLYPH_UNDERGROUND], glyphs[MAP_GLYPH_UNDERGROUND] }),
   ]);
 }

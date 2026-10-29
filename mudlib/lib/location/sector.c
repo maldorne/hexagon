@@ -100,8 +100,8 @@ void refresh_glyph();
 mixed * query_map_place();
 
 // Every change to the sector ends here. What changed can change its world map
-// glyph and its four neighbours': a way or a river is drawn when either side
-// of a border records it.
+// glyph and its eight neighbours': a way or a river is drawn when either side
+// of a border records it, and a coast follows the sectors around it.
 void save_me() {
   mixed * place;
   object neigh;
@@ -115,9 +115,9 @@ void save_me() {
   if (!place)
     return;
 
-  dx = ({ 0, 0, 1, -1 });
-  dy = ({ 1, -1, 0, 0 });
-  for (i = 0; i < 4; i++)
+  dx = ({ 0, 0, 1, -1, 1, 1, -1, -1 });
+  dy = ({ 1, -1, 0, 0, 1, -1, 1, -1 });
+  for (i = 0; i < 8; i++)
   {
     neigh = load_object(SECTORS_HANDLER)->query_sector_for_coord(place[0],
               place[1], (place[2] + dx[i]) * SECTOR_SIZE,
@@ -601,11 +601,12 @@ int has_locations_of_type(string type)
 }
 
 /**
- * Whether most of the coast locations of the sector are beaches.
+ * Whether more than half of the coast locations of the sector carry a flag.
  *
- * @return 1 when more than half of them are, 0 otherwise
+ * @param flag the key recorded in the location data ("beach", "cliff")
+ * @return 1 when more than half of them do, 0 otherwise
  */
-int query_beach()
+private int _coast_majority(string flag)
 {
   string * files;
   int coast, beach, i;
@@ -620,11 +621,31 @@ int query_beach()
         member_array(SECTOR_TYPE_COAST, locations[files[i]]["types"]) == -1)
       continue;
     coast++;
-    if (locations[files[i]]["beach"])
+    if (locations[files[i]][flag])
       beach++;
   }
 
   return coast && beach * 2 > coast;
+}
+
+/**
+ * Whether most of the coast locations of the sector are beaches.
+ *
+ * @return 1 when more than half of them are, 0 otherwise
+ */
+int query_beach()
+{
+  return _coast_majority("beach");
+}
+
+/**
+ * Whether most of the coast locations of the sector are cliffs.
+ *
+ * @return 1 when more than half of them are, 0 otherwise
+ */
+int query_cliff()
+{
+  return _coast_majority("cliff");
 }
 
 // The sector's dominant type: whichever cartography component is

@@ -34,6 +34,7 @@ private string * legend_labels()
             _LANG_CMD_WORLDMAP_RUINS,
             _LANG_CMD_WORLDMAP_RIVER,
             _LANG_CMD_WORLDMAP_COAST, _LANG_CMD_WORLDMAP_BEACH,
+            _LANG_CMD_WORLDMAP_CLIFF,
             _LANG_CMD_WORLDMAP_UNDERGROUND });
 }
 
@@ -103,7 +104,7 @@ private string legend(string map, int avail)
   int i;
 
   glyphs = handler("worldmap")->query_legend_glyphs();
-  kinds = ({ "player", "city", "forest", "forest-city", "farm", "plains", "swamp", "mountain", "taiga", "ruins", "river", "coast", "beach", "underground" });
+  kinds = ({ "player", "city", "forest", "forest-city", "farm", "plains", "swamp", "mountain", "taiga", "ruins", "river", "coast", "beach", "cliff", "underground" });
   labels = legend_labels();
 
   entries = ({ });

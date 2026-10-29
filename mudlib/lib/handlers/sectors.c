@@ -303,6 +303,8 @@ string add_location(object location)
       coast = location->query_component_by_type(LOCATION_COMPONENT_COAST);
       if (coast && coast->query_kind() == "beach")
         location_data["beach"] = 1;
+      if (coast && coast->query_kind() == "cliff")
+        location_data["cliff"] = 1;
     }
 
     // Lift the location's path / road exits (direction -> way_type) so

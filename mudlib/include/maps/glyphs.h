@@ -196,6 +196,21 @@
 #define GLYPH_MAP_COAST       "~"
 #define GLYPH_MAP_UNDERGROUND "."
 
+// Shoreline glyphs, drawn on the sea side of a coast sector.
+#define GLYPH_SHORE_N      (chr(226) + chr(150) + chr(148))         // U+2594 upper one eighth block
+#define GLYPH_SHORE_S      (chr(226) + chr(150) + chr(129))         // U+2581 lower one eighth block
+#define GLYPH_SHORE_W      (chr(226) + chr(150) + chr(143))         // U+258F left one eighth block
+#define GLYPH_SHORE_E      (chr(226) + chr(150) + chr(149))         // U+2595 right one eighth block
+#define GLYPH_SHORE_SLASH  (chr(226) + chr(149) + chr(177))         // U+2571 diagonal up right (sea north-west or south-east)
+#define GLYPH_SHORE_BACK   (chr(226) + chr(149) + chr(178))         // U+2572 diagonal up left (sea north-east or south-west)
+#define GLYPH_SHORE_SHAPES ({ GLYPH_SHORE_N, GLYPH_SHORE_S, GLYPH_SHORE_W, \
+                              GLYPH_SHORE_E, GLYPH_SHORE_SLASH, GLYPH_SHORE_BACK })
+
+// Colour of each kind of shore.
+#define COLOUR_SHORE_COAST "%^BLUE%^"
+#define COLOUR_SHORE_BEACH "%^YELLOW%^"
+#define COLOUR_SHORE_CLIFF "%^WHITE%^"
+
 // What a sector shows on the world map is one of these codes (a sector keeps
 // its code, see /lib/location/sector.c). The fixed glyphs come first, in
 // MAP_GLYPHS order; then the two bridge crossings, the sixteen ways and the
@@ -221,7 +236,12 @@
 #define MAP_GLYPH_TAIGA        45
 #define MAP_GLYPH_RUINS        46
 #define MAP_GLYPH_BEACH        47  // a coast whose locations are mostly beach
-#define MAP_GLYPH_COUNT        48
+// The shoreline codes: MAP_GLYPH_SHORE + kind * MAP_SHORE_SHAPES + shape, with
+// kind 0 coast, 1 beach, 2 cliff and shape the index in GLYPH_SHORE_SHAPES.
+#define MAP_GLYPH_SHORE        48
+#define MAP_SHORE_SHAPES       6
+#define MAP_SHORE_KINDS        3
+#define MAP_GLYPH_COUNT        (MAP_GLYPH_SHORE + MAP_SHORE_KINDS * MAP_SHORE_SHAPES)
 
 // The fixed glyphs as they are drawn, colour included.
 #define MAP_GLYPHS ({ \
