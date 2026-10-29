@@ -36,6 +36,8 @@ static nomask string game_from_path(string path)
  *  3. **Everything else**: derive it from the object's own
  *     `file_name(ob)` (works for legacy rooms / NPCs / items that are
  *     `.c` files under `/games/<name>/...`).
+ *  4. **Generic objects** (a `/lib/` clone such as a sign or a note):
+ *     the game of their environment, the place or holder they are in.
  *
  * Without an argument, defaults to `this_object()`.
  */
@@ -64,7 +66,11 @@ static nomask string game_name(varargs object ob)
   if (saved && strlen(saved))
     return game_from_path(saved);
 
-  return game_from_path(file_name(ob));
+  saved = game_from_path(file_name(ob));
+  if (!strlen(saved) && environment(ob))
+    return game_name(environment(ob));
+
+  return saved;
 }
 
 /**
