@@ -784,3 +784,26 @@
 #define _LANG_RECORD_NOWHERE "un lugar desconocido"
 #define _LANG_RECORD_STATUS_NAMES ({ "limpio", "sospechoso", "buscado", "proscrito" })
 #define _LANG_RECORD_OFFENCE_NAMES ({ "robo", "agresión", "asesinato", "allanamiento", "agresión a un guardia" })
+
+// bosses
+#define _LANG_CMD_BOSSES_ALIAS ({ "jefes", "bosses" })
+#define _LANG_CMD_BOSSES_SYNTAX "jefes [<nombre>]"
+#define _LANG_CMD_BOSSES_HELP "Muestra los jefes de tu juego, las veces que ha caído cada uno y los jugadores que ha matado. Con un nombre muestra su historial: quién lo derrotó la primera y la última vez, el combate más corto y los últimos grupos que lo vencieron."
+#define _LANG_BOSSES_TITLE "Jefes"
+#define _LANG_BOSSES_BROKEN "Hay algún error con los jefes.\n"
+#define _LANG_BOSSES_PRUNE "depurar"
+#define _LANG_BOSSES_PRUNED "Depurados los jefes: %d quitados.\n"
+#define _LANG_BOSSES_NONE "Todavía no se conoce ningún jefe en este juego.\n"
+#define _LANG_BOSSES_UNKNOWN "No conoces a ningún jefe con ese nombre.\n"
+#define _LANG_BOSSES_TIMES(n) ((n) == 1 ? "1 vez" : (n) + " veces")
+#define _LANG_BOSSES_PLAYERS(n) ((n) == 1 ? "1 jugador" : (n) + " jugadores")
+#define _LANG_BOSSES_LIST_LINE "%s: derrotado %s, ha matado a %s\n"
+#define _LANG_BOSSES_LIST_HINT "Escribe 'jefes <nombre>' para ver su historial.\n"
+#define _LANG_BOSSES_RECORD_TOTALS "Derrotado %s. Ha matado a %s.\n\n"
+#define _LANG_BOSSES_UNDEFEATED "Nadie lo ha derrotado todavía.\n"
+#define _LANG_BOSSES_FIRST "Primera derrota: "
+#define _LANG_BOSSES_LAST "Última derrota: "
+#define _LANG_BOSSES_FASTEST "Combate más corto: "
+#define _LANG_BOSSES_RECENT "Últimos grupos:\n"
+#define _LANG_BOSSES_NOBODY "nadie"
+#define _LANG_BOSSES_DEATH_LINE "%s, golpe final de %s, con %s (%s)"

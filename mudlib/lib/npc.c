@@ -481,6 +481,13 @@ int do_death(varargs object killer)
   return monster::do_death(killer);
 }
 
+// The NPC dealt a killing blow: the components hear whom it killed.
+int do_kill(object victim)
+{
+  run_on_components("event_kill", victim);
+  return monster::do_kill(victim);
+}
+
 void dest_me()
 {
   if (query_dead() && npc_area_path)

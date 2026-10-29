@@ -159,6 +159,15 @@ private string craft_mark(object ob, object me)
   return _LANG_CRAFT_MARK;
 }
 
+// A boss is marked for everybody, in its own colour.
+private string boss_mark(object ob, object me)
+{
+  if (!ob || !me || !ob->query_component_by_type("boss"))
+    return "";
+
+  return _LANG_BOSS_MARK;
+}
+
 // important change in this function: now npcs and players are treated the same
 // both shown in the same line, and both with colors if needed, see
 // /lib/handlers/pov.c
@@ -216,7 +225,8 @@ string query_contents(string str, varargs object *obs)
     // only when alone: a group is named in the plural and the mark would not
     // say which of them it is about
     if (j <= 1)
-      ret += quest_mark(inv[1][i][0], me) + craft_mark(inv[1][i][0], me);
+      ret += quest_mark(inv[1][i][0], me) + craft_mark(inv[1][i][0], me) +
+                boss_mark(inv[1][i][0], me);
 
     count--;
     if (count > 1)
@@ -244,7 +254,7 @@ string query_contents(string str, varargs object *obs)
       continue;
     }
     ret += capitalize(inv[2][i]) + quest_mark(inv[3][i][0], me) +
-           craft_mark(inv[3][i][0], me) + ".\n";
+           craft_mark(inv[3][i][0], me) + boss_mark(inv[3][i][0], me) + ".\n";
   }  
 
   return ret;

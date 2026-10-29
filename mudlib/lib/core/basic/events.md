@@ -258,6 +258,16 @@ argument: `event(neighbour, "pub_brawl", this_object())`. Meant for things next
 door that want to join a pub fight; no object in the mudlib defines
 `event_pub_brawl`.
 
+### kill
+
+```c
+void event_kill(object victim)
+```
+
+The NPC dealt a killing blow. Not a room event: `do_kill(victim)` in `/lib/npc.c`
+(called by `do_death` of the victim on its killer) forwards it to the NPC's
+components; the boss component counts the players it kills this way.
+
 ### death
 
 ```c

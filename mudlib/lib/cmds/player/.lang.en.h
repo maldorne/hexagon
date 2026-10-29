@@ -779,3 +779,26 @@
 #define _LANG_RECORD_NOWHERE "an unknown place"
 #define _LANG_RECORD_STATUS_NAMES ({ "clean", "suspect", "wanted", "outlaw" })
 #define _LANG_RECORD_OFFENCE_NAMES ({ "theft", "assault", "murder", "trespass", "assault on a guard" })
+
+// bosses
+#define _LANG_CMD_BOSSES_ALIAS ({ "bosses", "jefes" })
+#define _LANG_CMD_BOSSES_SYNTAX "bosses [<name>]"
+#define _LANG_CMD_BOSSES_HELP "Shows the bosses of your game, how many times each has been defeated and how many players it has killed. With a name it shows its record: who defeated it the first and the last time, the shortest fight and the latest groups to beat it."
+#define _LANG_BOSSES_TITLE "Bosses"
+#define _LANG_BOSSES_BROKEN "Something is wrong with the bosses.\n"
+#define _LANG_BOSSES_PRUNE "prune"
+#define _LANG_BOSSES_PRUNED "Bosses pruned: %d removed.\n"
+#define _LANG_BOSSES_NONE "No boss is known in this game yet.\n"
+#define _LANG_BOSSES_UNKNOWN "You know of no boss by that name.\n"
+#define _LANG_BOSSES_TIMES(n) ((n) == 1 ? "once" : (n) + " times")
+#define _LANG_BOSSES_PLAYERS(n) ((n) == 1 ? "1 player" : (n) + " players")
+#define _LANG_BOSSES_LIST_LINE "%s: defeated %s, has killed %s\n"
+#define _LANG_BOSSES_LIST_HINT "Type 'bosses <name>' to see its record.\n"
+#define _LANG_BOSSES_RECORD_TOTALS "Defeated %s. It has killed %s.\n\n"
+#define _LANG_BOSSES_UNDEFEATED "Nobody has defeated it yet.\n"
+#define _LANG_BOSSES_FIRST "First defeat: "
+#define _LANG_BOSSES_LAST "Latest defeat: "
+#define _LANG_BOSSES_FASTEST "Shortest fight: "
+#define _LANG_BOSSES_RECENT "Latest groups:\n"
+#define _LANG_BOSSES_NOBODY "nobody"
+#define _LANG_BOSSES_DEATH_LINE "%s, final blow by %s, with %s (%s)"
