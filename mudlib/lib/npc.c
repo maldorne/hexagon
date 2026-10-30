@@ -64,6 +64,10 @@ string npc_monster_location;
 // where it physically is (its position) is tracked in the areas handler.
 string npc_work;
 
+// A boss keeps the hit points its template pins, whatever level its area or a
+// relevel gives it; 0 when it has none. Persisted with the NPC.
+int boss_max_hp;
+
 void create()
 {
   monster::create();
@@ -77,7 +81,27 @@ void create()
   npc_given_name = nil;
   npc_work = nil;
   npc_monster_location = nil;
+  boss_max_hp = 0;
   entity::create();
+}
+
+/**
+ * Sets the level as any monster does; a boss then gets back the hit points
+ * its template pins.
+ */
+int set_level(int i)
+{
+  int level;
+
+  level = monster::set_level(i);
+
+  if (boss_max_hp > 0)
+  {
+    set_max_hp(boss_max_hp);
+    set_hp(query_max_hp(), this_object());
+  }
+
+  return level;
 }
 
 int query_persisted();
@@ -1020,6 +1044,10 @@ void apply_template(mapping t, varargs int born)
     set_max_hp(t["max_hp"]);
     set_hp(query_max_hp(), this_object());
   }
+
+  // a boss's hit points stand over any level set after this
+  boss_max_hp = (t["max_hp"] && mappingp(t["components"]) &&
+                 !undefinedp(t["components"]["boss"])) ? t["max_hp"] : 0;
   if (t["max_gp"])
   {
     set_max_gp(t["max_gp"]);
