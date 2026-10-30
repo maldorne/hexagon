@@ -455,6 +455,30 @@ private int visible_exit(mixed exit)
 }
 
 /**
+ * Whether the area saved in a folder (or in its rooms folder) is drawn on a map
+ * other than the one being dumped.
+ */
+private int on_other_map(string dir)
+{
+  mapping data;
+  string name;
+
+  if (file_size(dir + "area.o") <= 0)
+    dir += "rooms/";
+
+  if (file_size(dir + "area.o") <= 0)
+    return 0;
+
+  data = reader->read(dir + "area.o");
+
+  if (!data || !stringp(data["map_name"]))
+    return 0;
+
+  name = strip_colours(data["map_name"]);
+  return strlen(name) && name != wanted_name;
+}
+
+/**
  * Lists a folder: its .o files into the files list and its sub-folders into
  * the pending ones.
  */
@@ -473,8 +497,9 @@ private void scan_folder(string dir)
     if (entries[i][1] == -2)
     {
       // another area's folder is not part of this dump unless asked for
+      // nor is a sub-area drawn on a map of its own, even when asked for
       if ((with_sub_areas || file_size(dir + name + "/area.o") <= 0) &&
-          !queued[dir + name + "/"])
+          !queued[dir + name + "/"] && !on_other_map(dir + name + "/"))
       {
         queued[dir + name + "/"] = 1;
         pending_dirs += ({ dir + name + "/" });

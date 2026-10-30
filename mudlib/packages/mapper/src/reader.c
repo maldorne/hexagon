@@ -26,6 +26,18 @@ mapping read(string path)
 
   result = -1;
 
+  // a field missing from this save must not keep the previous save's value
+  file_name = nil;
+  coordinates = nil;
+  _exit_map = nil;
+  component_info = nil;
+  _specific_short = nil;
+  _original_short = nil;
+  room_zones = nil;
+  exploration_name = nil;
+  map_name = nil;
+  parent_area = nil;
+
   if (catch(result = restore_object(path)) || result < 0)
     return nil;
 
