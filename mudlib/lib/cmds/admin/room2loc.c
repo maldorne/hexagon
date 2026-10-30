@@ -62,7 +62,13 @@ void setup()
            "  room2loc clean <path>            preview orphans\n" +
            "  room2loc clean apply <path>      remove orphans\n" +
            "  room2loc clean all <path>        preview full wipe\n" +
-           "  room2loc clean all apply <path>  execute full wipe\n");
+           "  room2loc clean all apply <path>  execute full wipe\n" +
+           "\n" +
+           "Every pass (conversion, coordinate placing, clean) runs in the\n" +
+           "background in chunks and works from file names, loading each\n" +
+           "location when its turn comes, so a folder of any size is fine:\n" +
+           "the location cleaner unloading idle locations meanwhile does not\n" +
+           "matter. The report arrives when the pass ends.\n");
 }
 
 static int _filter_dot_c(string file)
@@ -123,7 +129,8 @@ static int do_coords(string str)
 
   // propagate to neighbours that have no coordinates yet — map topology
   // wins over the seed if a connected neighbour is already coordinated
-  load_object(LOCATION_HANDLER)->do_guess_coordinates(({ location }), 1);
+  load_object(LOCATION_HANDLER)->do_guess_coordinates(
+    ({ location->query_file_name() }), 1);
 
   // re-load and report what actually stuck
   location = load_object(LOCATION_HANDLER)->load_location(file);

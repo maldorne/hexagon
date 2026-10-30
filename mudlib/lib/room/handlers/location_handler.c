@@ -434,110 +434,74 @@ mixed uncarve_location(object loc, string dir, string allowed,
 void continue_guess_coordinates(mapping state);
 private int _guess_out_of_ticks(mapping state);
 
-// One line per location with its file and coordinates, "no coords" when the
-// inference could not place it. `old` (file name -> previous coordinates)
-// marks the locations a recompute moved and ends with a count of them.
-private void _print_coordinates(object * locations, varargs mapping old)
+/**
+ * Print the line of the coordinate report for one location: its file and
+ * coordinates, "no coords" when the inference could not place it. A location
+ * the recompute moved is marked with its previous coordinates.
+ *
+ * @param state the walk, holding "old_coords" (file name -> previous
+ *              coordinates, or nil) and the running "moved" count
+ * @param file the location file to report
+ */
+private void _print_coordinate_line(mapping state, string file)
 {
-  int i, moved;
+  object location;
+  int * coords, * before;
 
-  for (i = 0; i < sizeof(locations); i++)
+  location = load_object(LOCATION_HANDLER)->load_location(file);
+  if (!location)
+    return;
+  coords = location->query_coordinates();
+  before = state["old_coords"] ? state["old_coords"][file] : nil;
+  write("  " + get_path_file_name(file) + " -> " +
+        (coords ? "(" + coords[0] + "," + coords[1] + "," + coords[2] + ")" :
+                  "no coords"));
+  if (before && (!coords || coords[0] != before[0] ||
+                 coords[1] != before[1] || coords[2] != before[2]))
   {
-    int * coords, * before;
-
-    if (!locations[i])
-      continue;
-    coords = locations[i]->query_coordinates();
-    before = old ? old[locations[i]->query_file_name()] : nil;
-    write("  " + get_path_file_name(locations[i]->query_file_name()) + " -> " +
-          (coords ? "(" + coords[0] + "," + coords[1] + "," + coords[2] + ")" :
-                    "no coords"));
-    if (before && (!coords || coords[0] != before[0] ||
-                   coords[1] != before[1] || coords[2] != before[2]))
-    {
-      write(" (was " + before[0] + "," + before[1] + "," + before[2] + ")");
-      moved++;
-    }
-    write("\n");
+    write(" (was " + before[0] + "," + before[1] + "," + before[2] + ")");
+    state["moved"]++;
   }
-
-  if (old)
-    write("  " + moved + " location" + (moved == 1 ? "" : "s") + " moved.\n");
+  write("\n");
 }
 
-// Forget the coordinates of every location whose connected group (over grid
-// exits, counting only links between members of `locations`) touches a
-// coordinated location outside the set, so inference places the group again
-// from that anchor. Groups with no outside anchor keep their coordinates:
-// they were seeded by hand. Returns file name -> previous coordinates for
-// every location that had some.
-private mapping _clear_anchored_components(object * locations)
+/**
+ * Group the set over its grid links and list the files whose group touches a
+ * coordinated location outside the set, so inference places them again from
+ * that anchor. Groups with no outside anchor keep their coordinates: they were
+ * seeded by hand. Works on the data gathered by the scan pass, never on
+ * objects.
+ *
+ * @param files the file names of the set
+ * @param links file name -> files linked to it (counted in both directions)
+ * @param anchored file name -> 1 when it has an exit to a coordinated
+ *                 location outside the set
+ * @return the files whose coordinates must be cleared
+ */
+private string * _anchored_files(string * files, mapping links,
+                                  mapping anchored)
 {
-  string * grid, * file_names, * stack;
-  mapping old, links, group, anchored, in_set;
+  string * stack, * to_clear;
+  mapping group;
   int i, j, g;
 
-  grid = ({ DIR_NORTH, DIR_SOUTH, DIR_EAST, DIR_WEST, DIR_NORTHWEST,
-            DIR_NORTHEAST, DIR_SOUTHWEST, DIR_SOUTHEAST, DIR_UP, DIR_DOWN });
-  file_names = ({ });
-  old = ([ ]);
-  links = ([ ]);
-  anchored = ([ ]);
-  in_set = ([ ]);
-
-  for (i = 0; i < sizeof(locations); i++)
-  {
-    file_names += ({ locations[i]->query_file_name() });
-    in_set[locations[i]->query_file_name()] = 1;
-    links[locations[i]->query_file_name()] = ({ });
-  }
-
-  for (i = 0; i < sizeof(locations); i++)
-  {
-    string * exits, name;
-
-    name = locations[i]->query_file_name();
-    if (locations[i]->query_coordinates())
-      old[name] = locations[i]->query_coordinates();
-
-    exits = locations[i]->query_dest_dir();
-    for (j = 0; j < sizeof(exits); j += 2)
-    {
-      object dest;
-
-      if (member_array(exits[j], grid) == -1)
-        continue;
-
-      if (in_set[exits[j + 1]])
-      {
-        // links count in both directions, exits may be one-way
-        links[name] += ({ exits[j + 1] });
-        links[exits[j + 1]] += ({ name });
-        continue;
-      }
-
-      dest = load_object(LOCATION_HANDLER)->load_location(exits[j + 1]);
-      if (dest && dest->query_coordinates())
-        anchored[name] = 1;
-    }
-  }
+  to_clear = ({ });
+  group = ([ ]);
 
   // walk each group; clear it when any member is anchored
-  group = ([ ]);
-  for (i = 0; i < sizeof(file_names); i++)
+  for (i = 0; i < sizeof(files); i++)
   {
     string * members;
-    mapping in_group;
     int anchor;
 
-    if (group[file_names[i]])
+    if (group[files[i]])
       continue;
 
     g = i + 1;
     members = ({ });
     anchor = 0;
-    stack = ({ file_names[i] });
-    group[file_names[i]] = g;
+    stack = ({ files[i] });
+    group[files[i]] = g;
 
     while (sizeof(stack))
     {
@@ -558,37 +522,92 @@ private mapping _clear_anchored_components(object * locations)
       }
     }
 
-    if (!anchor)
-      continue;
-
-    in_group = ([ ]);
-    for (j = 0; j < sizeof(members); j++)
-      in_group[members[j]] = 1;
-
-    for (j = 0; j < sizeof(locations); j++)
-      if (in_group[locations[j]->query_file_name()])
-        locations[j]->clear_coordinates();
+    if (anchor)
+      to_clear += members;
   }
 
-  return old;
+  return to_clear;
 }
 
-// Without `verbose` only the final coordinates of each location are printed;
-// with it, every connection and every exit checked along the way is too.
-// With `recompute`, the locations linked to a coordinated location outside the
-// set are placed again from it instead of keeping their coordinates.
-int do_guess_coordinates(object * locations, varargs int verbose, int recompute)
+/**
+ * Scan one location of the recompute pass: make its exits point at
+ * locations, remember its coordinates, record its grid links to other members
+ * of the set (counted in both directions, exits may be one-way) and whether it
+ * touches a coordinated location outside the set.
+ *
+ * @param state the walk, holding "old_coords", "links" and "anchored"
+ * @param file the location file to scan
+ */
+private void _scan_for_recompute(mapping state, string file)
+{
+  object location;
+  string * exits, * grid;
+  int j;
+
+  location = load_object(LOCATION_HANDLER)->load_location(file);
+  if (!location)
+    return;
+
+  grid = ({ DIR_NORTH, DIR_SOUTH, DIR_EAST, DIR_WEST, DIR_NORTHWEST,
+            DIR_NORTHEAST, DIR_SOUTHWEST, DIR_SOUTHEAST, DIR_UP, DIR_DOWN });
+
+  // exits must point at locations before the grid links can be followed
+  location->update_exits_to_locations();
+
+  if (location->query_coordinates())
+    state["old_coords"][file] = location->query_coordinates();
+
+  exits = location->query_dest_dir();
+  for (j = 0; j < sizeof(exits); j += 2)
+  {
+    object dest;
+
+    if (member_array(exits[j], grid) == -1)
+      continue;
+
+    if (state["in_set"][exits[j + 1]])
+    {
+      // links count in both directions, exits may be one-way
+      state["links"][file] += ({ exits[j + 1] });
+      state["links"][exits[j + 1]] += ({ file });
+      continue;
+    }
+
+    dest = load_object(LOCATION_HANDLER)->load_location(exits[j + 1]);
+    if (dest && dest->query_coordinates())
+      state["anchored"][file] = 1;
+  }
+}
+
+/**
+ * Place the locations of a set from the exit graph. Without `verbose` only the
+ * final coordinates of each location are printed; with it, every connection
+ * and every exit checked along the way is too. With `recompute`, the
+ * locations linked to a coordinated location outside the set are placed again
+ * from it instead of keeping their coordinates.
+ *
+ * The set is given as file names, never objects: the walk spans several
+ * executions and an idle location may be unloaded in between, so each step
+ * loads the location it works on.
+ *
+ * @param location_files the location files to place
+ * @param verbose print every connection and exit checked
+ * @param recompute place again the locations anchored outside the set
+ */
+int do_guess_coordinates(string * location_files, varargs int verbose,
+                         int recompute)
 {
   mapping state;
   int i;
 
-  if (!sizeof(locations))
+  if (!sizeof(location_files))
     return 1;
 
   state = ([
     "verbose":    verbose,
     "recompute":  recompute,
-    "old_coords": nil,
+    "old_coords": ([ ]),
+    "moved":      0,
     "phase":      0,
     "i":          0,
     "pending":    ({ }),
@@ -598,22 +617,23 @@ int do_guess_coordinates(object * locations, varargs int verbose, int recompute)
     "in_set":     ([ ]),
     "file_names": ([ ]),
     "connected":  ([ ]),
+    "links":      ([ ]),
+    "anchored":   ([ ]),
+    "to_clear":   ({ }),
   ]);
 
-  state["files"] = ({ });
-  for (i = 0; i < sizeof(locations); i++)
+  state["files"] = location_files;
+  for (i = 0; i < sizeof(location_files); i++)
   {
-    state["in_set"][locations[i]->query_file_name()] = 1;
-    state["files"] += ({ locations[i]->query_file_name() });
+    state["in_set"][location_files[i]] = 1;
+    state["links"][location_files[i]] = ({ });
   }
 
+  // the recompute passes (scan, clear) run before the walk proper
   if (recompute)
-  {
-    // exits must point at locations before the grid links can be followed
-    for (i = 0; i < sizeof(locations); i++)
-      locations[i]->update_exits_to_locations();
-    state["old_coords"] = _clear_anchored_components(locations);
-  }
+    state["phase"] = -2;
+  else
+    state["old_coords"] = nil;
 
   continue_guess_coordinates(state);
   return 1;
@@ -642,7 +662,6 @@ private void _guess_enqueue(mapping state, object loc)
  */
 void continue_guess_coordinates(mapping state)
 {
-  object * locations;
   string * exits;
   object current;
   object area;
@@ -650,6 +669,42 @@ void continue_guess_coordinates(mapping state)
   int i, j, verbose;
 
   verbose = state["verbose"];
+
+  // -2: scan the set for the recompute: old coordinates, grid links and
+  // anchors outside the set
+  while (state["phase"] == -2)
+  {
+    if (state["i"] >= sizeof(state["files"]))
+    {
+      state["to_clear"] = _anchored_files(state["files"], state["links"],
+                                          state["anchored"]);
+      state["phase"] = -1;
+      state["i"] = 0;
+      break;
+    }
+    if (_guess_out_of_ticks(state))
+      return;
+
+    _scan_for_recompute(state, state["files"][state["i"]++]);
+  }
+
+  // -1: forget the coordinates of the anchored groups
+  while (state["phase"] == -1)
+  {
+    if (state["i"] >= sizeof(state["to_clear"]))
+    {
+      state["phase"] = 0;
+      state["i"] = 0;
+      break;
+    }
+    if (_guess_out_of_ticks(state))
+      return;
+
+    current = load_object(LOCATION_HANDLER)->
+      load_location(state["to_clear"][state["i"]++]);
+    if (current)
+      current->clear_coordinates();
+  }
 
   // 0: find locations in the list with coordinates as starting points,
   // and update every exit to the locations instead of the rooms
@@ -745,13 +800,6 @@ void continue_guess_coordinates(mapping state)
     }
   }
 
-  // the locations as they are now, for the reports
-  locations = ({ });
-  if (state["phase"] >= 2)
-    for (i = 0; i < sizeof(state["files"]); i++)
-      locations += ({ load_object(LOCATION_HANDLER)->
-                        load_location(state["files"][i]) }) - ({ nil });
-
   if (state["phase"] == 2)
   {
     mapping connected;
@@ -776,21 +824,23 @@ void continue_guess_coordinates(mapping state)
     if (!sizeof(state["pending"]))
     {
       write("\n  No locations with coordinates found.\n");
-      _print_coordinates(locations, state["old_coords"]);
-      return;
+      state["phase"] = 5;
+      state["i"] = 0;
     }
+    else
+    {
+      ret = "\nTry guessing missing coordinates ...\n";
+      ret += "Initially we have " + sizeof(state["pending"]) +
+             " locations to check coordinates:\n";
 
-    ret = "\nTry guessing missing coordinates ...\n";
-    ret += "Initially we have " + sizeof(state["pending"]) +
-           " locations to check coordinates:\n";
+      for (i = 0; i < sizeof(state["pending"]); i++)
+        ret += "   - " + state["pending"][i] + "\n";
 
-    for (i = 0; i < sizeof(state["pending"]); i++)
-      ret += "   - " + state["pending"][i] + "\n";
+      if (verbose)
+        write(ret);
 
-    if (verbose)
-      write(ret);
-
-    state["phase"] = 3;
+      state["phase"] = 3;
+    }
   }
 
   // 3: walk the graph from the anchored locations, placing each neighbour
@@ -865,8 +915,31 @@ void continue_guess_coordinates(mapping state)
   }
 
   // the quiet report: one line per location with the coordinates it ended with
-  if (!verbose || state["recompute"])
-    _print_coordinates(locations, state["old_coords"]);
+  if (state["phase"] == 4)
+  {
+    if (!verbose || state["recompute"])
+    {
+      state["phase"] = 5;
+      state["i"] = 0;
+    }
+    else
+      return;
+  }
+
+  while (state["phase"] == 5)
+  {
+    if (state["i"] >= sizeof(state["files"]))
+    {
+      if (state["old_coords"])
+        write("  " + state["moved"] + " location" +
+              (state["moved"] == 1 ? "" : "s") + " moved.\n");
+      return;
+    }
+    if (_guess_out_of_ticks(state))
+      return;
+
+    _print_coordinate_line(state, state["files"][state["i"]++]);
+  }
 }
 
 // Whether the walk should stop here and go on in a call_out of its own: a
@@ -1615,48 +1688,60 @@ string query_room_source(string ofile)
   return nil;
 }
 
-// Border rooms of OTHER areas that the just-converted `locations` point at:
-// the source `.c` of every exit destination whose source is not itself in the
+/**
+ * Note the source `.c` of every room that `location` points at: candidates for
+ * the neighbour border-room pass. Called while the location is alive, one
+ * location at a time, so the batch never keeps location objects between ticks
+ * (the location cleaner may unload an idle one meanwhile).
+ *
+ * @param location a location just converted
+ * @param candidates mapping filled with source path -> 1
+ */
+private void _note_neighbour_sources(object location, mapping candidates)
+{
+  string * dd;
+  int j;
+
+  dd = location->query_dest_dir();
+  if (!arrayp(dd))
+    return;
+
+  // query_dest_dir returns ({ dir, dest, dir, dest, ... })
+  for (j = 1; j < sizeof(dd); j += 2)
+  {
+    string src;
+
+    src = query_room_source(dd[j]);
+    if (src)
+      candidates[src] = 1;
+  }
+}
+
+// Border rooms of OTHER areas that the just-converted locations point at: the
+// source `.c` of every exit destination whose source is not itself in the
 // converted batch. Reconverting these rebuilds the return exits that a
 // preceding `clean` trimmed from the neighbours, so a clean + reconvert no
-// longer leaves the neighbours one-way.
-private string * _neighbour_sources(object * locations, string * converted)
+// longer leaves the neighbours one-way. `candidates` comes from
+// _note_neighbour_sources.
+private string * _neighbour_sources(mapping candidates, string * converted)
 {
-  mapping seen;
-  string * out;
+  mapping in_batch;
+  string * out, * sources;
   int i;
 
-  seen = ([ ]);
+  in_batch = ([ ]);
+  for (i = 0; i < sizeof(converted); i++)
+    in_batch[converted[i]] = 1;
+
   out = ({ });
-
-  for (i = 0; i < sizeof(locations); i++)
+  sources = keys(candidates);
+  for (i = 0; i < sizeof(sources); i++)
   {
-    string * dd;
-    int j;
-
-    if (!locations[i])
+    if (in_batch[sources[i]])                  // internal to this batch
       continue;
-    dd = locations[i]->query_dest_dir();
-    if (!arrayp(dd))
+    if (file_size(sources[i]) < 0)             // source must still exist
       continue;
-
-    // query_dest_dir returns ({ dir, dest, dir, dest, ... })
-    for (j = 1; j < sizeof(dd); j += 2)
-    {
-      string src;
-
-      src = query_room_source(dd[j]);
-      if (!src)
-        continue;
-      if (member_array(src, converted) != -1)   // internal to this batch
-        continue;
-      if (!undefinedp(seen[src]))
-        continue;
-      if (file_size(src) < 0)                    // source must still exist
-        continue;
-      seen[src] = 1;
-      out += ({ src });
-    }
+    out += ({ sources[i] });
   }
 
   return out;
@@ -1664,36 +1749,43 @@ private string * _neighbour_sources(object * locations, string * converted)
 
 // One tick of a batch conversion: convert up to CONVERT_CHUNK files, then
 // schedule the next tick. Public because the call_out dispatcher reaches
-// it through call_other. `locations` accumulates every converted location
-// across ticks so the final coordinate-inference pass sees the whole set.
+// it through call_other. `location_files` accumulates the file of every
+// converted location across ticks so the final coordinate-inference pass sees
+// the whole set; files and not objects, since an idle location may be
+// unloaded between ticks. `neighbour_seen` accumulates, for the same reason,
+// the source rooms the converted locations lead to.
 // `restore` (1 for a user-initiated convert, 0 for the neighbour pass) drives
 // the auto-restore of neighbouring areas' border rooms once the batch ends.
 void convert_step(string * files, int idx, int reload, object initiator,
-                  object * locations, int restore, varargs int verbose)
+                  string * location_files, int restore, varargs int verbose,
+                  mapping neighbour_seen)
 {
   int end, i;
+
+  if (!neighbour_seen)
+    neighbour_seen = ([ ]);
 
   if (idx >= sizeof(files))
   {
     if (initiator)
-      tell_object(initiator, "Conversion finished: " + sizeof(locations) +
-                  " location" + (sizeof(locations) == 1 ? "" : "s") +
+      tell_object(initiator, "Conversion finished: " + sizeof(location_files) +
+                  " location" + (sizeof(location_files) == 1 ? "" : "s") +
                   " converted.\n");
     // coordinate inference over the whole set, on its own tick for a fresh
     // budget (it walks the connectivity graph and honours existing anchors).
     // A reload places the set again from its outside anchors; the neighbour
     // pass (restore == 0) never does, those locations are not being reworked.
-    if (sizeof(locations))
-      call_out("do_guess_coordinates", 0, locations, verbose,
+    if (sizeof(location_files))
+      call_out("do_guess_coordinates", 0, location_files, verbose,
                reload && restore);
 
     // auto-restore: reconvert the neighbouring areas' border rooms so the
     // return exits a preceding clean trimmed come back. `restore == 0` on the
     // neighbour pass itself, so it never recurses back into this area.
-    if (restore && sizeof(locations))
+    if (restore && sizeof(location_files))
     {
       string * neighbours;
-      neighbours = _neighbour_sources(locations, files);
+      neighbours = _neighbour_sources(neighbour_seen, files);
       if (sizeof(neighbours))
       {
         if (initiator && verbose)
@@ -1749,7 +1841,8 @@ void convert_step(string * files, int idx, int reload, object initiator,
     if (!location)
       continue;
 
-    locations += ({ location });
+    location_files += ({ location->query_file_name() });
+    _note_neighbour_sources(location, neighbour_seen);
 
     // the quiet report prints each location once, with its final coordinates,
     // when the inference pass ends
@@ -1762,8 +1855,8 @@ void convert_step(string * files, int idx, int reload, object initiator,
                   "\n");
   }
 
-  call_out("convert_step", 0, files, end, reload, initiator, locations, restore,
-           verbose);
+  call_out("convert_step", 0, files, end, reload, initiator, location_files,
+           restore, verbose, neighbour_seen);
 }
 
 // Convert a batch of room files to locations, chunked across ticks so a
@@ -1837,7 +1930,49 @@ string * resolve_clean_scope(string scope)
  * The walk is scoped to the single directory mirroring the source — we
  * never look elsewhere.
  */
-// List the locations in scope to be removed. By default only orphans —
+/**
+ * Whether the saved location `file` belongs in a clean of the scope: its
+ * source `.c` lies under `source_prefix` and, unless `all`, no longer exists.
+ * The source name is read from the save file itself: loading a location
+ * populates it, which is far too heavy for a scan of a whole folder.
+ *
+ * @param file the location `.o` to examine
+ * @param source_prefix the source directory of the scope
+ * @param all every in-scope location, not only the orphans
+ * @return 1 when the location is to be removed
+ */
+private int _is_scope_orphan(string file, string source_prefix, int all)
+{
+  string text, orig;
+  object loc;
+
+  orig = nil;
+  text = read_file(file, 0, 8192);
+  if (text)
+    sscanf(text, "%*s_original_room_file_name \"%s\"", orig);
+  if (!orig)
+  {
+    // not within the head of the save: ask the location
+    loc = load_location(file);
+    if (!loc)
+      return 0;
+    orig = loc->query_original_room_file_name();
+  }
+
+  // programmatic locations (no source .c): never touch
+  if (!orig || !strlen(orig))
+    return 0;
+
+  // only consider locations whose source belongs to this scope
+  if (!starts_with(orig, source_prefix + "/"))
+    return 0;
+
+  // `all`: every in-scope location; otherwise only real orphans whose
+  // source .c no longer exists on disk
+  return all || file_size(orig) < 0;
+}
+
+// List the locations in scope to be removed. By default only orphans --
 // locations whose source .c is gone. With `all`, every location whose
 // source belongs to the scope, so the scope can be wiped and rebuilt
 // from a fresh room2loc conversion.
@@ -1854,29 +1989,8 @@ private string * _list_scope_orphans(string save_dir, string source_prefix,
   orphans = ({ });
 
   for (i = 0; i < sizeof(files); i++)
-  {
-    object loc;
-    string orig;
-
-    loc = load_location(files[i]);
-    if (!loc)
-      continue;
-
-    orig = loc->query_original_room_file_name();
-
-    // programmatic locations (no source .c): never touch
-    if (!orig || !strlen(orig))
-      continue;
-
-    // only consider locations whose source belongs to this scope
-    if (!starts_with(orig, source_prefix + "/"))
-      continue;
-
-    // `all`: every in-scope location; otherwise only real orphans whose
-    // source .c no longer exists on disk
-    if (all || file_size(orig) < 0)
+    if (_is_scope_orphan(files[i], source_prefix, all))
       orphans += ({ files[i] });
-  }
 
   return orphans;
 }
@@ -2018,11 +2132,16 @@ private mapping _find_inbound_exits(mapping orphan_set)
 // nothing), so keep the chunk modest.
 #define CLEAN_SCAN_CHUNK 8
 
+// How many save files a listing tick examines; reading a file head is cheap.
+#define CLEAN_LIST_CHUNK 100
+
 /**
  * Execute the cleanup for `scope`. Fully chunked across ticks — a whole
  * area's worth of orphans blows the driver's tick budget in one execution
  * (both the inbound-exit scan and the removal). Four background phases,
- * each threading its accumulators through the call_out args:
+ * each threading its accumulators through the call_out args (the folder is
+ * first listed in chunks by `_clean_list_orphans`, which reads the source name
+ * of each save file without loading it):
  *  1. `_clean_scan_orphans` — collect the orphans' external exit destinations.
  *  2. `_clean_scan_affected` — of those, the ones with an exit back into the
  *     orphan set (the exits to trim).
@@ -2030,16 +2149,14 @@ private mapping _find_inbound_exits(mapping orphan_set)
  *  4. `clean_step` — remove the orphans and prune emptied areas.
  * A summary is reported to the initiator when phase 4 finishes.
  *
- * Returns ({ orphan_count, 0, 0 }) immediately (the trim counts are only
- * known at the end and arrive in the summary message).
+ * Returns ({ 0, 0, 0 }) immediately (the counts are only known at the end and
+ * arrive in the messages).
  */
 mixed * clean_apply(string scope, varargs int all)
 {
   string * resolved;
   string save_dir, source_prefix;
-  string * orphans;
-  mapping orphan_set;
-  int i;
+  string * files;
 
   resolved = resolve_clean_scope(scope);
   save_dir = resolved[0];
@@ -2048,27 +2165,56 @@ mixed * clean_apply(string scope, varargs int all)
   if (!strlen(save_dir))
     return ({ 0, 0, 0 });
 
-  orphans = _list_scope_orphans(save_dir, source_prefix, all);
+  files = get_files(save_dir + "/*.o");
+  files -= ({ save_dir + "/area.o" });
+
+  call_out("_clean_list_orphans", 0, save_dir, source_prefix, all, files, 0,
+           ({ }), this_player());
+
+  return ({ 0, 0, 0 });
+}
+
+// Listing tick: examine a slice of the folder's save files, then schedule the
+// next; at the end start the removal phases. Public: reached via the call_out
+// dispatcher.
+void _clean_list_orphans(string save_dir, string source_prefix, int all,
+                         string * files, int idx, string * orphans,
+                         object initiator)
+{
+  mapping orphan_set;
+  int end, i;
+
+  if (idx < sizeof(files))
+  {
+    end = idx + CLEAN_LIST_CHUNK;
+    if (end > sizeof(files))
+      end = sizeof(files);
+
+    for (i = idx; i < end; i++)
+      if (_is_scope_orphan(files[i], source_prefix, all))
+        orphans += ({ files[i] });
+
+    call_out("_clean_list_orphans", 0, save_dir, source_prefix, all, files,
+             end, orphans, initiator);
+    return;
+  }
 
   if (!sizeof(orphans))
   {
-    if (this_player())
-      tell_object(this_player(), "Nothing to clean under " + save_dir + ".\n");
-    return ({ 0, 0, 0 });
+    if (initiator)
+      tell_object(initiator, "Nothing to clean under " + save_dir + ".\n");
+    return;
   }
 
   orphan_set = ([ ]);
   for (i = 0; i < sizeof(orphans); i++)
     orphan_set[orphans[i]] = 1;
 
-  if (this_player())
-    tell_object(this_player(), "Cleaning " + sizeof(orphans) + " location" +
+  if (initiator)
+    tell_object(initiator, "Cleaning " + sizeof(orphans) + " location" +
                 (sizeof(orphans) == 1 ? "" : "s") + " in the background ...\n");
 
-  call_out("_clean_scan_orphans", 0, orphans, orphan_set, 0, ([ ]),
-           this_player());
-
-  return ({ sizeof(orphans), 0, 0 });
+  call_out("_clean_scan_orphans", 0, orphans, orphan_set, 0, ([ ]), initiator);
 }
 
 // Phase 1 tick: load a slice of orphans and collect the non-orphan
