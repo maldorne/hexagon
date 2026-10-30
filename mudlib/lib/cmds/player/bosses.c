@@ -45,11 +45,17 @@ private string _death_line(mapping death)
  */
 private string _cell(string text, int width, int right)
 {
-  int len;
+  int len, i, chars;
 
-  len = strlen(text);
+  len = strlen(text, 1);
   if (len > width)
-    return text[0 .. width - 2] + "…";
+  {
+    // keep width - 1 characters, never cutting one of several bytes in two
+    for (i = 0, chars = 0; i < strlen(text); i++)
+      if ((text[i] & 0xC0) != 0x80 && ++chars == width)
+        break;
+    return text[0 .. i - 1] + "…";
+  }
 
   if (right)
     return pad("", width - len) + text;
@@ -72,17 +78,17 @@ private string _list_text(object bosses_ob, string game)
   // the numeric columns are as wide as their heading or their widest figure
   deaths = allocate(sizeof(keys));
   killed = allocate(sizeof(keys));
-  name_w = strlen(_LANG_BOSSES_COL_NAME);
-  deaths_w = strlen(_LANG_BOSSES_COL_DEFEATS);
-  killed_w = strlen(_LANG_BOSSES_COL_KILLED);
+  name_w = strlen(_LANG_BOSSES_COL_NAME, 1);
+  deaths_w = strlen(_LANG_BOSSES_COL_DEFEATS, 1);
+  killed_w = strlen(_LANG_BOSSES_COL_KILLED, 1);
 
   for (i = 0; i < sizeof(keys); i++)
   {
     boss = bosses_ob->query_boss(keys[i]);
     deaths[i] = "" + boss["deaths"];
     killed[i] = "" + boss["killed"];
-    if (strlen(boss["name"]) > name_w)
-      name_w = strlen(boss["name"]);
+    if (strlen(boss["name"], 1) > name_w)
+      name_w = strlen(boss["name"], 1);
     if (strlen(deaths[i]) > deaths_w)
       deaths_w = strlen(deaths[i]);
     if (strlen(killed[i]) > killed_w)
@@ -103,7 +109,7 @@ private string _list_text(object bosses_ob, string game)
   head = _cell(_LANG_BOSSES_COL_NAME, name_w, 0) + "  " +
          _cell(_LANG_BOSSES_COL_DEFEATS, deaths_w, 1) + "  " +
          _cell(_LANG_BOSSES_COL_KILLED, killed_w, 1);
-  ret = head + "\n" + pad("", strlen(head), "-") + "\n";
+  ret = head + "\n" + pad("", strlen(head, 1), "-") + "\n";
 
   for (i = 0; i < sizeof(keys); i++)
   {
@@ -130,15 +136,15 @@ private string _record_text(mapping boss)
     return ret + _LANG_BOSSES_UNDEFEATED;
 
   // labels padded to the longest one so the values line up
-  width = strlen(_LANG_BOSSES_FIRST);
-  if (strlen(_LANG_BOSSES_LAST) > width)
-    width = strlen(_LANG_BOSSES_LAST);
-  if (strlen(_LANG_BOSSES_FASTEST) > width)
-    width = strlen(_LANG_BOSSES_FASTEST);
+  width = strlen(_LANG_BOSSES_FIRST, 1);
+  if (strlen(_LANG_BOSSES_LAST, 1) > width)
+    width = strlen(_LANG_BOSSES_LAST, 1);
+  if (strlen(_LANG_BOSSES_FASTEST, 1) > width)
+    width = strlen(_LANG_BOSSES_FASTEST, 1);
 
-  ret += pad(_LANG_BOSSES_FIRST, width) + _death_line(boss["first"]) + "\n";
-  ret += pad(_LANG_BOSSES_LAST, width) + _death_line(boss["last"]) + "\n";
-  ret += pad(_LANG_BOSSES_FASTEST, width) + _death_line(boss["fastest"]) + "\n";
+  ret += _cell(_LANG_BOSSES_FIRST, width, 0) + _death_line(boss["first"]) + "\n";
+  ret += _cell(_LANG_BOSSES_LAST, width, 0) + _death_line(boss["last"]) + "\n";
+  ret += _cell(_LANG_BOSSES_FASTEST, width, 0) + _death_line(boss["fastest"]) + "\n";
 
   recent = boss["recent"];
   first = sizeof(recent) - SHOWN_DEATHS;
