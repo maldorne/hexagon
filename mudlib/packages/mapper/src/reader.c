@@ -14,6 +14,7 @@ string * room_zones;
 
 // area save
 string exploration_name;
+string map_name;
 string parent_area;
 
 /**
@@ -37,6 +38,7 @@ mapping read(string path)
     "original_short": _original_short,
     "zones": room_zones,
     "exploration_name": exploration_name,
+    "map_name": map_name,
     "parent_area": parent_area,
   ]);
 }

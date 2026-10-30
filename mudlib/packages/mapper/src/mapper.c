@@ -9,6 +9,8 @@
 #define READ_PER_STEP 40
 // folders listed in each call_out
 #define DIRS_PER_STEP 20
+// collisions listed to the admin, at most
+#define MAX_COLLISIONS_SHOWN 10
 #define FORMAT "mapper/1"
 
 // the run in progress: only one at a time
@@ -16,13 +18,21 @@ private int running;
 private object admin, reader;
 private string game, area_id, out_file;
 private int with_sub_areas;
+// the map title, and whether the map joins every area sharing one map name
+private string map_title;
+private int merged;
+// merged runs: the map name looked for, and the area folders found with it
+private string wanted_name;
+private string * found_dirs;
+// folders already queued to be listed, so none is read twice
+private mapping queued;
 // save folders of the dumped area and of the game's areas, with trailing slash
 private string root_dir, areas_dir;
 private string * pending_dirs, * files;
 private int cursor;
 // save folder -> nearest folder that holds an area.o, "" when none
 private mapping nearest_cache;
-// area save folder -> ({ name, parent area id })
+// area save folder -> ({ name, parent area id, map title })
 private mapping area_info;
 // location save file -> ({ id, name, area save folder, x, y, z, exits })
 private mapping locations;
@@ -32,6 +42,7 @@ private mapping label_cache;
 private string message(string text, mixed * values);
 private string nearest_area(string dir);
 private void finish();
+private void report_collisions(string * paths);
 
 /**
  * A language string with $1, $2, ... replaced by the values.
@@ -210,12 +221,12 @@ private string nearest_area(string dir)
 }
 
 /**
- * Reads the area save of a folder once: its name and its parent area.
+ * Reads the area save of a folder once: ({ name, parent area id, map title }).
  */
 private mixed * area_data(string folder)
 {
   mapping data;
-  string name, parts, * pieces;
+  string name, parts, title, * pieces;
 
   if (area_info[folder])
     return area_info[folder];
@@ -230,6 +241,11 @@ private mixed * area_data(string folder)
   if (data && stringp(data["exploration_name"]))
     name = strip_colours(data["exploration_name"]);
 
+  title = "";
+
+  if (data && stringp(data["map_name"]))
+    title = strip_colours(data["map_name"]);
+
   // without a display name the folder is the name; "rooms" says nothing
   if (!strlen(name))
   {
@@ -242,10 +258,14 @@ private mixed * area_data(string folder)
       name = pieces[sizeof(pieces) - 2];
   }
 
+  // the map title: the map name, else the display name
+  if (!strlen(title))
+    title = name;
+
   if (data && stringp(data["parent_area"]))
     parts = area_of_folder(data["parent_area"]);
 
-  area_info[folder] = ({ name, parts });
+  area_info[folder] = ({ name, parts, title });
   return area_info[folder];
 }
 
@@ -365,11 +385,18 @@ private mixed * external_label(string target_id, string target_folder)
     kind = "area";
     top = areas_dir + parts[0] + "/";
 
+    // an area saves its own file either here or in its rooms folder
+    if (file_size(top + "area.o") <= 0)
+      top += "rooms/";
+
     if (file_size(top + "area.o") > 0)
     {
       data = reader->read(top + "area.o");
 
-      if (data && stringp(data["exploration_name"]))
+      if (data && stringp(data["map_name"]))
+        label = strip_colours(data["map_name"]);
+
+      if (!strlen(label) && data && stringp(data["exploration_name"]))
         label = strip_colours(data["exploration_name"]);
     }
 
@@ -446,8 +473,12 @@ private void scan_folder(string dir)
     if (entries[i][1] == -2)
     {
       // another area's folder is not part of this dump unless asked for
-      if (with_sub_areas || file_size(dir + name + "/area.o") <= 0)
+      if ((with_sub_areas || file_size(dir + name + "/area.o") <= 0) &&
+          !queued[dir + name + "/"])
+      {
+        queued[dir + name + "/"] = 1;
         pending_dirs += ({ dir + name + "/" });
+      }
     }
     else if (strlen(name) > 2 && name[strlen(name) - 2..] == ".o" &&
              name != "area.o")
@@ -513,12 +544,67 @@ private void read_location(string path)
 }
 
 /**
- * The work of one step: list some folders (phase 0) or read some saves
- * (phase 1).
+ * Lists some folders of the game looking for the areas whose map name is the
+ * one wanted. When all are listed, the dump proper starts from those areas.
+ */
+private void find_areas()
+{
+  mixed * entries;
+  mapping data;
+  string dir;
+  int i, j;
+
+  for (i = 0; i < DIRS_PER_STEP && sizeof(pending_dirs); i++)
+  {
+    dir = pending_dirs[0];
+    pending_dirs = pending_dirs[1..];
+
+    if (file_size(dir + "area.o") > 0)
+    {
+      data = reader->read(dir + "area.o");
+
+      if (data && stringp(data["map_name"]) &&
+          strip_colours(data["map_name"]) == wanted_name)
+        found_dirs += ({ dir });
+    }
+
+    entries = get_dir(dir + "*", -1);
+
+    for (j = 0; j < sizeof(entries); j++)
+      if (entries[j][1] == -2)
+        pending_dirs += ({ dir + entries[j][0] + "/" });
+  }
+
+  if (sizeof(pending_dirs))
+  {
+    call_out("step", 0, 2);
+    return;
+  }
+
+  pending_dirs = ({ });
+
+  for (i = 0; i < sizeof(found_dirs); i++)
+  {
+    queued[found_dirs[i]] = 1;
+    pending_dirs += ({ found_dirs[i] });
+  }
+
+  call_out("step", 0, 0);
+}
+
+/**
+ * The work of one step: list some folders (phase 0), read some saves
+ * (phase 1) or look for the areas of a shared map (phase 2).
  */
 private void run_step(int phase)
 {
   int i, stop;
+
+  if (phase == 2)
+  {
+    find_areas();
+    return;
+  }
 
   if (phase == 0)
   {
@@ -617,6 +703,43 @@ private void write_list(string open, string * items, string close)
     write_file(out_file, items[i] + (i < sizeof(items) - 1 ? "," : "") + "\n");
 
   write_file(out_file, close);
+}
+
+/**
+ * Tells the admin about locations of different areas that share a place on the
+ * map (same x, y, z): they would be drawn on top of each other.
+ */
+private void report_collisions(string * paths)
+{
+  mapping spots;
+  mixed * loc, * other;
+  string key, list;
+  int i, count;
+
+  spots = ([ ]);
+  list = "";
+  count = 0;
+
+  for (i = 0; i < sizeof(paths); i++)
+  {
+    loc = locations[paths[i]];
+    key = loc[3] + "," + loc[4] + "," + loc[5];
+    other = spots[key];
+
+    if (other && other[2] != loc[2])
+    {
+      if (count < MAX_COLLISIONS_SHOWN)
+        list += message(_LANG_MAPPER_COLLISION_ROW,
+          ({ loc[3], loc[4], loc[5], other[0], loc[0] }));
+
+      count++;
+    }
+    else if (!other)
+      spots[key] = ({ loc[0], loc[1], loc[2] });
+  }
+
+  if (count)
+    tell_object(admin, message(_LANG_MAPPER_COLLISIONS, ({ count })) + list);
 }
 
 /**
@@ -723,11 +846,13 @@ private void finish()
                 ",\"parent\":" + quote(loc[1]) + "}" });
   }
 
+  report_collisions(map_indices(locations));
+
   remove_file(out_file);
   write_file(out_file,
     "{\"format\":" + quote(FORMAT) + ",\"game\":" + quote(game) +
     ",\"area\":" + quote(area_id) +
-    ",\"name\":" + quote(area_data(root_dir)[0]) +
+    ",\"name\":" + quote(map_title) +
     ",\"generated\":" + quote(today()) + ",\n");
 
   write_list("\"areas\":[\n", areas, "],\n");
@@ -749,14 +874,57 @@ private void finish()
 }
 
 /**
+ * A file name from a map name: lowercase letters and digits, the rest
+ * (accents folded to their plain letter) as single hyphens.
+ */
+private string slug(string text)
+{
+  string * from, * to, result;
+  int i, c, dash;
+
+  from = ({ "á", "é", "í", "ó", "ú", "ü", "ñ", "Á", "É", "Í", "Ó", "Ú", "Ü", "Ñ" });
+  to = ({ "a", "e", "i", "o", "u", "u", "n", "a", "e", "i", "o", "u", "u", "n" });
+
+  for (i = 0; i < sizeof(from); i++)
+    text = replace_string(text, from[i], to[i]);
+
+  result = "";
+  dash = 0;
+
+  for (i = 0; i < strlen(text); i++)
+  {
+    c = text[i];
+
+    if (c >= 'A' && c <= 'Z')
+      c += 'a' - 'A';
+
+    if ((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9'))
+    {
+      if (dash && strlen(result))
+        result += "-";
+
+      dash = 0;
+      result += text[i..i];
+      result[strlen(result) - 1] = c;
+    }
+    else
+      dash = 1;
+  }
+
+  return strlen(result) ? result : "map";
+}
+
+/**
  * Starts the dump of an area, by its folder (/games/<game>/areas/<area>).
- * The result comes later, to the admin. Returns an error text, or "" when the
- * run started.
+ * When the area has a map name, every area of the game with that name goes
+ * into the same map, written under the name's slug. The result comes later, to
+ * the admin. Returns an error text, or "" when the run started.
  */
 string update_map(object me, string dir, int sub_areas)
 {
   string * parts;
-  string save_dir;
+  string own_dir, out_name;
+  mapping data;
 
   if (running)
     return _LANG_MAPPER_BUSY;
@@ -778,24 +946,66 @@ string update_map(object me, string dir, int sub_areas)
   if (file_size(root_dir) != -2)
     return message(_LANG_MAPPER_NO_SAVES, ({ dir }));
 
-  mkdir("/games/" + game + "/docs");
-  mkdir("/games/" + game + "/docs/maps");
-  out_file = "/games/" + game + "/docs/maps/" + implode(parts[3..], "-") + ".json";
-
   admin = me;
   with_sub_areas = sub_areas;
   reader = load_object(READER);
-  pending_dirs = ({ root_dir });
   files = ({ });
   nearest_cache = ([ ]);
   area_info = ([ ]);
   locations = ([ ]);
   label_cache = ([ ]);
+  queued = ([ ]);
+  found_dirs = ({ });
   cursor = 0;
+
+  // an area saves its own file in its folder or in its rooms folder
+  own_dir = root_dir;
+
+  if (file_size(root_dir + "area.o") <= 0 &&
+      file_size(root_dir + "rooms/area.o") > 0)
+    own_dir = root_dir + "rooms/";
+
+  map_title = area_data(own_dir)[2];
+  wanted_name = "";
+  merged = 0;
+  out_name = implode(parts[3..], "-");
+
+  data = file_size(own_dir + "area.o") > 0 ?
+         reader->read(own_dir + "area.o") : nil;
+
+  if (data && stringp(data["map_name"]) &&
+      strlen(strip_colours(data["map_name"])))
+  {
+    // every area with this map name goes into one map
+    merged = 1;
+    wanted_name = strip_colours(data["map_name"]);
+    out_name = slug(wanted_name);
+    area_id = out_name;
+    root_dir = areas_dir;
+  }
+
+  mkdir("/games/" + game + "/docs");
+  mkdir("/games/" + game + "/docs/maps");
+  out_file = "/games/" + game + "/docs/maps/" + out_name + ".json";
+
+  if (merged)
+    pending_dirs = ({ areas_dir });
+  else
+  {
+    pending_dirs = ({ root_dir });
+    queued[root_dir] = 1;
+
+    if (own_dir != root_dir)
+    {
+      pending_dirs += ({ own_dir });
+      queued[own_dir] = 1;
+    }
+  }
+
   running = 1;
 
-  tell_object(me, message(_LANG_MAPPER_START, ({ dir })));
-  call_out("step", 0, 0);
+  tell_object(me, message(_LANG_MAPPER_START, ({ merged ? wanted_name : dir })));
+  call_out("step", 0, merged ? 2 : 0);
   return "";
 }
 

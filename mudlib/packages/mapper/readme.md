@@ -16,8 +16,29 @@ mapper list [<game>]             maps written and when
 `<area dir>` is an area folder such as `/games/<game>/areas/<area>`, with or
 without a trailing slash; a relative path is resolved against the current
 folder. Without `all` only the locations whose nearest area (the closest folder
-at or above them with an `area.o`) is that area go in; folders of other areas
+at or above them with an `area.o`; an area saves it in its folder or in its
+`rooms` folder) is that area go in; folders of other areas
 under it are skipped. With `all` every sub-area is included.
+
+## Map names
+
+An area may carry a map name, set by an admin standing in it with
+`areas map <name>` (`areas map none` clears it, `areas map` shows it). It is a
+field of its own, apart from the exploration name, which also grants
+exploration. The title of a map is the map name of the area, else its
+exploration name, else its folder name (the folder above when that is `rooms`).
+
+Areas that share a map name are one map. `mapper update <dir>` on any of them
+rebuilds the whole shared map: every area of the game with that name, all their
+locations together, with as many levels (`z`) as they hold. The file is named
+after the map name (lowercase letters and digits, accents folded, anything else
+a hyphen) and the `area` field of the JSON holds that same name. Location ids
+are then relative to the game's `areas/` folder, so they stay unique across the
+areas. Sub-areas that do not share the name stay out unless `all` is given.
+
+Areas are joined by the coordinates they saved, so they must not overlap: when
+locations of different areas sit on the same `x, y, z`, the command lists the
+first ones after the dump. The map is still written.
 
 The map is written to `/games/<game>/docs/maps/<area path with - for />.json`,
 for instance `<area>.json` or `<area>-<sub-area>.json`. The work is split in
@@ -28,7 +49,7 @@ steps (call_outs) and the command says when it is done.
 The saved locations, `/save/games/<game>/locations/areas/<area>/**.o`, read
 with a helper object (`src/reader.c`) through `restore_object`: no location is
 loaded, so no NPC is cloned. A save without `coordinates` or `file_name` is
-skipped. Area names and parents come from the `area.o` saves.
+skipped. Area names, map names and parents come from the `area.o` saves.
 
 ## Format
 
@@ -43,12 +64,12 @@ skipped. Area names and parents come from the `area.o` saves.
 
 - `format`: `mapper/1`.
 - `game`: the game folder name.
-- `area`, `name`: the dumped area, as a path under the game's `areas/` folder, and its display name.
+- `area`, `name`: the dumped area, as a path under the game's `areas/` folder, and the map title (see Map names). For a shared map `area` is the file name without `.json`.
 - `generated`: the day of the dump (UTC).
-- `areas`: every area that has locations in the dump, sorted by `id`. `id` is the path under the game's `areas/` folder; `name` is the area's display name, else its folder name (the folder above when that is `rooms`); `parent` is the parent area's id, or empty. A parent may not be listed when it has no locations in the dump.
+- `areas`: every area that has locations in the dump, sorted by `id`. `id` is the path under the game's `areas/` folder; `name` is the area's exploration name, else its folder name (the folder above when that is `rooms`); `parent` is the parent area's id, or empty. A parent may not be listed when it has no locations in the dump.
 - `levels`: the distinct `z` values, ascending.
 - `locations`: sorted by `id`, one per line. `id` is the save path inside the dumped area without `.o`. `name` is the `home` component's `home_short`, else the specific short, else the original short, colour codes stripped. `area` is the id of the area the location belongs to. `x`, `y`, `z` are the saved coordinates (`y` grows to the north). `zone` is a hash of the location's move zones: equal for locations sharing the same set; meant to group them (colour), not to be read; empty when it has none. `exits` are the visible exits to other locations of the dump: `dir` is the direction as saved (canonical English) and `to` the target `id`.
-- `external`: visible exits that leave the dump. `from` is a location `id`; `area` is the target's area id and `to` the target's id inside that area (not inside the dumped one). `kind` and `label` say what the target is without showing a path: an area whose first path segment is `guilds` is `guild` and its label the guild's name as players see it (the short of the guild object named by its locations); `jobs` is `job`, the same with the job; any other is `area`, labelled with the name of its top-level area when that has one, else its first path segment capitalised with hyphens as spaces. The label is empty when no location of a guild or job area names its object.
+- `external`: visible exits that leave the dump. `from` is a location `id`; `area` is the target's area id and `to` the target's id inside that area (not inside the dumped one). `kind` and `label` say what the target is without showing a path: an area whose first path segment is `guilds` is `guild` and its label the guild's name as players see it (the short of the guild object named by its locations); `jobs` is `job`, the same with the job; any other is `area`, labelled with the map name, else the exploration name, of its top-level area when that has one, else its first path segment capitalised with hyphens as spaces. The label is empty when no location of a guild or job area names its object.
 
 Output is sorted so that a regenerated map gives a small diff.
 

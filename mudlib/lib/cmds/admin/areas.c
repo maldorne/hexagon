@@ -9,6 +9,7 @@ private int do_reindex(object me, string * tokens);
 private int do_state(object area, string * args);
 private int do_exploration(object area, string * args);
 private int do_noexploration(object area);
+private int do_map(object area, string * args);
 private int do_level(object area, string * args);
 private int do_stats(object area, string * args);
 private int do_diplomacy(object area, string * args);
@@ -27,6 +28,7 @@ void setup()
   set_usage("areas [-c] [locations] [connections]\n" +
             "      areas reindex [ <area> | game ] [save]\n" +
             "      areas < exploration <display name> | noexploration\n" +
+            "            | map [<map name>|none]\n" +
             "            | level <n> [<spread>] | level none\n" +
             "            | stats <low> <high> | stats none\n" +
             "            | diplomacy <citizenship|none|inherit>\n" +
@@ -65,6 +67,9 @@ void setup()
            "                              A part of the place not listed, such as a road\n" +
            "                              out of town, does not discover it\n" +
            "  areas noexploration         it grants none any more\n" +
+           "  areas map [<name>|none]     the map the mapper draws it on; areas sharing a\n" +
+           "                              name are drawn as one map. Without it the map\n" +
+           "                              takes the exploration name, else the folder name\n" +
            "  areas level <n> [<spread>]  the average level of its NPCs; the spread is\n" +
            "                              left as it was when omitted\n" +
            "  areas level none            drop its own band, take its parent's\n" +
@@ -347,6 +352,35 @@ private int do_noexploration(object area)
   return 1;
 }
 
+// ===== areas map [<map name> | none] =====
+private int do_map(object area, string * args)
+{
+  string name;
+
+  if (sizeof(args) < 2)
+  {
+    name = area->query_map_name();
+    write("Area '" + area->query_area_name() + "' " +
+          (strlen(name) ? "is drawn on the map \"" + name + "\".\n" :
+                          "has no map name of its own.\n"));
+    return 1;
+  }
+
+  if (args[1] == "none")
+  {
+    area->set_map_name("");
+    write("Area '" + area->query_area_name() + "' has no map name of its " +
+          "own any more.\n");
+    return 1;
+  }
+
+  name = rest_of(args, 1);
+  area->set_map_name(name);
+  write("Area '" + area->query_area_name() + "' is drawn on the map \"" +
+        name + "\".\n");
+  return 1;
+}
+
 // ===== areas level <n> [<spread>] | none =====
 private int do_level(object area, string * args)
 {
@@ -557,7 +591,7 @@ private int do_principal(object area, object loc)
 }
 
 // The words that set the metadata of the area the admin stands in.
-#define SET_VERBS ({ "exploration", "noexploration", "level", "stats", \
+#define SET_VERBS ({ "exploration", "noexploration", "map", "level", "stats", \
                      "diplomacy", "parent", "principal", "state", "relevel" })
 
 // Dispatches a metadata verb, once the area under the admin's feet is known.
@@ -588,6 +622,8 @@ private int do_set(object me, string * args)
     return do_exploration(area, args);
   if (verb == "noexploration")
     return do_noexploration(area);
+  if (verb == "map")
+    return do_map(area, args);
   if (verb == "level")
     return do_level(area, args);
   if (verb == "stats")

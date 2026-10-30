@@ -33,6 +33,11 @@ string area_path;
 // and the display name recorded in the player's diary when it does.
 int gives_exploration;
 string exploration_name;
+// The name of the map this area is drawn on by the mapper package. Its own
+// field, since an exploration name also grants exploration. Areas that share a
+// map name are drawn as one map; empty means the exploration name, else the
+// area's folder name.
+string map_name;
 // the areas that discover this one, by path: its own path when empty. An entry
 // ending in "*" stands for every area under that directory. A part of the place
 // (its farms, its roads) discovers it only if listed, so a road out of a town
@@ -80,6 +85,7 @@ void create() {
   area_state = AREA_DRAFT;
   gives_exploration = 0;
   exploration_name = "";
+  map_name = "";
   exploration_scope = ({ });
   monsters::create();
   schedules::create();
@@ -222,6 +228,15 @@ void set_gives_exploration(int flag)
   save_me();
 }
 string query_exploration_name() { return exploration_name; }
+
+/** The map name set on this area, empty when it has none of its own. */
+string query_map_name() { return map_name ? map_name : ""; }
+
+void set_map_name(string name)
+{
+  map_name = name ? name : "";
+  save_me();
+}
 
 /** The directories whose areas discover this one, its own path by default. */
 string * query_exploration_scope()

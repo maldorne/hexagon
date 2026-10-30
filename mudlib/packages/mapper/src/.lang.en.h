@@ -11,3 +11,5 @@
 #define _LANG_MAPPER_NO_GAME    "There is no game '$1'.\n"
 #define _LANG_MAPPER_NO_MAPS    "No maps written yet.\n"
 #define _LANG_MAPPER_LIST_ROW   "  $1  ($2 bytes, $3)\n"
+#define _LANG_MAPPER_COLLISIONS "$1 locations of different areas share a spot on the map (first ones listed):\n"
+#define _LANG_MAPPER_COLLISION_ROW "  ($1, $2, $3): $4 and $5\n"
