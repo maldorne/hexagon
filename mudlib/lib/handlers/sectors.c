@@ -307,6 +307,9 @@ string add_location(object location)
       if (coast && (coast->query_kind() == "port" ||
                     coast->query_kind() == "harbor"))
         location_data["port"] = 1;
+      // a river bank is no shoreline of the sea: the map draws the river
+      if (coast && coast->query_kind() == "bank")
+        location_data["bank"] = 1;
     }
 
     // Lift the location's path / road exits (direction -> way_type) so

@@ -639,6 +639,16 @@ int query_beach()
 }
 
 /**
+ * Whether most of the coast locations of the sector are river banks.
+ *
+ * @return 1 when more than half of them are, 0 otherwise
+ */
+int query_bank()
+{
+  return _coast_majority("bank");
+}
+
+/**
  * Whether any coast location of the sector is a dock (a port or harbor).
  *
  * @return 1 when one is, 0 otherwise

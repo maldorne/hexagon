@@ -376,7 +376,9 @@ private int _is_coast(string game, string map_name, int sx, int sy, int sz)
   object sect;
 
   sect = cached_sector(game, map_name, sx, sy, sz);
-  return sect && sect->query_sector_type() == SECTOR_TYPE_COAST;
+  // a river bank is not part of the shoreline of the sea
+  return sect && sect->query_sector_type() == SECTOR_TYPE_COAST &&
+         !sect->query_bank();
 }
 
 /**
@@ -547,8 +549,9 @@ private int sector_code(string game, string map_name, int sx, int sy, int sz)
   type = sect->query_sector_type();
 
   // the coast comes before the ways and the river: the shoreline never breaks
-  // where a road reaches it or a river meets the sea
-  if (type == SECTOR_TYPE_COAST)
+  // where a road reaches it or a river meets the sea. A river bank is not a
+  // shoreline: it goes on below and is drawn as the river or the land it is
+  if (type == SECTOR_TYPE_COAST && !sect->query_bank())
     return _shore_code(sect, game, map_name, sx, sy, sz);
 
   river = _memo("h", sect, sx, sy, sz);
