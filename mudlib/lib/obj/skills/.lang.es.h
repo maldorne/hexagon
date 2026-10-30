@@ -29,7 +29,8 @@
 
 // hide shadow (placed on a hidden character)
 #define _LANG_HIDE_REVEALED_ROOM_PRE "\n\t%^BOLD%^Notas a "
-#define _LANG_HIDE_REVEALED_ROOM_POST " moverse a tu alrededor... ¡estaba escondiéndose!%^RESET%^\n"
+#define _LANG_HIDE_REVEALED_ROOM_POST " moverse a tu alrededor... ¡estaba escondid" + \
+      player->query_vowel() + "!%^RESET%^\n"
 #define _LANG_HIDE_REVEALED_YOU "¡Te han descubierto!\n"
 #define _LANG_HIDE_SEARCH_FOUND_PRE "Buscas a tu alrededor y encuentras a "
 #define _LANG_HIDE_SEARCH_FOUND_POST ", aunque aún no se ha dado cuenta.\n"
