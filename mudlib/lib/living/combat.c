@@ -297,6 +297,11 @@ void attack()
     }
   }
 
+  // only those we can see are named: a hidden attacker has no short
+  for (i = sizeof(away_attackers) - 1; i >= 0; i--)
+    if (!away_attackers[i]->query_short())
+      away_attackers = delete(away_attackers, i, 1);
+
   if (sizeof(away_attackers) > 0)
     tell_object(this_object(), _LANG_COMBAT_CHASING(
                 capitalize(query_multiple_short(away_attackers)),
