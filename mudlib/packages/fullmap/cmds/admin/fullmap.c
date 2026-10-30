@@ -1,7 +1,7 @@
 // fullmap -- admin tool that draws the whole world map of a game level. The
 // work is done by the fullmap package (/packages/fullmap/).
 //
-//   fullmap [<game>] [<z>] [html]
+//   fullmap [<game>] [<z>] [html] [json]
 
 #include <mud/cmd.h>
 #include <language.h>
@@ -21,7 +21,7 @@ static int cmd(string str, object me, string verb)
   string * words;
   string game, map_name, text, file;
   object fullmap, env;
-  int z, html, i, has_z;
+  int z, html, json, i, has_z;
   int * b;
 
   if (this_player(1) != this_user())
@@ -49,9 +49,11 @@ static int cmd(string str, object me, string verb)
   {
     if (words[i] == "html")
       html = 1;
+    else if (words[i] == "json")
+      json = 1;
     else if (!has_z && sscanf(words[i], "%d", z) == 1 && "" + z == words[i])
       has_z = 1;
-    else if (i == 0 || (i == 1 && !has_z && !html))
+    else if (i == 0 || (i == 1 && !has_z && !html && !json))
       game = words[i];
     else
     {
@@ -80,6 +82,12 @@ static int cmd(string str, object me, string verb)
   if (html)
   {
     file = fullmap->write_html(game, map_name, z);
+    tell_object(me, sprintf(_LANG_CMD_FULLMAP_WRITTEN, file));
+  }
+
+  if (json)
+  {
+    file = fullmap->write_json(game, map_name, z);
     tell_object(me, sprintf(_LANG_CMD_FULLMAP_WRITTEN, file));
   }
 
