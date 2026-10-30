@@ -792,7 +792,9 @@
 #define _LANG_BOSSES_UNKNOWN "You know of no boss by that name.\n"
 #define _LANG_BOSSES_TIMES(n) ((n) == 1 ? "once" : (n) + " times")
 #define _LANG_BOSSES_PLAYERS(n) ((n) == 1 ? "1 player" : (n) + " players")
-#define _LANG_BOSSES_LIST_LINE "%s: defeated %s, has killed %s\n"
+#define _LANG_BOSSES_COL_NAME "Boss"
+#define _LANG_BOSSES_COL_DEFEATS "Defeats"
+#define _LANG_BOSSES_COL_KILLED "Players killed"
 #define _LANG_BOSSES_LIST_HINT "Type 'bosses <name>' to see its record.\n"
 #define _LANG_BOSSES_RECORD_TOTALS "Defeated %s. It has killed %s.\n\n"
 #define _LANG_BOSSES_UNDEFEATED "Nobody has defeated it yet.\n"

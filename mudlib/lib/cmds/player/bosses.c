@@ -14,6 +14,8 @@ inherit CMD_BASE;
 
 // how many of the latest deaths a record shows
 #define SHOWN_DEATHS 5
+// the narrowest the name column of the list gets on a small terminal
+#define MIN_NAME_WIDTH 10
 
 void setup()
 {
@@ -37,25 +39,78 @@ private string _death_line(mapping death)
                  _duration(death["seconds"]));
 }
 
-// The list of the bosses of a game.
+/**
+ * A table cell of `width` characters: padded with spaces (on the left when
+ * `right` is set) or cut with an ellipsis when it does not fit.
+ */
+private string _cell(string text, int width, int right)
+{
+  int len;
+
+  len = strlen(text);
+  if (len > width)
+    return text[0 .. width - 2] + "…";
+
+  if (right)
+    return pad("", width - len) + text;
+  return text + pad("", width - len);
+}
+
+// The list of the bosses of a game, as a table with column headings.
 private string _list_text(object bosses_ob, string game)
 {
   string * keys;
+  string * deaths, * killed;
   mapping boss;
-  string ret;
-  int i;
+  string ret, head;
+  int i, cols, name_w, deaths_w, killed_w, table_w;
 
   keys = bosses_ob->query_game_bosses(game);
   if (!sizeof(keys))
     return "";
 
-  ret = "";
+  // the numeric columns are as wide as their heading or their widest figure
+  deaths = allocate(sizeof(keys));
+  killed = allocate(sizeof(keys));
+  name_w = strlen(_LANG_BOSSES_COL_NAME);
+  deaths_w = strlen(_LANG_BOSSES_COL_DEFEATS);
+  killed_w = strlen(_LANG_BOSSES_COL_KILLED);
+
   for (i = 0; i < sizeof(keys); i++)
   {
     boss = bosses_ob->query_boss(keys[i]);
-    ret += sprintf(_LANG_BOSSES_LIST_LINE, boss["name"],
-                   _LANG_BOSSES_TIMES(boss["deaths"]),
-                   _LANG_BOSSES_PLAYERS(boss["killed"]));
+    deaths[i] = "" + boss["deaths"];
+    killed[i] = "" + boss["killed"];
+    if (strlen(boss["name"]) > name_w)
+      name_w = strlen(boss["name"]);
+    if (strlen(deaths[i]) > deaths_w)
+      deaths_w = strlen(deaths[i]);
+    if (strlen(killed[i]) > killed_w)
+      killed_w = strlen(killed[i]);
+  }
+
+  // the name column takes what is left of the frame, never less than a
+  // few characters (two spaces separate each column)
+  cols = this_user()->query_cols();
+  if (cols <= 0)
+    cols = 80;
+  table_w = cols - handler("frames")->query_frame_overhead(nil);
+  if (name_w > table_w - deaths_w - killed_w - 4)
+    name_w = table_w - deaths_w - killed_w - 4;
+  if (name_w < MIN_NAME_WIDTH)
+    name_w = MIN_NAME_WIDTH;
+
+  head = _cell(_LANG_BOSSES_COL_NAME, name_w, 0) + "  " +
+         _cell(_LANG_BOSSES_COL_DEFEATS, deaths_w, 1) + "  " +
+         _cell(_LANG_BOSSES_COL_KILLED, killed_w, 1);
+  ret = head + "\n" + pad("", strlen(head), "-") + "\n";
+
+  for (i = 0; i < sizeof(keys); i++)
+  {
+    boss = bosses_ob->query_boss(keys[i]);
+    ret += _cell(boss["name"], name_w, 0) + "  " +
+           _cell(deaths[i], deaths_w, 1) + "  " +
+           _cell(killed[i], killed_w, 1) + "\n";
   }
 
   return ret + "\n" + _LANG_BOSSES_LIST_HINT;
@@ -66,7 +121,7 @@ private string _record_text(mapping boss)
 {
   string ret;
   mapping * recent;
-  int i, first;
+  int i, first, width;
 
   ret = sprintf(_LANG_BOSSES_RECORD_TOTALS, _LANG_BOSSES_TIMES(boss["deaths"]),
                 _LANG_BOSSES_PLAYERS(boss["killed"]));
@@ -74,9 +129,16 @@ private string _record_text(mapping boss)
   if (!boss["deaths"])
     return ret + _LANG_BOSSES_UNDEFEATED;
 
-  ret += _LANG_BOSSES_FIRST + _death_line(boss["first"]) + "\n";
-  ret += _LANG_BOSSES_LAST + _death_line(boss["last"]) + "\n";
-  ret += _LANG_BOSSES_FASTEST + _death_line(boss["fastest"]) + "\n";
+  // labels padded to the longest one so the values line up
+  width = strlen(_LANG_BOSSES_FIRST);
+  if (strlen(_LANG_BOSSES_LAST) > width)
+    width = strlen(_LANG_BOSSES_LAST);
+  if (strlen(_LANG_BOSSES_FASTEST) > width)
+    width = strlen(_LANG_BOSSES_FASTEST);
+
+  ret += pad(_LANG_BOSSES_FIRST, width) + _death_line(boss["first"]) + "\n";
+  ret += pad(_LANG_BOSSES_LAST, width) + _death_line(boss["last"]) + "\n";
+  ret += pad(_LANG_BOSSES_FASTEST, width) + _death_line(boss["fastest"]) + "\n";
 
   recent = boss["recent"];
   first = sizeof(recent) - SHOWN_DEATHS;

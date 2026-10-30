@@ -797,7 +797,9 @@
 #define _LANG_BOSSES_UNKNOWN "No conoces a ningún jefe con ese nombre.\n"
 #define _LANG_BOSSES_TIMES(n) ((n) == 1 ? "1 vez" : (n) + " veces")
 #define _LANG_BOSSES_PLAYERS(n) ((n) == 1 ? "1 jugador" : (n) + " jugadores")
-#define _LANG_BOSSES_LIST_LINE "%s: derrotado %s, ha matado a %s\n"
+#define _LANG_BOSSES_COL_NAME "Jefe"
+#define _LANG_BOSSES_COL_DEFEATS "Caídas"
+#define _LANG_BOSSES_COL_KILLED "Jugadores muertos"
 #define _LANG_BOSSES_LIST_HINT "Escribe 'jefes <nombre>' para ver su historial.\n"
 #define _LANG_BOSSES_RECORD_TOTALS "Derrotado %s. Ha matado a %s.\n\n"
 #define _LANG_BOSSES_UNDEFEATED "Nadie lo ha derrotado todavía.\n"
