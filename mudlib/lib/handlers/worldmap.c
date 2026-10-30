@@ -16,6 +16,9 @@
 //      wall overlay), or the bold green forest glyph when half or more of
 //      their city locations are forest; road/path sectors are box-drawing
 //      joins, one light line for both (see _arms_code).
+//      A coast is a closed shoreline of at most two arms per sector that
+//      wins over roads and rivers; a road reaching it, or a dock, adds a
+//      third (see _shore_code).
 //      Rivers (the swum exits of flowing water, see sector.c query_border_rivers)
 //      are drawn the same way in blue, over roads, farmland and open land but
 //      under cities, forests, taiga, mountains and swamps; where a road crosses
@@ -377,28 +380,60 @@ private int _is_coast(string game, string map_name, int sx, int sy, int sz)
 }
 
 /**
- * The code of a coast sector: a line to each coast sector beside it, in the
- * colour of its kind (beach or any other coast). A coast sector touching
- * another only by a corner, with no coast on the two sectors between them,
- * reaches it through the one of those two in the northern sector's row: the
- * southern sector draws an arm north, the northern one an arm east or west,
- * and _overlay_shore_steps draws the corner between them.
+ * Whether the sector at (sx, sy, sz) is sea: no sector there, or one holding
+ * nothing the map classifies (water cells carry no cartography component).
+ */
+private int _is_sea(string game, string map_name, int sx, int sy, int sz)
+{
+  object sect;
+  string type;
+
+  sect = cached_sector(game, map_name, sx, sy, sz);
+  if (!sect)
+    return 1;
+  type = sect->query_sector_type();
+  return type == SECTOR_TYPE_NONE || type == SECTOR_TYPE_EMPTY;
+}
+
+/**
+ * The arms ({ n, s, e, w }) of a coast sector along the shoreline. The coast is
+ * one continuous perimeter, so a sector has at most two: its two neighbours
+ * along it. Of three or four coast neighbours the line goes straight, through
+ * the pair on opposite sides (north and south when all four are coast), and the
+ * rest are spurs of a thick coast. A sector touching another coast only by a
+ * corner, with no coast on the two sectors between them, reaches it through the
+ * one of those two in the northern sector's row: the southern sector draws an
+ * arm north, the northern one an arm east or west, and _overlay_shore_steps
+ * draws the corner between them. A step never gives a sector a third arm.
  *
  * Neighbour convention as in _arms_code: north is a larger y, east a larger x.
  */
-private int _shore_code(object sect, string game, string map_name,
-                        int sx, int sy, int sz)
+private int * _coast_arms(string game, string map_name, int sx, int sy, int sz)
 {
-  int n, s, e, w, dx, dy;
+  int n, s, e, w, dx, dy, count;
 
   n = _is_coast(game, map_name, sx, sy + 1, sz);
   s = _is_coast(game, map_name, sx, sy - 1, sz);
   e = _is_coast(game, map_name, sx + 1, sy, sz);
   w = _is_coast(game, map_name, sx - 1, sy, sz);
 
+  count = n + s + e + w;
+  if (count == 4)
+    e = w = 0;
+  else if (count == 3)
+  {
+    // the arm with no coast opposite it is the spur
+    if (n && !s) n = 0;
+    else if (s && !n) s = 0;
+    else if (e && !w) e = 0;
+    else if (w && !e) w = 0;
+  }
+  count = n + s + e + w;
+
   for (dx = -1; dx <= 1; dx += 2)
     for (dy = -1; dy <= 1; dy += 2)
-      if (_is_coast(game, map_name, sx + dx, sy + dy, sz) &&
+      if (count < 2 &&
+          _is_coast(game, map_name, sx + dx, sy + dy, sz) &&
           !_is_coast(game, map_name, sx + dx, sy, sz) &&
           !_is_coast(game, map_name, sx, sy + dy, sz))
       {
@@ -408,10 +443,60 @@ private int _shore_code(object sect, string game, string map_name,
           e = 1;
         else
           w = 1;
+        count = n + s + e + w;
       }
 
+  return ({ n, s, e, w });
+}
+
+/**
+ * The code of a coast sector: a line along the shoreline (see _coast_arms), in
+ * the colour of its kind (beach or any other coast). A sector with both arms
+ * of the shoreline gets a third where a road reaches it from inland, and a
+ * third where it has a dock (a port or harbor) and exactly one of its two free
+ * sides is sea: the arm points out to sea. With both, the glyph is a cross.
+ * The road sector beside it keeps its own glyph.
+ */
+private int _shore_code(object sect, string game, string map_name,
+                        int sx, int sy, int sz)
+{
+  int * arms, * ways, * dx, * dy;
+  int i, count, sea_side, sea_count, road_side;
+
+  arms = _coast_arms(game, map_name, sx, sy, sz);
+  count = arms[0] + arms[1] + arms[2] + arms[3];
+
+  if (count == 2)
+  {
+    dx = ({ 0, 0, 1, -1 });
+    dy = ({ 1, -1, 0, 0 });
+    sea_side = road_side = -1;
+
+    for (i = 0; i < 4; i++)
+      if (!arms[i] && _is_sea(game, map_name, sx + dx[i], sy + dy[i], sz))
+      {
+        sea_side = i;
+        sea_count++;
+      }
+
+    // a dock reaches out to sea only when the sea side is certain
+    if (sea_count != 1 || !sect->query_port())
+      sea_side = -1;
+
+    ways = way_arms(sect, game, map_name, sx, sy, sz);
+    for (i = 0; i < 4 && road_side < 0; i++)
+      if (!arms[i] && i != sea_side && ways[i] &&
+          !_is_sea(game, map_name, sx + dx[i], sy + dy[i], sz))
+        road_side = i;
+
+    if (sea_side >= 0)
+      arms[sea_side] = 1;
+    if (road_side >= 0)
+      arms[road_side] = 1;
+  }
+
   return MAP_GLYPH_SHORE + (sect->query_beach() ? MAP_SHORE_ARMS : 0) +
-         _arms_code(({ n, s, e, w }));
+         _arms_code(arms);
 }
 
 // Display priority for a sector (highest first):
@@ -423,14 +508,18 @@ private int _shore_code(object sect, string game, string map_name,
 //   2. many ruins  — more than RUINS_OVERRIDE_MIN locations with the ruins
 //                    component draw the ruins glyph whatever the majority,
 //                    road, river or terrain; only a city outranks it
-//   3. road / path — if the sector has road/path exits, draw the way glyph;
+//   3. coast       — the shoreline is a closed perimeter, so a coast sector
+//                    keeps its shore glyph whatever road, path or river it
+//                    has; a road reaching it, or a dock, adds a third arm
+//                    (see _shore_code)
+//   4. road / path — if the sector has road/path exits, draw the way glyph;
 //                    with a river through it as well it is a bridge when the
 //                    road crosses it, and the river otherwise (bridge_code)
-//   4. forest, taiga, mountain, swamp — win over a river, so they keep
+//   5. forest, taiga, mountain, swamp — win over a river, so they keep
 //                    their size
-//   5. river       — blue line, over farmland and any other terrain
-//   6. ruins, plains — below the river
-//   7. majority    — otherwise the dominant remaining terrain type
+//   6. river       — blue line, over farmland and any other terrain
+//   7. ruins, plains — below the river
+//   8. majority    — otherwise the dominant remaining terrain type
 private int sector_code(string game, string map_name, int sx, int sy, int sz)
 {
   object sect;
@@ -456,6 +545,11 @@ private int sector_code(string game, string map_name, int sx, int sy, int sz)
   // query_sector_type is the majority component, or the programmer-set
   // manual type for a sector with no locations of its own
   type = sect->query_sector_type();
+
+  // the coast comes before the ways and the river: the shoreline never breaks
+  // where a road reaches it or a river meets the sea
+  if (type == SECTOR_TYPE_COAST)
+    return _shore_code(sect, game, map_name, sx, sy, sz);
 
   river = _memo("h", sect, sx, sy, sz);
   if (river)
@@ -498,8 +592,6 @@ private int sector_code(string game, string map_name, int sx, int sy, int sz)
   if (type == SECTOR_TYPE_PLAINS)      return _plains_code(sx, sy, sz);
 
   if (type == SECTOR_TYPE_CITY)        return MAP_GLYPH_CITY;
-  if (type == SECTOR_TYPE_COAST)
-    return _shore_code(sect, game, map_name, sx, sy, sz);
   if (type == SECTOR_TYPE_UNDERGROUND) return MAP_GLYPH_UNDERGROUND;
 
   return MAP_GLYPH_EMPTY;
@@ -601,34 +693,45 @@ private void _overlay_city_walls(string ** grid, int ** is_city,
     }
 }
 
-// Post-processing pass: the corner of each step of a shoreline. Two coast
-// sectors touching only by a corner meet in the blank sector north of the
-// southern one (see _shore_code), which gets an arc joining them in the
-// southern one's colour. A sector with something drawn on it is left alone.
+/**
+ * Post-processing pass: the corner of each step of a shoreline. Two coast
+ * sectors touching only by a corner meet in the blank sector north of the
+ * southern one (see _coast_arms), which gets an arc joining them in the
+ * southern one's colour. Both sectors must draw their arm of the step, and a
+ * sector with something drawn on it is left alone.
+ *
+ * @param shore per cell, 0 off the coast, else 1 + its shore code
+ *              (code - MAP_GLYPH_SHORE: kind * MAP_SHORE_ARMS + arms)
+ */
 private void _overlay_shore_steps(string ** grid, int ** shore, int w, int h)
 {
   mapping arms, kinds;
   string key;
   string * keys;
-  int r, c, k, nr, nc;
+  int r, c, k, nr, nc, south, north;
 
   arms = ([ ]);
   kinds = ([ ]);
-  // shore[r][c] is 0 off the coast, else 1 + the kind of shore
   for (r = 1; r < h; r++)
     for (c = 0; c < w; c++)
     {
       if (!shore[r][c] || shore[r - 1][c])
         continue;
+      south = (shore[r][c] - 1) % MAP_SHORE_ARMS;
       for (k = -1; k <= 1; k += 2)
       {
         nc = c + k;
         if (nc < 0 || nc >= w || !shore[r - 1][nc] || shore[r][nc])
           continue;
+        // the southern sector draws an arm north, the northern one an arm
+        // toward the southern one's column
+        north = (shore[r - 1][nc] - 1) % MAP_SHORE_ARMS;
+        if (!(south & 8) || !(north & (k > 0 ? 1 : 2)))
+          continue;
         // south arm (to this sector) and east or west (to the northern one)
         key = (r - 1) + "_" + c;
         arms[key] = (undefinedp(arms[key]) ? 0 : arms[key]) | 4 | (k > 0 ? 2 : 1);
-        kinds[key] = shore[r][c] - 1;
+        kinds[key] = (shore[r][c] - 1) / MAP_SHORE_ARMS;
       }
     }
 
@@ -1019,10 +1122,10 @@ string render(int center_x, int center_y, int center_z,
       // forest city is a city too) — still before the player marker
       // overwrites it below.
       is_city[row_i][col] = code == MAP_GLYPH_CITY || code == MAP_GLYPH_FOREST_CITY;
-      // 1 + the kind of shore for a coast, for the steps of the shoreline
+      // 1 + the shore code for a coast, for the steps of the shoreline
       if (code >= MAP_GLYPH_SHORE &&
           code < MAP_GLYPH_SHORE + MAP_SHORE_KINDS * MAP_SHORE_ARMS)
-        shore[row_i][col] = 1 + (code - MAP_GLYPH_SHORE) / MAP_SHORE_ARMS;
+        shore[row_i][col] = 1 + (code - MAP_GLYPH_SHORE);
     }
   }
 

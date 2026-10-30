@@ -638,6 +638,27 @@ int query_beach()
   return _coast_majority("beach");
 }
 
+/**
+ * Whether any coast location of the sector is a dock (a port or harbor).
+ *
+ * @return 1 when one is, 0 otherwise
+ */
+int query_port()
+{
+  string * files;
+  int i;
+
+  if (!locations)
+    return 0;
+
+  files = map_indices(locations);
+  for (i = 0; i < sizeof(files); i++)
+    if (mappingp(locations[files[i]]) && locations[files[i]]["port"])
+      return 1;
+
+  return 0;
+}
+
 // The sector's dominant type: whichever cartography component is
 // attached to the most locations here. Iterates SECTOR_MAP_COMPONENTS
 // in priority order with a strict `>`, so ties go to the earlier entry

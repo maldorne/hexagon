@@ -296,13 +296,17 @@ string add_location(object location)
     if (sizeof(my_types))
       location_data["types"] = my_types;
 
-    // the kind of shore, so the map can tell a beach from the rest
+    // the kind of shore, so the map can tell a beach from the rest and mark
+    // where a dock (a port or harbor) reaches out to sea
     if (location->has_component(LOCATION_COMPONENT_COAST))
     {
       object coast;
       coast = location->query_component_by_type(LOCATION_COMPONENT_COAST);
       if (coast && coast->query_kind() == "beach")
         location_data["beach"] = 1;
+      if (coast && (coast->query_kind() == "port" ||
+                    coast->query_kind() == "harbor"))
+        location_data["port"] = 1;
     }
 
     // Lift the location's path / road exits (direction -> way_type) so
