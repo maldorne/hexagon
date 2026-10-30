@@ -352,13 +352,16 @@ private string capitalise(string text)
  * How a viewer names the area outside the dump an exit leads to: ({ kind,
  * label }). Guild and job areas (their first path segment) are labelled with
  * the short of the guild or job their locations name; any other area with the
- * name of its top-level area, else its first path segment.
+ * title of the map it is drawn on (its map name, else its exploration name,
+ * else its parent area's), else its top-level area, else its first path
+ * segment.
  */
 private mixed * external_label(string target_id, string target_folder)
 {
   string * parts, * result;
-  string kind, top, label;
+  string kind, top, label, folder;
   mapping data;
+  int steps;
 
   if (label_cache[target_id])
     return label_cache[target_id];
@@ -383,13 +386,33 @@ private mixed * external_label(string target_id, string target_folder)
   else
   {
     kind = "area";
+
+    // the area itself, then up its parent chain
+    for (folder = target_folder, steps = 0;
+         strlen(folder) && !strlen(label) && steps < 8; steps++)
+    {
+      data = file_size(folder + "area.o") > 0 ?
+             reader->read(folder + "area.o") : nil;
+
+      if (!data)
+        break;
+
+      if (stringp(data["map_name"]))
+        label = strip_colours(data["map_name"]);
+
+      if (!strlen(label) && stringp(data["exploration_name"]))
+        label = strip_colours(data["exploration_name"]);
+
+      folder = stringp(data["parent_area"]) ? data["parent_area"] : "";
+    }
+
     top = areas_dir + parts[0] + "/";
 
     // an area saves its own file either here or in its rooms folder
     if (file_size(top + "area.o") <= 0)
       top += "rooms/";
 
-    if (file_size(top + "area.o") > 0)
+    if (!strlen(label) && file_size(top + "area.o") > 0)
     {
       data = reader->read(top + "area.o");
 
