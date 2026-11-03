@@ -2563,13 +2563,14 @@ void reindex_game_step(string game, string * areas, int idx, object initiator,
                     areas, idx + 1);
 }
 
-// Kick off a game-wide reindex, one area per tick. Returns the number of
-// areas scheduled, or -1 if the game has no areas directory. With do_save
-// set every location is also re-saved (data migration).
+// Kick off a game-wide reindex, one area after another, every area the areas
+// handler knows of (nested ones included). Returns the number of areas
+// scheduled, or -1 if the game has no areas directory. With do_save set every
+// location is also re-saved (data migration).
 int reindex_game(string game, object initiator, varargs int do_save)
 {
   string areas_root;
-  string * entries, * areas;
+  string * paths, * areas;
   int i;
 
   areas_root = "/save/games/" + game + "/locations/areas/";
@@ -2577,14 +2578,14 @@ int reindex_game(string game, object initiator, varargs int do_save)
   if (file_size(areas_root) != -2)
     return -1;
 
-  entries = get_dir(areas_root + "*");
-  entries = entries ? entries : ({ });
-
-  // keep only sub-directories (each area is a dir)
+  // area paths come as save directories; reindex_area_step takes them
+  // relative to the areas directory
+  paths = (string *)load_object(AREA_HANDLER)->query_area_paths(game);
   areas = ({ });
-  for (i = 0; i < sizeof(entries); i++)
-    if (file_size(areas_root + entries[i]) == -2)
-      areas += ({ entries[i] });
+  for (i = 0; i < sizeof(paths); i++)
+    if (strlen(paths[i]) > strlen(areas_root) &&
+        paths[i][0 .. strlen(areas_root) - 1] == areas_root)
+      areas += ({ paths[i][strlen(areas_root) ..] });
 
   if (sizeof(areas))
     call_out("reindex_game_step", 0, game, areas, 0, initiator, do_save);
