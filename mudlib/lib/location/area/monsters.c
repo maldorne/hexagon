@@ -2,8 +2,9 @@
 // Monsters: the anonymous half of an area's population.
 //
 // Ordinary creatures -- fauna, vermin, wildlife -- are counted, not tracked.
-// The area knows how many of each kind belong to each of its locations and
-// nothing else about them: no uuid, no savefile, no state carried between
+// The community knows how many of each kind belong to each of its locations and
+// nothing else about them; the counts are kept with its root area, like the
+// roster and the census: no uuid, no savefile, no state carried between
 // loads. They are cloned fresh from their template every time their location
 // loads and simply vanish when it unloads. Anything with an individual life
 // the world refers to (a citizen, a POI vacancy, a posted guard) is not here;
@@ -16,12 +17,45 @@ mapping monster_census;
 
 
 private int _live_monster_count(object loc, string source);
+private mapping _books();
 int query_monster_live_count(string source);
+int query_area_monster_count(string source);
 private object spawn_monster(string source, object loc);
 
 void create()
 {
   monster_census = ([ ]);
+}
+
+/**
+ * The buckets of this area's community, kept by its root area. An area that
+ * still holds buckets of its own hands them up the first time they are asked
+ * for: each location file belongs to one area, so nothing collides.
+ *
+ * @return the community's ([ location_file : ([ template_id : count ]) ])
+ */
+private mapping _books()
+{
+  object root;
+  mapping books;
+  string * files;
+  int i;
+
+  root = (object)this_object()->query_root_area();
+  if (!root || root == this_object())
+    return monster_census;
+
+  books = (mapping)root->query_monster_census();
+  if (map_sizeof(monster_census))
+  {
+    files = map_indices(monster_census);
+    for (i = 0; i < sizeof(files); i++)
+      books[files[i]] = monster_census[files[i]];
+    monster_census = ([ ]);
+    this_object()->mark_dirty();
+  }
+
+  return books;
 }
 
 // Add one monster of `source` to `location_file`'s bucket. Monsters are
@@ -57,18 +91,19 @@ private int _swims(string source)
 
 int assign_monster(string source, string location_file)
 {
-  mapping bucket;
+  mapping books, bucket;
 
   if (!source || !strlen(source) || !location_file || !strlen(location_file))
     return 0;
   if (!_is_monster_source(source))
     return 0;
 
-  bucket = monster_census[location_file];
+  books = _books();
+  bucket = books[location_file];
   if (!bucket)
   {
     bucket = ([ ]);
-    monster_census[location_file] = bucket;
+    books[location_file] = bucket;
   }
 
   if (!bucket[source])
@@ -86,9 +121,10 @@ int assign_monster(string source, string location_file)
 // left to a later sweep to notice.
 void monster_died(string source, string location_file)
 {
-  mapping bucket;
+  mapping books, bucket;
 
-  bucket = monster_census[location_file];
+  books = _books();
+  bucket = books[location_file];
   if (!bucket || !bucket[source])
     return;
 
@@ -98,9 +134,38 @@ void monster_died(string source, string location_file)
   {
     map_delete(bucket, source);
     if (!map_sizeof(bucket))
-      map_delete(monster_census, location_file);
+      map_delete(books, location_file);
   }
   this_object()->mark_dirty();
+}
+
+// How many monsters of `source` the bucket of `file` holds.
+private int _bucket_count(mapping books, string file, string source)
+{
+  mixed count;
+
+  count = books[file][source];
+  return count ? count : 0;
+}
+
+// The location files of the community's buckets that belong to this area.
+private string * _own_files(mapping books)
+{
+  mapping mine;
+  string * files, * out;
+  int i;
+
+  mine = (mapping)this_object()->query_locations();
+  if (!mine)
+    return ({ });
+
+  files = map_indices(books);
+  out = ({ });
+  for (i = 0; i < sizeof(files); i++)
+    if (mine[files[i]])
+      out += ({ files[i] });
+
+  return out;
 }
 
 // Bring the monster counts back within what this area's locations ask for,
@@ -109,27 +174,21 @@ void monster_died(string source, string location_file)
 // locations that do not declare it and then from the fullest ones. The share is
 // what the population sweep tops up to (cut to the roster limit, as there), so
 // lowering either lowers the population instead of leaving the old one in place.
-// How many monsters of `source` the bucket of `file` holds.
-private int _bucket_count(string file, string source)
-{
-  mixed count;
-
-  count = monster_census[file][source];
-  return count ? count : 0;
-}
-
+// The shares are trimmed in this area's own locations; a roster limit, held by
+// the whole community, in any of them.
 void trim_monsters_to_caps()
 {
-  string * sources, * files;
-  mapping caps;
+  string * sources, * files, * own;
+  mapping caps, books;
   int i, j, changed;
 
   caps = (mapping)this_object()->query_npc_caps();
+  books = _books();
+  own = _own_files(books);
 
   sources = ({ });
-  files = map_indices(monster_census);
-  for (i = 0; i < sizeof(files); i++)
-    sources |= map_indices(monster_census[files[i]]);
+  for (i = 0; i < sizeof(own); i++)
+    sources |= map_indices(books[own[i]]);
 
   for (i = 0; i < sizeof(sources); i++)
   {
@@ -145,22 +204,21 @@ void trim_monsters_to_caps()
         share > caps[sources[i]]["limit"])
       share = caps[sources[i]]["limit"];
 
-    excess = query_monster_live_count(sources[i]) - share;
+    excess = query_area_monster_count(sources[i]) - share;
     if (excess <= 0)
       continue;
 
     // locations that never declared this kind are emptied of it first
-    files = map_indices(monster_census);
-    for (j = 0; j < sizeof(files) && excess > 0; j++)
+    for (j = 0; j < sizeof(own) && excess > 0; j++)
     {
       int here;
 
-      here = _bucket_count(files[j], sources[i]);
-      if (!here || declared[files[j]])
+      here = _bucket_count(books, own[j], sources[i]);
+      if (!here || declared[own[j]])
         continue;
 
       here = (here > excess) ? excess : here;
-      monster_census[files[j]][sources[i]] -= here;
+      books[own[j]][sources[i]] -= here;
       excess -= here;
       changed = 1;
     }
@@ -173,17 +231,52 @@ void trim_monsters_to_caps()
 
       fullest = nil;
       most = 0;
-      for (j = 0; j < sizeof(files); j++)
-        if (_bucket_count(files[j], sources[i]) > most)
+      for (j = 0; j < sizeof(own); j++)
+        if (_bucket_count(books, own[j], sources[i]) > most)
         {
-          most = _bucket_count(files[j], sources[i]);
+          most = _bucket_count(books, own[j], sources[i]);
+          fullest = own[j];
+        }
+
+      if (!fullest)
+        break;
+
+      books[fullest][sources[i]] -= 1;
+      excess--;
+      changed = 1;
+    }
+  }
+
+  // a roster limit holds for the whole community: past it, one at a time from
+  // the fullest bucket of any of its areas
+  files = map_indices(books);
+  sources = map_indices(caps);
+  for (i = 0; i < sizeof(sources); i++)
+  {
+    int excess;
+
+    if (!caps[sources[i]]["limit"])
+      continue;
+
+    excess = query_monster_live_count(sources[i]) - caps[sources[i]]["limit"];
+    while (excess > 0)
+    {
+      string fullest;
+      int most;
+
+      fullest = nil;
+      most = 0;
+      for (j = 0; j < sizeof(files); j++)
+        if (_bucket_count(books, files[j], sources[i]) > most)
+        {
+          most = _bucket_count(books, files[j], sources[i]);
           fullest = files[j];
         }
 
       if (!fullest)
         break;
 
-      monster_census[fullest][sources[i]] -= 1;
+      books[fullest][sources[i]] -= 1;
       excess--;
       changed = 1;
     }
@@ -193,36 +286,59 @@ void trim_monsters_to_caps()
     return;
 
   // drop the counts and the buckets left at zero
-  files = map_indices(monster_census);
   for (i = 0; i < sizeof(files); i++)
   {
-    sources = map_indices(monster_census[files[i]]);
+    sources = map_indices(books[files[i]]);
     for (j = 0; j < sizeof(sources); j++)
-      if (monster_census[files[i]][sources[j]] <= 0)
-        map_delete(monster_census[files[i]], sources[j]);
-    if (!map_sizeof(monster_census[files[i]]))
-      map_delete(monster_census, files[i]);
+      if (books[files[i]][sources[j]] <= 0)
+        map_delete(books[files[i]], sources[j]);
+    if (!map_sizeof(books[files[i]]))
+      map_delete(books, files[i]);
   }
 
   this_object()->save_me();
 }
 
-// How many monsters of `source` the area holds, summed across its locations.
-// This is what the population sweep checks against the cap.
+// How many monsters of `source` the community holds, summed across all its
+// locations. This is what a roster limit is checked against.
 int query_monster_live_count(string source)
 {
+  mapping books;
   string * locs;
   int i, n;
 
-  locs = map_indices(monster_census);
+  books = _books();
+  locs = map_indices(books);
   for (i = 0; i < sizeof(locs); i++)
-    if (monster_census[locs[i]][source])
-      n += monster_census[locs[i]][source];
+    if (books[locs[i]][source])
+      n += books[locs[i]][source];
 
   return n;
 }
 
-mapping query_monster_census() { return monster_census; }
+// How many monsters of `source` this area's own locations hold: what the
+// population sweep tops up against what the area's rooms declared.
+int query_area_monster_count(string source)
+{
+  mapping books;
+  string * own;
+  int i, n;
+
+  books = _books();
+  own = _own_files(books);
+  for (i = 0; i < sizeof(own); i++)
+    if (books[own[i]][source])
+      n += books[own[i]][source];
+
+  return n;
+}
+
+mapping query_monster_census() { return _books(); }
+
+// This area's own buckets, without asking its root: for moving books when the
+// area joins or leaves a community.
+mapping query_own_monster_census() { return monster_census; }
+void set_own_monster_census(mapping m) { monster_census = m ? m : ([ ]); }
 
 // The sources the population sweep may top up as fauna: the caps roster minus
 // every sentient kind. Citizens are staffed by their settlement, one named
@@ -327,7 +443,7 @@ void restore_location_monsters(object loc, string file)
   string * sources;
   int i;
 
-  bucket = monster_census[file];
+  bucket = _books()[file];
   if (!bucket)
     return;
 

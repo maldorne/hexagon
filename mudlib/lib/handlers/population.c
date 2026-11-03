@@ -188,7 +188,14 @@ int populate_area(object area, int limit)
       cap += clones_here[files[j]];
     cap = limited_cap(caps, sources[i], cap);
 
-    deficit = cap - area->query_monster_live_count(sources[i]);
+    deficit = cap - area->query_area_monster_count(sources[i]);
+
+    // a roster limit holds for the whole community, whichever area fills it
+    if (caps[sources[i]] && caps[sources[i]]["limit"] &&
+        deficit > caps[sources[i]]["limit"] -
+                  area->query_monster_live_count(sources[i]))
+      deficit = caps[sources[i]]["limit"] -
+                area->query_monster_live_count(sources[i]);
 
     for (j = 0; j < deficit && assigned < limit; j++)
     {

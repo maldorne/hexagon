@@ -604,11 +604,10 @@ int repair_template_ids(int apply)
   game = game_from_path((string)this_object()->query_area_path());
   fixed = 0;
 
-  // The per-location buckets the statistical sweep tops up from live on each
-  // area, not on the community, so they are repaired here before anything is
-  // delegated. They are not derived from anything either, so they are repaired
-  // in place; an unrepaired one spawns filler with no template at all -- a
-  // nameless, raceless body standing in a room.
+  // The per-location buckets the statistical sweep tops up from are the
+  // community's, kept with its root. They are not derived from anything, so
+  // they are repaired in place; an unrepaired one spawns filler with no
+  // template at all -- a nameless, raceless body standing in a room.
   keys = (mapping)this_object()->query_monster_census()
            ? map_indices((mapping)this_object()->query_monster_census()) : ({ });
   for (i = 0; i < sizeof(keys); i++)

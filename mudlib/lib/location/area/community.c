@@ -510,6 +510,13 @@ private void _join(object root)
   for (i = 0; i < sizeof(keys); i++)
     theirs[keys[i]] = mine[keys[i]];
 
+  // each location file belongs to one area, so the buckets never collide
+  theirs = (mapping)root->query_own_monster_census();
+  mine = (mapping)this_object()->query_own_monster_census();
+  keys = map_indices(mine);
+  for (i = 0; i < sizeof(keys); i++)
+    theirs[keys[i]] = mine[keys[i]];
+
   // the design-time flags on the caps travel; the counts are derived again
   caps = (mapping)root->query_own_npc_caps();
   own_caps = (mapping)this_object()->query_own_npc_caps();
@@ -527,6 +534,7 @@ private void _join(object root)
   this_object()->set_own_houses(([ ]));
   this_object()->set_own_plots(({ }));
   this_object()->set_own_npc_sources(([ ]));
+  this_object()->set_own_monster_census(([ ]));
   this_object()->set_own_npc_caps(([ ]));
 }
 
@@ -595,6 +603,7 @@ private void _leave(object root, mapping plan)
 {
   mapping census, houses, provenance, person, house_side, job_side;
   mapping child_census, child_houses, child_provenance, caps, child_caps;
+  mapping buckets, child_buckets;
   mapping * jobs, * child_jobs, * root_jobs;
   string * keys, * plots, * child_plots, top;
   int i;
@@ -651,6 +660,17 @@ private void _leave(object root, mapping plan)
       map_delete(provenance, keys[i]);
     }
 
+  // the fauna buckets go where their locations stand
+  buckets = (mapping)root->query_own_monster_census();
+  child_buckets = ([ ]);
+  keys = map_indices(buckets);
+  for (i = 0; i < sizeof(keys); i++)
+    if (_side_of(keys[i], top) == SIDE_CHILD)
+    {
+      child_buckets[keys[i]] = buckets[keys[i]];
+      map_delete(buckets, keys[i]);
+    }
+
   // both sides keep the design-time flags; the counts are derived again
   caps = (mapping)root->query_own_npc_caps();
   child_caps = ([ ]);
@@ -664,6 +684,7 @@ private void _leave(object root, mapping plan)
   this_object()->set_own_houses(child_houses);
   this_object()->set_own_plots(child_plots);
   this_object()->set_own_npc_sources(child_provenance);
+  this_object()->set_own_monster_census(child_buckets);
   this_object()->set_own_npc_caps(child_caps);
   this_object()->set_parent_link("");
 

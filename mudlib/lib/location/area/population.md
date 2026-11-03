@@ -37,9 +37,9 @@ so editing them reaches the person already living.
 
 ## Two halves of the population
 
-**Monsters** (fauna, vermin) are counted, not tracked. The area keeps
-`monster_census`, `([ location_file : ([ template_id : count ]) ])`, and nothing
-else about them: no uuid, no savefile, no state. Every time a location loads,
+**Monsters** (fauna, vermin) are counted, not tracked. The community keeps
+`monster_census`, `([ location_file : ([ template_id : count ]) ])`, on its root
+area, and nothing else about them: no uuid, no savefile, no state. Every time a location loads,
 `restore_location_monsters()` clones whatever its bucket says is missing, with
 gender, level and kit rolled fresh. They vanish when the location unloads. One
 that cannot swim is not put in water. A death calls `monster_died()` on the
@@ -73,8 +73,10 @@ Three kinds of source are kept off the roster on every rebuild: a type a vacancy
 draws from, the type a job's template names in `extracted_from`, and anything
 that is not a living NPC.
 
-`query_total_live_count(source)` is the census count plus the monster buckets;
-it is the number compared against a cap.
+`query_total_live_count(source)` is the census count plus the monster buckets
+of the whole community; it is the number compared against a cap.
+`query_area_monster_count(source)` counts only the buckets of the area's own
+locations.
 
 ## The population sweep
 
@@ -87,8 +89,9 @@ sweeps one area of that game, taking them in turn, and assigns at most ten
 1. **Fauna.** For each source in `query_monster_sources()` (the roster minus
    every sentient kind), the area's share of the cap is the sum of what its own
    locations declared (`query_original_clone_counts()`), the deficit is that
-   share minus the area-wide monster count, and `assign_monster()` bumps the
-   bucket of a random declaring location.
+   share minus the monsters in the area's own locations, never more than a
+   roster limit leaves free across the whole community, and `assign_monster()`
+   bumps the bucket of a random declaring location.
 2. **Unplaced people.** For each source in `query_unplaced_people_sources()`
    (sentient roster types that no vacancy draws from and that are not
    `resident`: travellers, pilgrims), the deficit is the declared share minus
@@ -369,8 +372,9 @@ is set by hand, never derived from the tree. `query_root_area()` walks it (at
 most `AREA_MAX_ANCESTRY` steps) and every population accessor of a delegating
 area answers from the root: caps and the conversion provenance they are summed
 from, census, vacancies, plots, houses, families. Writes are forwarded and saved
-on the root. The area keeps its own locations, exits, POIs, monster buckets and
-schedule index.
+on the root, the fauna buckets included. The area keeps its own locations,
+exits, POIs and schedule index; buckets an area still holds of its own are
+handed to its root the first time they are read.
 
 Setting or clearing a parent moves those books between the two roots
 (`lib/location/area/community.c`), so nobody is lost or duplicated:
@@ -378,13 +382,13 @@ Setting or clearing a parent moves those books between the two roots
 - `areas parent <path> check` reports what it would do; without `check` it
   is done, or refused while any conflict remains, each one named with the
   command that settles it.
-- **Joining** a community moves the area's census, jobs, houses, plots and
-  provenance onto the new root. Two jobs with the same name conflict:
+- **Joining** a community moves the area's census, jobs, houses, plots,
+  provenance and fauna buckets onto the new root. Two jobs with the same name conflict:
   `vacancies rename <name> <new name>` on either side.
 - **Leaving** splits the books: a job goes where it is held; a person follows
   their job, else their house, else where they stand; a house goes where it
   stands, or with the area it is booked with (`houses books <area> [house]`);
-  plots and provenance go where they stand. A holder whose house would end up
+  plots, provenance and fauna buckets go where they stand. A holder whose house would end up
   on the other side of their job conflicts: book the house with their side
   (only when nobody else in it works on the side it stands on), or take them
   out of it with `npcs rehouse <uuid>`, and the housing pass run on each side
