@@ -383,20 +383,32 @@ private int _is_coast(string game, string map_name, int sx, int sy, int sz)
 
 /**
  * Whether the sector at (sx, sy, sz) is sea: no sector there, or one holding
- * nothing the map classifies (water cells carry no cartography component) and
- * crossed by no way, since a road over open land has no type of its own.
+ * nothing the map classifies, crossed by no way and with no land location: a
+ * road or a grove over open land has no type of its own, but is not sea.
  */
 private int _is_sea(string game, string map_name, int sx, int sy, int sz)
 {
   object sect;
   string type;
+  mapping nodes;
+  string * keys;
+  int i;
 
   sect = cached_sector(game, map_name, sx, sy, sz);
   if (!sect)
     return 1;
   type = sect->query_sector_type();
-  return (type == SECTOR_TYPE_NONE || type == SECTOR_TYPE_EMPTY) &&
-         !_has_drawn_way(_memo("w", sect, sx, sy, sz));
+  if ((type != SECTOR_TYPE_NONE && type != SECTOR_TYPE_EMPTY) ||
+      _has_drawn_way(_memo("w", sect, sx, sy, sz)))
+    return 0;
+
+  nodes = sect->query_nodes();
+  keys = map_indices(nodes);
+  for (i = 0; i < sizeof(keys); i++)
+    if (!mappingp(nodes[keys[i]]) || !nodes[keys[i]]["water"])
+      return 0;
+
+  return 1;
 }
 
 /**
