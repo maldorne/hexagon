@@ -186,13 +186,16 @@ string * query_unplaced_people_sources()
 // Census entries assigned to a given location file.
 private string * query_census_uuids_at(string location_file)
 {
+  mapping census;
   string * ids, * ret;
   int i;
 
-  ids = map_indices(query_npc_census());
+  // read once: in a delegating area every read walks up to the root
+  census = query_npc_census();
+  ids = map_indices(census);
   ret = ({ });
   for (i = 0; i < sizeof(ids); i++)
-    if (query_npc_census()[ids[i]][CENSUS_LOCATION] == location_file)
+    if (census[ids[i]][CENSUS_LOCATION] == location_file)
       ret += ({ ids[i] });
 
   return ret;

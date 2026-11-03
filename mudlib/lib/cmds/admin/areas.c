@@ -47,10 +47,11 @@ void setup()
            "indices built from them -- the sector map, the terrain tallies,\n" +
            "the ways the world map draws -- are rebuilt against the current\n" +
            "code. Run it after changing how any of that is calculated.\n" +
+           "It runs in the background and tells you as each area ends.\n" +
            "\n" +
            "  areas reindex            the area you are standing in\n" +
            "  areas reindex <area>     the one you name\n" +
-           "  areas reindex game       every area of this game, one per tick\n" +
+           "  areas reindex game       every area of this game, one after another\n" +
            "\n" +
            "Reading only: it loads locations, it does not write them. Adding\n" +
            "'save' as the last word re-saves every location as well, which\n" +
@@ -165,16 +166,17 @@ private int do_reindex(object me, string * tokens)
     return 0;
   }
 
-  count = load_object(LOCATION_HANDLER)->reindex_area(game, area, do_save);
+  count = load_object(LOCATION_HANDLER)->reindex_area(game, area, do_save,
+                                                       me);
   if (count < 0)
   {
     notify_fail("No area '" + area + "' in game '" + game + "'.\n");
     return 0;
   }
 
-  write("Reindexed area '" + area + "' in '" + game + "': " +
-        count + " location" + (count == 1 ? "" : "s") +
-        (do_save ? " (saved)" : "") + ".\n");
+  write("Reindexing area '" + area + "' in '" + game + "' (" + count +
+        " location" + (count == 1 ? "" : "s") + ")" +
+        (do_save ? " with save" : "") + " in the background ...\n");
   return 1;
 }
 

@@ -2436,32 +2436,64 @@ void clean_step(string * orphans, int idx, object * touched_areas,
 //  every persisted location once so stale sector.o / area.o files
 //  rebuild against the code as it stands now.
 //
-//  Each load is cheap — a single restore plus the sector write — so an
-//  area-sized batch fits within one execution's rlimits (the `exits
-//  area` coder command already scans a whole area synchronously, and it
-//  does strictly more work per file). A whole game spans many areas, so
-//  reindex_game() spreads the areas across call_outs: each fires on the
-//  next tick with a fresh rlimits budget, the standard DGD idiom for a
-//  job too large for a single execution.
+//  A load restores the location, places its people and writes its
+//  sector, which can be costly in a big area of a community, so an area
+//  is reindexed in chunks: as many locations as the ticks allow, then the
+//  rest in a call_out with a fresh rlimits budget (the standard DGD idiom
+//  for a job too large for one execution). A whole game runs its areas one
+//  after another, each starting when the previous one ends.
 // ============================================================
 
-// Reindex a single area synchronously. Returns the number of locations
-// reloaded, or -1 if the area directory does not exist.
-//
-// With do_save set, each loaded location is also saved back. Loading
-// alone rebuilds the in-memory sector/area indexes; saving additionally
-// rewrites the location's own .o — used to migrate persisted data to the
-// current on-disk format (e.g. canonical English exit direction keys).
-int reindex_area(string game, string area, varargs int do_save)
-{
-  object area_ob;
-  string area_path;
-  string * files;
-  int i, count;
+#define REINDEX_TICK_MARGIN 3000000
 
-  // Accept the area either bare ("<area>", as `exits area` takes it) or
-  // as query_area_name() reports it ("<area>/rooms"): strip a trailing
-  // "/rooms" or "/" so the path is rebuilt exactly once.
+// Load files[idx..] of one area, stopping while a margin of ticks is left
+// and going on in a call_out of its own. When the area ends, the initiator
+// is told, and a game-wide run (`areas` and `next` set) goes on with the
+// next area. Public because the call_out dispatcher reaches it through
+// call_other.
+void reindex_area_step(string game, string area, string * files, int idx,
+                       int count, object initiator, int do_save,
+                       string * areas, int next)
+{
+  object loc;
+  int left;
+
+  while (idx < sizeof(files))
+  {
+    left = eval_cost();
+    if (left >= 0 && left < REINDEX_TICK_MARGIN)
+    {
+      call_out("reindex_area_step", 0, game, area, files, idx, count,
+               initiator, do_save, areas, next);
+      return;
+    }
+
+    if (loc = load_location(files[idx]))
+    {
+      if (do_save)
+        loc->save_me();
+      count++;
+    }
+    idx++;
+  }
+
+  if (initiator)
+    tell_object(initiator, "  reindexed area '" + area + "': " + count +
+                " location" + (count == 1 ? "" : "s") +
+                (do_save ? " (saved)" : "") + "\n");
+
+  if (areas)
+    call_out("reindex_game_step", 0, game, areas, next, initiator, do_save);
+}
+
+// The location files of an area, by its path under the game's areas
+// directory, given bare ("<area>") or as query_area_name() reports it
+// ("<area>/rooms"). nil if the area directory does not exist.
+private string * _reindex_files(string game, string area)
+{
+  string area_path;
+  object area_ob;
+
   while (strlen(area) && area[strlen(area) - 1] == '/')
     area = area[0 .. strlen(area) - 2];
   if (strlen(area) >= 6 && area[strlen(area) - 6 ..] == "/rooms")
@@ -2470,36 +2502,43 @@ int reindex_area(string game, string area, varargs int do_save)
   area_path = "/save/games/" + game + "/locations/areas/" + area + "/rooms/";
 
   if (file_size(area_path) != -2)
-    return -1;
+    return nil;
 
   // the area object is the authority on which files belong to it — the
   // same source `exits area` uses. load_location gates on it anyway.
   area_ob = load_object(AREA_HANDLER)->create_area(area_path);
-  files = map_indices(area_ob->query_locations());
-
-  count = 0;
-  for (i = 0; i < sizeof(files); i++)
-  {
-    object loc;
-    if (loc = load_location(files[i]))
-    {
-      if (do_save)
-        loc->save_me();
-      count++;
-    }
-  }
-
-  return count;
+  return map_indices(area_ob->query_locations());
 }
 
-// One step of a game-wide reindex: reindex areas[idx], then schedule the
-// next on the following tick. Public because the call_out dispatcher
-// reaches it through call_other. initiator is notified per area so a
-// long run reports progress instead of going silent.
+// Reindex a single area in the background, from the next tick. Returns the
+// number of locations it will reload, or -1 if the area directory does not
+// exist; the initiator is told when it ends.
+//
+// With do_save set, each loaded location is also saved back. Loading
+// alone rebuilds the in-memory sector/area indexes; saving additionally
+// rewrites the location's own .o — used to migrate persisted data to the
+// current on-disk format (e.g. canonical English exit direction keys).
+int reindex_area(string game, string area, varargs int do_save,
+                 object initiator)
+{
+  string * files;
+
+  files = _reindex_files(game, area);
+  if (!files)
+    return -1;
+
+  call_out("reindex_area_step", 0, game, area, files, 0, 0, initiator,
+           do_save, nil, 0);
+  return sizeof(files);
+}
+
+// One step of a game-wide reindex: start areas[idx], which goes on with
+// the next one when it ends. Public because the call_out dispatcher
+// reaches it through call_other.
 void reindex_game_step(string game, string * areas, int idx, object initiator,
                        int do_save)
 {
-  int count;
+  string * files;
 
   if (idx >= sizeof(areas))
   {
@@ -2509,14 +2548,19 @@ void reindex_game_step(string game, string * areas, int idx, object initiator,
     return;
   }
 
-  count = reindex_area(game, areas[idx], do_save);
+  files = _reindex_files(game, areas[idx]);
+  if (!files)
+  {
+    if (initiator)
+      tell_object(initiator, "  reindexed area '" + areas[idx] +
+                  "': not found\n");
+    call_out("reindex_game_step", 0, game, areas, idx + 1, initiator,
+             do_save);
+    return;
+  }
 
-  if (initiator)
-    tell_object(initiator, "  reindexed area '" + areas[idx] + "': " +
-                (count < 0 ? "not found" : count + " locations") +
-                (do_save ? " (saved)" : "") + "\n");
-
-  call_out("reindex_game_step", 0, game, areas, idx + 1, initiator, do_save);
+  reindex_area_step(game, areas[idx], files, 0, 0, initiator, do_save,
+                    areas, idx + 1);
 }
 
 // Kick off a game-wide reindex, one area per tick. Returns the number of
