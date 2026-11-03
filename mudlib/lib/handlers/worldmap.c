@@ -459,6 +459,7 @@ private int * _coast_arms(string game, string map_name, int sx, int sy, int sz)
  * of the shoreline gets a third where a road reaches it from inland, and a
  * third where it has a dock (a port or harbor) and exactly one of its two free
  * sides is sea: the arm points out to sea. With both, the glyph is a cross.
+ * A dock at the end of the shoreline carries the line straight on first.
  * The road sector beside it keeps its own glyph.
  */
 private int _shore_code(object sect, string game, string map_name,
@@ -469,6 +470,17 @@ private int _shore_code(object sect, string game, string map_name,
 
   arms = _coast_arms(game, map_name, sx, sy, sz);
   count = arms[0] + arms[1] + arms[2] + arms[3];
+
+  // a dock at the end of a shoreline carries the line on, so it has a side
+  // facing the sea for its pier
+  if (count == 1 && sect->query_port())
+  {
+    for (i = 0; i < 4; i++)
+      if (arms[i])
+        break;
+    arms[i ^ 1] = 1;
+    count = 2;
+  }
 
   if (count == 2)
   {
