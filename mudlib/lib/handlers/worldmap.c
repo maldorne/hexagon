@@ -140,8 +140,8 @@ void create()
   glyphs[MAP_GLYPH_BEACH]    = COLOUR_SHORE_BEACH + GLYPH_BOX_1100 + "%^RESET%^";
 
   // the shoreline of each kind of coast, one glyph per set of arms; a beach in
-  // the colour of sand
-  colours = ({ COLOUR_SHORE_COAST, COLOUR_SHORE_BEACH });
+  // the colour of sand, a marsh in the colour of the swamp
+  colours = ({ COLOUR_SHORE_COAST, COLOUR_SHORE_BEACH, COLOUR_SHORE_MARSH });
   for (i = 0; i < MAP_SHORE_KINDS; i++)
     for (n = 0; n < MAP_SHORE_ARMS; n++)
       glyphs[MAP_GLYPH_SHORE + i * MAP_SHORE_ARMS + n] =
@@ -546,7 +546,9 @@ private int _shore_code(object sect, string game, string map_name,
       arms[road_side] = 1;
   }
 
-  return MAP_GLYPH_SHORE + (sect->query_beach() ? MAP_SHORE_ARMS : 0) +
+  return MAP_GLYPH_SHORE +
+         (sect->query_beach() ? MAP_SHORE_ARMS :
+          sect->query_marsh() ? 2 * MAP_SHORE_ARMS : 0) +
          _arms_code(arms);
 }
 
@@ -1440,6 +1442,7 @@ mapping query_legend_glyphs()
     "river":       ({ COLOUR_RIVER, glyphs[MAP_GLYPH_RIVERS + 12] }),
     "coast":       ({ _shore_glyphs(COLOUR_SHORE_COAST), glyphs[MAP_GLYPH_SHORE + 12] }),
     "beach":       ({ _shore_glyphs(COLOUR_SHORE_BEACH), glyphs[MAP_GLYPH_SHORE + MAP_SHORE_ARMS + 12] }),
+    "marsh":       ({ _shore_glyphs(COLOUR_SHORE_MARSH), glyphs[MAP_GLYPH_SHORE + 2 * MAP_SHORE_ARMS + 12] }),
     "underground": ({ glyphs[MAP_GLYPH_UNDERGROUND], glyphs[MAP_GLYPH_UNDERGROUND] }),
   ]);
 }

@@ -1,11 +1,11 @@
 // Coast component. Attach to any location at a land–water boundary:
 // a sandy beach, a rocky sea cliff, a fishing dock, a bustling
-// harbour, a river bank. Contributes to the sector-level "coast" tally
+// harbour, a river bank, a swamp meeting the sea. Contributes to the sector-level "coast" tally
 // so the world map can render the sector as shoreline.
 //
 // Classifier `kind` names the shape of the interface. No implicit
 // ordering — pick whichever fits, or none for a plain coast:
-//   beach | cliff | port | harbor | bank
+//   beach | cliff | port | harbor | bank | marsh
 //
 // The edge of water also works as one: the rules are in
 // /lib/room/coast.c (its way into the water is a swum exit), and a room

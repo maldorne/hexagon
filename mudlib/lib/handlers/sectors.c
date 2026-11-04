@@ -296,7 +296,7 @@ string add_location(object location)
     if (sizeof(my_types))
       location_data["types"] = my_types;
 
-    // the kind of shore, so the map can tell a beach from the rest and mark
+    // the kind of shore, so the map can tell a beach or a marsh from the rest and mark
     // where a dock (a port or harbor) reaches out to sea
     if (location->has_component(LOCATION_COMPONENT_COAST))
     {
@@ -304,6 +304,9 @@ string add_location(object location)
       coast = location->query_component_by_type(LOCATION_COMPONENT_COAST);
       if (coast && coast->query_kind() == "beach")
         location_data["beach"] = 1;
+      // a swamp that meets the sea
+      if (coast && coast->query_kind() == "marsh")
+        location_data["marsh"] = 1;
       if (coast && (coast->query_kind() == "port" ||
                     coast->query_kind() == "harbor"))
         location_data["port"] = 1;

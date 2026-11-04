@@ -26,8 +26,8 @@ A water place declares:
     set_water_depth(2);                      // 1 surface, 2 deep
 
 A coast may declare its kind: `set_coast_kind("bank")` (beach, cliff, port,
-harbor, bank). Without one it is a plain coast; only a beach (sand colour) and
-a port or harbor (a dock: its sector draws an arm out to sea on the world map)
+harbor, bank, marsh). Without one it is a plain coast; only a beach (sand
+colour), a marsh (a swamp meeting the sea, swamp colour) and a port or harbor (a dock: its sector draws an arm out to sea on the world map)
 change how the map draws its sector.
 
 ## Swum exits

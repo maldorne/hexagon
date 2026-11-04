@@ -639,6 +639,17 @@ int query_beach()
 }
 
 /**
+ * Whether most of the coast locations of the sector are marshes, where a swamp
+ * meets the sea.
+ *
+ * @return 1 when more than half of them are, 0 otherwise
+ */
+int query_marsh()
+{
+  return _coast_majority("marsh");
+}
+
+/**
  * Whether most of the coast locations of the sector are river banks.
  *
  * @return 1 when more than half of them are, 0 otherwise

@@ -437,6 +437,7 @@
 #define _LANG_CMD_WORLDMAP_RIVER       "River"
 #define _LANG_CMD_WORLDMAP_COAST       "Coast"
 #define _LANG_CMD_WORLDMAP_BEACH       "Beach"
+#define _LANG_CMD_WORLDMAP_MARSH       "Marsh"
 #define _LANG_CMD_WORLDMAP_UNDERGROUND "Underground"
 
 // idle.c
