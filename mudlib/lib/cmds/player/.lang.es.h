@@ -428,6 +428,7 @@
 #define _LANG_CMD_WORLDMAP_FOREST      "Bosque"
 #define _LANG_CMD_WORLDMAP_FOREST_CITY "Ciudad en el bosque"
 #define _LANG_CMD_WORLDMAP_PLAINS      "Llanura"
+#define _LANG_CMD_WORLDMAP_TUNDRA      "Tundra"
 #define _LANG_CMD_WORLDMAP_SWAMP       "Pantano"
 #define _LANG_CMD_WORLDMAP_MOUNTAIN    "Montañas"
 #define _LANG_CMD_WORLDMAP_TAIGA       "Taiga"

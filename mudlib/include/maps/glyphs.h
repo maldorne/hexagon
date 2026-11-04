@@ -239,7 +239,11 @@
 #define MAP_GLYPH_SHORE        48
 #define MAP_SHORE_ARMS         16
 #define MAP_SHORE_KINDS        3
-#define MAP_GLYPH_COUNT        (MAP_GLYPH_SHORE + MAP_SHORE_KINDS * MAP_SHORE_ARMS)
+// Terrain added after the shoreline codes, so the stored ones keep their
+// meaning: tundra, drawn with the two plains glyphs in bold.
+#define MAP_GLYPH_TUNDRA_A     (MAP_GLYPH_SHORE + MAP_SHORE_KINDS * MAP_SHORE_ARMS)
+#define MAP_GLYPH_TUNDRA_B     (MAP_GLYPH_TUNDRA_A + 1)
+#define MAP_GLYPH_COUNT        (MAP_GLYPH_TUNDRA_B + 1)
 
 // The fixed glyphs as they are drawn, colour included.
 #define MAP_GLYPHS ({ \

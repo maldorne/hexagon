@@ -131,6 +131,8 @@ void create()
   // thing to brown (see /lib/handlers/terminal.c)
   glyphs[MAP_GLYPH_PLAINS_A] = GLYPH_MAP_PLAINS_A;
   glyphs[MAP_GLYPH_PLAINS_B] = GLYPH_MAP_PLAINS_B;
+  glyphs[MAP_GLYPH_TUNDRA_A] = "%^BOLD%^" + GLYPH_MAP_PLAINS_A + "%^RESET%^";
+  glyphs[MAP_GLYPH_TUNDRA_B] = "%^BOLD%^" + GLYPH_MAP_PLAINS_B + "%^RESET%^";
   glyphs[MAP_GLYPH_SWAMP]    = "%^GREEN%^" + GLYPH_MAP_SWAMP + "%^RESET%^";
   glyphs[MAP_GLYPH_MOUNTAIN] = "%^ORANGE%^" + GLYPH_MAP_MOUNTAIN + "%^RESET%^";
   glyphs[MAP_GLYPH_TAIGA] = "%^GREEN%^" + GLYPH_MAP_TAIGA + "%^RESET%^";
@@ -574,7 +576,7 @@ private int _shore_code(object sect, string game, string map_name,
 //   5. forest, taiga, mountain, swamp — win over a river, so they keep
 //                    their size
 //   6. river       — blue line, over farmland and any other terrain
-//   7. ruins, plains — below the river
+//   7. ruins, plains, tundra — below the river
 //   8. majority    — otherwise the dominant remaining terrain type
 private int sector_code(string game, string map_name, int sx, int sy, int sz)
 {
@@ -646,6 +648,9 @@ private int sector_code(string game, string map_name, int sx, int sy, int sz)
 
   if (type == SECTOR_TYPE_RUINS)       return MAP_GLYPH_RUINS;
   if (type == SECTOR_TYPE_PLAINS)      return _plains_code(sx, sy, sz);
+  if (type == SECTOR_TYPE_TUNDRA)
+    return _plains_code(sx, sy, sz) == MAP_GLYPH_PLAINS_B ?
+           MAP_GLYPH_TUNDRA_B : MAP_GLYPH_TUNDRA_A;
 
   if (type == SECTOR_TYPE_CITY)        return MAP_GLYPH_CITY;
   if (type == SECTOR_TYPE_UNDERGROUND) return MAP_GLYPH_UNDERGROUND;
@@ -1453,6 +1458,7 @@ mapping query_legend_glyphs()
     "forest-city": ({ glyphs[MAP_GLYPH_FOREST_CITY], glyphs[MAP_GLYPH_FOREST_CITY] }),
     "farm":        ({ GLYPH_MAP_FARM, glyphs[MAP_GLYPH_FARM] }),
     "plains":      ({ ({ GLYPH_MAP_PLAINS_A, GLYPH_MAP_PLAINS_B }), glyphs[MAP_GLYPH_PLAINS_A] }),
+    "tundra":      ({ ({ "%^BOLD%^" + GLYPH_MAP_PLAINS_A, "%^BOLD%^" + GLYPH_MAP_PLAINS_B }), glyphs[MAP_GLYPH_TUNDRA_A] }),
     "swamp":       ({ "%^GREEN%^" + GLYPH_MAP_SWAMP, glyphs[MAP_GLYPH_SWAMP] }),
     "mountain":    ({ "%^ORANGE%^" + GLYPH_MAP_MOUNTAIN, glyphs[MAP_GLYPH_MOUNTAIN] }),
     "taiga":       ({ "%^GREEN%^" + GLYPH_MAP_TAIGA, glyphs[MAP_GLYPH_TAIGA] }),
