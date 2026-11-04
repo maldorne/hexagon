@@ -760,17 +760,33 @@ private int ** _sea_cells(string ** grid, int ** shore, int w, int h)
 }
 
 // Draw a wave on some of the sea cells (see _sea_wave_at) still blank, `left`
-// columns in from the grid's edge.
-private void _overlay_sea_waves(string ** grid, int ** sea, int w, int h,
-                                int left, int col0, int row_top)
+// columns in from the grid's edge, never right beside a name. `blank` marks the
+// map's cells blank before the names went in: a cell drawn since then, or any
+// drawn in the columns beside the map, is a letter of a name.
+private void _overlay_sea_waves(string ** grid, int ** sea, int ** blank,
+                                int w, int h, int left, int col0, int row_top)
 {
-  int r, c;
+  int r, c, gc, k, gw, by_name;
 
+  gw = sizeof(grid) ? sizeof(grid[0]) : 0;
   for (r = 0; r < h; r++)
     for (c = 0; c < w; c++)
-      if (sea[r][c] && grid[r][c + left] == GLYPH_EMPTY &&
-          _sea_wave_at(col0 + c, row_top - r))
-        grid[r][c + left] = GLYPH_SEA_WAVE;
+    {
+      gc = c + left;
+      if (!sea[r][c] || grid[r][gc] != GLYPH_EMPTY ||
+          !_sea_wave_at(col0 + c, row_top - r))
+        continue;
+
+      by_name = 0;
+      for (k = -1; k <= 1; k += 2)
+        if (gc + k >= 0 && gc + k < gw && grid[r][gc + k] != GLYPH_EMPTY &&
+            grid[r][gc + k] != GLYPH_SEA_WAVE &&
+            (c + k < 0 || c + k >= w || blank[r][c + k]))
+          by_name = 1;
+
+      if (!by_name)
+        grid[r][gc] = GLYPH_SEA_WAVE;
+    }
 }
 
 // Write a wall glyph into the grid, clamped to bounds. Only blank sectors
@@ -1283,7 +1299,7 @@ string render(int center_x, int center_y, int center_z,
   int col0, row_top;
   int row_i, col, left, code;
   string ** grid;
-  int ** is_city, ** shore, ** sea;
+  int ** is_city, ** shore, ** sea, ** blank;
   string result;
 
   sector_cache = ([ ]);
@@ -1349,6 +1365,15 @@ string render(int center_x, int center_y, int center_z,
   if (WORLDMAP_CITY_WALLS)
     _overlay_city_walls(grid, is_city, width, height);
 
+  // what is still blank before the names, to keep the waves off them
+  blank = allocate(height);
+  for (row_i = 0; row_i < height; row_i++)
+  {
+    blank[row_i] = allocate_int(width);
+    for (col = 0; col < width; col++)
+      blank[row_i][col] = grid[row_i][col] == GLYPH_EMPTY;
+  }
+
   // names last, so they only take cells nothing else has drawn on, in the map
   // or in the blank columns the caller has beside it
   // half the blank columns go to the left of the map and half to the right,
@@ -1373,7 +1398,7 @@ string render(int center_x, int center_y, int center_z,
                         height, game, map_name, col0 - left, row_top, sz0);
   }
 
-  _overlay_sea_waves(grid, sea, width, height,
+  _overlay_sea_waves(grid, sea, blank, width, height,
                      (labels && label_room > 0) ? left : 0, col0, row_top);
 
   result = "";
