@@ -37,22 +37,29 @@ void setup()
     "Coordinates are SECTOR indices (the ones shown by look / glance), not\n" +
     "location coordinates. The map defaults to the one you are standing in;\n" +
     "pass an explicit <map> as the last argument to target another one.\n" +
-    "Type is one of: city, forest, coast, underground, empty, none. A manual\n" +
+    "Type is one of: city, forest, coast, underground, empty, none; beach and\n" +
+    "marsh paint a coast of that kind of shore. A manual\n" +
     "type only shows on the world map when the sector has no locations of its\n" +
     "own; 'empty' and 'none' draw nothing. The coords form creates the\n" +
     "sector.o if it does not exist yet, so a virgin part of the map can be\n" +
     "painted.\n");
 }
 
+// A painted coast may name its kind of shore instead of "coast".
+#define PAINTED_COAST_KINDS ({ "beach", "marsh" })
+
 private int _valid_type(string type)
 {
   return member_array(type, SECTOR_MAP_COMPONENTS) != -1 ||
+         member_array(type, PAINTED_COAST_KINDS) != -1 ||
          type == SECTOR_TYPE_EMPTY || type == SECTOR_TYPE_NONE ||
          type == "none";
 }
 
 private string _canon_type(string type)
 {
+  if (member_array(type, PAINTED_COAST_KINDS) != -1)
+    return SECTOR_TYPE_COAST;
   return type == "none" ? SECTOR_TYPE_NONE : type;
 }
 
@@ -207,13 +214,14 @@ static int cmd(string str, object me, string verb)
     if (!_valid_type(type))
     {
       notify_fail("Unknown type '" + type + "'. One of: city, forest, " +
-                  "coast, underground, farm, plains, swamp, mountain, " +
+                  "coast, beach, marsh, underground, farm, plains, swamp, mountain, " +
                   "taiga, ruins, empty, none.\n");
       return 0;
     }
 
     sector = load_object(SECTORS_HANDLER)->set_sector_manual_type(
-               game, map_name, x, y, z, _canon_type(type));
+               game, map_name, x, y, z, _canon_type(type),
+               member_array(type, PAINTED_COAST_KINDS) != -1 ? type : nil);
 
     if (!sector)
     {

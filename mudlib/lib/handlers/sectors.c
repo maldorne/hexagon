@@ -178,7 +178,7 @@ int is_location_indexed(object location)
 // virgin part of the map can be painted.
 object set_sector_manual_type(string game, string map_name,
                               int sector_x, int sector_y, int sector_z,
-                              string type)
+                              string type, varargs string coast_kind)
 {
   string path;
   object sector;
@@ -188,7 +188,7 @@ object set_sector_manual_type(string game, string map_name,
 
   sector = create_sector(path);
   if (sector)
-    sector->set_manual_type(type);
+    sector->set_manual_type(type, coast_kind);
 
   return sector;
 }

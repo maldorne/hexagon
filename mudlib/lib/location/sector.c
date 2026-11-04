@@ -53,6 +53,9 @@ mapping boundary_exits;
 // a type a programmer set by hand; used only when the sector has no
 // locations to derive a type from. See query_sector_type / set_manual_type.
 string manual_type;
+// the kind of shore a coast painted by hand draws as ("beach", "marsh"), when
+// the sector has no coast locations to tell it
+string manual_coast_kind;
 string file_name;
 
 void save_me();
@@ -86,9 +89,22 @@ string query_manual_type()
   return manual_type ? manual_type : SECTOR_TYPE_NONE;
 }
 
-void set_manual_type(string type)
+string query_manual_coast_kind()
+{
+  return manual_coast_kind ? manual_coast_kind : "";
+}
+
+/**
+ * Sets the type the sector shows when it has no locations of its own.
+ *
+ * @param type the sector type, SECTOR_TYPE_NONE to clear it
+ * @param coast_kind optional: for a coast, the kind of shore it draws as
+ */
+void set_manual_type(string type, varargs string coast_kind)
 {
   manual_type = type ? type : SECTOR_TYPE_NONE;
+  manual_coast_kind = (manual_type == SECTOR_TYPE_COAST && coast_kind) ?
+                      coast_kind : "";
   save_me();
 }
 
@@ -625,7 +641,11 @@ private int _coast_majority(string flag)
       beach++;
   }
 
-  return coast && beach * 2 > coast;
+  // a coast painted by hand has no locations to count
+  if (!coast)
+    return manual_type == SECTOR_TYPE_COAST && manual_coast_kind == flag;
+
+  return beach * 2 > coast;
 }
 
 /**
