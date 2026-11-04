@@ -161,6 +161,55 @@ object load_location(string file_name)
   return location;
 }
 
+/**
+ * Index one location file in its sector again without bringing it to life.
+ * A location in memory is indexed as it is; any other is restored into a bare
+ * clone that no area holds, indexed, and destructed again, so its people are
+ * never placed. With do_save the location is also saved back.
+ * @param file_name the location's save file (.o)
+ * @param do_save   also rewrite the location's own save
+ * @return 1 when it was indexed, 0 when it has no save or no coordinate
+ */
+int index_location(string file_name, varargs int do_save)
+{
+  object location;
+  int loaded, indexed;
+
+  if (!strlen(file_name) ||
+      file_name[strlen(file_name) - 2..strlen(file_name) - 1] != ".o")
+    return 0;
+
+  location = query_loaded_location(file_name);
+  loaded = location ? 1 : 0;
+
+  if (!location)
+  {
+    if (file_size(file_name) < 0)
+      return 0;
+
+    location = clone_object(BASE_LOCATION_OBJ);
+    if (!location->restore_from_file_name(file_name))
+    {
+      destruct(location);
+      return 0;
+    }
+  }
+
+  if (location->query_coordinates() != nil)
+  {
+    load_object(SECTORS_HANDLER)->add_location(location);
+    indexed = 1;
+  }
+
+  if (do_save)
+    location->save_me();
+
+  if (!loaded)
+    location->dest_me();
+
+  return indexed;
+}
+
 // Resolve a token (a room `.c` or a location `.o` path) to the loaded
 // location object. A room resolves through its converted `.o`; returns nil
 // when the token names neither, or when the room has not been converted.
@@ -2430,18 +2479,18 @@ void clean_step(string * orphans, int idx, object * touched_areas,
 // ============================================================
 //  Map reindexing
 //
-//  Loading a location re-registers it into its sector and area with the
-//  current lift logic (terrain component tallies + path/road way exits;
-//  see maps.c::add_location). Reindexing therefore just means loading
-//  every persisted location once so stale sector.o / area.o files
-//  rebuild against the code as it stands now.
+//  Indexing a location writes it into its sector with the current lift
+//  logic (terrain component tallies + path/road way exits; see
+//  sectors.c::add_location). Reindexing therefore means indexing every
+//  persisted location once so stale sector.o files rebuild against the
+//  code as it stands now. Each one is indexed through index_location, which
+//  never places its people: loading a whole game's population at once
+//  fills the driver's call_out table.
 //
-//  A load restores the location, places its people and writes its
-//  sector, which can be costly in a big area of a community, so an area
-//  is reindexed in chunks: as many locations as the ticks allow, then the
-//  rest in a call_out with a fresh rlimits budget (the standard DGD idiom
-//  for a job too large for one execution). A whole game runs its areas one
-//  after another, each starting when the previous one ends.
+//  An area is reindexed in chunks: as many locations as the ticks allow,
+//  then the rest in a call_out with a fresh rlimits budget (the standard
+//  DGD idiom for a job too large for one execution). A whole game runs its
+//  areas one after another, each starting when the previous one ends.
 // ============================================================
 
 #define REINDEX_TICK_MARGIN 3000000
@@ -2455,7 +2504,6 @@ void reindex_area_step(string game, string area, string * files, int idx,
                        int count, object initiator, int do_save,
                        string * areas, int next)
 {
-  object loc;
   int left;
 
   while (idx < sizeof(files))
@@ -2468,12 +2516,7 @@ void reindex_area_step(string game, string area, string * files, int idx,
       return;
     }
 
-    if (loc = load_location(files[idx]))
-    {
-      if (do_save)
-        loc->save_me();
-      count++;
-    }
+    count += index_location(files[idx], do_save);
     idx++;
   }
 
@@ -2511,11 +2554,11 @@ private string * _reindex_files(string game, string area)
 }
 
 // Reindex a single area in the background, from the next tick. Returns the
-// number of locations it will reload, or -1 if the area directory does not
+// number of locations it will index, or -1 if the area directory does not
 // exist; the initiator is told when it ends.
 //
-// With do_save set, each loaded location is also saved back. Loading
-// alone rebuilds the in-memory sector/area indexes; saving additionally
+// With do_save set, each location is also saved back. Indexing alone
+// rebuilds the sector indexes; saving additionally
 // rewrites the location's own .o — used to migrate persisted data to the
 // current on-disk format (e.g. canonical English exit direction keys).
 int reindex_area(string game, string area, varargs int do_save,

@@ -267,8 +267,8 @@ static int cmd(string str, object me, string verb)
     map_name = _resolve_map(me, sizeof(tokens) >= 2 ? tokens[1] : nil);
 
     count = load_object(SECTORS_HANDLER)->reindex_map(game, map_name, me);
-    write("Indexing " + count + " location" + (count == 1 ? "" : "s") +
-          " again in map '" + map_name + "', in the background.\n");
+    write("Reindexing map '" + map_name + "' (" + count + " sector" +
+          (count == 1 ? "" : "s") + ") in the background.\n");
     return 1;
   }
 

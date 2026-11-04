@@ -539,6 +539,41 @@ private int * _location_coords(string file, mapping cache)
   return cache[file];
 }
 
+// The directory of every sector saved under a map (base is the map's save
+// directory), each ending in "/". Walks the tree only; no sector is loaded.
+private string * _sector_paths(string base)
+{
+  string * xs, * paths;
+  int xi, yi, zi;
+
+  paths = ({ });
+
+  xs = get_files(base + "/*");
+  for (xi = 0; xi < sizeof(xs); xi++)
+  {
+    string * ys;
+
+    if (file_size(xs[xi]) != -2)
+      continue;
+
+    ys = get_files(xs[xi] + "/*");
+    for (yi = 0; yi < sizeof(ys); yi++)
+    {
+      string * zs;
+
+      if (file_size(ys[yi]) != -2)
+        continue;
+
+      zs = get_files(ys[yi] + "/*");
+      for (zi = 0; zi < sizeof(zs); zi++)
+        if (file_size(zs[zi] + "/sector.o") >= 0)
+          paths += ({ zs[zi] + "/" });
+    }
+  }
+
+  return paths;
+}
+
 // Per run of a purge: sector paths still to sweep, the shared coordinate
 // cache, stale entries removed so far, who asked, and the position keys left
 // in the sector being swept (nil when none has been started).
@@ -568,39 +603,10 @@ static mapping purge_queue;
 int purge_drift(string game, string map_name, varargs object who)
 {
   string base;
-  string * xs, * sector_paths;
-  int xi, yi, zi;
+  string * sector_paths;
 
   base = "/save/games/" + game + "/maps/" + map_name;
-  sector_paths = ({ });
-
-  xs = get_files(base + "/*");
-  for (xi = 0; xi < sizeof(xs); xi++)
-  {
-    string * ys;
-
-    if (file_size(xs[xi]) != -2)
-      continue;
-
-    ys = get_files(xs[xi] + "/*");
-    for (yi = 0; yi < sizeof(ys); yi++)
-    {
-      string * zs;
-
-      if (file_size(ys[yi]) != -2)
-        continue;
-
-      zs = get_files(ys[yi] + "/*");
-      for (zi = 0; zi < sizeof(zs); zi++)
-      {
-        if (file_size(zs[zi]) != -2)
-          continue;
-        if (file_size(zs[zi] + "/sector.o") < 0)
-          continue;
-        sector_paths += ({ zs[zi] + "/" });
-      }
-    }
-  }
+  sector_paths = _sector_paths(base);
 
   if (!purge_queue)
     purge_queue = ([ ]);
@@ -796,95 +802,117 @@ mapping verify_sector(string game, string map_name, int sx, int sy, int sz)
   return ([ "total": sizeof(keys), "stale": stale, "orphans": orphans ]);
 }
 
-// Locations a reindex still has to add, and who asked for it, per run.
+// Per run of a reindex: the work left (sector paths while pruning, location
+// files while indexing), who asked, the locations indexed so far, and each
+// location found with the sector that held it.
 static mapping reindex_queue;
+
+// Ticks a reindex step leaves unspent before going on in a call_out of its own.
+#define REINDEX_TICK_MARGIN 3000000
 
 /**
  * Index every location of a map again, so each one lands in the sector its
  * coordinate belongs to and the border data of every sector is rebuilt.
  * First, without loading any location, every entry whose coordinate does not
  * belong to the sector holding it is dropped, with the records left without a
- * coordinate; then the locations are added
- * again in batches of REINDEX_BATCH, one call_out each, since loading them
- * all at once runs out of ticks; a location whose save is gone leaves the
- * index instead. Manual types stay. `who` is told when it
- * ends. Returns the number of locations queued.
+ * coordinate (reindex_prune_step); then the locations are indexed again
+ * without placing their people (reindex_index_step), and a location whose
+ * save is gone leaves the index instead. Both run as many as the ticks allow
+ * per call_out. Manual types stay. `who` is told when it ends.
+ * @return the number of sectors queued
  */
-#define REINDEX_BATCH 10
-
 int reindex_map(string game, string map_name, varargs object who)
 {
-  string base, * xs;
-  mapping seen;
-  int xi, yi, zi;
+  string base;
+  string * sector_paths;
 
   base = "/save/games/" + game + "/maps/" + map_name;
-  seen = ([ ]);
-
-  xs = get_files(base + "/*");
-  for (xi = 0; xi < sizeof(xs); xi++)
-  {
-    string * ys;
-
-    if (file_size(xs[xi]) != -2)
-      continue;
-
-    ys = get_files(xs[xi] + "/*");
-    for (yi = 0; yi < sizeof(ys); yi++)
-    {
-      string * zs;
-
-      if (file_size(ys[yi]) != -2)
-        continue;
-
-      zs = get_files(ys[yi] + "/*");
-      for (zi = 0; zi < sizeof(zs); zi++)
-      {
-        string sector_path;
-        object sector;
-        mapping positions;
-        string * keys;
-        int ki, sx, sy, sz;
-
-        sector_path = zs[zi] + "/";
-        if (file_size(sector_path + "sector.o") < 0)
-          continue;
-        if (sscanf(sector_path, base + "/%d/%d/%d/", sx, sy, sz) != 3)
-          continue;
-
-        sector = create_sector(sector_path);
-        positions = sector->query_positions();
-        keys = map_indices(positions);
-        for (ki = 0; ki < sizeof(keys); ki++)
-        {
-          int kx, ky, kz;
-
-          seen[positions[keys[ki]]] = sector_path;
-          if (sscanf(keys[ki], "%d_%d_%d", kx, ky, kz) != 3)
-            continue;
-          if (SECTOR_INDEX(kx) != sx || SECTOR_INDEX(ky) != sy ||
-              SECTOR_INDEX(kz) != sz)
-          {
-            remove_file(sector_path + keys[ki] + ".o");
-            sector->remove_position(keys[ki]);
-          }
-        }
-
-        sector->prune_records();
-
-        if (!map_sizeof(sector->query_positions()) &&
-            !strlen(sector->query_manual_type()))
-          sector->set_manual_type(SECTOR_TYPE_EMPTY);
-      }
-    }
-  }
+  sector_paths = _sector_paths(base);
 
   if (!reindex_queue)
     reindex_queue = ([ ]);
-  reindex_queue[base] = ({ map_indices(seen), who, 0, seen });
-  call_out("reindex_batch", 0, base);
+  reindex_queue[base] = ({ sector_paths, who, 0, ([ ]) });
+  call_out("reindex_prune_step", 0, base);
 
-  return map_sizeof(seen);
+  return sizeof(sector_paths);
+}
+
+// Drop from one sector the entries whose coordinate belongs to another
+// sector and the records left without a coordinate, noting in `seen` each
+// location it held.
+private void _reindex_prune_sector(string base, string sector_path,
+                                   mapping seen)
+{
+  object sector;
+  mapping positions;
+  string * keys;
+  int ki, sx, sy, sz;
+
+  if (sscanf(sector_path, base + "/%d/%d/%d/", sx, sy, sz) != 3)
+    return;
+
+  sector = create_sector(sector_path);
+  positions = sector->query_positions();
+  keys = map_indices(positions);
+  for (ki = 0; ki < sizeof(keys); ki++)
+  {
+    int kx, ky, kz;
+
+    seen[positions[keys[ki]]] = sector_path;
+    if (sscanf(keys[ki], "%d_%d_%d", kx, ky, kz) != 3)
+      continue;
+    if (SECTOR_INDEX(kx) != sx || SECTOR_INDEX(ky) != sy ||
+        SECTOR_INDEX(kz) != sz)
+    {
+      remove_file(sector_path + keys[ki] + ".o");
+      sector->remove_position(keys[ki]);
+    }
+  }
+
+  sector->prune_records();
+
+  if (!map_sizeof(sector->query_positions()) &&
+      !strlen(sector->query_manual_type()))
+    sector->set_manual_type(SECTOR_TYPE_EMPTY);
+}
+
+// One step of the first phase of a reindex run: prune sectors while the ticks
+// last, then go on in a call_out, or start indexing the locations found.
+void reindex_prune_step(string base)
+{
+  string * sector_paths;
+  mapping seen;
+  object who;
+  int left;
+
+  if (!reindex_queue || undefinedp(reindex_queue[base]))
+    return;
+
+  sector_paths = reindex_queue[base][0];
+  who = reindex_queue[base][1];
+  seen = reindex_queue[base][3];
+
+  while (sizeof(sector_paths))
+  {
+    left = eval_cost();
+    if (left >= 0 && left < REINDEX_TICK_MARGIN)
+    {
+      reindex_queue[base] = ({ sector_paths, who, 0, seen });
+      call_out("reindex_prune_step", 0, base);
+      return;
+    }
+
+    _reindex_prune_sector(base, sector_paths[0], seen);
+    sector_paths = sector_paths[1..];
+  }
+
+  if (who)
+    tell_object(who, "Reindex of " + base + ": sectors pruned, indexing " +
+                map_sizeof(seen) + " location" +
+                (map_sizeof(seen) == 1 ? "" : "s") + ".\n");
+
+  reindex_queue[base] = ({ map_indices(seen), who, 0, seen });
+  call_out("reindex_index_step", 0, base);
 }
 
 // Sectors whose glyph a glyphs run still has to work out, and who asked.
@@ -900,34 +928,10 @@ static mapping glyph_queue;
  */
 int refresh_glyphs(string game, string map_name, varargs object who)
 {
-  string base, * xs, * paths;
-  int xi, yi, zi;
+  string base, * paths;
 
   base = "/save/games/" + game + "/maps/" + map_name;
-  paths = ({ });
-
-  xs = get_files(base + "/*");
-  for (xi = 0; xi < sizeof(xs); xi++)
-  {
-    string * ys;
-
-    if (file_size(xs[xi]) != -2)
-      continue;
-
-    ys = get_files(xs[xi] + "/*");
-    for (yi = 0; yi < sizeof(ys); yi++)
-    {
-      string * zs;
-
-      if (file_size(ys[yi]) != -2)
-        continue;
-
-      zs = get_files(ys[yi] + "/*");
-      for (zi = 0; zi < sizeof(zs); zi++)
-        if (file_size(zs[zi] + "/sector.o") >= 0)
-          paths += ({ zs[zi] + "/" });
-    }
-  }
+  paths = _sector_paths(base);
 
   if (!glyph_queue)
     glyph_queue = ([ ]);
@@ -968,14 +972,14 @@ void refresh_glyphs_batch(string base)
     tell_object(who, "Glyphs of " + base + " worked out again.\n");
 }
 
-// One batch of a reindex run: add the next REINDEX_BATCH locations, then
-// schedule the next batch or tell whoever asked that it is done.
-void reindex_batch(string base)
+// One step of the second phase of a reindex run: index locations while the
+// ticks last, then go on in a call_out or tell whoever asked that it is done.
+void reindex_index_step(string base)
 {
   string * files, * keys;
   mapping sector_paths, positions;
   object who, sector;
-  int i, ki, done;
+  int ki, done, left;
 
   if (!reindex_queue || undefinedp(reindex_queue[base]))
     return;
@@ -985,9 +989,15 @@ void reindex_batch(string base)
   done = reindex_queue[base][2];
   sector_paths = reindex_queue[base][3];
 
-  for (i = 0; i < REINDEX_BATCH && sizeof(files); i++)
+  while (sizeof(files))
   {
-    object loc;
+    left = eval_cost();
+    if (left >= 0 && left < REINDEX_TICK_MARGIN)
+    {
+      reindex_queue[base] = ({ files, who, done, sector_paths });
+      call_out("reindex_index_step", 0, base);
+      return;
+    }
 
     // a location whose save is gone leaves the index, pointer files too
     if (file_size(files[0]) < 0)
@@ -1003,19 +1013,8 @@ void reindex_batch(string base)
       continue;
     }
 
-    loc = load_object(LOCATION_HANDLER)->load_location(files[0]);
+    done += load_object(LOCATION_HANDLER)->index_location(files[0]);
     files = files[1..];
-    if (!loc || loc->query_coordinates() == nil)
-      continue;
-    add_location(loc);
-    done++;
-  }
-
-  if (sizeof(files))
-  {
-    reindex_queue[base] = ({ files, who, done, sector_paths });
-    call_out("reindex_batch", 0, base);
-    return;
   }
 
   map_delete(reindex_queue, base);
