@@ -67,7 +67,8 @@ void event_enter(object ob, varargs string msg, object from, mixed avoid)
 
 string query_info()
 {
-  return "current " + (query_water_current() ? query_water_current() : "none") +
+  return (strlen(query_water_kind()) ? query_water_kind() + ", " : "") +
+         "current " + (query_water_current() ? query_water_current() : "none") +
          ", strength " + query_water_strength();
 }
 

@@ -10,6 +10,7 @@
 // map and the paths, but it is not listed and its direction does nothing. One
 // crosses it with the swim skill, and what one sees from the water is where
 // the shore is. What a place declares:
+//   kind      river | sea | lake, the body of water it is part of
 //   depth     1 swimming at the surface, 2 deep water, harder to cross
 //   current   the exit the water flows out by, nil for still water
 //   strength  0 still .. 3 rapids, how hard the current pulls
@@ -24,7 +25,7 @@
 #include <language.h>
 
 private int water_depth, water_strength;
-private string water_current, water_upstream, water_swept_to;
+private string water_current, water_upstream, water_swept_to, water_kind;
 
 // who has a drift pending, and the things the current is about to carry
 // (never saved)
@@ -39,6 +40,9 @@ int query_water() { return 1; }
 
 // Whether `who` is in the water here: everybody is, in a plain water place.
 int query_in_water(object who) { return 1; }
+
+string query_water_kind() { return water_kind ? water_kind : ""; }
+void set_water_kind(string kind) { water_kind = kind; }
 
 int query_water_depth() { return water_depth ? water_depth : 1; }
 void set_water_depth(int i) { water_depth = i; }
@@ -67,6 +71,7 @@ void set_water_swept_to(string dir) { water_swept_to = dir; }
 mapping query_water_settings()
 {
   return ([
+      "water_kind"     : water_kind,
       "water_depth"    : water_depth,
       "water_current"  : water_current,
       "water_strength" : water_strength,
@@ -79,6 +84,7 @@ void set_water_settings(mapping m)
 {
   if (!m)
     return;
+  water_kind = m["water_kind"];
   water_depth = m["water_depth"];
   water_current = m["water_current"];
   water_strength = m["water_strength"];
@@ -527,6 +533,7 @@ void water_drift_objects()
 mixed * water_stats()
 {
   return ({
+      ({ "Water Kind", query_water_kind(), }),
       ({ "Water Depth", query_water_depth(), }),
       ({ "Water Current", water_current, }),
       ({ "Water Strength", water_strength, }),

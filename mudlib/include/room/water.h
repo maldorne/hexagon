@@ -7,6 +7,12 @@
 #define WATER_UPSTREAM_HARD  "hard"
 #define WATER_UPSTREAM_BLOCK "block"
 
+// What body of water a place is part of. See /lib/room/water.c.
+#define WATER_KIND_RIVER "river"
+#define WATER_KIND_SEA   "sea"
+#define WATER_KIND_LAKE  "lake"
+#define WATER_KINDS ({ WATER_KIND_RIVER, WATER_KIND_SEA, WATER_KIND_LAKE })
+
 // Seconds a living stays in moving water, not swimming, before the current
 // carries it off: long enough to choose where to swim.
 #define WATER_DRIFT_TIME 20

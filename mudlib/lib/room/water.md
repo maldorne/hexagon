@@ -18,12 +18,17 @@ to the sky: they build on `/lib/outside.c`. Water or a shore below the surface i
 
 A water place declares:
 
+    set_water_kind(WATER_KIND_RIVER);        // river | sea | lake
     set_water_current(DIR_SOUTHEAST);        // the exit the water flows out by
     set_water_strength(2);                   // 0 still .. 3 rapids
     set_water_upstream(WATER_UPSTREAM_HARD); // free | hard | block
     set_water_swept_to(DIR_SOUTH);           // where a failed swimmer ends,
                                              // the current's exit by default
     set_water_depth(2);                      // 1 surface, 2 deep
+
+The kind names the body of water the place is part of (`WATER_KINDS` in
+`<room/water.h>`): a stretch of a river (an underground stream too), the open
+sea, or a lake. It travels with the other settings into the water component.
 
 A coast may declare its kind: `set_coast_kind("bank")` (beach, cliff, port,
 harbor, bank, marsh). Without one it is a plain coast; only a beach (sand
