@@ -368,17 +368,34 @@ private int _plains_code(int sx, int sy, int sz)
 // the ruins glyph over everything but a city.
 #define RUINS_OVERRIDE_MIN 5
 
+// prototype: _is_coast asks whether a neighbour is open sea
+private int _is_sea(string game, string map_name, int sx, int sy, int sz);
+
 /**
- * Whether the sector at (sx, sy, sz) is drawn as coast.
+ * Whether the sector at (sx, sy, sz) is drawn as coast: coast is its main
+ * terrain, or it holds some shore of the sea and one of its four sides is open
+ * sea, whatever else it holds, so the shoreline is drawn where the land meets
+ * the sea. A river bank is not part of the shoreline of the sea.
  */
 private int _is_coast(string game, string map_name, int sx, int sy, int sz)
 {
   object sect;
 
   sect = cached_sector(game, map_name, sx, sy, sz);
-  // a river bank is not part of the shoreline of the sea
-  return sect && sect->query_sector_type() == SECTOR_TYPE_COAST &&
-         !sect->query_bank();
+  if (!sect || sect->query_bank())
+    return 0;
+
+  // its main terrain, or the type painted on a sector with no locations
+  if (sect->query_sector_type() == SECTOR_TYPE_COAST)
+    return 1;
+
+  if (!sect->has_locations_of_type(SECTOR_TYPE_COAST))
+    return 0;
+
+  return _is_sea(game, map_name, sx, sy + 1, sz) ||
+         _is_sea(game, map_name, sx, sy - 1, sz) ||
+         _is_sea(game, map_name, sx + 1, sy, sz) ||
+         _is_sea(game, map_name, sx - 1, sy, sz);
 }
 
 /**
@@ -528,18 +545,21 @@ private int _shore_code(object sect, string game, string map_name,
 }
 
 // Display priority for a sector (highest first):
-//   1. city        — any city presence wins; drawn as a solid block, the
+//   1. coast       — the shoreline is a closed perimeter, so a coast sector
+//                    (see _is_coast) keeps its shore glyph whatever city,
+//                    road, path or river it has: it never breaks where a road
+//                    reaches it or a river meets the sea; a road reaching it,
+//                    or a dock, adds a third arm (see _shore_code). A river
+//                    bank is not a shoreline: it is drawn as the river or the
+//                    land it is
+//   2. city        — any city presence wins; drawn as a solid block, the
 //                    surrounding wall added later by _overlay_city_walls.
 //                    A forest city (half or more of its city locations are
 //                    also forest) shows the bold green forest glyph instead
 //                    and is a city for the wall and the name
-//   2. many ruins  — more than RUINS_OVERRIDE_MIN locations with the ruins
+//   3. many ruins  — more than RUINS_OVERRIDE_MIN locations with the ruins
 //                    component draw the ruins glyph whatever the majority,
-//                    road, river or terrain; only a city outranks it
-//   3. coast       — the shoreline is a closed perimeter, so a coast sector
-//                    keeps its shore glyph whatever road, path or river it
-//                    has; a road reaching it, or a dock, adds a third arm
-//                    (see _shore_code)
+//                    road, river or terrain; only a city or a coast outranks it
 //   4. road / path — if the sector has road/path exits, draw the way glyph;
 //                    with a river through it as well it is a bridge when the
 //                    road crosses it, and the river otherwise (bridge_code)
@@ -559,6 +579,11 @@ private int sector_code(string game, string map_name, int sx, int sy, int sz)
   sect = cached_sector(game, map_name, sx, sy, sz);
   if (!sect) return MAP_GLYPH_EMPTY;
 
+  // the shore of the sea comes first: the coastline is one closed line, drawn
+  // wherever the land meets the sea, a town's docks included
+  if (_is_coast(game, map_name, sx, sy, sz))
+    return _shore_code(sect, game, map_name, sx, sy, sz);
+
   // a single city location paints the whole sector (present-wins), so two
   // neighbouring cities never merge through the terrain between them
   // unless half or more of its city locations are forest: then the woods glyph
@@ -573,12 +598,6 @@ private int sector_code(string game, string map_name, int sx, int sy, int sz)
   // query_sector_type is the majority component, or the programmer-set
   // manual type for a sector with no locations of its own
   type = sect->query_sector_type();
-
-  // the coast comes before the ways and the river: the shoreline never breaks
-  // where a road reaches it or a river meets the sea. A river bank is not a
-  // shoreline: it goes on below and is drawn as the river or the land it is
-  if (type == SECTOR_TYPE_COAST && !sect->query_bank())
-    return _shore_code(sect, game, map_name, sx, sy, sz);
 
   river = _memo("h", sect, sx, sy, sz);
   if (river)
