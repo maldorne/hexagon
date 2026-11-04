@@ -797,11 +797,13 @@ int sector_glyph(object sect)
 }
 
 // The name of the area a directory of city locations belongs to, asked once
-// per directory in a render: its exploration name, or its root area's for a
-// part of a town that has none of its own. "" when it has none.
+// per directory in a render: the map it is drawn on, which names the place,
+// else its exploration name, which may name only a part of it (a castle);
+// each its own or, for a part of a town that has none, its root area's.
+// "" when it has none.
 private string _area_name(string dir)
 {
-  object area;
+  object area, root;
   string name;
 
   if (!undefinedp(border_cache["a" + dir]))
@@ -811,9 +813,14 @@ private string _area_name(string dir)
   area = areas->query_area(dir);
   if (area)
   {
-    name = area->query_exploration_name();
-    if ((!name || !strlen(name)) && area->query_root_area())
-      name = area->query_root_area()->query_exploration_name();
+    root = area->query_root_area();
+    name = area->query_map_name();
+    if ((!name || !strlen(name)) && root)
+      name = root->query_map_name();
+    if (!name || !strlen(name))
+      name = area->query_exploration_name();
+    if ((!name || !strlen(name)) && root)
+      name = root->query_exploration_name();
   }
 
   border_cache["a" + dir] = name ? name : "";
@@ -874,13 +881,23 @@ private int _box_distance(mixed * city, int r, int c, int n)
   return dr > dc ? dr : dc;
 }
 
+// Whether a label of `n` cells on row `r` from column `c` lines up with a
+// city's box: on one of its rows, or over or under some of its columns.
+private int _label_aligned(mixed * city, int r, int c, int n)
+{
+  return (r >= city[1] && r <= city[2]) ||
+         (c <= city[4] && c + n - 1 >= city[3]);
+}
+
 // Whether a label of `n` cells fits on row `r` from column `c`: every cell it
 // would take is blank, and so is the one at each end, unless that end is the
 // edge of the map, so it neither covers nor touches anything already drawn;
-// and it is nearer the city it names than any other one on the map.
+// and it is nearer the city it names than any other one on the map, or as near
+// but lined up with its own city and not with the other, so it still reads
+// as its own.
 private int _label_fits(string ** grid, int w, int h, int r, int c, int n)
 {
-  int i, k, own;
+  int i, k, own, other;
 
   if (r < 0 || r >= h || c < 0 || c + n > w)
     return 0;
@@ -894,8 +911,17 @@ private int _label_fits(string ** grid, int w, int h, int r, int c, int n)
 
   own = _box_distance(label_cities[label_own], r, c, n);
   for (k = 0; k < sizeof(label_cities); k++)
-    if (k != label_own && _box_distance(label_cities[k], r, c, n) <= own)
+  {
+    if (k == label_own)
+      continue;
+    other = _box_distance(label_cities[k], r, c, n);
+    if (other < own)
       return 0;
+    if (other == own &&
+        (!_label_aligned(label_cities[label_own], r, c, n) ||
+         _label_aligned(label_cities[k], r, c, n)))
+      return 0;
+  }
 
   return 1;
 }
