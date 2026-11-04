@@ -135,6 +135,7 @@ void create()
   glyphs[MAP_GLYPH_TUNDRA_B] = "%^BOLD%^" + GLYPH_MAP_PLAINS_B + "%^RESET%^";
   glyphs[MAP_GLYPH_SWAMP]    = "%^GREEN%^" + GLYPH_MAP_SWAMP + "%^RESET%^";
   glyphs[MAP_GLYPH_MOUNTAIN] = "%^ORANGE%^" + GLYPH_MAP_MOUNTAIN + "%^RESET%^";
+  glyphs[MAP_GLYPH_HILLS]    = "%^ORANGE%^" + GLYPH_MAP_HILLS + "%^RESET%^";
   glyphs[MAP_GLYPH_TAIGA] = "%^GREEN%^" + GLYPH_MAP_TAIGA + "%^RESET%^";
   glyphs[MAP_GLYPH_RUINS]    = GLYPH_MAP_RUINS;
   // a coast or a beach whose stored code predates its shoreline arms
@@ -573,7 +574,7 @@ private int _shore_code(object sect, string game, string map_name,
 //   4. road / path — if the sector has road/path exits, draw the way glyph;
 //                    with a river through it as well it is a bridge when the
 //                    road crosses it, and the river otherwise (bridge_code)
-//   5. forest, taiga, mountain, swamp — win over a river, so they keep
+//   5. forest, taiga, mountain, hills, swamp — win over a river, so they keep
 //                    their size
 //   6. river       — blue line, over farmland and any other terrain
 //   7. ruins, plains, tundra — below the river
@@ -641,6 +642,7 @@ private int sector_code(string game, string map_name, int sx, int sy, int sz)
   if (type == SECTOR_TYPE_FOREST)      return MAP_GLYPH_FOREST;
   if (type == SECTOR_TYPE_TAIGA)       return MAP_GLYPH_TAIGA;
   if (type == SECTOR_TYPE_MOUNTAIN)    return MAP_GLYPH_MOUNTAIN;
+  if (type == SECTOR_TYPE_HILLS)       return MAP_GLYPH_HILLS;
   if (type == SECTOR_TYPE_SWAMP)       return MAP_GLYPH_SWAMP;
 
   if (river)
@@ -1461,6 +1463,7 @@ mapping query_legend_glyphs()
     "tundra":      ({ ({ "%^BOLD%^" + GLYPH_MAP_PLAINS_A, "%^BOLD%^" + GLYPH_MAP_PLAINS_B }), glyphs[MAP_GLYPH_TUNDRA_A] }),
     "swamp":       ({ "%^GREEN%^" + GLYPH_MAP_SWAMP, glyphs[MAP_GLYPH_SWAMP] }),
     "mountain":    ({ "%^ORANGE%^" + GLYPH_MAP_MOUNTAIN, glyphs[MAP_GLYPH_MOUNTAIN] }),
+    "hills":       ({ "%^ORANGE%^" + GLYPH_MAP_HILLS, glyphs[MAP_GLYPH_HILLS] }),
     "taiga":       ({ "%^GREEN%^" + GLYPH_MAP_TAIGA, glyphs[MAP_GLYPH_TAIGA] }),
     "ruins":       ({ GLYPH_MAP_RUINS, glyphs[MAP_GLYPH_RUINS] }),
     "river":       ({ COLOUR_RIVER, glyphs[MAP_GLYPH_RIVERS + 12] }),

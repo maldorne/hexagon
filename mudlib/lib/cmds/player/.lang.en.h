@@ -430,6 +430,7 @@
 #define _LANG_CMD_WORLDMAP_PLAINS      "Plains"
 #define _LANG_CMD_WORLDMAP_TUNDRA      "Tundra"
 #define _LANG_CMD_WORLDMAP_SWAMP       "Swamp"
+#define _LANG_CMD_WORLDMAP_HILLS       "Hills"
 #define _LANG_CMD_WORLDMAP_MOUNTAIN    "Mountains"
 #define _LANG_CMD_WORLDMAP_TAIGA       "Taiga"
 #define _LANG_CMD_WORLDMAP_RUINS       "Ruins"

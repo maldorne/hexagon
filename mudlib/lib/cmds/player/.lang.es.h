@@ -430,6 +430,7 @@
 #define _LANG_CMD_WORLDMAP_PLAINS      "Llanura"
 #define _LANG_CMD_WORLDMAP_TUNDRA      "Tundra"
 #define _LANG_CMD_WORLDMAP_SWAMP       "Pantano"
+#define _LANG_CMD_WORLDMAP_HILLS       "Colinas"
 #define _LANG_CMD_WORLDMAP_MOUNTAIN    "Montañas"
 #define _LANG_CMD_WORLDMAP_TAIGA       "Taiga"
 #define _LANG_CMD_WORLDMAP_RUINS       "Ruinas"

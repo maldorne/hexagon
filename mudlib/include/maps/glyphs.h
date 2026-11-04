@@ -191,6 +191,7 @@
 #define GLYPH_MAP_PLAINS_B (chr(226) + chr(139) + chr(177))         // U+22F1 down right diagonal ellipsis
 #define GLYPH_MAP_SWAMP    (chr(226) + chr(137) + chr(136))         // U+2248 almost equal to
 #define GLYPH_MAP_MOUNTAIN (chr(226) + chr(150) + chr(178))         // U+25B2 black up-pointing triangle
+#define GLYPH_MAP_HILLS    (chr(226) + chr(151) + chr(160))         // U+25E0 upper half circle
 #define GLYPH_MAP_TAIGA    (chr(226) + chr(153) + chr(167))         // U+2667 white club suit
 #define GLYPH_MAP_RUINS    (chr(226) + chr(136) + chr(180))         // U+2234 therefore
 #define GLYPH_MAP_UNDERGROUND "."
@@ -240,10 +241,11 @@
 #define MAP_SHORE_ARMS         16
 #define MAP_SHORE_KINDS        3
 // Terrain added after the shoreline codes, so the stored ones keep their
-// meaning: tundra, drawn with the two plains glyphs in bold.
+// meaning: tundra, drawn with the two plains glyphs in bold, and hills.
 #define MAP_GLYPH_TUNDRA_A     (MAP_GLYPH_SHORE + MAP_SHORE_KINDS * MAP_SHORE_ARMS)
 #define MAP_GLYPH_TUNDRA_B     (MAP_GLYPH_TUNDRA_A + 1)
-#define MAP_GLYPH_COUNT        (MAP_GLYPH_TUNDRA_B + 1)
+#define MAP_GLYPH_HILLS        (MAP_GLYPH_TUNDRA_B + 1)
+#define MAP_GLYPH_COUNT        (MAP_GLYPH_HILLS + 1)
 
 // The fixed glyphs as they are drawn, colour included.
 #define MAP_GLYPHS ({ \

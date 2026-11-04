@@ -214,7 +214,7 @@ static int cmd(string str, object me, string verb)
     if (!_valid_type(type))
     {
       notify_fail("Unknown type '" + type + "'. One of: city, forest, " +
-                  "coast, beach, marsh, underground, farm, plains, tundra, swamp, mountain, " +
+                  "coast, beach, marsh, underground, farm, plains, tundra, swamp, hills, mountain, " +
                   "taiga, ruins, empty, none.\n");
       return 0;
     }
