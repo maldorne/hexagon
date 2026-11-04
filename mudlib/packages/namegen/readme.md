@@ -37,6 +37,8 @@ starter set, named `<culture>[.<origin>].<gender>.names`:
 
 - `elvish.names` — unisex, invented.
 - `saurians.lizard.names` — unisex, invented, harsh and hissing.
+- `saurians.naga.male.names`, `saurians.naga.female.names` — invented, sibilant (s, sh, ss, z).
+- `dwarves.male.names`, `dwarves.female.names` — invented, short and heavy.
 - `humans.fantasy.male.names`, `humans.fantasy.female.names` — invented,
   medieval-fantasy flavour.
 - `humans.latin.male.names`, `humans.latin.female.names` — ordinary Spanish /
