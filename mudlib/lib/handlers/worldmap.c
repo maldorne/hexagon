@@ -1058,8 +1058,7 @@ private int _label_aligned(mixed * city, int r, int c, int n)
 // would take is blank, and so is the one at each end, unless that end is the
 // edge of the map, so it neither covers nor touches anything already drawn;
 // and it is nearer the city it names than any other one on the map, or as near
-// but lined up with its own city and not with the other, so it still reads
-// as its own.
+// but not lined up with the other, so it still reads as its own.
 private int _label_fits(string ** grid, int w, int h, int r, int c, int n)
 {
   int i, k, own, other;
@@ -1082,9 +1081,7 @@ private int _label_fits(string ** grid, int w, int h, int r, int c, int n)
     other = _box_distance(label_cities[k], r, c, n);
     if (other < own)
       return 0;
-    if (other == own &&
-        (!_label_aligned(label_cities[label_own], r, c, n) ||
-         _label_aligned(label_cities[k], r, c, n)))
+    if (other == own && _label_aligned(label_cities[k], r, c, n))
       return 0;
   }
 
