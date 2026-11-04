@@ -1058,7 +1058,8 @@ private int _label_aligned(mixed * city, int r, int c, int n)
 // would take is blank, and so is the one at each end, unless that end is the
 // edge of the map, so it neither covers nor touches anything already drawn;
 // and it is nearer the city it names than any other one on the map, or as near
-// but not lined up with the other, so it still reads as its own.
+// but not lined up with the other, or lined up with a smaller one: a capital
+// keeps its place beside a hamlet, which looks for another.
 private int _label_fits(string ** grid, int w, int h, int r, int c, int n)
 {
   int i, k, own, other;
@@ -1081,7 +1082,8 @@ private int _label_fits(string ** grid, int w, int h, int r, int c, int n)
     other = _box_distance(label_cities[k], r, c, n);
     if (other < own)
       return 0;
-    if (other == own && _label_aligned(label_cities[k], r, c, n))
+    if (other == own && _label_aligned(label_cities[k], r, c, n) &&
+        sizeof(label_cities[k][0]) >= sizeof(label_cities[label_own][0]))
       return 0;
   }
 
@@ -1158,7 +1160,8 @@ private void _overlay_city_names(string ** grid, int ** is_city, int w, int h,
   int ** seen;
   string ** cell_names;
   mixed * cities;
-  int r, c, k;
+  int * order;
+  int r, c, k, j;
 
   // the name each city cell is after, read once
   seen = allocate(h);
@@ -1243,11 +1246,29 @@ private void _overlay_city_names(string ** grid, int ** is_city, int w, int h,
   // the fit test keeps each label nearer its city than any other
   label_cities = cities;
 
+  // the bigger cities choose their spot first, so a hamlet next to a capital
+  // does not take the capital's place
+  order = allocate_int(sizeof(cities));
   for (k = 0; k < sizeof(cities); k++)
+    order[k] = k;
+  for (k = 1; k < sizeof(order); k++)
+    for (j = k; j > 0 && sizeof(cities[order[j]][0]) >
+                         sizeof(cities[order[j - 1]][0]); j--)
+    {
+      int tmp;
+
+      tmp = order[j];
+      order[j] = order[j - 1];
+      order[j - 1] = tmp;
+    }
+
+  for (j = 0; j < sizeof(order); j++)
   {
     string * cells;
     int rmin, rmax, cmin, cmax, mid, n, i;
     int * spot;
+
+    k = order[j];
 
     if (!cities[k][5])
       continue;
