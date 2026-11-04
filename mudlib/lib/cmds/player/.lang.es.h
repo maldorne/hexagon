@@ -378,7 +378,6 @@
 #define _LANG_CMD_MAP_HELP "Muestra un mapa de tu entorno."
 #define _LANG_CMD_MAP_NO_ENV "¡Sin entorno no puedes hacer eso!\n"
 #define _LANG_CMD_MAP_INVALID "Por alguna razón el mapa no funciona en un lugar como este.\n"
-#define _LANG_CMD_MAP_NO_WATER "No puedes ponerte a consultar el mapa rodeado de agua.\n"
 #define _LANG_CMD_MAP_INVISIBLE "No puedes consultar el mapa estando completamente invisible.\n"
 #define _LANG_CMD_MAP_JUST_ARRIVED "Acabas de llegar y todavía no reconoces el terreno, espera un momento.\n"
 #define _LANG_CMD_MAP_LEGEND "Leyenda"

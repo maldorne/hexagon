@@ -193,8 +193,6 @@ static int cmd(string str, object me, string verb)
       notify_fail(_LANG_CMD_MAP_NO_ENV);
     else if (environment(me)->query_dungeon_room())
       notify_fail(_LANG_CMD_MAP_INVALID);
-    else if (environment(me)->query_water_environment())
-      notify_fail(_LANG_CMD_MAP_NO_WATER);
     else
       notify_fail(_LANG_CMD_MAP_INVALID);
     return 0;

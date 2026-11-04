@@ -164,7 +164,7 @@ private int _z_of(object room)
  *   ])
  *
  * Or nil if the viewer has no environment or the environment refuses
- * to render a map (dungeon / underwater rooms).
+ * to render a map (dungeon rooms).
  *
  * The two grids are aligned: `rooms[y][x]` holds the object that produced
  * `locations[y][x]` where a location is drawn, and is `nil` where nothing is
@@ -198,10 +198,7 @@ mapping query_map_view(object viewer, varargs mapping options)
   if (!env)
     return nil;
 
-  // swimming in open water shows no map; a bridge cell does, from the bridge
-  // and from the water below it
-  if (env->query_dungeon_room() ||
-      (env->query_water_environment() && !env->query_bridge()))
+  if (env->query_dungeon_room())
     return nil;
 
   if (!options)
@@ -427,7 +424,9 @@ mapping query_map_view(object viewer, varargs mapping options)
     "height":   height,
     "viewer_x": viewer_x,
     "viewer_y": viewer_y,
-    "viewer_in_water": env->query_bridge() && env->query_in_water(viewer),
+    // a bridge cell is water only for whoever swims below it
+    "viewer_in_water": env->query_bridge() ? env->query_in_water(viewer) :
+                       env->query_water_environment(),
     "locations":    locations,
     "rooms":    rooms,
   ]);
