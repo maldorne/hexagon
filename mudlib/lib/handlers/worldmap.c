@@ -64,6 +64,12 @@ inherit "/lib/core/object.c";
 // A river that never reaches a border of its sector (it starts and ends in it).
 #define GLYPH_RIVER_SPOT (chr(194) + chr(176))     // U+00B0 degree sign
 
+// The swell drawn on some of the sea: how many sectors out from a coast the
+// sea reaches, and one sector in how many of them shows a wave.
+#define GLYPH_SEA_WAVE    ("%^CYAN%^~%^RESET%^")
+#define SEA_WAVE_REACH    3
+#define SEA_WAVE_ONE_IN   3
+
 // per-render sector cache. Reset at the top of every render(); safe
 // because DGD executes each mudlib call chain atomically — there is no
 // interleaving of two renders on the same handler.
@@ -645,6 +651,128 @@ private int sector_code(string game, string map_name, int sx, int sy, int sz)
   return MAP_GLYPH_EMPTY;
 }
 
+// Whether the sea sector at world sector (sx, sy) shows a wave: one in
+// SEA_WAVE_ONE_IN, drawn from its coordinates, so it is the same on every map.
+private int _sea_wave_at(int sx, int sy)
+{
+  int h;
+
+  h = sx * 7919 + sy * 104729;
+  h = (h ^ (h >> 5)) * 31 + sx - sy;
+  return ((h % SEA_WAVE_ONE_IN) + SEA_WAVE_ONE_IN) % SEA_WAVE_ONE_IN == 0;
+}
+
+// Whether the cell at (r, c) touches land: something drawn in one of the eight
+// cells around it that is not part of a coast.
+private int _touches_land(string ** grid, int ** shore, int w, int h,
+                          int r, int c)
+{
+  int dr, dc, rr, cc;
+
+  for (dr = -1; dr <= 1; dr++)
+    for (dc = -1; dc <= 1; dc++)
+    {
+      rr = r + dr;
+      cc = c + dc;
+      if ((dr || dc) && rr >= 0 && rr < h && cc >= 0 && cc < w &&
+          grid[rr][cc] != GLYPH_EMPTY && !shore[rr][cc])
+        return 1;
+    }
+
+  return 0;
+}
+
+// The cells of the map that are sea, as a mask. Land is anything drawn but a
+// coast. The sea side of a coast is the side where the band two cells ahead,
+// five wide, holds no land while there is land within two cells the other way;
+// blank cells up to SEA_WAVE_REACH out on that side are sea, unless they touch
+// land, where a bend of the coastline would otherwise let the sea in. Blank
+// land far from any coast never is.
+private int ** _sea_cells(string ** grid, int ** shore, int w, int h)
+{
+  int ** sea;
+  int * drs, * dcs, * bits;
+  int r, c, d, i, k, dr, dc, rr, cc, open, land, ahead, aside;
+
+  // north, south, east, west, and the arm bit of each in a shore code
+  drs = ({ -1, 1, 0, 0 });
+  dcs = ({ 0, 0, 1, -1 });
+  bits = ({ 8, 4, 2, 1 });
+
+  sea = allocate(h);
+  for (r = 0; r < h; r++)
+    sea[r] = allocate_int(w);
+
+  for (r = 0; r < h; r++)
+    for (c = 0; c < w; c++)
+    {
+      if (!shore[r][c])
+        continue;
+
+      for (d = 0; d < 4; d++)
+      {
+        // the coastline goes on that way: the sea lies to its sides
+        if (((shore[r][c] - 1) % MAP_SHORE_ARMS) & bits[d])
+          continue;
+
+        open = 1;
+        land = 0;
+        for (i = 1; i <= 2; i++)
+        {
+          // two cells ahead, and two to each side of them, hold no land
+          for (k = -2; k <= 2; k++)
+          {
+            rr = r + drs[d] * i + dcs[d] * k;
+            cc = c + dcs[d] * i + drs[d] * k;
+            if (rr >= 0 && rr < h && cc >= 0 && cc < w &&
+                grid[rr][cc] != GLYPH_EMPTY && !shore[rr][cc])
+              open = 0;
+          }
+          rr = r - drs[d] * i;
+          cc = c - dcs[d] * i;
+          if (rr >= 0 && rr < h && cc >= 0 && cc < w &&
+              grid[rr][cc] != GLYPH_EMPTY && !shore[rr][cc])
+            land = 1;
+        }
+        if (!open || !land)
+          continue;
+
+        for (dr = -SEA_WAVE_REACH; dr <= SEA_WAVE_REACH; dr++)
+          for (dc = -SEA_WAVE_REACH; dc <= SEA_WAVE_REACH; dc++)
+          {
+            // only the cells ahead on the sea side, no further aside than
+            // ahead, so the sea never wraps round a bend of the coast
+            ahead = dr * drs[d] + dc * dcs[d];
+            aside = dr * dcs[d] + dc * drs[d];
+            if (ahead <= 0 || (aside < 0 ? -aside : aside) > ahead)
+              continue;
+            rr = r + dr;
+            cc = c + dc;
+            if (rr >= 0 && rr < h && cc >= 0 && cc < w &&
+                grid[rr][cc] == GLYPH_EMPTY &&
+                !_touches_land(grid, shore, w, h, rr, cc))
+              sea[rr][cc] = 1;
+          }
+      }
+    }
+
+  return sea;
+}
+
+// Draw a wave on some of the sea cells (see _sea_wave_at) still blank, `left`
+// columns in from the grid's edge.
+private void _overlay_sea_waves(string ** grid, int ** sea, int w, int h,
+                                int left, int col0, int row_top)
+{
+  int r, c;
+
+  for (r = 0; r < h; r++)
+    for (c = 0; c < w; c++)
+      if (sea[r][c] && grid[r][c + left] == GLYPH_EMPTY &&
+          _sea_wave_at(col0 + c, row_top - r))
+        grid[r][c + left] = GLYPH_SEA_WAVE;
+}
+
 // Write a wall glyph into the grid, clamped to bounds. Only blank sectors
 // are painted: the player marker and any real terrain glyph (another
 // sector's fill — forest, road, a different city) show through, so the
@@ -1155,7 +1283,7 @@ string render(int center_x, int center_y, int center_z,
   int col0, row_top;
   int row_i, col, left, code;
   string ** grid;
-  int ** is_city, ** shore;
+  int ** is_city, ** shore, ** sea;
   string result;
 
   sector_cache = ([ ]);
@@ -1204,6 +1332,9 @@ string render(int center_x, int center_y, int center_z,
   }
 
   _overlay_shore_steps(grid, shore, width, height);
+  // the sea is read now, before anything else takes a blank cell, and its
+  // waves go in last, so a name always finds room before a wave does
+  sea = _sea_cells(grid, shore, width, height);
 
   // centre marker (before the overlay, which never overwrites it)
   if (marker)
@@ -1241,6 +1372,9 @@ string render(int center_x, int center_y, int center_z,
     _overlay_city_names(grid, is_city, width + (label_room > 0 ? label_room : 0),
                         height, game, map_name, col0 - left, row_top, sz0);
   }
+
+  _overlay_sea_waves(grid, sea, width, height,
+                     (labels && label_room > 0) ? left : 0, col0, row_top);
 
   result = "";
   for (row_i = 0; row_i < height; row_i++)
