@@ -820,5 +820,5 @@
 #define _LANG_DOCKS_SEARCHING "Consultas las cartas de navegación...\n"
 #define _LANG_DOCKS_NONE "No se conoce ningún muelle en este lugar.\n"
 #define _LANG_DOCKS_NO_GAME "No estás en ningún lugar con muelles.\n"
-#define _LANG_DOCKS_LINE "  %s (%s)\n"
-#define _LANG_DOCKS_LINE_NO_PLACE "  %s\n"
+#define _LANG_DOCKS_COL_DOCK "Muelle"
+#define _LANG_DOCKS_COL_PLACE "Lugar"

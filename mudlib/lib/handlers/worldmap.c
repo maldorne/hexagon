@@ -1146,6 +1146,9 @@ string ** dock_list(mixed * docks)
       for (k = sizeof(parts) - 1; k > 1 && !strlen(place); k--)
       {
         dir = implode(parts[.. k - 1], "/") + "/";
+        // the area handler keys its areas by absolute path
+        if (dir[0] != '/')
+          dir = "/" + dir;
         area = load_object(AREA_HANDLER)->query_area(dir);
         if (area)
           place = _known_area_name(area);

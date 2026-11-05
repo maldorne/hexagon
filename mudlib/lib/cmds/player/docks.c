@@ -16,14 +16,49 @@ void setup()
   set_help(_LANG_CMD_DOCKS_HELP);
 }
 
+// A text without its colour tokens (%^NAME%^) nor ANSI colour sequences.
+private string _plain(string text)
+{
+  string ret;
+  int i, len;
+
+  ret = "";
+  len = strlen(text);
+  for (i = 0; i < len; i++)
+  {
+    if (text[i] == 27 && i + 1 < len && text[i + 1] == '[')
+    {
+      // skip up to the final byte of the sequence
+      for (i += 2; i < len && (text[i] < 0x40 || text[i] > 0x7E); i++);
+      continue;
+    }
+    if (text[i] == '%' && i + 1 < len && text[i + 1] == '^')
+    {
+      // skip up to the closing "%^" of the token
+      for (i += 2; i + 1 < len && !(text[i] == '%' && text[i + 1] == '^'); i++);
+      i++;
+      continue;
+    }
+    ret += text[i .. i];
+  }
+  return ret;
+}
+
+// A table cell: the text padded with spaces to `width` visible characters.
+private string _cell(string text, int width)
+{
+  return text + pad("", width - strlen(text, 1));
+}
+
 /**
  * Called back by the sectors handler (list_docks) with the sectors holding a
- * dock: tells the player the docks by name and the place they belong to.
+ * dock: tells the player the docks in a frame, as two columns with the dock
+ * name and the place it belongs to, sorted by dock name.
  */
 void show_docks(object who, string game, string map_name, mixed * docks)
 {
-  string ** list, text;
-  int i;
+  string ** list, * keys, * entry, key, text, head;
+  int i, j, cols, dock_w, place_w;
 
   if (!who)
     return;
@@ -35,13 +70,49 @@ void show_docks(object who, string game, string map_name, mixed * docks)
     return;
   }
 
-  text = "%^BOLD%^" + _LANG_DOCKS_TITLE + "%^RESET%^\n";
+  // the names as they read, with no colour sequences (a sober table, and a
+  // name that leaves its colour open cannot bleed into the next column)
+  keys = allocate(sizeof(list));
   for (i = 0; i < sizeof(list); i++)
-    text += strlen(list[i][1]) ?
-            sprintf(_LANG_DOCKS_LINE, list[i][0], list[i][1]) :
-            sprintf(_LANG_DOCKS_LINE_NO_PLACE, list[i][0]);
+  {
+    list[i][0] = _plain(list[i][0]);
+    list[i][1] = _plain(list[i][1]);
+    keys[i] = lower_case(list[i][0]);
+  }
 
-  tell_object(who, text);
+  // insertion sort by name
+
+  for (i = 1; i < sizeof(list); i++)
+    for (j = i; j > 0 && keys[j] < keys[j - 1]; j--)
+    {
+      entry = list[j];
+      list[j] = list[j - 1];
+      list[j - 1] = entry;
+      key = keys[j];
+      keys[j] = keys[j - 1];
+      keys[j - 1] = key;
+    }
+
+  // each column is as wide as its heading or its widest entry
+  dock_w = strlen(_LANG_DOCKS_COL_DOCK, 1);
+  place_w = strlen(_LANG_DOCKS_COL_PLACE, 1);
+  for (i = 0; i < sizeof(list); i++)
+  {
+    if (strlen(list[i][0], 1) > dock_w)
+      dock_w = strlen(list[i][0], 1);
+    if (strlen(list[i][1], 1) > place_w)
+      place_w = strlen(list[i][1], 1);
+  }
+
+  head = _cell(_LANG_DOCKS_COL_DOCK, dock_w) + "  " + _LANG_DOCKS_COL_PLACE;
+  text = head + "\n" + pad("", dock_w + 2 + place_w, "-") + "\n";
+  for (i = 0; i < sizeof(list); i++)
+    text += _cell(list[i][0], dock_w) + "  " + list[i][1] + "\n";
+
+  cols = who->user() ? who->user()->query_cols() : 0;
+  if (cols <= 0)
+    cols = 80;
+  tell_object(who, handler("frames")->frame(text, _LANG_DOCKS_TITLE, cols));
 }
 
 static int cmd(string str, object me, string verb)

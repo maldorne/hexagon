@@ -136,6 +136,9 @@ private string _record_text(mapping boss, mapping info)
   ret = "";
   if (info["short"] && info["short"] != boss["name"])
     ret += info["short"] + "\n";
+  // a blank line between the name and the description
+  if (strlen(ret) && info["long"])
+    ret += "\n";
   if (info["long"])
     ret += wrap(info["long"], cols - handler("frames")->query_frame_overhead(nil));
   if (strlen(ret))

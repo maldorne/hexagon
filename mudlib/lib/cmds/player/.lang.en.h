@@ -815,5 +815,5 @@
 #define _LANG_DOCKS_SEARCHING "You consult the navigation charts...\n"
 #define _LANG_DOCKS_NONE "No dock is known here.\n"
 #define _LANG_DOCKS_NO_GAME "You are not anywhere with docks.\n"
-#define _LANG_DOCKS_LINE "  %s (%s)\n"
-#define _LANG_DOCKS_LINE_NO_PLACE "  %s\n"
+#define _LANG_DOCKS_COL_DOCK "Dock"
+#define _LANG_DOCKS_COL_PLACE "Place"
