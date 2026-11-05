@@ -28,11 +28,17 @@ one removes the interface from the screen.
 
 - Save and restore cursor: `ESC 7` / `ESC 8`; every repaint is one string
   wrapped in them.
-- Scroll region `ESC[2;<rows>r`: keeps the game text below the status bar.
+- Scroll region `ESC[3;<last row>r`, only with the status bar on (the sidebar
+  alone never sets one): keeps the game text below the bar and its line.
   Reasserted in every repaint (it moves the cursor, hence the save/restore).
   `ESC[r` resets it.
-- Absolute position `ESC[<row>;<col>H` for the status bar (row 1) and for
-  each line of the sidebar (column `cols - width + 1`).
+- Absolute position `ESC[<row>;<col>H` for the status bar (row 1), the line
+  under it (row 2) and each line of the sidebar (column `cols - width + 1`).
+- Layout, with the status bar and the sidebar on: row 1 is text, row 2 a double
+  line across the screen where the sidebar hangs (`\u2566` on its left edge,
+  `\u2557` closing its right corner), the sidebar box has `\u2551` edges and a `\u255a\u2550\u255d`
+  bottom on the last row. With the sidebar alone its box has its own top. No
+  colour but the HP and GP bars.
 - When a layout is turned on, each row of the interface is cleared (`ESC[<row>;1H` `ESC[2K`) and the cursor parked on the last one; the reserved
   bottom lines are not touched and a login clears nothing. There is no `ESC[2J`.
 - Colours: SGR for the status bar (white on blue); colour tokens converted by
@@ -90,3 +96,13 @@ line at the bottom (`#split`, on by default; both lines count as 2).
 3. `configuración interfaz líneas reservadas abajo 2`, so the interface stays
    above the divider and the input line and does not overwrite them.
 4. Then `barra on` and `lateral on`.
+
+## Size of the screen
+
+`filas` and `columnas` must be those of the real terminal (`stty size` prints
+rows then columns). With the status bar, the scroll region ends at `filas`
+(less the reserved lines): if the real terminal is taller, the game text only
+reaches that row and the rest stays empty. The driver cannot ask the client its
+size (no NAWS), and a cursor position report (`ESC[6n`) is not used: the reply
+is typed input that arrives only with the next line the user sends, and a client
+such as TinTin++ may keep it for itself.

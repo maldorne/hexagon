@@ -87,6 +87,8 @@
 #define _LANG_UI_NO_ANSI "Your terminal type does not support this option: you need an ansi terminal (see 'configuration interface type').\n"
 #define _LANG_UI_TOO_NARROW "Your screen is too narrow for the sidebar: you need at least " + \
         (UI_MIN_TEXT + ui_width + 1) + " columns (see 'configuration interface columns').\n"
+#define _LANG_UI_SIZE_HINT "It is drawn for a screen of " + this_object()->query_term_cols() + " columns and " + \
+        this_object()->query_rows() + " rows: they must be those of your real terminal ('stty size' in a shell). Change them in 'configuration interface'.\n"
 #define _LANG_UI_MAP "Map"
 #define _LANG_UI_WORLD "World"
 #define _LANG_UI_MAP_OPTIONS ({ "local", "world", "both", "none" })

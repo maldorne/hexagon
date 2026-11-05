@@ -32,8 +32,19 @@
 // bottom lines of the screen the client keeps for itself (TinTin++ split)
 #define UI_MAX_BOTTOM     5
 
-// bold white on blue, the colours of the status bar
-#define UI_BAR_BASE (CSI + "0;1;37;44m")
+// the status bar has no colours of its own: this ends one of the bars
+#define UI_BAR_BASE (CSI + "0m")
+
+// double line box glyphs, the style of the sidebar frame (U+2550 and the
+// others of the block)
+#define UI_GLYPH(c)  (chr(226) + chr(149) + chr(c))
+#define UI_HLINE     UI_GLYPH(144)   // ═
+#define UI_VLINE     UI_GLYPH(145)   // ║
+#define UI_CORNER_TL UI_GLYPH(148)   // ╔
+#define UI_CORNER_TR UI_GLYPH(151)   // ╗
+#define UI_CORNER_BL UI_GLYPH(154)   // ╚
+#define UI_CORNER_BR UI_GLYPH(157)   // ╝
+#define UI_TEE_DOWN  UI_GLYPH(166)   // ╦
 
 // Settings, saved with the account like the terminal type and the size of the
 // screen. Whether they are used also depends on the terminal type (see
@@ -260,7 +271,7 @@ private string ui_meter(int cur, int max, int len, int raw)
   if (raw)
   {
     colour = percent >= 60 ? "32" : (percent >= 30 ? "33" : "31");
-    return CSI + "1;" + colour + ";44m" + full + UI_BAR_BASE + empty;
+    return CSI + "1;" + colour + "m" + full + UI_BAR_BASE + empty;
   }
 
   colour = percent >= 60 ? "GREEN" : (percent >= 30 ? "YELLOW" : "RED");
@@ -379,6 +390,8 @@ int set_ui_status(int on)
   ui_status = on ? 1 : 0;
   ui_flush();
   this_object()->save_me();
+  if (on)
+    write(_LANG_UI_SIZE_HINT);
   return 1;
 }
 
@@ -403,6 +416,8 @@ int set_ui_side(int on)
   ui_side = on ? 1 : 0;
   ui_flush();
   this_object()->save_me();
+  if (on)
+    write(_LANG_UI_SIZE_HINT);
   return 1;
 }
 
@@ -546,6 +561,24 @@ private string ui_make_signature(object player)
 }
 
 /**
+ * The line under the status bar, on row 2, across the whole screen. Where the
+ * sidebar is, its frame hangs from it: a tee down on its left edge and one
+ * that closes the corner on its right.
+ */
+private string ui_rule(int cols)
+{
+  string out;
+
+  if (!ui_live_side)
+    return CSI + "2;1H" + ui_repeat(UI_HLINE, cols);
+
+  out = ui_repeat(UI_HLINE, cols - ui_live_width) + UI_TEE_DOWN +
+        ui_repeat(UI_HLINE, ui_live_width - 2) + UI_CORNER_TR;
+
+  return CSI + "2;1H" + out;
+}
+
+/**
  * The status bar as one string: the position of its line, colours and the
  * text padded to the whole width of the screen. It shows the name, life and
  * energy points, the place and the game hour, losing the least important
@@ -633,7 +666,7 @@ private string ui_status_line(object player, int cols)
   if (rest < 0)
     left = ui_cut_text(ui_plain(left), cols);
 
-  return CSI + "1;1H" + UI_BAR_BASE + left + middle + right + CSI + "0m";
+  return CSI + "1;1H" + left + middle + right + UI_BAR_BASE + ui_rule(cols);
 }
 
 /**
@@ -759,7 +792,8 @@ private string * ui_panel_lines(object player, int width, int rows)
   int inner, numbers, local_height, world_height, available, usable;
   int max_place, i;
 
-  inner = width - 2;
+  // the frame takes the two edges, and a margin the left one
+  inner = width - 3;
 
   // the place the player is in, at most a few lines of it
   place = ui_wrap_text(ui_place_text(player), inner);
@@ -854,11 +888,10 @@ private string * ui_panel_lines(object player, int width, int rows)
 
   lines = lines[0..rows - 1];
 
-  // every line gets its separator and margin and is padded to the full width,
-  // so what was there before is overwritten
+  // every line gets its edges and margin and is padded to the full width, so
+  // what was there before is overwritten
   for (i = 0; i < sizeof(lines); i++)
-    lines[i] = "%^BLUE%^" + chr(226) + chr(148) + chr(130) + "%^RESET%^ " +
-               ui_fit(lines[i], inner);
+    lines[i] = UI_VLINE + " " + ui_fit(lines[i], inner) + UI_VLINE;
 
   return lines;
 }
@@ -871,16 +904,26 @@ private string ui_panel(object player, int cols, int rows)
 {
   string * lines;
   string out;
-  int i, top, column;
+  int i, top, column, width;
 
+  // the top edge is row 1, or the line of the status bar on row 2, which
+  // already carries the corners of the frame
   top = ui_live_status ? 2 : 1;
-  column = cols - ui_live_width + 1;
-  lines = ui_panel_lines(player, ui_live_width, rows - top + 1);
+  width = ui_live_width;
+  column = cols - width + 1;
+  lines = ui_panel_lines(player, width, rows - top - 1);
   out = "";
 
+  if (!ui_live_status)
+    out += CSI + top + ";" + column + "H" + UI_CORNER_TL +
+           ui_repeat(UI_HLINE, width - 2) + UI_CORNER_TR;
+
   for (i = 0; i < sizeof(lines); i++)
-    out += CSI + (top + i) + ";" + column + "H" +
+    out += CSI + (top + 1 + i) + ";" + column + "H" +
            TERM_HANDLER->_fix_string(lines[i], this_object());
+
+  out += CSI + rows + ";" + column + "H" + UI_CORNER_BL +
+         ui_repeat(UI_HLINE, width - 2) + UI_CORNER_BR;
 
   return out;
 }
@@ -911,7 +954,7 @@ private string ui_teardown()
     out += ui_live_bottom ? CSI + "1;" + ui_live_rows + "r" : CSI + "r";
 
   if (ui_live_status)
-    out += CSI + "1;1H" + CSI + "2K";
+    out += CSI + "1;1H" + CSI + "2K" + CSI + "2;1H" + CSI + "2K";
 
   if (ui_live_side)
   {
@@ -1016,7 +1059,7 @@ void ui_flush()
     // the scroll region keeps the game away from the top line; DECSTBM moves
     // the cursor, which is why everything is inside a save and restore
     if (ui_live_status && (redraw_bar || ui_live_side))
-      paint += CSI + "2;" + ui_live_rows + "r";
+      paint += CSI + "3;" + ui_live_rows + "r";
 
     if (redraw_bar)
     {

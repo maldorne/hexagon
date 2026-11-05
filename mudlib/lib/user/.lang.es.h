@@ -87,6 +87,8 @@
 #define _LANG_UI_NO_ANSI "Tu tipo de terminal no admite esta opción: necesitas un terminal ansi (mira 'configuración interfaz tipo').\n"
 #define _LANG_UI_TOO_NARROW "Tu pantalla es demasiado estrecha para la barra lateral: necesitas al menos " + \
         (UI_MIN_TEXT + ui_width + 1) + " columnas (mira 'configuración interfaz columnas').\n"
+#define _LANG_UI_SIZE_HINT "Se dibuja para una pantalla de " + this_object()->query_term_cols() + " columnas y " + \
+        this_object()->query_rows() + " filas: tienen que ser las de tu terminal ('stty size' en un shell). Cámbialas en 'configuración interfaz'.\n"
 #define _LANG_UI_MAP "Mapa"
 #define _LANG_UI_WORLD "Mundo"
 #define _LANG_UI_MAP_OPTIONS ({ "local", "mundo", "ambos", "ninguno" })
