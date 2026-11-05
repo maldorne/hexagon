@@ -860,9 +860,13 @@ private string * ui_panel_lines(object player, int width, int rows)
     world_height = available - 2;
   else if (ui_map_mode == 2)
   {
-    // the world map is the first to go when the panel is short
+    // the world map takes a third of the rows and one more above and below the
+    // player's sector, as long as the local map keeps a few; it is the first
+    // to go when the panel is short
     usable = available - 4;
-    world_height = usable / 3;
+    world_height = usable / 3 + 2;
+    if (usable - world_height < 5)
+      world_height = usable / 3;
     local_height = usable - world_height;
     if (world_height < 3)
     {
