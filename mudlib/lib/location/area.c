@@ -99,8 +99,17 @@ void create() {
   obj::create();
 }
 
+// Tells the areas handler the names this area is shown by, so a map can label
+// it without loading it. Called whenever the area is written or read back.
+private void note_names()
+{
+  AREA_HANDLER->note_area_names(area_path, map_name, exploration_name,
+                                parent_area);
+}
+
 void restore_me() {
   restore_object(file_name);
+  note_names();
 }
 
 // Writes this area's own file, and only it.
@@ -109,6 +118,7 @@ private void write_me()
   save_object(file_name);
   last_saved = time();
   dirty = 0;
+  note_names();
 }
 
 void save_me() {
@@ -359,6 +369,7 @@ int restore_from_file_name(string name)
   if (file_size(name) >= 0)
   {
     restore_object(name);
+    note_names();
 
     // Rebuild the derived roster from original_npc_sources on load: npc_caps is not
     // authoritative state, it is the sum of the per-location provenance.

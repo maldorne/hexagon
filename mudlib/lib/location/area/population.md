@@ -340,6 +340,14 @@ inherits the shared one) also keeps `schedule_areas`, `([ hour : ({ area path })
 ])`, so a round restores only the areas that have work; a game with no handler
 of its own is visited whole by the shared one.
 
+The same handler keeps `area_names`, `([ path : ({ map name, exploration name,
+parent path }) ])`, so a map can name a place without restoring its area. Every
+area writes its entry whenever it is saved or restored (`note_area_names`, from
+`area.c`), replacing it whole, so a renamed or cleared name leaves nothing of the
+old one; `forget_area` drops it and `query_area_names` drops an entry whose
+`area.o` is gone. At create the handler reads, in the background, every area not
+yet in it (`index_area_names`), letting go again of those nobody had loaded.
+
 The queue is released a few at a time (three per tick, then a one or two second
 `call_out`), so departures and the loads they trigger stagger instead of landing
 on one beat. For each item `wake_and_schedule(uuid, hour)` uses the person if

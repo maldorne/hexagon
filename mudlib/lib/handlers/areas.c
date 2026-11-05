@@ -63,6 +63,12 @@ string * game_areas;
 // hour that names no area has nobody due anywhere.
 mapping schedule_areas;
 
+// The names each area of this game is shown by, so a map can label a place
+// without loading its area: ([ path : ({ map name, exploration name, parent
+// area path }) ]). Every area writes its entry each time it is saved or
+// restored (see note_area_names), and forget_area drops it.
+mapping area_names;
+
 private void _delete_npc_folder(string dir);
 
 // The shared instance, where the runtime indices live. A game's handler
@@ -115,9 +121,17 @@ void create() {
   npc_at = ([ ]);
   game_areas = ({ });
   schedule_areas = ([ ]);
+  area_names = ([ ]);
 
   if (query_save_file())
     restore_object(query_save_file(), 1);
+  if (!area_names)
+    area_names = ([ ]);
+
+  // a game whose areas have not been named here yet gets them read once, in
+  // the background
+  if (strlen(query_game()))
+    call_out("index_area_names", 0);
 }
 
 // Record that a roamer rostered in `roster` is now resting at `loc` (a location
@@ -320,6 +334,7 @@ void forget_area(string path)
   }
 
   game_areas -= ({ path });
+  map_delete(area_names, path);
 
   hours = map_indices(schedule_areas);
   for (i = 0; i < sizeof(hours); i++)
@@ -330,6 +345,168 @@ void forget_area(string path)
   }
 
   save_handler();
+}
+
+/**
+ * An area tells the handler of its game the names it is shown by, each time it
+ * is saved or restored. The entry is replaced whole, so a changed or cleared
+ * name leaves no trace of the old one; the handler is saved only when the
+ * entry changed.
+ *
+ * @param path the area's directory
+ * @param map the area's own map name ("" when it has none)
+ * @param exploration the area's own exploration name ("" when it has none)
+ * @param parent the path of its parent area ("" when it has none)
+ */
+void note_area_names(string path, string map, string exploration,
+                     string parent)
+{
+  object owner;
+  mixed * entry, * known;
+
+  if (!path || !strlen(path))
+    return;
+  if (path[strlen(path) - 1] != '/')
+    path += "/";
+
+  owner = _owner(game_from_path(path));
+  if (owner != this_object())
+  {
+    owner->note_area_names(path, map, exploration, parent);
+    return;
+  }
+
+  entry = ({ map ? map : "", exploration ? exploration : "",
+             parent ? parent : "" });
+  known = area_names[path];
+  if (known && known[0] == entry[0] && known[1] == entry[1] &&
+      known[2] == entry[2])
+    return;
+
+  area_names[path] = entry;
+  save_handler();
+}
+
+/**
+ * The names an area is shown by, without loading it: ({ map name, exploration
+ * name, parent area path }), each "" when unset, or nil when the area has not
+ * told its names yet. An entry whose area.o is gone is dropped.
+ *
+ * @param path the area's directory
+ */
+string * query_area_names(string path)
+{
+  object owner;
+
+  if (!path || !strlen(path))
+    return nil;
+  if (path[strlen(path) - 1] != '/')
+    path += "/";
+
+  owner = _owner(game_from_path(path));
+  if (owner != this_object())
+    return (string *)owner->query_area_names(path);
+
+  if (!area_names[path])
+    return nil;
+
+  if (file_size(path + "area.o") < 0)
+  {
+    map_delete(area_names, path);
+    save_handler();
+    return nil;
+  }
+
+  return ({ }) + area_names[path];
+}
+
+// Ticks an index_area_names step leaves unspent before going on in a call_out.
+#define AREA_NAMES_TICK_MARGIN 2000000
+
+/**
+ * Read the names of every area of this game that has not told them yet,
+ * restoring each one only for that; an area nobody had loaded is let go again
+ * at once. Runs in the background, one call_out per batch, and is started at
+ * create, so after the first boot the index only takes new areas.
+ *
+ * @param paths the areas still to read (nil: every area of the game missing
+ *              from the index)
+ */
+void index_area_names(varargs string * paths)
+{
+  object area;
+  string path;
+  int left, was_loaded;
+
+  if (!strlen(query_game()))
+    return;
+
+  if (!paths)
+  {
+    string * all;
+    int i;
+
+    all = query_area_paths(query_game());
+    paths = ({ });
+    for (i = 0; i < sizeof(all); i++)
+      if (!area_names[all[i]])
+        paths += ({ all[i] });
+  }
+
+  while (sizeof(paths))
+  {
+    left = eval_cost();
+    if (left >= 0 && left < AREA_NAMES_TICK_MARGIN)
+    {
+      call_out("index_area_names", 0, paths);
+      return;
+    }
+
+    path = paths[0];
+    paths = paths[1..];
+
+    // restoring the area tells its names (see area.c)
+    was_loaded = _global()->is_area_loaded(path);
+    area = _global()->query_area(path);
+    if (area && !was_loaded)
+      _global()->release_area(path);
+  }
+}
+
+/** Whether the area at `path` is in memory. */
+int is_area_loaded(string path)
+{
+  if (this_object() != _global())
+    return (int)_global()->is_area_loaded(path);
+  if (strlen(path) && path[strlen(path) - 1] != '/')
+    path += "/";
+  return loaded_areas[path] != nil;
+}
+
+/**
+ * Let go of an area loaded only to be read: it is destructed and leaves the
+ * loaded areas, unless one of its locations is in memory.
+ *
+ * @param path the area's directory
+ */
+void release_area(string path)
+{
+  object area;
+
+  if (this_object() != _global())
+  {
+    _global()->release_area(path);
+    return;
+  }
+  if (strlen(path) && path[strlen(path) - 1] != '/')
+    path += "/";
+
+  area = loaded_areas[path];
+  if (!area || sizeof(area->query_loaded_locations()))
+    return;
+
+  map_delete(loaded_areas, path);
+  destruct(area);
 }
 
 // An area tells us at which game hours it has somebody due, so a round restores

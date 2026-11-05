@@ -1323,24 +1323,41 @@ string dock_report(string game, string map_name, mixed * docks)
 // "" when it has none.
 private string _area_name(string dir)
 {
-  object area, root;
+  string * own, * root, * up;
   string name;
+  int steps;
 
   if (!undefinedp(border_cache["a" + dir]))
     return border_cache["a" + dir];
 
+  // the names come from the areas handler's index, so no area is loaded; an
+  // area not in it yet is restored once, which adds it
+  own = areas->query_area_names(dir);
+  if (!own && areas->query_area(dir))
+    own = areas->query_area_names(dir);
+
   name = nil;
-  area = areas->query_area(dir);
-  if (area)
+  if (own)
   {
-    root = area->query_root_area();
-    name = area->query_map_name();
-    if ((!name || !strlen(name)) && root)
-      name = root->query_map_name();
-    if (!name || !strlen(name))
-      name = area->query_exploration_name();
-    if ((!name || !strlen(name)) && root)
-      name = root->query_exploration_name();
+    // the root area: up the parent links, as query_root_area walks them
+    root = own;
+    for (steps = 0; strlen(root[2]) && steps < AREA_MAX_ANCESTRY; steps++)
+    {
+      up = areas->query_area_names(root[2]);
+      if (!up && areas->query_area(root[2]))
+        up = areas->query_area_names(root[2]);
+      if (!up)
+        break;
+      root = up;
+    }
+
+    name = own[0];
+    if (!strlen(name))
+      name = root[0];
+    if (!strlen(name))
+      name = own[1];
+    if (!strlen(name))
+      name = root[1];
   }
 
   border_cache["a" + dir] = name ? name : "";
