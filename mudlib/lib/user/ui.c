@@ -12,6 +12,7 @@
 #include <language.h>
 #include <user/terminal.h>
 #include <cartography.h>
+#include <sector/sector.h>
 
 #define CSI (chr(27) + "[")
 #define ESC_SAVE    (chr(27) + "7")
@@ -74,16 +75,17 @@ static int ui_keep_screen;      // the next layout does not clear the screen
 static int ui_busy;             // a sequence of ours is being sent
 static int ui_closed;           // the user is leaving: nothing more is drawn
 
-// the map shown in the sidebar is reused for a second
+// the map shown in the sidebar draws only the layout around the room the
+// player is in, so it is reused while the player stays there
 static string * ui_map_lines;
-static int ui_map_time;
 static int ui_map_width;
 static int ui_map_height;
 static object ui_map_env;
 
-// and so is the world map, which only changes with the room
+// the world map is centred on the player's sector, so it is reused while the
+// player moves inside the same sector
 static string * ui_world_lines;
-static object ui_world_env;
+static string ui_world_key;
 static int ui_world_width;
 static int ui_world_height;
 
@@ -679,15 +681,15 @@ private string * ui_render_map(object player, int width, int height)
 
 /**
  * The map around the player, `height` lines of `width` columns, from the map
- * of the cartography handler. It is reused for a second while the player does
- * not move. Empty lines when there is nothing to draw (a place without a map).
+ * of the cartography handler. It is reused while the player stays in the same
+ * room. Empty lines when there is nothing to draw (a place without a map).
  */
 private string * ui_map(object player, int width, int height)
 {
   string * lines;
   int i;
 
-  if (ui_map_env == environment(player) && ui_map_time == time() &&
+  if (ui_map_env == environment(player) &&
       ui_map_width == width && ui_map_height == height)
     return ui_map_lines;
 
@@ -701,7 +703,6 @@ private string * ui_map(object player, int width, int height)
 
   ui_map_lines = lines[0..height - 1];
   ui_map_env = environment(player);
-  ui_map_time = time();
   ui_map_width = width;
   ui_map_height = height;
 
@@ -709,17 +710,37 @@ private string * ui_map(object player, int width, int height)
 }
 
 /**
+ * What the world map around the player depends on: the map and the sector of
+ * the place the player is in, or the place itself when it has no coordinates.
+ */
+private string ui_world_place(object player)
+{
+  object env;
+  int * coords;
+
+  env = environment(player);
+  coords = env->query_coordinates();
+  if (!coords || sizeof(coords) != 3)
+    return object_name(env);
+
+  return env->query_map_name() + ":" + SECTOR_INDEX(coords[0]) + "," +
+         SECTOR_INDEX(coords[1]) + "," + SECTOR_INDEX(coords[2]);
+}
+
+/**
  * A window of the world map around the sector of the player, `height` lines of
- * `width` columns, from the world map handler. Empty when the place the player
- * is in has no world map (the caller then falls back to the local map).
+ * `width` columns, from the world map handler. It is reused while the player
+ * stays in the same sector. Empty when the place the player is in has no
+ * world map (the caller then falls back to the local map).
  */
 private string * ui_world_map(object player, int width, int height)
 {
   string * lines;
-  string text;
+  string text, key;
   int i;
 
-  if (ui_world_env == environment(player) && ui_world_width == width &&
+  key = ui_world_place(player);
+  if (ui_world_key == key && ui_world_width == width &&
       ui_world_height == height)
     return ui_world_lines;
 
@@ -737,7 +758,7 @@ private string * ui_world_map(object player, int width, int height)
   }
 
   ui_world_lines = lines;
-  ui_world_env = environment(player);
+  ui_world_key = key;
   ui_world_width = width;
   ui_world_height = height;
 
