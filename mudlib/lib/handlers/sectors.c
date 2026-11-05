@@ -475,8 +475,8 @@ string add_location(object location)
 
 /**
  * Remove a location from the map index: drops its entry from the
- * sector.o, deletes the per-coordinate pointer file, and forgets the
- * sector if it ends up empty.
+ * sector.o, deletes the per-coordinate pointer file if it still points at
+ * this location, and forgets the sector if it ends up empty.
  *
  * Called by the location-cleanup pipeline (see
  * LOCATION_HANDLER->clean_apply). The location object itself is no
@@ -500,8 +500,10 @@ int remove_location_from_map(string location_file_name, string map_name,
                 sector_x + "/" + sector_y + "/" + sector_z + "/";
   coord_file = sector_path + x + "_" + y + "_" + z + ".o";
 
-  // remove per-coordinate pointer file
-  if (file_size(coord_file) >= 0)
+  // remove the per-coordinate pointer file only when it points at this
+  // location: another one may hold that coordinate now
+  if (file_size(coord_file) >= 0 &&
+      read_file(coord_file) == location_file_name)
     remove_file(coord_file);
 
   // ensure the sector is loaded and tell it to drop the entry
@@ -833,9 +835,11 @@ mapping verify_sector(string game, string map_name, int sx, int sy, int sz)
   return ([ "total": sizeof(keys), "stale": stale, "orphans": orphans ]);
 }
 
-// Per run of a reindex: the work left (sector paths while pruning, location
-// files while indexing), who asked, the locations indexed so far, and each
-// location found with the sector that held it.
+// Per run of a reindex: the work left (sector paths while pruning, then the
+// sectors whose locations are still to index), who asked, the locations
+// indexed so far, and the locations found, by the sector that held them:
+// ([ sector path : ({ location file }) ]), one entry per sector, since a
+// mapping of every location of a map outgrows the driver's mapping limit.
 static mapping reindex_queue;
 
 // Ticks a reindex step leaves unspent before going on in a call_out of its own.
@@ -869,13 +873,13 @@ int reindex_map(string game, string map_name, varargs object who)
 }
 
 // Drop from one sector the entries whose coordinate belongs to another
-// sector and the records left without a coordinate, noting in `seen` each
-// location it held.
+// sector and the records left without a coordinate, noting in `seen` the
+// locations it held.
 private void _reindex_prune_sector(string base, string sector_path,
                                    mapping seen)
 {
   object sector;
-  mapping positions;
+  mapping positions, held;
   string * keys;
   int ki, sx, sy, sz;
 
@@ -885,11 +889,18 @@ private void _reindex_prune_sector(string base, string sector_path,
   sector = create_sector(sector_path);
   positions = sector->query_positions();
   keys = map_indices(positions);
+
+  // every location the sector holds now, the entries pruned below included,
+  // so a location whose only entry was in the wrong sector is indexed again
+  held = ([ ]);
+  for (ki = 0; ki < sizeof(keys); ki++)
+    held[positions[keys[ki]]] = 1;
+  seen[sector_path] = map_indices(held);
+
   for (ki = 0; ki < sizeof(keys); ki++)
   {
     int kx, ky, kz;
 
-    seen[positions[keys[ki]]] = sector_path;
     if (sscanf(keys[ki], "%d_%d_%d", kx, ky, kz) != 3)
       continue;
     if (SECTOR_INDEX(kx) != sx || SECTOR_INDEX(ky) != sy ||
@@ -938,9 +949,16 @@ void reindex_prune_step(string base)
   }
 
   if (who)
+  {
+    string * held;
+    int i, count;
+
+    held = map_indices(seen);
+    for (i = 0; i < sizeof(held); i++)
+      count += sizeof(seen[held[i]]);
     tell_object(who, "Reindex of " + base + ": sectors pruned, indexing " +
-                map_sizeof(seen) + " location" +
-                (map_sizeof(seen) == 1 ? "" : "s") + ".\n");
+                count + " location" + (count == 1 ? "" : "s") + ".\n");
+  }
 
   reindex_queue[base] = ({ map_indices(seen), who, 0, seen });
   call_out("reindex_index_step", 0, base);
@@ -1157,25 +1175,35 @@ void list_docks_batch(string base)
 // ticks last, then go on in a call_out or tell whoever asked that it is done.
 void reindex_index_step(string base)
 {
-  string * files, * keys;
-  mapping sector_paths, positions;
+  string * held, * files, * keys;
+  string sector_path;
+  mapping seen, positions;
   object who, sector;
   int ki, done, left;
 
   if (!reindex_queue || undefinedp(reindex_queue[base]))
     return;
 
-  files = reindex_queue[base][0];
+  held = reindex_queue[base][0];
   who = reindex_queue[base][1];
   done = reindex_queue[base][2];
-  sector_paths = reindex_queue[base][3];
+  seen = reindex_queue[base][3];
 
-  while (sizeof(files))
+  while (sizeof(held))
   {
+    sector_path = held[0];
+    files = seen[sector_path];
+    if (!files || !sizeof(files))
+    {
+      map_delete(seen, sector_path);
+      held = held[1..];
+      continue;
+    }
+
     left = eval_cost();
     if (left >= 0 && left < REINDEX_TICK_MARGIN)
     {
-      reindex_queue[base] = ({ files, who, done, sector_paths });
+      reindex_queue[base] = ({ held, who, done, seen });
       call_out("reindex_index_step", 0, base);
       return;
     }
@@ -1183,19 +1211,18 @@ void reindex_index_step(string base)
     // a location whose save is gone leaves the index, pointer files too
     if (file_size(files[0]) < 0)
     {
-      sector = create_sector(sector_paths[files[0]]);
+      sector = create_sector(sector_path);
       positions = sector->query_positions();
       keys = map_indices(positions);
       for (ki = 0; ki < sizeof(keys); ki++)
         if (positions[keys[ki]] == files[0])
-          remove_file(sector_paths[files[0]] + keys[ki] + ".o");
+          remove_file(sector_path + keys[ki] + ".o");
       sector->remove_location(files[0]);
-      files = files[1..];
-      continue;
     }
+    else
+      done += load_object(LOCATION_HANDLER)->index_location(files[0]);
 
-    done += load_object(LOCATION_HANDLER)->index_location(files[0]);
-    files = files[1..];
+    seen[sector_path] = files[1..];
   }
 
   map_delete(reindex_queue, base);
