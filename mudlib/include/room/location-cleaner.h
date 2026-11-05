@@ -43,4 +43,14 @@
 // falls out of range is checked several times before it can age out.
 #define CLEANER_SWEEP_INTERVAL  30
 
+// Most objects the registry holds. The driver caps a mapping at array_size
+// entries (10000 in the stock config) and the registry grows past it only when
+// a bulk command keeps thousands of locations loaded at once; past this mark
+// the oldest registrations are evicted to make room instead of the mapping
+// failing to grow. Keep it under the driver's array_size.
+#define CLEANER_REGISTRY_MAX  9000
+
+// A full registry evicts at most 1 in N of its entries, the oldest ones.
+#define CLEANER_REGISTRY_EVICT_DIV  4
+
 #endif

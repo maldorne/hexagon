@@ -72,12 +72,73 @@ void create()
 // Registration — called from room.c / location.c create and dest_me.
 // ---------------------------------------------------------------------------
 
+// Make room in a full registry: evict a share of the oldest registrations
+// through their own clean_up, which refuses for a location with a player (or a
+// unique object) inside. Returns whether there is room to register one more.
+private int _make_room()
+{
+  object * obs, * victims;
+  int i, n, oldest, newest, cutoff, stamp;
+
+  if (map_sizeof(ob_game) < CLEANER_REGISTRY_MAX)
+    return 1;
+
+  // the stamps of the oldest quarter of the registry's age range are due; the
+  // age range is used (not a sort) so the pass stays linear
+  obs = map_indices(ob_game);
+  oldest = newest = time();
+  for (i = 0; i < sizeof(obs); i++)
+  {
+    if (!obs[i] || !buckets[ob_game[obs[i]]])
+      continue;
+    stamp = buckets[ob_game[obs[i]]][obs[i]];
+    if (stamp < oldest)
+      oldest = stamp;
+  }
+  cutoff = oldest + (newest - oldest) / CLEANER_REGISTRY_EVICT_DIV;
+
+  n = sizeof(obs) / CLEANER_REGISTRY_EVICT_DIV;
+  victims = ({ });
+  for (i = 0; i < sizeof(obs) && sizeof(victims) < n; i++)
+  {
+    if (!obs[i] || !buckets[ob_game[obs[i]]])
+      continue;
+    if (buckets[ob_game[obs[i]]][obs[i]] <= cutoff)
+      victims += ({ obs[i] });
+  }
+
+  // clean_up -> dest_me -> deregister_object mutates the registry, so it runs
+  // after the selection
+  for (i = 0; i < sizeof(victims); i++)
+    if (victims[i] && !victims[i]->clean_up())
+      evicted_total++;
+
+  return map_sizeof(ob_game) < CLEANER_REGISTRY_MAX;
+}
+
+// Whether the "registry full" warning has been logged since it last had room.
+private int full_warned;
+
 void register_object(object ob)
 {
   string g;
 
   if (!ob)
     return;
+
+  // Never throw from here: it runs inside a location's own load. A registry
+  // that stays full after evicting skips this object (it is then only
+  // reclaimed by its own clean_up) and says so once.
+  if (ob_game[ob] == nil && !_make_room())
+  {
+    if (!full_warned)
+      stderr("🧹 cleaner register_object: registry full (" +
+             map_sizeof(ob_game) + "), not registering " +
+             object_name(ob) + "\n");
+    full_warned = 1;
+    return;
+  }
+  full_warned = 0;
 
   g = game_name(ob);
   if (!buckets[g])

@@ -122,6 +122,32 @@ object query_loaded_location(string file_name)
   return area ? (object)area->query_loaded_location(file_name) : nil;
 }
 
+/**
+ * Whether a location file is in memory right now. A batch asks this before it
+ * loads a location, so it can release afterwards only what it brought in.
+ * @param file_name the location's save file (.o)
+ */
+int is_location_loaded(string file_name)
+{
+  return query_loaded_location(file_name) != nil;
+}
+
+/**
+ * Give back a location a batch loaded only to look at it. A location that was
+ * already in memory before the batch (`was_loaded`) is left alone; any other
+ * goes through its own clean_up, which keeps it when a player or a unique
+ * object is inside and otherwise destructs it and leaves the cleaner. Use it
+ * after every bulk step that loads locations, or the cleaner's registry fills
+ * with the whole map before its sweep can evict anything.
+ * @param location the location the batch loaded (may be nil)
+ * @param was_loaded the value of is_location_loaded before it was loaded
+ */
+void release_location(object location, int was_loaded)
+{
+  if (location && !was_loaded)
+    location->clean_up();
+}
+
 object load_location(string file_name)
 {
   object area, sector, location;
@@ -496,11 +522,14 @@ private void _print_coordinate_line(mapping state, string file)
 {
   object location;
   int * coords, * before;
+  int was_loaded;
 
+  was_loaded = is_location_loaded(file);
   location = load_object(LOCATION_HANDLER)->load_location(file);
   if (!location)
     return;
   coords = location->query_coordinates();
+  release_location(location, was_loaded);
   before = state["old_coords"] ? state["old_coords"][file] : nil;
   write("  " + get_path_file_name(file) + " -> " +
         (coords ? "(" + coords[0] + "," + coords[1] + "," + coords[2] + ")" :
@@ -1994,6 +2023,7 @@ private int _is_scope_orphan(string file, string source_prefix, int all)
 {
   string text, orig;
   object loc;
+  int was_loaded;
 
   orig = nil;
   text = read_file(file, 0, 8192);
@@ -2002,10 +2032,12 @@ private int _is_scope_orphan(string file, string source_prefix, int all)
   if (!orig)
   {
     // not within the head of the save: ask the location
+    was_loaded = is_location_loaded(file);
     loc = load_location(file);
     if (!loc)
       return 0;
     orig = loc->query_original_room_file_name();
+    release_location(loc, was_loaded);
   }
 
   // programmatic locations (no source .c): never touch
@@ -2128,13 +2160,15 @@ private mapping _find_inbound_exits(mapping orphan_set)
   {
     object orphan;
     mixed * exits;
-    int e;
+    int e, was_loaded;
 
+    was_loaded = is_location_loaded(orphans[i]);
     orphan = load_location(orphans[i]);
     if (!orphan)
       continue;
 
     exits = orphan->query_dest_dir();
+    release_location(orphan, was_loaded);
 
     for (e = 0; e < sizeof(exits); e += 2)
     {
@@ -2154,13 +2188,15 @@ private mapping _find_inbound_exits(mapping orphan_set)
     object loc;
     mixed * exits;
     string * to_drop;
-    int e;
+    int e, was_loaded;
 
+    was_loaded = is_location_loaded(affected_keys[i]);
     loc = load_location(affected_keys[i]);
     if (!loc)
       continue;
 
     exits = loc->query_dest_dir();
+    release_location(loc, was_loaded);
     to_drop = ({ });
 
     for (e = 0; e < sizeof(exits); e += 2)
@@ -2289,13 +2325,15 @@ void _clean_scan_orphans(string * orphans, mapping orphan_set, int idx,
   {
     object orphan;
     mixed * exits;
-    int e;
+    int e, was_loaded;
 
+    was_loaded = is_location_loaded(orphans[i]);
     orphan = load_location(orphans[i]);
     if (!orphan)
       continue;
 
     exits = orphan->query_dest_dir();
+    release_location(orphan, was_loaded);
     for (e = 0; e < sizeof(exits); e += 2)
     {
       if (orphan_set[exits[e + 1]])
@@ -2332,13 +2370,15 @@ void _clean_scan_affected(string * orphans, mapping orphan_set,
     object loc;
     mixed * exits;
     string * to_drop;
-    int e;
+    int e, was_loaded;
 
+    was_loaded = is_location_loaded(affected_keys[i]);
     loc = load_location(affected_keys[i]);
     if (!loc)
       continue;
 
     exits = loc->query_dest_dir();
+    release_location(loc, was_loaded);
     to_drop = ({ });
     for (e = 0; e < sizeof(exits); e += 2)
       if (orphan_set[exits[e + 1]])
@@ -2375,7 +2415,9 @@ void _clean_trim(string * orphans, string * trim_keys, mapping trim, int idx,
   {
     object loc;
     string * dirs;
+    int was_loaded;
 
+    was_loaded = is_location_loaded(trim_keys[i]);
     loc = load_location(trim_keys[i]);
     if (!loc)
       continue;
@@ -2384,6 +2426,7 @@ void _clean_trim(string * orphans, string * trim_keys, mapping trim, int idx,
     for (j = 0; j < sizeof(dirs); j++)
       loc->remove_exit(dirs[j]);
     loc->save_me();
+    release_location(loc, was_loaded);
 
     adjacent_count++;
     exit_count += sizeof(dirs);

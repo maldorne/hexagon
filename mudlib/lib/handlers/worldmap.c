@@ -1178,7 +1178,7 @@ string ** dock_list(mixed * docks)
   string ** list, * files, * parts, * entry, dir, name, place;
   mapping locs;
   object location, area;
-  int i, j, k;
+  int i, j, k, was_loaded;
 
   list = ({ });
   for (i = 0; i < sizeof(docks); i++)
@@ -1191,9 +1191,11 @@ string ** dock_list(mixed * docks)
       if (!mappingp(locs[files[j]]) || !locs[files[j]]["port"])
         continue;
 
+      was_loaded = load_object(LOCATION_HANDLER)->is_location_loaded(files[j]);
       location = load_object(LOCATION_HANDLER)->load_location(files[j]);
       if (location)
         name = location->short();
+      load_object(LOCATION_HANDLER)->release_location(location, was_loaded);
 
       // the nearest area up the tree that has a name to show
       parts = explode(files[j], "/");

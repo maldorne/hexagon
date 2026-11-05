@@ -525,18 +525,29 @@ int remove_location_from_map(string location_file_name, string map_name,
 // Ask the location system for a location's real coordinates. Going through
 // LOCATION_HANDLER is the sanctioned path — it restores the location with the
 // right permissions; the sector layer must not read location files itself.
-// Returns ({ x, y, z }), or ({ }) when the location no longer loads. Memoised
-// so a location referenced from several sectors is resolved once.
+// A location this call had to load is released right away, so checking every
+// location of a map does not fill the cleaner's registry.
+// Returns ({ x, y, z }), ({ }) when the location's save is gone or it loads
+// without coordinates, and nil when its save is there but loading it failed:
+// that says nothing about the entry, so it must not be taken for stale.
+// Memoised so a location referenced twice in a sector is resolved once.
 private int * _location_coords(string file, mapping cache)
 {
   object loc;
   int * coords;
+  int was_loaded;
 
   if (!undefinedp(cache[file]))
     return cache[file];
 
-  loc = load_object(LOCATION_HANDLER)->load_location(file);
-  coords = loc ? loc->query_coordinates() : nil;
+  if (file_size(file) < 0)
+    return cache[file] = ({ });
+
+  was_loaded = load_object(LOCATION_HANDLER)->is_location_loaded(file);
+  if (catch(loc = load_object(LOCATION_HANDLER)->load_location(file)) || !loc)
+    return nil;
+  coords = loc->query_coordinates();
+  load_object(LOCATION_HANDLER)->release_location(loc, was_loaded);
   cache[file] = (coords && sizeof(coords) == 3) ? coords : ({ });
 
   return cache[file];
@@ -577,9 +588,10 @@ private string * _sector_paths(string base)
   return paths;
 }
 
-// Per run of a purge: sector paths still to sweep, the shared coordinate
-// cache, stale entries removed so far, who asked, and the position keys left
-// in the sector being swept (nil when none has been started).
+// Per run of a purge: sector paths still to sweep, the coordinate cache of
+// the sector being swept, stale entries removed so far, who asked, the
+// position keys left in the sector being swept (nil when none has been
+// started), and the locations kept because they failed to load.
 static mapping purge_queue;
 
 #define PURGE_BATCH 25
@@ -613,7 +625,7 @@ int purge_drift(string game, string map_name, varargs object who)
 
   if (!purge_queue)
     purge_queue = ([ ]);
-  purge_queue[base] = ({ sector_paths, ([ ]), 0, who, nil });
+  purge_queue[base] = ({ sector_paths, ([ ]), 0, who, nil, 0 });
   call_out("purge_step", 0, base);
 
   return sizeof(sector_paths);
@@ -627,7 +639,7 @@ void purge_step(string base)
   string sector_path, map_name;
   mapping coord_cache, positions, live;
   object who, sector;
-  int removed, ki, fi, checked, sx, sy, sz;
+  int removed, failed, ki, fi, checked, sx, sy, sz;
 
   if (!purge_queue || undefinedp(purge_queue[base]))
     return;
@@ -637,6 +649,7 @@ void purge_step(string base)
   removed = purge_queue[base][2];
   who = purge_queue[base][3];
   keys = purge_queue[base][4];
+  failed = purge_queue[base][5];
 
   if (sizeof(sector_paths))
   {
@@ -644,7 +657,8 @@ void purge_step(string base)
     if (sscanf(sector_path, base + "/%d/%d/%d/", sx, sy, sz) != 3)
     {
       // not a sector directory of this map: skip it
-      purge_queue[base] = ({ sector_paths[1..], coord_cache, removed, who, nil });
+      purge_queue[base] = ({ sector_paths[1..], coord_cache, removed, who, nil,
+                             failed });
       call_out("purge_step", 0, base);
       return;
     }
@@ -668,6 +682,13 @@ void purge_step(string base)
 
       rc = _location_coords(file, coord_cache);
 
+      // a location that failed to load is kept, and counted
+      if (!rc)
+      {
+        failed++;
+        continue;
+      }
+
       if (sizeof(rc) != 3 || rc[0] != kx || rc[1] != ky || rc[2] != kz ||
           SECTOR_INDEX(kx) != sx || SECTOR_INDEX(ky) != sy ||
           SECTOR_INDEX(kz) != sz)
@@ -680,7 +701,8 @@ void purge_step(string base)
 
     if (sizeof(keys))
     {
-      purge_queue[base] = ({ sector_paths, coord_cache, removed, who, keys });
+      purge_queue[base] = ({ sector_paths, coord_cache, removed, who, keys,
+                             failed });
       call_out("purge_step", 0, base);
       return;
     }
@@ -711,7 +733,9 @@ void purge_step(string base)
     if (!map_sizeof(live) && !strlen(sector->query_manual_type()))
       sector->set_manual_type(SECTOR_TYPE_EMPTY);
 
-    purge_queue[base] = ({ sector_paths[1..], coord_cache, removed, who, nil });
+    // the memo is kept for one sector only: over a whole map it would hold
+    // every location and outgrow the driver's mapping limit
+    purge_queue[base] = ({ sector_paths[1..], ([ ]), removed, who, nil, failed });
     call_out("purge_step", 0, base);
     return;
   }
@@ -720,8 +744,10 @@ void purge_step(string base)
   sscanf(base, "%*s/maps/%s", map_name);
   if (who)
     tell_object(who, "Purged " + removed + " stale position" +
-                (removed == 1 ? "" : "s") + " from map '" +
-                map_name + "'.\n");
+                (removed == 1 ? "" : "s") + " from map '" + map_name + "'" +
+                (failed ? "; " + failed + " location" + (failed == 1 ? "" : "s") +
+                 " failed to load and " + (failed == 1 ? "was" : "were") +
+                 " kept" : "") + ".\n");
 }
 
 /**
@@ -772,7 +798,9 @@ mapping verify_sector(string game, string map_name, int sx, int sy, int sz)
       continue;
 
     rc = _location_coords(file, coord_cache);
-    if (sizeof(rc) != 3)
+    if (!rc)
+      reason = "load_failed";
+    else if (sizeof(rc) != 3)
       reason = "unloadable";
     else if (rc[0] != kx || rc[1] != ky || rc[2] != kz)
       reason = "moved";
