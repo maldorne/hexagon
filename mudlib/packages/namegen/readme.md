@@ -39,6 +39,11 @@ starter set, named `<culture>[.<origin>].<gender>.names`:
 - `saurians.lizard.names` — unisex, invented, harsh and hissing.
 - `saurians.naga.male.names`, `saurians.naga.female.names` — invented, sibilant (s, sh, ss, z).
 - `dwarves.male.names`, `dwarves.female.names` — invented, short and heavy.
+- `orcs.male.names`, `orcs.female.names` — harsh and guttural (Gr-, Ug-, -ak,
+  -ash, -ug); examples taken from named orcs of older muds plus invented ones.
+- `goblins.male.names`, `goblins.female.names` — short and sharp (Sn-, Gn-,
+  -ik, -ix, -ot); examples taken from named goblins of older muds plus
+  invented ones.
 - `humans.fantasy.male.names`, `humans.fantasy.female.names` — invented,
   medieval-fantasy flavour.
 - `humans.latin.male.names`, `humans.latin.female.names` — ordinary Spanish /
