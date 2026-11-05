@@ -790,7 +790,7 @@
 // bosses
 #define _LANG_CMD_BOSSES_ALIAS ({ "jefes", "bosses" })
 #define _LANG_CMD_BOSSES_SYNTAX "jefes [<nombre>]"
-#define _LANG_CMD_BOSSES_HELP "Muestra los jefes de tu juego, las veces que ha caído cada uno y los jugadores que ha matado. Con un nombre muestra su historial: quién lo derrotó la primera y la última vez, el combate más corto y los últimos grupos que lo vencieron."
+#define _LANG_CMD_BOSSES_HELP "Muestra los jefes de tu juego, las veces que ha caído cada uno y los jugadores que ha matado. Con un nombre muestra su nombre completo, su descripción y su historial: quién lo derrotó la primera y la última vez, el combate más corto y los últimos grupos que lo vencieron."
 #define _LANG_BOSSES_TITLE "Jefes"
 #define _LANG_BOSSES_BROKEN "Hay algún error con los jefes.\n"
 #define _LANG_BOSSES_PRUNE "depurar"

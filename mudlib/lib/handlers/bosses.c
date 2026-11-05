@@ -30,6 +30,8 @@ inherit "/lib/core/object.c";
 
 // boss key (its template path, or its file) -> ([
 //   "name"     : displayed name,
+//   "short"    : full name, as the boss shows itself (kept for a boss without a template),
+//   "long"     : its description (same use),
 //   "game"     : game it belongs to,
 //   "deaths"   : times it has died,
 //   "killed"   : players it has killed,
@@ -118,7 +120,7 @@ private mapping _new_entry(string name, string game)
  */
 void register_boss(object npc)
 {
-  string key, name, game;
+  string key, name, game, short_name, long_desc;
   int changed;
 
   if (!npc)
@@ -137,6 +139,20 @@ void register_boss(object npc)
   else if (bosses[key]["name"] != name)
   {
     bosses[key]["name"] = name;
+    changed = 1;
+  }
+
+  // the full name and description are kept for bosses with no template to read
+  short_name = (string)npc->query_short();
+  long_desc = (string)npc->query_long();
+  if (stringp(short_name) && bosses[key]["short"] != short_name)
+  {
+    bosses[key]["short"] = short_name;
+    changed = 1;
+  }
+  if (stringp(long_desc) && bosses[key]["long"] != long_desc)
+  {
+    bosses[key]["long"] = long_desc;
     changed = 1;
   }
 
@@ -236,6 +252,40 @@ string * query_game_bosses(string game)
   for (i = 0; i < sizeof(names); i++)
     found[i] = names[i][strsrch(names[i], "|") + 1 ..];
   return found;
+}
+
+/**
+ * The full name and description of a boss: read from its template when it has
+ * one, else what was kept when it was last placed (old entries have neither
+ * until their boss is placed again).
+ *
+ * @return ([ "short": full name, "long": description ]), either may be missing
+ */
+mapping query_boss_info(string key)
+{
+  mapping entry, t, info;
+  string game, source;
+
+  entry = bosses[key];
+  if (!entry)
+    return ([ ]);
+
+  info = ([ ]);
+  if (sscanf(key, "%s:%s", game, source) == 2)
+    t = ("/lib/handlers/bestiary")->query_template(game, source);
+  if (t)
+  {
+    if (stringp(t["short"]) && strlen(t["short"]))
+      info["short"] = t["short"];
+    if (stringp(t["long"]) && strlen(t["long"]))
+      info["long"] = t["long"];
+  }
+
+  if (!info["short"] && stringp(entry["short"]) && strlen(entry["short"]))
+    info["short"] = entry["short"];
+  if (!info["long"] && stringp(entry["long"]) && strlen(entry["long"]))
+    info["long"] = entry["long"];
+  return info;
 }
 
 /** The record of a boss, nil when it is not known. */

@@ -2,7 +2,7 @@
  * bosses command: the bosses of your game (the NPCs with the boss component),
  * how many times each has been defeated and how many players it has killed,
  * from the bosses handler (/lib/handlers/bosses.c). With a name it shows that
- * boss's record: who defeated it the first and the last time, the shortest
+ * boss's full name, its description and its record: who defeated it the first and the last time, the shortest
  * fight and the latest groups to take it on. Coders can force a prune with
  * 'bosses prune'.
  */
@@ -122,14 +122,26 @@ private string _list_text(object bosses_ob, string game)
   return ret + "\n" + _LANG_BOSSES_LIST_HINT;
 }
 
-// The record of one boss.
-private string _record_text(mapping boss)
+// The record of one boss, under its full name and description when known.
+private string _record_text(mapping boss, mapping info)
 {
   string ret;
   mapping * recent;
-  int i, first, width;
+  int i, first, width, cols;
 
-  ret = sprintf(_LANG_BOSSES_RECORD_TOTALS, _LANG_BOSSES_TIMES(boss["deaths"]),
+  cols = this_user()->query_cols();
+  if (cols <= 0)
+    cols = 80;
+
+  ret = "";
+  if (info["short"] && info["short"] != boss["name"])
+    ret += info["short"] + "\n";
+  if (info["long"])
+    ret += wrap(info["long"], cols - handler("frames")->query_frame_overhead(nil));
+  if (strlen(ret))
+    ret += "\n";
+
+  ret += sprintf(_LANG_BOSSES_RECORD_TOTALS, _LANG_BOSSES_TIMES(boss["deaths"]),
                 _LANG_BOSSES_PLAYERS(boss["killed"]));
 
   if (!boss["deaths"])
@@ -201,7 +213,7 @@ static int cmd(string str, object me, string verb)
   }
 
   boss = bosses_ob->query_boss(key);
-  tell_object(me, handler("frames")->frame(_record_text(boss), boss["name"],
+  tell_object(me, handler("frames")->frame(_record_text(boss, bosses_ob->query_boss_info(key)), boss["name"],
                                            this_user()->query_cols()));
   return 1;
 }
