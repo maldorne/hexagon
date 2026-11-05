@@ -940,10 +940,13 @@ private string ui_teardown()
 
   out = ESC_SAVE;
 
-  // only the status bar set a scroll region; with lines left to the client it
-  // goes back to what is above them, not to the whole screen
+  // only the status bar set a scroll region, and the client may have one of
+  // its own (TinTin++ keeps its input line outside it): what is given back is
+  // the region down to the last row the interface used, never a bare reset,
+  // which would make the whole screen scroll and take the client's own lines
+  // with it
   if (ui_live_status)
-    out += ui_live_bottom ? CSI + "1;" + ui_live_rows + "r" : CSI + "r";
+    out += CSI + "1;" + ui_live_rows + "r";
 
   if (ui_live_status)
     out += CSI + "1;1H" + CSI + "2K" + CSI + "2;1H" + CSI + "2K";
