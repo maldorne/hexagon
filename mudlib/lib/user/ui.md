@@ -17,7 +17,8 @@ Account settings (saved with the user, like the terminal type), in the
 | status bar | on/off |
 | sidebar | on/off; refused if the screen leaves less than 40 columns to the text |
 | sidebar width | 10-40 columns, 26 by default; below 18 the points show bars without numbers, the map and the place are cropped to fit |
-| sidebar map | `local` (the compact map around the player), `world` (a window of the world map centred on the player's sector, same glyphs as `worldmap`), `both` or `none`; `local` by default |
+| sidebar map | `local` (the map around the player), `world` (a window of the world map centred on the player's sector, same glyphs as `worldmap`), `both` or `none`; `local` by default |
+| map style | how the local map is drawn: `unicode` (box-drawing glyphs, as `mapa unicode`) or `compact` (as `mapa compacto`); `unicode` by default |
 | reserved bottom lines | 0-5, default 0: lines at the bottom of the screen the interface never draws on nor scrolls over (see TinTin++) |
 
 `sidebar <on|off>` and `statusbar <on|off>` (Spanish `lateral`, `barra`) are

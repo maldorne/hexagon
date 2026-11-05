@@ -92,6 +92,7 @@
 #define _LANG_UI_MAP "Map"
 #define _LANG_UI_WORLD "World"
 #define _LANG_UI_MAP_OPTIONS ({ "local", "world", "both", "none" })
+#define _LANG_UI_MAP_STYLES ({ "unicode", "compact" })
 #define _LANG_UI_STATS "Stats"
 #define _LANG_UI_PLACE "Place"
 #define _LANG_UI_HP "HP"

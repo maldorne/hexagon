@@ -56,6 +56,7 @@ int ui_side;       // sidebar on the right
 int ui_width;      // columns of the sidebar, separator included
 int ui_bottom;     // lines at the bottom of the screen that are left alone
 int ui_map_mode;   // maps of the sidebar: 0 local, 1 world, 2 both, 3 none
+int ui_map_style;  // drawing of the local map: 0 unicode, 1 compact
 
 // What is on the screen of the connected client right now. This is static on
 // purpose: the next connection of the account may be a client with a different
@@ -98,6 +99,7 @@ void create()
   ui_width = UI_DEFAULT_WIDTH;
   ui_bottom = 0;
   ui_map_mode = 0;
+  ui_map_style = 0;
   ui_world_lines = ({ });
   ui_map_lines = ({ });
 }
@@ -359,6 +361,34 @@ int query_ui_bottom() { return ui_bottom; }
 string query_ui_map_name() { return _LANG_UI_MAP_OPTIONS[ui_map_mode]; }
 
 string * query_ui_map_names() { return _LANG_UI_MAP_OPTIONS; }
+
+/**
+ * How the local map of the sidebar is drawn, as the word the player sees: the
+ * box-drawing glyphs of the unicode map, or the characters of the compact one.
+ */
+string query_ui_map_style_name() { return _LANG_UI_MAP_STYLES[ui_map_style]; }
+
+string * query_ui_map_style_names() { return _LANG_UI_MAP_STYLES; }
+
+/**
+ * Choose how the local map of the sidebar is drawn, by name. Answers 0 for an
+ * unknown one.
+ */
+int set_ui_map_style_name(string name)
+{
+  int style;
+
+  style = member_array(name, _LANG_UI_MAP_STYLES);
+  if (style == -1)
+    return 0;
+
+  ui_map_style = style;
+  // the map kept for this room was drawn with the other style
+  ui_map_env = nil;
+  ui_flush();
+  this_object()->save_me();
+  return 1;
+}
 
 /**
  * Choose which maps the sidebar shows, by name. Answers 0 for an unknown one.
@@ -676,7 +706,10 @@ private string * ui_render_map(object player, int width, int height)
   if (!view)
     return ({ });
 
-  return explode(CARTOGRAPHY_HANDLER->render_compact(view), "\n");
+  if (ui_map_style == 1)
+    return explode(CARTOGRAPHY_HANDLER->render_compact(view), "\n");
+
+  return explode(CARTOGRAPHY_HANDLER->render_unicode(view), "\n");
 }
 
 /**

@@ -65,6 +65,7 @@
 #define _LANG_CONFIG_TOPIC_SIDEBAR_WIDTH "ancho lateral"
 #define _LANG_CONFIG_TOPIC_BOTTOM_LINES "líneas reservadas abajo"
 #define _LANG_CONFIG_TOPIC_SIDEBAR_MAP "mapa lateral"
+#define _LANG_CONFIG_TOPIC_SIDEBAR_MAP_STYLE "estilo del mapa"
 #define _LANG_CONFIG_TOPIC_ROWS "filas"
 #define _LANG_CONFIG_TOPIC_VERBOSE "detallada"
 #define _LANG_CONFIG_TOPIC_EARMUFFS "tapones"

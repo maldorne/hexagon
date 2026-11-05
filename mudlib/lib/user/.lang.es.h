@@ -92,6 +92,7 @@
 #define _LANG_UI_MAP "Mapa"
 #define _LANG_UI_WORLD "Mundo"
 #define _LANG_UI_MAP_OPTIONS ({ "local", "mundo", "ambos", "ninguno" })
+#define _LANG_UI_MAP_STYLES ({ "unicode", "compacto" })
 #define _LANG_UI_STATS "Puntos"
 #define _LANG_UI_PLACE "Lugar"
 #define _LANG_UI_HP "HP"
