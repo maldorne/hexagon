@@ -581,12 +581,12 @@ private string ui_rule(int cols)
 /**
  * The status bar as one string: the position of its line, colours and the
  * text padded to the whole width of the screen. It shows the name, life and
- * energy points, the place and the game hour, losing the least important
- * parts when the screen is narrow.
+ * energy points and the game hour, losing the least important parts when the
+ * screen is narrow. The place is left to the sidebar.
  */
 private string ui_status_line(object player, int cols)
 {
-  string name, hp_text, gp_text, place, hour_text;
+  string name, hp_text, gp_text, hour_text;
   string left, middle, right;
   int hp, max_hp, gp, max_gp, hour;
   int tier, blen, left_width, rest;
@@ -642,25 +642,17 @@ private string ui_status_line(object player, int cols)
 
   rest = cols - left_width;
 
-  // the game hour, on the right, when there is room for it and the place
+  // the game hour, on the right, when there is room for it
   right = "";
   hour = ui_game_hour(player);
-  if (hour >= 0 && rest >= 14)
+  if (hour >= 0 && rest >= 7)
   {
     hour_text = " " + (hour < 10 ? "0" : "") + hour + ":00 ";
     right = hour_text;
     rest -= ui_text_width(hour_text);
   }
 
-  // the place takes what is left
-  place = ui_place_text(player);
-  if (rest >= 8 && strlen(place))
-  {
-    middle = "| " + ui_cut_text(place, rest - 3);
-    middle += ui_spaces(rest - ui_text_width(middle));
-  }
-  else
-    middle = ui_spaces(rest);
+  middle = ui_spaces(rest);
 
   // a status bar too wide for the screen would wrap and push everything down
   if (rest < 0)

@@ -1,7 +1,8 @@
 # Terminal interface (`lib/user/ui.c`)
 
-A status bar fixed on the top line and a sidebar on the right, drawn with
-ANSI/VT100 escape sequences over plain telnet. No GMCP, MSDP or MXP.
+A status bar fixed on the top line (name, life and energy points, game hour)
+and a sidebar on the right (map, points, place), drawn with ANSI/VT100 escape
+sequences over plain telnet. No GMCP, MSDP or MXP.
 
 ## Settings
 
@@ -41,8 +42,9 @@ one removes the interface from the screen.
   colour but the HP and GP bars.
 - When a layout is turned on, each row of the interface is cleared (`ESC[<row>;1H` `ESC[2K`) and the cursor parked on the last one; the reserved
   bottom lines are not touched and a login clears nothing. There is no `ESC[2J`.
-- Colours: SGR for the status bar (white on blue); colour tokens converted by
-  `/lib/handlers/terminal` for the sidebar.
+- Colours: no background on either bar; only the points' meters are coloured
+  (SGR foreground), and colour tokens are converted by `/lib/handlers/terminal`
+  for the sidebar.
 - Turning off, changing size, or leaving: the scroll region (only set with the
   status bar) goes back to the whole screen, or to the rows above the reserved
   lines, the bar line is cleared and the sidebar columns overwritten with spaces.
