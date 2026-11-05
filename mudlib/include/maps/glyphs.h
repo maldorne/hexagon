@@ -198,7 +198,7 @@
 
 // Shoreline glyphs: a coast is a line joining the coast sectors around it, as
 // a way joins its arms, with rounded corners so it never reads as a road.
-#define GLYPH_SHORE_SPOT   (chr(194) + chr(183))                    // U+00B7 middle dot (no coast around)
+#define GLYPH_SHORE_SPOT   (chr(226) + chr(151) + chr(139))         // U+25CB white circle (an islet)
 #define GLYPH_SHORE_ARC_SE (chr(226) + chr(149) + chr(173))         // U+256D arc down and right
 #define GLYPH_SHORE_ARC_SW (chr(226) + chr(149) + chr(174))         // U+256E arc down and left
 #define GLYPH_SHORE_ARC_NW (chr(226) + chr(149) + chr(175))         // U+256F arc up and left

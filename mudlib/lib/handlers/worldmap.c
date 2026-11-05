@@ -480,10 +480,13 @@ private int _is_sea(string game, string map_name, int sx, int sy, int sz)
  * draws the corner between them. A step never gives a sector a third arm.
  *
  * Neighbour convention as in _arms_code: north is a larger y, east a larger x.
+ * A coast sector with a single arm and sea on its other three sides, whose
+ * neighbour on that side does not run its line into it, is an islet: it has no
+ * arm at all (see _is_islet).
  */
-private int * _coast_arms(string game, string map_name, int sx, int sy, int sz)
+private int * _side_arms(string game, string map_name, int sx, int sy, int sz)
 {
-  int n, s, e, w, dx, dy, count;
+  int n, s, e, w, count;
 
   n = _is_coast(game, map_name, sx, sy + 1, sz);
   s = _is_coast(game, map_name, sx, sy - 1, sz);
@@ -501,7 +504,58 @@ private int * _coast_arms(string game, string map_name, int sx, int sy, int sz)
     else if (e && !w) e = 0;
     else if (w && !e) w = 0;
   }
+
+  return ({ n, s, e, w });
+}
+
+/**
+ * Whether a coast sector with the single side arm `side` (0 n, 1 s, 2 e, 3 w)
+ * is an islet: sea on its other three sides, and the shoreline beside it does
+ * not run on into it, only touches it.
+ */
+private int _is_islet(string game, string map_name, int sx, int sy, int sz,
+                      int side)
+{
+  int * dx, * dy, * back;
+  int i;
+
+  dx = ({ 0, 0, 1, -1 });
+  dy = ({ 1, -1, 0, 0 });
+
+  for (i = 0; i < 4; i++)
+    if (i != side && !_is_sea(game, map_name, sx + dx[i], sy + dy[i], sz))
+      return 0;
+
+  // the arms of the neighbour on that side, pointing back here or not
+  back = _side_arms(game, map_name, sx + dx[side], sy + dy[side], sz);
+  return !back[side ^ 1];
+}
+
+/**
+ * The arms ({ n, s, e, w }) a coast sector draws: its side arms (see
+ * _side_arms), none for an islet, plus the step to a coast touching it only by
+ * a corner.
+ */
+private int * _coast_arms(string game, string map_name, int sx, int sy, int sz)
+{
+  int * side;
+  int n, s, e, w, dx, dy, count, i;
+
+  side = _side_arms(game, map_name, sx, sy, sz);
+  n = side[0];
+  s = side[1];
+  e = side[2];
+  w = side[3];
   count = n + s + e + w;
+
+  // an islet stands on its own, with no arm, though it touches a shoreline
+  if (count == 1)
+  {
+    for (i = 0; i < 4 && !side[i]; i++)
+      ;
+    if (_is_islet(game, map_name, sx, sy, sz, i))
+      return ({ 0, 0, 0, 0 });
+  }
 
   for (dx = -1; dx <= 1; dx += 2)
     for (dy = -1; dy <= 1; dy += 2)
