@@ -97,6 +97,9 @@ mapping query_config_data(object player)
   e[CONFIG_MIN] = 0;
   e[CONFIG_MAX] = 5;
   topics[_LANG_CONFIG_TOPIC_BOTTOM_LINES] = e;
+  e = entry(CONFIG_CHOICE, CONFIG_ON_USER, "query_ui_map_name", "set_ui_map_name", nil);
+  e[CONFIG_OPTIONS] = user->query_ui_map_names();
+  topics[_LANG_CONFIG_TOPIC_SIDEBAR_MAP] = e;
   data["interface"] = topics;
 
   // info: how much the game tells, and which informs this role receives

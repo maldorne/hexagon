@@ -88,6 +88,8 @@
 #define _LANG_UI_TOO_NARROW "Your screen is too narrow for the sidebar: you need at least " + \
         (UI_MIN_TEXT + ui_width + 1) + " columns (see 'configuration interface columns').\n"
 #define _LANG_UI_MAP "Map"
+#define _LANG_UI_WORLD "World"
+#define _LANG_UI_MAP_OPTIONS ({ "local", "world", "both", "none" })
 #define _LANG_UI_STATS "Stats"
 #define _LANG_UI_PLACE "Place"
 #define _LANG_UI_HP "HP"

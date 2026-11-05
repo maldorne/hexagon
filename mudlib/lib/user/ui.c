@@ -27,6 +27,7 @@
 #define UI_MIN_TEXT      40
 #define UI_MIN_ROWS      11
 #define UI_MAP_MAX       15
+#define UI_WORLD_MAX     12
 #define UI_PLACE_LINES    3
 // bottom lines of the screen the client keeps for itself (TinTin++ split)
 #define UI_MAX_BOTTOM     5
@@ -42,6 +43,7 @@ int ui_status;     // status bar on the top line
 int ui_side;       // sidebar on the right
 int ui_width;      // columns of the sidebar, separator included
 int ui_bottom;     // lines at the bottom of the screen that are left alone
+int ui_map_mode;   // maps of the sidebar: 0 local, 1 world, 2 both, 3 none
 
 // What is on the screen of the connected client right now. This is static on
 // purpose: the next connection of the account may be a client with a different
@@ -68,6 +70,12 @@ static int ui_map_width;
 static int ui_map_height;
 static object ui_map_env;
 
+// and so is the world map, which only changes with the room
+static string * ui_world_lines;
+static object ui_world_env;
+static int ui_world_width;
+static int ui_world_height;
+
 void ui_flush();
 
 void create()
@@ -76,6 +84,8 @@ void create()
   ui_side = 0;
   ui_width = UI_DEFAULT_WIDTH;
   ui_bottom = 0;
+  ui_map_mode = 0;
+  ui_world_lines = ({ });
   ui_map_lines = ({ });
 }
 
@@ -328,6 +338,31 @@ int query_ui_status() { return ui_status; }
 int query_ui_side() { return ui_side; }
 int query_ui_width() { return ui_width; }
 int query_ui_bottom() { return ui_bottom; }
+
+/**
+ * The maps of the sidebar, as the word the player sees: local, world, both
+ * or none.
+ */
+string query_ui_map_name() { return _LANG_UI_MAP_OPTIONS[ui_map_mode]; }
+
+string * query_ui_map_names() { return _LANG_UI_MAP_OPTIONS; }
+
+/**
+ * Choose which maps the sidebar shows, by name. Answers 0 for an unknown one.
+ */
+int set_ui_map_name(string name)
+{
+  int mode;
+
+  mode = member_array(name, _LANG_UI_MAP_OPTIONS);
+  if (mode == -1)
+    return 0;
+
+  ui_map_mode = mode;
+  ui_flush();
+  this_object()->save_me();
+  return 1;
+}
 
 /**
  * Turn the status bar on or off. Answers 0, after telling why, when the
@@ -649,6 +684,42 @@ private string * ui_map(object player, int width, int height)
 }
 
 /**
+ * A window of the world map around the sector of the player, `height` lines of
+ * `width` columns, from the world map handler. Empty when the place the player
+ * is in has no world map (the caller then falls back to the local map).
+ */
+private string * ui_world_map(object player, int width, int height)
+{
+  string * lines;
+  string text;
+  int i;
+
+  if (ui_world_env == environment(player) && ui_world_width == width &&
+      ui_world_height == height)
+    return ui_world_lines;
+
+  lines = ({ });
+  text = nil;
+
+  catch(text = handler("worldmap", player)->render_around(player, width, height, 1, 0));
+
+  if (stringp(text) && strlen(text))
+  {
+    lines = explode(text, "\n");
+    for (i = sizeof(lines); i < height; i++)
+      lines += ({ "" });
+    lines = lines[0..height - 1];
+  }
+
+  ui_world_lines = lines;
+  ui_world_env = environment(player);
+  ui_world_width = width;
+  ui_world_height = height;
+
+  return lines;
+}
+
+/**
  * One line of the points: label, bar and numbers, `width` columns wide. The
  * numbers are right aligned in a column of `numbers` columns, so both bars
  * have the same length.
@@ -683,9 +754,10 @@ private string ui_points_line(string label, int cur, int max, int width,
  */
 private string * ui_panel_lines(object player, int width, int rows)
 {
-  string * lines, * place, * map;
+  string * lines, * place, * map, * world;
   string text_hp, text_gp;
-  int inner, numbers, map_height, fixed, max_place, i;
+  int inner, numbers, local_height, world_height, available, usable;
+  int max_place, i;
 
   inner = width - 2;
 
@@ -695,20 +767,68 @@ private string * ui_panel_lines(object player, int width, int rows)
   if (sizeof(place) > max_place)
     place = place[0..max_place - 1];
 
-  // what is left for the map once the rest is in: its title, the blank line
-  // after it, the points, the blank line and the place
-  fixed = 7 + sizeof(place);
-  map_height = rows - fixed;
-  if (map_height > UI_MAP_MAX)
-    map_height = UI_MAP_MAX;
+  // what is left for the maps once the rest is in: the points (a title and two
+  // lines), the place (a title and its lines) and a blank line after each; a
+  // map costs its own title and a blank line besides its rows
+  available = rows - (5 + sizeof(place));
+  local_height = 0;
+  world_height = 0;
+
+  if (ui_map_mode == 0)
+    local_height = available - 2;
+  else if (ui_map_mode == 1)
+    world_height = available - 2;
+  else if (ui_map_mode == 2)
+  {
+    // the world map is the first to go when the panel is short
+    usable = available - 4;
+    world_height = usable / 3;
+    local_height = usable - world_height;
+    if (world_height < 3)
+    {
+      world_height = 0;
+      local_height = available - 2;
+    }
+  }
+
+  if (local_height > UI_MAP_MAX)
+    local_height = UI_MAP_MAX;
+  if (world_height > UI_WORLD_MAX)
+    world_height = UI_WORLD_MAX;
+  if (local_height < 3)
+    local_height = 0;
+  if (world_height < 3)
+    world_height = 0;
+
+  world = ({ });
+  if (world_height)
+  {
+    world = ui_world_map(player, inner, world_height);
+
+    // no world map where the player is: the local one takes its place
+    if (!sizeof(world))
+    {
+      world_height = 0;
+      local_height = available - 2 > UI_MAP_MAX ? UI_MAP_MAX : available - 2;
+      if (local_height < 3)
+        local_height = 0;
+    }
+  }
 
   lines = ({ });
 
-  if (map_height >= 3)
+  if (local_height)
   {
     lines += ({ "%^BOLD%^" + _LANG_UI_MAP + "%^RESET%^" });
-    map = ui_map(player, inner, map_height);
+    map = ui_map(player, inner, local_height);
     lines += map;
+    lines += ({ "" });
+  }
+
+  if (world_height)
+  {
+    lines += ({ "%^BOLD%^" + _LANG_UI_WORLD + "%^RESET%^" });
+    lines += world;
     lines += ({ "" });
   }
 

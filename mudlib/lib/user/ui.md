@@ -16,6 +16,7 @@ Account settings (saved with the user, like the terminal type), in the
 | status bar | on/off |
 | sidebar | on/off; refused if the screen leaves less than 40 columns to the text |
 | sidebar width | 10-40 columns, 26 by default; below 18 the points show bars without numbers, the map and the place are cropped to fit |
+| sidebar map | `local` (the compact map around the player), `world` (a window of the world map centred on the player's sector, same glyphs as `worldmap`), `both` or `none`; `local` by default |
 | reserved bottom lines | 0-5, default 0: lines at the bottom of the screen the interface never draws on nor scrolls over (see TinTin++) |
 
 `sidebar <on|off>` and `statusbar <on|off>` (Spanish `lateral`, `barra`) are
@@ -67,7 +68,11 @@ send uses the kfun, which is neither snooped nor repainted.
   than the real terminal garble the layout.
 - A line sent straight to the connection without `catch_tell` (a few file
   pagers) can still run under the sidebar until the next output.
-- The map is the compact one, cropped to the panel, resident rooms only.
+- The local map is the compact one, cropped to the panel, resident rooms only.
+  The world map comes from `render_around` of the world map handler of the
+  player's game, cached per room. Where there is no world map (a room without
+  coordinates) it falls back to the local one. With `both` the world map gets a
+  third of the rows left and is the first to go when the panel is short.
 - Clients that ignore cursor addressing or scroll regions show the raw
   sequences or a plain stream; they should leave the options off.
 - A resized client window needs `rows` / `columns` set again.

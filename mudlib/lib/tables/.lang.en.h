@@ -64,6 +64,7 @@
 #define _LANG_CONFIG_TOPIC_SIDEBAR "sidebar"
 #define _LANG_CONFIG_TOPIC_SIDEBAR_WIDTH "sidebar width"
 #define _LANG_CONFIG_TOPIC_BOTTOM_LINES "reserved bottom lines"
+#define _LANG_CONFIG_TOPIC_SIDEBAR_MAP "sidebar map"
 #define _LANG_CONFIG_TOPIC_ROWS "rows"
 #define _LANG_CONFIG_TOPIC_VERBOSE "verbose"
 #define _LANG_CONFIG_TOPIC_EARMUFFS "earmuffs"
