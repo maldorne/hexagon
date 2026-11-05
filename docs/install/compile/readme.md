@@ -37,30 +37,21 @@ fork adds three compile-time flags, all enabled by default in
 
 To build vanilla upstream DGD instead, run `make DEFINES=""`.
 
-### Compile the driver
-
-```sh
-cd dgd/src
-make
-make install
-cd ../..
-```
-
-This will create the `dgd` executable in the `dgd/bin` directory.
-
-### Compile the extensions
+### Compile the driver and the extensions
 
 The mudlib depends on the C `sprintf` kfun shipped as a `dgd-extensions` module; the legacy LPC implementation under `mudlib/packages/sprintf/` is kept as reference but not loaded. Without the kfun the auto-object will fail to compile and the mud will not boot.
 
+Both are built with one script:
+
 ```sh
-cd dgd/dgd-extensions/src
-make sprintf
-cd ../../..
+dgd/build.sh
 ```
 
-This produces `dgd/dgd-extensions/sprintf.1.5`. Take note of the absolute path to that file; you'll wire it into the config in the next step.
+This creates the `dgd` executable in `dgd/bin` (the previous one is kept as `dgd/bin/dgd.old`) and `dgd/dgd-extensions/sprintf.1.5`. Take note of the absolute path to that file; you'll wire it into the config in the next step. `dgd/build.sh driver` and `dgd/build.sh ext` build only one of them.
 
-The `dgd-extensions` repo bundles other optional kfuns too (`lower_case`, `regexp`, `dbase`, `jit`, `zlib`, `crypto`, `tls`); Hexagon does not use them, so we only build `sprintf`. If you want to experiment with any of the others, build them with their own target (e.g. `make regexp`).
+You need a C++ compiler, a C compiler, `make` and `yacc` (bison or byacc), which DGD uses to generate its LPC parser.
+
+The `dgd-extensions` repo bundles other optional kfuns too (`lower_case`, `regexp`, `dbase`, `jit`, `zlib`, `crypto`, `tls`); Hexagon does not use them, so the script only builds `sprintf`. If you want to experiment with any of the others, build them with their own target (e.g. `make -C dgd/dgd-extensions/src regexp`).
 
 ### Edit the configuration files
 
