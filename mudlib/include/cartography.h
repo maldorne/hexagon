@@ -23,7 +23,6 @@
 // several types, the highest-priority one wins
 // (see _classify_room in cartography.c).
 #define CART_ROOM               1   // plain room, no markers
-#define CART_DOOR_ROOM          2   // exit through a door / gate
 #define CART_UP_ROOM            3   // has an `up` exit (stairs / climb)
 #define CART_DOWN_ROOM          4   // has a `down` exit
 #define CART_COAST_ROOM         5   // borders water / sea

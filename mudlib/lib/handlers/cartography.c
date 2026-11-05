@@ -559,7 +559,6 @@ string render_ascii(mapping view)
         case CART_COAST_ROOM:         line += "%^BLUE%^[ ]%^RESET%^";                break;
         case CART_WATER_ROOM:         line += "%^BLUE%^[~]%^RESET%^";                break;
         case CART_BRIDGE_ROOM:        line += "%^YELLOW%^[=]%^RESET%^";              break;
-        case CART_DOOR_ROOM:          line += "[D]";                                 break;
         case CART_UP_ROOM:            line += "[^]";                                 break;
         case CART_DOWN_ROOM:          line += "[v]";                                 break;
         case CART_FINISH_QUEST_ROOM:  line += "[%^BOLD%^YELLOW%^?%^RESET%^]";        break;
@@ -593,7 +592,7 @@ string render_ascii(mapping view)
  *   '@'  viewer
  *   '.'  no location here
  *   '#'  plain room
- *   'D'  door room      '^'  up exit       'v'  down exit
+ *   '^'  up exit        'v'  down exit
  *   '~'  coast          '?'  finished quest waiting to turn in
  *   '!'  open quest     '*'  friendly group / guard       'X'  enemy
  *   '|'  vertical exit  '-'  horizontal exit  '/'  slash  '\\' backslash
@@ -634,7 +633,6 @@ string render_compact(mapping view)
         case CART_COAST_ROOM:         line += "%^BLUE%^~%^RESET%^";                  break;
         case CART_WATER_ROOM:         line += "%^BOLD%^BLUE%^~%^RESET%^";            break;
         case CART_BRIDGE_ROOM:        line += "%^YELLOW%^=%^RESET%^";                break;
-        case CART_DOOR_ROOM:          line += "D";                                   break;
         case CART_UP_ROOM:            line += "^";                                   break;
         case CART_DOWN_ROOM:          line += "v";                                   break;
         case CART_FINISH_QUEST_ROOM:  line += "%^BOLD%^YELLOW%^?%^RESET%^";          break;
@@ -792,9 +790,6 @@ string render_unicode(mapping view)
         case CART_BRIDGE_ROOM:
           // ≡ U+2261 identical to, planks
           line += "%^YELLOW%^" + chr(226) + chr(137) + chr(161) + "%^RESET%^";        break;
-        case CART_DOOR_ROOM:
-          // ▦ U+25A6 square with horizontal fill
-          line += chr(226) + chr(150) + chr(166);                                     break;
         case CART_UP_ROOM:
           // ▲ U+25B2 black up-pointing triangle
           line += chr(226) + chr(150) + chr(178);                                     break;
@@ -948,9 +943,6 @@ string render_color_by_area(mapping view)
           break;
         case CART_BRIDGE_ROOM:
           line += "%^YELLOW%^[=]%^RESET%^";
-          break;
-        case CART_DOOR_ROOM:
-          line += (strlen(tint) ? tint + "[D]%^RESET%^" : "[D]");
           break;
         case CART_UP_ROOM:
           line += (strlen(tint) ? tint + "[^]%^RESET%^" : "[^]");
