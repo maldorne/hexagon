@@ -738,10 +738,11 @@ string render_coords(mapping view)
 
 /**
  * Box-drawing Unicode renderer: similar density to render_compact but
- * with proper line glyphs (─ │ ╱ ╲) and filled square glyphs for
- * rooms (▢ ◉ for the viewer, ▦ for doors, ▲/▼ for stairs, ◯ for
- * coast). Requires a UTF-8 capable client; falls back gracefully on
- * 8-bit terminals (the bytes are still printable, just not pretty).
+ * with proper line glyphs (─ │ ╱ ╲), crossed for doors, and a filled square
+ * for every room, coloured by what it holds (the viewer, the coast, quests,
+ * guards, enemies); ▲/▼ for stairs and □ for a quest waiting to be handed
+ * in. Requires a UTF-8 capable client; falls back gracefully on 8-bit
+ * terminals (the bytes are still printable, just not pretty).
  */
 string render_unicode(mapping view)
 {
@@ -768,22 +769,22 @@ string render_unicode(mapping view)
 
       if (i == vy && j == vx)
       {
-        // ◉ U+25C9 fisheye (viewer)
-        line += "%^ORANGE%^" + chr(226) + chr(151) + chr(137) + "%^RESET%^";
+        // ■ U+25A0 black square, in the viewer's colour
+        line += "%^ORANGE%^" + chr(226) + chr(150) + chr(160) + "%^RESET%^";
         continue;
       }
 
       switch (type)
       {
         case CART_ROOM:
-          // ▢ U+25A2 white square with rounded corners
-          line += chr(226) + chr(150) + chr(162);                                     break;
+          // ■ U+25A0 black square
+          line += chr(226) + chr(150) + chr(160);                                     break;
         case CART_HOME_ROOM:
           // ⌂ U+2302 house
           line += CART_HOME_GLYPH;                                                     break;
         case CART_COAST_ROOM:
-          // ◯ U+25EF large circle
-          line += "%^BLUE%^" + chr(226) + chr(151) + chr(175) + "%^RESET%^";          break;
+          // ■ U+25A0 black square, in the colour of the sea
+          line += "%^BLUE%^" + chr(226) + chr(150) + chr(160) + "%^RESET%^";          break;
         case CART_WATER_ROOM:
           // ≈ U+2248 almost equal to, waves
           line += "%^BLUE%^" + chr(226) + chr(137) + chr(136) + "%^RESET%^";          break;
@@ -797,16 +798,17 @@ string render_unicode(mapping view)
           // ▼ U+25BC black down-pointing triangle
           line += chr(226) + chr(150) + chr(188);                                     break;
         case CART_FINISH_QUEST_ROOM:
-          line += "%^BOLD%^YELLOW%^" + chr(226) + chr(150) + chr(162) + "%^RESET%^"; break;
+          // □ U+25A1 white square: the quest waits to be handed in
+          line += "%^BOLD%^YELLOW%^" + chr(226) + chr(150) + chr(161) + "%^RESET%^"; break;
         case CART_QUEST_ROOM:
-          // ▣ U+25A3 square containing white square
-          line += "%^BOLD%^YELLOW%^" + chr(226) + chr(150) + chr(163) + "%^RESET%^"; break;
+          // ■ U+25A0 black square, in the colour of what is there
+          line += "%^BOLD%^YELLOW%^" + chr(226) + chr(150) + chr(160) + "%^RESET%^"; break;
         case CART_ADVENTURER_ROOM:
-          line += "%^BOLD%^CYAN%^"   + chr(226) + chr(150) + chr(163) + "%^RESET%^"; break;
+          line += "%^BOLD%^CYAN%^"   + chr(226) + chr(150) + chr(160) + "%^RESET%^"; break;
         case CART_GUARD_ROOM:
-          line += "%^BOLD%^GREEN%^"  + chr(226) + chr(150) + chr(163) + "%^RESET%^"; break;
+          line += "%^BOLD%^GREEN%^"  + chr(226) + chr(150) + chr(160) + "%^RESET%^"; break;
         case CART_ENEMY_ROOM:
-          line += "%^BOLD%^RED%^"    + chr(226) + chr(150) + chr(163) + "%^RESET%^"; break;
+          line += "%^BOLD%^RED%^"    + chr(226) + chr(150) + chr(160) + "%^RESET%^"; break;
         case CART_MAZE_ROOM:
           // ? — plain question mark, intentionally not a unicode glyph
           line += "%^BOLD%^MAGENTA%^?%^RESET%^";                                      break;
