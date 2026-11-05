@@ -37,7 +37,9 @@ void setup()
     "  sectors docks                       list the sectors holding a dock and\n" +
     "                                      whether the map draws its pier arm;\n" +
     "                                      in red, those where it cannot be\n" +
-    "                                      drawn (read-only, in the background)\n" +
+    "                                      drawn (read-only, in the background;\n" +
+    "                                      always scans, the player docks command\n" +
+    "                                      keeps the last list)\n" +
     "\n" +
     "Coordinates are SECTOR indices (the ones shown by look / glance), not\n" +
     "location coordinates. The map defaults to the one you are standing in;\n" +
@@ -336,7 +338,7 @@ static int cmd(string str, object me, string verb)
     map_name = _resolve_map(me, sizeof(tokens) >= 2 ? tokens[1] : nil);
 
     count = load_object(SECTORS_HANDLER)->list_docks(game, map_name, me,
-                                                   this_object(), "show_docks");
+                                                   this_object(), "show_docks", 1);
     write("Looking for docks in " + count + " sector" +
           (count == 1 ? "" : "s") + " of map '" + map_name +
           "', in the background.\n");

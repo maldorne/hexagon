@@ -130,7 +130,10 @@ static int cmd(string str, object me, string verb)
   env = environment(me);
   map_name = (env && env->query_location()) ? env->query_map_name() : "default";
 
-  write(_LANG_DOCKS_SEARCHING);
+  // the charts are only consulted when the handler has to scan the map: the
+  // last list is kept until a sector changes
+  if (!load_object(SECTORS_HANDLER)->query_docks_cached(game, map_name))
+    write(_LANG_DOCKS_SEARCHING);
   load_object(SECTORS_HANDLER)->list_docks(game, map_name, me, this_object(),
                                            "show_docks");
   return 1;

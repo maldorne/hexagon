@@ -975,31 +975,118 @@ void refresh_glyphs_batch(string base)
     tell_object(who, "Glyphs of " + base + " worked out again.\n");
 }
 
-// Per run of a docks listing: sector paths still to look at, who asked, the
-// sectors with a dock found so far, and the game and map, by map directory.
+// Per run of a docks scan, by map directory: sector paths still to look at,
+// the sectors with a dock found so far, the game and map, who is waiting for
+// the result ({ who, target, callback } each) and whether a sector changed
+// while the scan ran (its result is then not kept).
 static mapping dock_queue;
+
+// The last docks list of each map, by map directory, as the scan built it.
+// A sector saving anything (location data or manual type) drops its map's
+// entry (forget_docks), and so does any fresh scan.
+static mapping dock_cache;
 
 #define DOCK_BATCH 40
 
 /**
- * List the sectors of a map that hold a dock (see query_port() of
- * /lib/location/sector.c), in batches of DOCK_BATCH, one call_out each, and
- * call `callback` in `target` with (who, game, map_name, docks) at the end,
- * `docks` being ({ ({ sector, sx, sy, sz }), ... }); the world map handler
- * turns it into text (dock_report, dock_list). Read-only: nothing is saved.
- * Returns the number of sectors to look at.
+ * Whether the docks of a map are known from an earlier scan, so that
+ * list_docks answers at once without scanning.
+ *
+ * @param game      the game slug
+ * @param map_name  the map
+ * @return 1 when a list is kept, 0 when the next list_docks scans
  */
-int list_docks(string game, string map_name, object who, object target,
-               string callback)
+int query_docks_cached(string game, string map_name)
 {
-  string base, * paths;
+  return dock_cache && !undefinedp(dock_cache["/save/games/" + game + "/maps/" +
+                                              map_name]);
+}
+
+/**
+ * Drops the docks list kept for a map: called by a sector when it saves
+ * (a location added or removed, a manual type changed). A scan under way
+ * will not be kept either.
+ *
+ * @param game      the game slug
+ * @param map_name  the map
+ */
+void forget_docks(string game, string map_name)
+{
+  string base;
 
   base = "/save/games/" + game + "/maps/" + map_name;
-  paths = _sector_paths(base);
+  if (dock_cache)
+    map_delete(dock_cache, base);
+  if (dock_queue && !undefinedp(dock_queue[base]))
+    dock_queue[base][5] = 1;
+}
+
+// Tells everybody waiting for a docks list: callback in target with
+// (who, game, map_name, docks).
+private void _deliver_docks(mixed * waiters, string game, string map_name,
+                            mixed * docks)
+{
+  int i;
+
+  for (i = 0; i < sizeof(waiters); i++)
+    if (waiters[i][1])
+      call_other(waiters[i][1], waiters[i][2], waiters[i][0], game, map_name,
+                 docks);
+}
+
+/**
+ * List the sectors of a map that hold a dock (see query_port() of
+ * /lib/location/sector.c) and call `callback` in `target` with
+ * (who, game, map_name, docks), `docks` being
+ * ({ ({ sector, sx, sy, sz }), ... }); the world map handler turns it into
+ * text (dock_report, dock_list). The last list of the map is kept and given
+ * at once, before this function returns (query_docks_cached says whether it
+ * will be); otherwise every sector is looked at in batches of DOCK_BATCH, one
+ * call_out each, and the result is kept. Asking while a scan runs joins it.
+ * Read-only: nothing is saved.
+ *
+ * @param game      the game slug
+ * @param map_name  the map
+ * @param who       who asked, handed back to the callback
+ * @param target    the object to call back
+ * @param callback  the function of target
+ * @param fresh     1 to scan again whatever is kept
+ * @return the number of sectors to look at, 0 when served from what is kept
+ */
+int list_docks(string game, string map_name, object who, object target,
+               string callback, varargs int fresh)
+{
+  string base, * paths;
+  mixed * run;
+
+  base = "/save/games/" + game + "/maps/" + map_name;
 
   if (!dock_queue)
     dock_queue = ([ ]);
-  dock_queue[base] = ({ paths, who, ({ }), game, map_name, target, callback });
+  if (!dock_cache)
+    dock_cache = ([ ]);
+
+  // a scan under way: wait for its result
+  if (!undefinedp(dock_queue[base]))
+  {
+    run = dock_queue[base];
+    run[4] += ({ ({ who, target, callback }) });
+    if (fresh)
+      run[5] = 1;
+    return sizeof(run[0]);
+  }
+
+  if (!fresh && !undefinedp(dock_cache[base]))
+  {
+    _deliver_docks(({ ({ who, target, callback }) }), game, map_name,
+                   dock_cache[base]);
+    return 0;
+  }
+
+  map_delete(dock_cache, base);
+  paths = _sector_paths(base);
+  dock_queue[base] = ({ paths, ({ }), game, map_name,
+                        ({ ({ who, target, callback }) }), 0 });
   call_out("list_docks_batch", 0, base);
 
   return sizeof(paths);
@@ -1022,7 +1109,7 @@ void list_docks_batch(string base)
     sector = create_sector(run[0][0]);
     place = sector->query_map_place();
     if (place && sector->query_port())
-      run[2] += ({ ({ sector, place[2], place[3], place[4] }) });
+      run[1] += ({ ({ sector, place[2], place[3], place[4] }) });
     run[0] = run[0][1..];
   }
 
@@ -1033,8 +1120,9 @@ void list_docks_batch(string base)
   }
 
   map_delete(dock_queue, base);
-  if (run[5])
-    call_other(run[5], run[6], run[1], run[3], run[4], run[2]);
+  if (!run[5])
+    dock_cache[base] = run[1];
+  _deliver_docks(run[4], run[2], run[3], run[1]);
 }
 
 // One step of the second phase of a reindex run: index locations while the

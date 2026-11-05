@@ -131,6 +131,9 @@ void save_me() {
   if (!place)
     return;
 
+  // a location or a type changed here: the docks list of the map is stale
+  load_object(SECTORS_HANDLER)->forget_docks(place[0], place[1]);
+
   dx = ({ 0, 0, 1, -1, 1, 1, -1, -1 });
   dy = ({ 1, -1, 0, 0, 1, -1, 1, -1 });
   for (i = 0; i < 8; i++)
