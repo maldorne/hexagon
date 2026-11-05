@@ -102,7 +102,7 @@ private string legend(string map, int avail)
 {
   mapping glyphs;
   string * kinds, * labels, * entries;
-  string out;
+  string out, searched;
   int i;
 
   glyphs = handler("worldmap")->query_legend_glyphs();
@@ -124,9 +124,22 @@ private string legend(string map, int avail)
     if (!arrayp(seen))
       seen = ({ seen });
 
+    // tundra is the plains glyph in bold, so plains are looked for in the map
+    // with the tundra taken out
+    searched = map;
+    if (kinds[i] == "plains" && glyphs["tundra"])
+    {
+      string * tundra;
+
+      tundra = arrayp(glyphs["tundra"][0]) ? glyphs["tundra"][0] :
+               ({ glyphs["tundra"][0] });
+      for (j = 0; j < sizeof(tundra); j++)
+        searched = implode(explode("#" + searched + "#", tundra[j]), "");
+    }
+
     shown = (kinds[i] == "player");
     for (j = 0; j < sizeof(seen) && !shown; j++)
-      shown = sizeof(explode("#" + map + "#", seen[j])) > 1;
+      shown = sizeof(explode("#" + searched + "#", seen[j])) > 1;
 
     if (shown)
       entries += ({ "  " + glyphs[kinds[i]][1] + " : " + labels[i] });
