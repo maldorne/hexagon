@@ -13,6 +13,7 @@
  */
 
 #include <mud/config.h>
+#include <status.h>
 #include <areas/weather.h>
 #include <areas/area.h>
 #include <language.h>
@@ -24,8 +25,11 @@ inherit "/lib/core/object";
  
 // #define REBOOT_TIME 23 * 60 * 60 * 2  // every 23 hours * 2, so its not always
 //                                       // the same time 
-// memory in use, in bytes (128 MB), above which the mud reboots itself
-#define REBOOT_MEMORY 128 * 1024 * 1024
+// memory in use, in bytes (256 MB), above which the mud reboots itself. The
+// driver keeps the memory it once allocated, so the check is on what is used
+#define REBOOT_MEMORY 256 * 1024 * 1024
+
+private int memory_in_use();
 
 int shutdown_in_progress;
 int time_of_crash;
@@ -284,8 +288,8 @@ void auto_reboot()
 
     shout(_LANG_SHUTDOWN_AUTO_REBOOT);
     log_file("game_log", "[" + ctime(time()) + "] Auto reboot started " +
-        "(uptime: " + (uptime()/3600) + " hours - use of memory: " +
-        memory_info() + ")\n");
+        "(uptime: " + (uptime()/3600) + " hours - memory in use: " +
+        memory_in_use() + ", allocated: " + memory_info() + ")\n");
   }
 }
 
@@ -295,9 +299,23 @@ void auto_reboot()
  *
  * Called from /lib/handlers/cron.c
  */
+/**
+ * The static and dynamic memory the driver has in use, in bytes, which can be
+ * far below what it has allocated from the system.
+ *
+ * @return the bytes in use
+ */
+private int memory_in_use()
+{
+  mixed * info;
+
+  info = status();
+  return info[ST_SMEMUSED] + info[ST_DMEMUSED];
+}
+
 void memory_reboot()
 {
-  if (memory_info() > REBOOT_MEMORY)
+  if (memory_in_use() > REBOOT_MEMORY)
   {
     auto_reboot();
   }
