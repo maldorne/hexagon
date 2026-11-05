@@ -46,6 +46,10 @@ string * query_term_types() { return m_indices(terms); }
 
 int is_dumb_terminal(object user)
 {
+  // no user is in a call_out or a heart beat, where this_user() is nil
+  if (!user)
+    return false;
+
   if (member_array(user->query_term_name(), ({ "dumb", "text"}) ) != -1)
     return true;
   return false;

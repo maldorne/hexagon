@@ -90,9 +90,13 @@ mapping query_config_data(object player)
   e[CONFIG_REFUSES] = 1;
   topics[_LANG_CONFIG_TOPIC_SIDEBAR] = e;
   e = entry(CONFIG_INT, CONFIG_ON_USER, "query_ui_width", "set_ui_width", nil);
-  e[CONFIG_MIN] = 20;
+  e[CONFIG_MIN] = 10;
   e[CONFIG_MAX] = 40;
   topics[_LANG_CONFIG_TOPIC_SIDEBAR_WIDTH] = e;
+  e = entry(CONFIG_INT, CONFIG_ON_USER, "query_ui_bottom", "set_ui_bottom", nil);
+  e[CONFIG_MIN] = 0;
+  e[CONFIG_MAX] = 5;
+  topics[_LANG_CONFIG_TOPIC_BOTTOM_LINES] = e;
   data["interface"] = topics;
 
   // info: how much the game tells, and which informs this role receives

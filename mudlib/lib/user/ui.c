@@ -21,13 +21,15 @@
 #define UI_TERMS ({ "ansi", "ansi-enye", "ansi-status" })
 
 #define UI_DEFAULT_WIDTH 26
-#define UI_MIN_WIDTH     20
+#define UI_MIN_WIDTH     10
 #define UI_MAX_WIDTH     40
 // the narrowest column of text the sidebar may leave to the game
 #define UI_MIN_TEXT      40
 #define UI_MIN_ROWS      11
 #define UI_MAP_MAX       15
 #define UI_PLACE_LINES    3
+// bottom lines of the screen the client keeps for itself (TinTin++ split)
+#define UI_MAX_BOTTOM     5
 
 // bold white on blue, the colours of the status bar
 #define UI_BAR_BASE (CSI + "0;1;37;44m")
@@ -39,13 +41,15 @@
 int ui_status;     // status bar on the top line
 int ui_side;       // sidebar on the right
 int ui_width;      // columns of the sidebar, separator included
+int ui_bottom;     // lines at the bottom of the screen that are left alone
 
 // What is on the screen of the connected client right now. This is static on
 // purpose: the next connection of the account may be a client with a different
 // size, or one that cannot draw any of it, and it starts from a clean screen.
 static int ui_live_status;
 static int ui_live_side;
-static int ui_live_rows;
+static int ui_live_rows;        // the last row of the screen the interface uses
+static int ui_live_bottom;
 static int ui_live_cols;
 static int ui_live_width;
 
@@ -71,6 +75,7 @@ void create()
   ui_status = 0;
   ui_side = 0;
   ui_width = UI_DEFAULT_WIDTH;
+  ui_bottom = 0;
   ui_map_lines = ({ });
 }
 
@@ -266,13 +271,21 @@ private int ui_terminal_ok()
 }
 
 /**
+ * The last row of the screen the interface may use: the rows of the terminal
+ * less the lines at the bottom that are left to the client.
+ */
+private int ui_last_row()
+{
+  return (int)this_object()->query_rows() - ui_bottom;
+}
+
+/**
  * Whether the status bar is drawn now: it is on, the terminal can show it and
  * the screen has room for it.
  */
 int ui_status_wanted()
 {
-  return ui_status && ui_terminal_ok() &&
-         (int)this_object()->query_rows() >= UI_MIN_ROWS;
+  return ui_status && ui_terminal_ok() && ui_last_row() >= UI_MIN_ROWS;
 }
 
 /**
@@ -284,7 +297,7 @@ int ui_side_wanted()
   if (!ui_side || !ui_terminal_ok())
     return 0;
 
-  if ((int)this_object()->query_rows() < UI_MIN_ROWS)
+  if (ui_last_row() < UI_MIN_ROWS)
     return 0;
 
   return (int)this_object()->query_term_cols() - ui_width - 1 >= UI_MIN_TEXT;
@@ -314,6 +327,7 @@ int ui_wanted()
 int query_ui_status() { return ui_status; }
 int query_ui_side() { return ui_side; }
 int query_ui_width() { return ui_width; }
+int query_ui_bottom() { return ui_bottom; }
 
 /**
  * Turn the status bar on or off. Answers 0, after telling why, when the
@@ -368,6 +382,24 @@ int set_ui_width(int width)
     width = UI_MAX_WIDTH;
 
   ui_width = width;
+  ui_flush();
+  this_object()->save_me();
+  return 1;
+}
+
+/**
+ * Change how many lines at the bottom of the screen are left alone (0 to 5).
+ * A client with an input line of its own, like TinTin++ with its split, needs
+ * them: the interface draws, and scrolls, above them.
+ */
+int set_ui_bottom(int lines)
+{
+  if (lines < 0)
+    lines = 0;
+  if (lines > UI_MAX_BOTTOM)
+    lines = UI_MAX_BOTTOM;
+
+  ui_bottom = lines;
   ui_flush();
   this_object()->save_me();
   return 1;
@@ -627,6 +659,12 @@ private string ui_points_line(string label, int cur, int max, int width,
   string text;
   int blen;
 
+  if (!numbers)
+  {
+    blen = width - strlen(label) - 1;
+    return "%^BOLD%^" + label + "%^RESET%^ " + ui_meter(cur, max, blen, 0);
+  }
+
   text = cur + "/" + max;
   text = ui_spaces(numbers - strlen(text)) + text;
 
@@ -647,14 +685,15 @@ private string * ui_panel_lines(object player, int width, int rows)
 {
   string * lines, * place, * map;
   string text_hp, text_gp;
-  int inner, numbers, map_height, fixed, i;
+  int inner, numbers, map_height, fixed, max_place, i;
 
   inner = width - 2;
 
   // the place the player is in, at most a few lines of it
   place = ui_wrap_text(ui_place_text(player), inner);
-  if (sizeof(place) > UI_PLACE_LINES)
-    place = place[0..UI_PLACE_LINES - 1];
+  max_place = inner < 16 ? UI_PLACE_LINES + 2 : UI_PLACE_LINES;
+  if (sizeof(place) > max_place)
+    place = place[0..max_place - 1];
 
   // what is left for the map once the rest is in: its title, the blank line
   // after it, the points, the blank line and the place
@@ -676,6 +715,10 @@ private string * ui_panel_lines(object player, int width, int rows)
   text_hp = player->query_hp() + "/" + player->query_max_hp();
   text_gp = player->query_gp() + "/" + player->query_max_gp();
   numbers = strlen(text_hp) > strlen(text_gp) ? strlen(text_hp) : strlen(text_gp);
+
+  // a narrow panel has no room for the numbers, only the bars
+  if (inner < 18)
+    numbers = 0;
 
   lines += ({ "%^BOLD%^" + _LANG_UI_STATS + "%^RESET%^" });
   lines += ({ ui_points_line(_LANG_UI_HP, player->query_hp(),
@@ -740,7 +783,12 @@ private string ui_teardown()
   if (!ui_live_status && !ui_live_side)
     return "";
 
-  out = ESC_SAVE + CSI + "r";
+  out = ESC_SAVE;
+
+  // only the status bar set a scroll region; with lines left to the client it
+  // goes back to what is above them, not to the whole screen
+  if (ui_live_status)
+    out += ui_live_bottom ? CSI + "1;" + ui_live_rows + "r" : CSI + "r";
 
   if (ui_live_status)
     out += CSI + "1;1H" + CSI + "2K";
@@ -787,7 +835,7 @@ void ui_flush()
 {
   object player;
   string out, paint, bar;
-  int status_on, side_on, rows, cols, redraw_bar;
+  int status_on, side_on, rows, cols, redraw_bar, i;
 
   if (ui_pending)
   {
@@ -806,7 +854,7 @@ void ui_flush()
 
   status_on = ui_status_wanted();
   side_on = ui_side_wanted();
-  rows = (int)this_object()->query_rows();
+  rows = ui_last_row();
   cols = (int)this_object()->query_term_cols();
   out = "";
 
@@ -817,14 +865,20 @@ void ui_flush()
     ui_live_status = status_on;
     ui_live_side = side_on;
     ui_live_rows = rows;
+    ui_live_bottom = ui_bottom;
     ui_live_cols = cols;
     ui_live_width = ui_width;
     ui_status_sent = "";
 
-    // a new layout starts on a clean screen, the cursor on the last line, but
-    // a login does not wipe what the player has just been shown
+    // a new layout starts on clean lines, the cursor on the last one, but only
+    // those of the interface: the lines the client keeps for itself are not
+    // touched, and a login does not wipe what the player has just been shown
     if ((status_on || side_on) && !ui_keep_screen)
-      out += CSI + "2J" + CSI + rows + ";1H";
+    {
+      for (i = 1; i <= rows; i++)
+        out += CSI + i + ";1H" + CSI + "2K";
+      out += CSI + rows + ";1H";
+    }
     ui_keep_screen = 0;
   }
 
