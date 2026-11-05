@@ -806,3 +806,14 @@
 #define _LANG_BOSSES_RECENT "Latest groups:\n"
 #define _LANG_BOSSES_NOBODY "nobody"
 #define _LANG_BOSSES_DEATH_LINE "%s, final blow by %s, with %s (%s)"
+
+// docks
+#define _LANG_CMD_DOCKS_ALIAS ({ "docks", "muelles" })
+#define _LANG_CMD_DOCKS_SYNTAX "docks"
+#define _LANG_CMD_DOCKS_HELP "Lists the docks of the game, the places where a ship can land, with the place each one belongs to."
+#define _LANG_DOCKS_TITLE "Docks"
+#define _LANG_DOCKS_SEARCHING "You consult the navigation charts...\n"
+#define _LANG_DOCKS_NONE "No dock is known here.\n"
+#define _LANG_DOCKS_NO_GAME "You are not anywhere with docks.\n"
+#define _LANG_DOCKS_LINE "  %s (%s)\n"
+#define _LANG_DOCKS_LINE_NO_PLACE "  %s\n"

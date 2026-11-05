@@ -811,3 +811,14 @@
 #define _LANG_BOSSES_RECENT "Últimos grupos:\n"
 #define _LANG_BOSSES_NOBODY "nadie"
 #define _LANG_BOSSES_DEATH_LINE "%s, golpe final de %s, con %s (%s)"
+
+// docks
+#define _LANG_CMD_DOCKS_ALIAS ({ "muelles", "docks" })
+#define _LANG_CMD_DOCKS_SYNTAX "muelles"
+#define _LANG_CMD_DOCKS_HELP "Lista los muelles del juego, los lugares donde un barco puede atracar, con el sitio al que pertenece cada uno."
+#define _LANG_DOCKS_TITLE "Muelles"
+#define _LANG_DOCKS_SEARCHING "Consultas las cartas de navegación...\n"
+#define _LANG_DOCKS_NONE "No se conoce ningún muelle en este lugar.\n"
+#define _LANG_DOCKS_NO_GAME "No estás en ningún lugar con muelles.\n"
+#define _LANG_DOCKS_LINE "  %s (%s)\n"
+#define _LANG_DOCKS_LINE_NO_PLACE "  %s\n"

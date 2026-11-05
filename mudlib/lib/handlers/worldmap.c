@@ -381,12 +381,11 @@ private int _plains_code(int sx, int sy, int sz)
 private int _is_sea(string game, string map_name, int sx, int sy, int sz);
 
 /**
- * Whether the sector at (sx, sy, sz) is drawn as coast: coast is its main
- * terrain, or it holds some shore of the sea and one of its four sides is open
- * sea, whatever else it holds, so the shoreline is drawn where the land meets
- * the sea. A river bank is not part of the shoreline of the sea.
+ * Whether the sector at (sx, sy, sz) meets the sea on its own: coast is its
+ * main terrain, or it holds some shore of the sea and one of its four sides
+ * is open sea. A river bank is not part of the shoreline of the sea.
  */
-private int _is_coast(string game, string map_name, int sx, int sy, int sz)
+private int _is_shore(string game, string map_name, int sx, int sy, int sz)
 {
   object sect;
 
@@ -405,6 +404,38 @@ private int _is_coast(string game, string map_name, int sx, int sy, int sz)
          _is_sea(game, map_name, sx, sy - 1, sz) ||
          _is_sea(game, map_name, sx + 1, sy, sz) ||
          _is_sea(game, map_name, sx - 1, sy, sz);
+}
+
+/**
+ * Whether the sector at (sx, sy, sz) is drawn as coast, whatever else it
+ * holds: it meets the sea on its own (see _is_shore), or it holds some shore
+ * of the sea and turns the corner between two such sectors (one north or
+ * south, one east or west) that do not already meet through the sector
+ * diagonal to it, so the shoreline is not broken where a coastal sector has no
+ * side open to the sea. A city keeps its own glyph there.
+ */
+private int _is_coast(string game, string map_name, int sx, int sy, int sz)
+{
+  object sect;
+  int dx, dy;
+
+  if (_is_shore(game, map_name, sx, sy, sz))
+    return 1;
+
+  sect = cached_sector(game, map_name, sx, sy, sz);
+  if (!sect || sect->query_bank() ||
+      !sect->has_locations_of_type(SECTOR_TYPE_COAST) ||
+      sect->has_locations_of_type(SECTOR_TYPE_CITY))
+    return 0;
+
+  for (dx = -1; dx <= 1; dx += 2)
+    for (dy = -1; dy <= 1; dy += 2)
+      if (_is_shore(game, map_name, sx + dx, sy, sz) &&
+          _is_shore(game, map_name, sx, sy + dy, sz) &&
+          !_is_shore(game, map_name, sx + dx, sy + dy, sz))
+        return 1;
+
+  return 0;
 }
 
 /**
@@ -492,6 +523,58 @@ private int * _coast_arms(string game, string map_name, int sx, int sy, int sz)
 }
 
 /**
+ * A dock at the end of a shoreline (one arm) carries the line straight on, so
+ * it has a side facing the sea for its pier. Changes `arms` in place.
+ *
+ * @param arms the ({ n, s, e, w }) arms of the shoreline
+ * @param sect the sector holding the dock
+ * @return the number of arms after the line was carried on
+ */
+private int _carry_dock_line(int * arms, object sect)
+{
+  int i, count;
+
+  count = arms[0] + arms[1] + arms[2] + arms[3];
+  if (count == 1 && sect->query_port())
+  {
+    for (i = 0; i < 4; i++)
+      if (arms[i])
+        break;
+    arms[i ^ 1] = 1;
+    count = 2;
+  }
+
+  return count;
+}
+
+/**
+ * The free sides of a shoreline sector that are open sea, given its two arms.
+ *
+ * @param arms the ({ n, s, e, w }) arms of the shoreline
+ * @return ({ the last sea side (index into n, s, e, w) or -1, the number of
+ *            sea sides })
+ */
+private int * _sea_sides(int * arms, string game, string map_name,
+                         int sx, int sy, int sz)
+{
+  int * dx, * dy;
+  int i, sea_side, sea_count;
+
+  dx = ({ 0, 0, 1, -1 });
+  dy = ({ 1, -1, 0, 0 });
+  sea_side = -1;
+
+  for (i = 0; i < 4; i++)
+    if (!arms[i] && _is_sea(game, map_name, sx + dx[i], sy + dy[i], sz))
+    {
+      sea_side = i;
+      sea_count++;
+    }
+
+  return ({ sea_side, sea_count });
+}
+
+/**
  * The code of a coast sector: a line along the shoreline (see _coast_arms), in
  * the colour of its kind (beach or any other coast). A sector with both arms
  * of the shoreline gets a third where a road reaches it from inland, and a
@@ -503,38 +586,23 @@ private int * _coast_arms(string game, string map_name, int sx, int sy, int sz)
 private int _shore_code(object sect, string game, string map_name,
                         int sx, int sy, int sz)
 {
-  int * arms, * ways, * dx, * dy;
-  int i, count, sea_side, sea_count, road_side;
+  int * arms, * ways, * dx, * dy, * sea;
+  int i, count, sea_side, road_side;
 
   arms = _coast_arms(game, map_name, sx, sy, sz);
-  count = arms[0] + arms[1] + arms[2] + arms[3];
-
-  // a dock at the end of a shoreline carries the line on, so it has a side
-  // facing the sea for its pier
-  if (count == 1 && sect->query_port())
-  {
-    for (i = 0; i < 4; i++)
-      if (arms[i])
-        break;
-    arms[i ^ 1] = 1;
-    count = 2;
-  }
+  count = _carry_dock_line(arms, sect);
 
   if (count == 2)
   {
     dx = ({ 0, 0, 1, -1 });
     dy = ({ 1, -1, 0, 0 });
-    sea_side = road_side = -1;
+    road_side = -1;
 
-    for (i = 0; i < 4; i++)
-      if (!arms[i] && _is_sea(game, map_name, sx + dx[i], sy + dy[i], sz))
-      {
-        sea_side = i;
-        sea_count++;
-      }
+    sea = _sea_sides(arms, game, map_name, sx, sy, sz);
+    sea_side = sea[0];
 
     // a dock reaches out to sea only when the sea side is certain
-    if (sea_count != 1 || !sect->query_port())
+    if (sea[1] != 1 || !sect->query_port())
       sea_side = -1;
 
     ways = way_arms(sect, game, map_name, sx, sy, sz);
@@ -966,6 +1034,227 @@ int sector_glyph(object sect)
   sector_cache[place[2] + "_" + place[3] + "_" + place[4]] = sect;
 
   return sector_code(place[0], place[1], place[2], place[3], place[4]);
+}
+
+/**
+ * Whether the dock sector `sect` draws its pier arm on the world map, and on
+ * which side. The arm is drawn only on a coast sector with two shoreline arms
+ * (a dock ending a shoreline carries the line on) and exactly one free side
+ * that is open sea.
+ *
+ * @param sect the sector holding a dock (see query_port() of the sector)
+ * @return ({ side the arm points to ("north", "south", "east", "west"), "" })
+ *         when it is drawn, ({ "", why it cannot be drawn }) when it is not
+ */
+string * query_dock_state(object sect, string game, string map_name,
+                          int sx, int sy, int sz)
+{
+  int * arms, * sea;
+  int count;
+
+  sector_cache = ([ ]);
+  border_cache = ([ ]);
+  sectors = load_object(SECTORS_HANDLER);
+  areas = load_object(AREA_HANDLER);
+  sector_cache[sx + "_" + sy + "_" + sz] = sect;
+
+  if (!_is_coast(game, map_name, sx, sy, sz))
+    return ({ "", "not a coast sector (or a river bank)" });
+
+  arms = _coast_arms(game, map_name, sx, sy, sz);
+  count = _carry_dock_line(arms, sect);
+  if (count != 2)
+    return ({ "", "the shoreline has " + count + " arms here, a pier needs two" });
+
+  sea = _sea_sides(arms, game, map_name, sx, sy, sz);
+  if (sea[1] != 1)
+    return ({ "", sea[1] + " free sides are open sea, the pier needs exactly one (shoreline arms: " +
+              (arms[0] ? "n" : "") + (arms[1] ? "s" : "") + (arms[2] ? "e" : "") +
+              (arms[3] ? "w" : "") + ")" });
+
+  return ({ ({ "north", "south", "east", "west" })[sea[0]], "" });
+}
+
+// The part of a location file's path that names its port: the directory above
+// its "rooms/" folder, else the directory it sits in.
+private string _port_key(string file)
+{
+  int pos;
+
+  pos = strlen(file) - 1;
+  while (pos >= 0 && file[pos] != '/')
+    pos--;
+  file = file[.. pos - 1];
+
+  pos = strlen(file) - 6;
+  if (pos > 0 && file[pos..] == "/rooms")
+    file = file[.. pos - 1];
+
+  return file;
+}
+
+// The name a player knows an area by: its map name or exploration name, else
+// its root area's, "" when none has one.
+private string _known_area_name(object area)
+{
+  object root;
+  string name;
+
+  root = area->query_root_area();
+  name = area->query_map_name();
+  if ((!name || !strlen(name)) && root)
+    name = root->query_map_name();
+  if (!name || !strlen(name))
+    name = area->query_exploration_name();
+  if ((!name || !strlen(name)) && root)
+    name = root->query_exploration_name();
+  return name ? name : "";
+}
+
+/**
+ * The docks of the map as a player may read them: one per landing sector,
+ * named by the short of its first dock location and placed by the name of the
+ * area it belongs to. Nothing internal (no files, no coordinates).
+ *
+ * @param docks ({ ({ sector, sx, sy, sz }), ... }) the sectors with a dock
+ * @return ({ ({ dock name, area name }), ... }) sorted by dock name
+ */
+string ** dock_list(mixed * docks)
+{
+  string ** list, * files, * parts, * entry, dir, name, place;
+  mapping locs;
+  object location, area;
+  int i, j, k;
+
+  list = ({ });
+  for (i = 0; i < sizeof(docks); i++)
+  {
+    locs = docks[i][0]->query_locations();
+    files = map_indices(locs);
+    name = place = "";
+    for (j = 0; j < sizeof(files); j++)
+    {
+      if (!mappingp(locs[files[j]]) || !locs[files[j]]["port"])
+        continue;
+
+      location = load_object(LOCATION_HANDLER)->load_location(files[j]);
+      if (location)
+        name = location->short();
+
+      // the nearest area up the tree that has a name to show
+      parts = explode(files[j], "/");
+      for (k = sizeof(parts) - 1; k > 1 && !strlen(place); k--)
+      {
+        dir = implode(parts[.. k - 1], "/") + "/";
+        area = load_object(AREA_HANDLER)->query_area(dir);
+        if (area)
+          place = _known_area_name(area);
+      }
+      break;
+    }
+    list += ({ ({ name, place }) });
+  }
+
+  // insertion sort by name
+  for (i = 1; i < sizeof(list); i++)
+    for (j = i; j > 0 && list[j][0] < list[j - 1][0]; j--)
+    {
+      entry = list[j];
+      list[j] = list[j - 1];
+      list[j - 1] = entry;
+    }
+
+  return list;
+}
+
+// A location file as a builder knows it: below areas/, with no extension.
+private string _short_file(string file)
+{
+  string rest;
+
+  if (sscanf(file, "%*s/areas/%s", rest) != 2)
+    rest = file;
+  return strlen(rest) > 2 ? rest[.. strlen(rest) - 3] : rest;
+}
+
+// A port key (see _port_key) as a builder knows it: below areas/.
+private string _short_port(string key)
+{
+  return _short_file(key + ".o");
+}
+
+/**
+ * The report of `sectors docks`: one line per sector holding a dock, with the
+ * side its pier arm is drawn on, or in red why it cannot be drawn, and the dock
+ * files in it. A port (see _port_key) with docks in more than one sector is
+ * flagged in red too, since a ship may land only where the map shows a pier.
+ *
+ * @param docks ({ ({ sector, sx, sy, sz }), ... }) the sectors with a dock
+ * @return the text to show
+ */
+string dock_report(string game, string map_name, mixed * docks)
+{
+  string text, red, reset, * state, * files, * ports, port, place;
+  mapping by_port, locs;
+  int i, j, bad;
+
+  red = "%^BOLD%^RED%^";
+  reset = "%^RESET%^";
+  by_port = ([ ]);
+  text = "Docks of " + game + "/" + map_name + ": " + sizeof(docks) +
+         " sector" + (sizeof(docks) == 1 ? "" : "s") + ".\n";
+
+  for (i = 0; i < sizeof(docks); i++)
+  {
+    locs = docks[i][0]->query_locations();
+    files = ({ });
+    ports = map_indices(locs);
+    for (j = 0; j < sizeof(ports); j++)
+      if (mappingp(locs[ports[j]]) && locs[ports[j]]["port"])
+      {
+        files += ({ ports[j] });
+        port = _port_key(ports[j]);
+        if (!by_port[port])
+          by_port[port] = ({ });
+        by_port[port] |= ({ docks[i][1] + "," + docks[i][2] + "," + docks[i][3] });
+      }
+    docks[i] += ({ files });
+  }
+
+  for (i = 0; i < sizeof(docks); i++)
+  {
+    state = query_dock_state(docks[i][0], game, map_name, docks[i][1],
+                             docks[i][2], docks[i][3]);
+    place = docks[i][1] + "," + docks[i][2] + "," + docks[i][3];
+
+    text += " (" + place + ") ";
+    if (strlen(state[1]))
+    {
+      text += red + "NO ARM: " + state[1] + reset;
+      bad++;
+    }
+    else
+      text += "arm " + state[0];
+
+    // a port with docks in other sectors too: only one may be a landing
+    ports = ({ });
+    for (j = 0; j < sizeof(docks[i][4]); j++)
+      ports |= ({ _port_key(docks[i][4][j]) });
+    for (j = 0; j < sizeof(ports); j++)
+      if (sizeof(by_port[ports[j]] - ({ place })))
+      {
+        text += "  " + red + "SEVERAL SECTORS: " + _short_port(ports[j]) +
+                " (" + implode(by_port[ports[j]] - ({ place }), " ") + ")" +
+                reset;
+        bad++;
+      }
+
+    for (j = 0; j < sizeof(docks[i][4]); j++)
+      docks[i][4][j] = _short_file(docks[i][4][j]);
+    text += "\n    " + implode(docks[i][4], " ") + "\n";
+  }
+
+  return text + bad + " problem" + (bad == 1 ? "" : "s") + " found.\n";
 }
 
 // The name of the area a directory of city locations belongs to, asked once

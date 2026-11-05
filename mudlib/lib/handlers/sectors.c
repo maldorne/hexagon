@@ -975,6 +975,68 @@ void refresh_glyphs_batch(string base)
     tell_object(who, "Glyphs of " + base + " worked out again.\n");
 }
 
+// Per run of a docks listing: sector paths still to look at, who asked, the
+// sectors with a dock found so far, and the game and map, by map directory.
+static mapping dock_queue;
+
+#define DOCK_BATCH 40
+
+/**
+ * List the sectors of a map that hold a dock (see query_port() of
+ * /lib/location/sector.c), in batches of DOCK_BATCH, one call_out each, and
+ * call `callback` in `target` with (who, game, map_name, docks) at the end,
+ * `docks` being ({ ({ sector, sx, sy, sz }), ... }); the world map handler
+ * turns it into text (dock_report, dock_list). Read-only: nothing is saved.
+ * Returns the number of sectors to look at.
+ */
+int list_docks(string game, string map_name, object who, object target,
+               string callback)
+{
+  string base, * paths;
+
+  base = "/save/games/" + game + "/maps/" + map_name;
+  paths = _sector_paths(base);
+
+  if (!dock_queue)
+    dock_queue = ([ ]);
+  dock_queue[base] = ({ paths, who, ({ }), game, map_name, target, callback });
+  call_out("list_docks_batch", 0, base);
+
+  return sizeof(paths);
+}
+
+// One batch of a docks listing.
+void list_docks_batch(string base)
+{
+  mixed * run;
+  object sector;
+  mixed * place;
+  int i;
+
+  if (!dock_queue || undefinedp(dock_queue[base]))
+    return;
+
+  run = dock_queue[base];
+  for (i = 0; i < DOCK_BATCH && sizeof(run[0]); i++)
+  {
+    sector = create_sector(run[0][0]);
+    place = sector->query_map_place();
+    if (place && sector->query_port())
+      run[2] += ({ ({ sector, place[2], place[3], place[4] }) });
+    run[0] = run[0][1..];
+  }
+
+  if (sizeof(run[0]))
+  {
+    call_out("list_docks_batch", 0, base);
+    return;
+  }
+
+  map_delete(dock_queue, base);
+  if (run[5])
+    call_other(run[5], run[6], run[1], run[3], run[4], run[2]);
+}
+
 // One step of the second phase of a reindex run: index locations while the
 // ticks last, then go on in a call_out or tell whoever asked that it is done.
 void reindex_index_step(string base)
