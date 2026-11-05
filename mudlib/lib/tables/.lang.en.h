@@ -52,7 +52,7 @@
 
 // configurations
 
-#define _LANG_CONFIG_TERMINAL ({ "terminal", "term" })
+#define _LANG_CONFIG_INTERFACE ({ "interface", "terminal", "term" })
 #define _LANG_CONFIG_INFO ({ "information", "info" })
 #define _LANG_CONFIG_COMMUNICATION ({ "communication" })
 #define _LANG_CONFIG_CHARACTER ({ "character", "player" })
@@ -60,6 +60,9 @@
 
 #define _LANG_CONFIG_TOPIC_TERM "type"
 #define _LANG_CONFIG_TOPIC_COLS "columns"
+#define _LANG_CONFIG_TOPIC_STATUS "status bar"
+#define _LANG_CONFIG_TOPIC_SIDEBAR "sidebar"
+#define _LANG_CONFIG_TOPIC_SIDEBAR_WIDTH "sidebar width"
 #define _LANG_CONFIG_TOPIC_ROWS "rows"
 #define _LANG_CONFIG_TOPIC_VERBOSE "verbose"
 #define _LANG_CONFIG_TOPIC_EARMUFFS "earmuffs"
@@ -74,6 +77,8 @@
 
 #define _LANG_CONFIG_CMD_TERM "terminal"
 #define _LANG_CONFIG_CMD_COLS "columns"
+#define _LANG_CONFIG_CMD_STATUS "statusbar"
+#define _LANG_CONFIG_CMD_SIDEBAR "sidebar"
 #define _LANG_CONFIG_CMD_ROWS "rows"
 #define _LANG_CONFIG_CMD_VERBOSE "verbose"
 #define _LANG_CONFIG_CMD_INFORM "inform"

@@ -197,7 +197,7 @@ static int cmd(string str, object me, string verb)
   string category, topic, value, title, ret, shown;
   mixed parsed, done;
   object target;
-  int i;
+  int i, length;
 
   data = table("configurations")->query_config_data(me);
   words = explode(trim(str ? str : ""), " ") - ({ "" });
@@ -237,7 +237,15 @@ static int cmd(string str, object me, string verb)
     return 1;
   }
 
-  topic = topic_named(data[category], words[1]);
+  // a topic may be several words ("status bar"): the longest one that names
+  // a topic wins, and what follows it is the value
+  topic = nil;
+  for (length = (sizeof(words) - 1 < 3 ? sizeof(words) - 1 : 3); length > 0; length--)
+  {
+    topic = topic_named(data[category], implode(words[1..length], " "));
+    if (topic)
+      break;
+  }
   setting = topic ? data[category][topic] : nil;
 
   if (!setting)
@@ -247,14 +255,14 @@ static int cmd(string str, object me, string verb)
   }
 
   // one setting: its value and what it accepts
-  if (sizeof(words) == 2)
+  if (sizeof(words) == length + 1)
   {
     shown = show_value(setting, me);
     write(_LANG_CMD_CONFIG_CURRENT + accepted(setting));
     return 1;
   }
 
-  value = implode(words[2..], " ");
+  value = implode(words[length + 1..], " ");
   parsed = parse_value(setting, value);
 
   if (parsed == nil)

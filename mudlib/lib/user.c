@@ -159,6 +159,9 @@ int query_verbose() { return !brief; }
 
 void dest_me()
 {
+  // leave the screen of the client as it was found
+  ui_reset();
+
   // a link is only as alive as its two ends
   if (_snooping)
     catch(_snooping->set_snooped_by(nil));
@@ -349,6 +352,8 @@ void heart_beat()
   if (!interactive(this_object()))
     return;
 
+  ui_heart_beat();
+
   // AFK auto-kick
   if (query_idle() >= idle_grace * 60)
   {
@@ -473,10 +478,10 @@ void send_message(string str)
 
   ::send_message(str);
 
-  // redraw all the ui features if a new line is sent
-  // ony redraw if what we are sending is not the proper ui!
-  if (ui_activated() && !ui_in_use())
-    ui_redraw();
+  // repaint the interface after what the game has just said, unless this is
+  // the interface itself being sent
+  if (!ui_in_use() && ui_wanted())
+    ui_schedule();
 }
 
 // called from the driver

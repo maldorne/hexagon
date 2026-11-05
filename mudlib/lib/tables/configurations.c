@@ -15,14 +15,14 @@
 // Categories in the order they are shown.
 string * query_categories()
 {
-  return ({ "terminal", "info", "communication", "character", "consents" });
+  return ({ "interface", "info", "communication", "character", "consents" });
 }
 
 // The words a player types for each category; the first one is shown.
 mapping query_config_translations()
 {
   return ([
-    "terminal"      : _LANG_CONFIG_TERMINAL,
+    "interface"     : _LANG_CONFIG_INTERFACE,
     "info"          : _LANG_CONFIG_INFO,
     "communication" : _LANG_CONFIG_COMMUNICATION,
     "character"     : _LANG_CONFIG_CHARACTER,
@@ -66,21 +66,34 @@ mapping query_config_data(object player)
   user = player->user();
   data = ([ ]);
 
-  // terminal
+  // interface: the terminal and what is drawn on it
   topics = ([ ]);
   e = entry(CONFIG_CHOICE, CONFIG_ON_USER, "query_term_name", "set_terminal", nil,
             _LANG_CONFIG_CMD_TERM);
   e[CONFIG_OPTIONS] = TERM_HANDLER->query_term_types();
   topics[_LANG_CONFIG_TOPIC_TERM] = e;
-  e = entry(CONFIG_INT, CONFIG_ON_USER, "query_cols", "set_cols", nil, _LANG_CONFIG_CMD_COLS);
+  e = entry(CONFIG_INT, CONFIG_ON_USER, "query_term_cols", "set_cols", nil, _LANG_CONFIG_CMD_COLS);
   e[CONFIG_MIN] = 35;
   e[CONFIG_MAX] = 200;
   topics[_LANG_CONFIG_TOPIC_COLS] = e;
   e = entry(CONFIG_INT, CONFIG_ON_USER, "query_rows", "set_rows", nil, _LANG_CONFIG_CMD_ROWS);
-  e[CONFIG_MIN] = 11;
-  e[CONFIG_MAX] = 200;
+  e[CONFIG_MIN] = 15;
+  e[CONFIG_MAX] = 100;
   topics[_LANG_CONFIG_TOPIC_ROWS] = e;
-  data["terminal"] = topics;
+
+  e = entry(CONFIG_BOOL, CONFIG_ON_USER, "query_ui_status", "set_ui_status", nil,
+            _LANG_CONFIG_CMD_STATUS);
+  e[CONFIG_REFUSES] = 1;
+  topics[_LANG_CONFIG_TOPIC_STATUS] = e;
+  e = entry(CONFIG_BOOL, CONFIG_ON_USER, "query_ui_side", "set_ui_side", nil,
+            _LANG_CONFIG_CMD_SIDEBAR);
+  e[CONFIG_REFUSES] = 1;
+  topics[_LANG_CONFIG_TOPIC_SIDEBAR] = e;
+  e = entry(CONFIG_INT, CONFIG_ON_USER, "query_ui_width", "set_ui_width", nil);
+  e[CONFIG_MIN] = 20;
+  e[CONFIG_MAX] = 40;
+  topics[_LANG_CONFIG_TOPIC_SIDEBAR_WIDTH] = e;
+  data["interface"] = topics;
 
   // info: how much the game tells, and which informs this role receives
   topics = ([ ]);

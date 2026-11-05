@@ -32,7 +32,7 @@ void create()
 
   // default text-mode size
   cols = 80;
-  rows = 25;
+  rows = 24;
 }
 
 void event_commands()
@@ -47,7 +47,11 @@ void event_commands()
   add_action("do_unblock", _LANG_COMM_UNBLOCK);
 }
 
-void set_rows(int i) { rows = i; }
+void set_rows(int i)
+{
+  rows = i;
+  this_object()->ui_flush();
+}
 int query_rows() { return rows; }
 int set_our_rows(string str)
 {
@@ -66,12 +70,29 @@ int set_our_rows(string str)
   }
 
   write(_LANG_COMM_ROWS_SET);
-  rows = val;
+  set_rows(val);
   return 1;
 } /* set_our_rows() */
 
-int query_cols() { return cols; }
-void set_cols(int i) { cols = i; }
+/**
+ * Columns of text the game wraps to: the width of the terminal, less the
+ * sidebar of the interface when it is on (see ui.c).
+ */
+int query_cols()
+{
+  return cols - (int)this_object()->ui_reserved_cols();
+}
+
+/**
+ * Columns of the terminal, as the user set them.
+ */
+int query_term_cols() { return cols; }
+
+void set_cols(int i)
+{
+  cols = i;
+  this_object()->ui_flush();
+}
 int set_our_cols(string str)
 {
   int val;
@@ -93,7 +114,7 @@ int set_our_cols(string str)
   }
 
   write(_LANG_COMM_COLS_SET);
-  cols = val;
+  set_cols(val);
   return 1;
 } /* set_our_cols() */
 
@@ -107,6 +128,9 @@ int set_terminal(string str)
 
   colour_map = (mapping)TERM_HANDLER->set_term_type(str);
   term_name = str;
+
+  // a terminal that cannot draw the interface loses it
+  this_object()->ui_flush();
   return 1;
 }
 int set_term_type(string str)

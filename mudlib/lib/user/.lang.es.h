@@ -72,9 +72,26 @@
 
 // ui.c
 
-#define _LANG_UI_SIDEBAR_SYNTAX "Usa sidebar <on|off> para activarla o desactivarla.\n"
+#define _LANG_UI_VERBS_SIDEBAR ({ "sidebar", "lateral" })
+#define _LANG_UI_VERBS_STATUS ({ "statusbar", "barra" })
+#define _LANG_UI_SIDEBAR_SYNTAX "Usa " + query_verb() + " <on|off> para activar o desactivar la barra lateral.\n" + \
+        "También en 'configuración interfaz'.\n"
+#define _LANG_UI_STATUS_SYNTAX "Usa " + query_verb() + " <on|off> para activar o desactivar la barra de estado.\n" + \
+        "También en 'configuración interfaz'.\n"
+#define _LANG_UI_SIDEBAR_STATE "La barra lateral está " + (ui_side ? "activada" : "desactivada") + ".\n"
+#define _LANG_UI_STATUS_STATE "La barra de estado está " + (ui_status ? "activada" : "desactivada") + ".\n"
+#define _LANG_UI_SIDEBAR_ON "Barra lateral activada.\n"
+#define _LANG_UI_SIDEBAR_OFF "Barra lateral desactivada.\n"
+#define _LANG_UI_STATUS_ON "Barra de estado activada.\n"
+#define _LANG_UI_STATUS_OFF "Barra de estado desactivada.\n"
+#define _LANG_UI_NO_ANSI "Tu tipo de terminal no admite esta opción: necesitas un terminal ansi (mira 'configuración interfaz tipo').\n"
+#define _LANG_UI_TOO_NARROW "Tu pantalla es demasiado estrecha para la barra lateral: necesitas al menos " + \
+        (UI_MIN_TEXT + ui_width + 1) + " columnas (mira 'configuración interfaz columnas').\n"
 #define _LANG_UI_MAP "Mapa"
 #define _LANG_UI_STATS "Puntos"
+#define _LANG_UI_PLACE "Lugar"
+#define _LANG_UI_HP "HP"
+#define _LANG_UI_GP "GP"
 
 // help topics
 

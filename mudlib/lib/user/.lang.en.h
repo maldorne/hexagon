@@ -72,9 +72,26 @@
 
 // ui.c
 
-#define _LANG_UI_SIDEBAR_SYNTAX "Use sidebar <on|off> to activate or deactivate it.\n"
+#define _LANG_UI_VERBS_SIDEBAR ({ "sidebar" })
+#define _LANG_UI_VERBS_STATUS ({ "statusbar" })
+#define _LANG_UI_SIDEBAR_SYNTAX "Use " + query_verb() + " <on|off> to turn the sidebar on or off.\n" + \
+        "It is also in 'configuration interface'.\n"
+#define _LANG_UI_STATUS_SYNTAX "Use " + query_verb() + " <on|off> to turn the status bar on or off.\n" + \
+        "It is also in 'configuration interface'.\n"
+#define _LANG_UI_SIDEBAR_STATE "The sidebar is " + (ui_side ? "on" : "off") + ".\n"
+#define _LANG_UI_STATUS_STATE "The status bar is " + (ui_status ? "on" : "off") + ".\n"
+#define _LANG_UI_SIDEBAR_ON "Sidebar on.\n"
+#define _LANG_UI_SIDEBAR_OFF "Sidebar off.\n"
+#define _LANG_UI_STATUS_ON "Status bar on.\n"
+#define _LANG_UI_STATUS_OFF "Status bar off.\n"
+#define _LANG_UI_NO_ANSI "Your terminal type does not support this option: you need an ansi terminal (see 'configuration interface type').\n"
+#define _LANG_UI_TOO_NARROW "Your screen is too narrow for the sidebar: you need at least " + \
+        (UI_MIN_TEXT + ui_width + 1) + " columns (see 'configuration interface columns').\n"
 #define _LANG_UI_MAP "Map"
 #define _LANG_UI_STATS "Stats"
+#define _LANG_UI_PLACE "Place"
+#define _LANG_UI_HP "HP"
+#define _LANG_UI_GP "GP"
 
 // help topics
 

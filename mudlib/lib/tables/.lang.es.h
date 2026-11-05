@@ -52,7 +52,7 @@
 
 // configurations
 
-#define _LANG_CONFIG_TERMINAL ({ "terminal", "term" })
+#define _LANG_CONFIG_INTERFACE ({ "interfaz", "interface", "terminal", "term" })
 #define _LANG_CONFIG_INFO ({ "información", "informacion", "info" })
 #define _LANG_CONFIG_COMMUNICATION ({ "comunicación", "comunicacion" })
 #define _LANG_CONFIG_CHARACTER ({ "personaje", "jugador" })
@@ -60,6 +60,9 @@
 
 #define _LANG_CONFIG_TOPIC_TERM "tipo"
 #define _LANG_CONFIG_TOPIC_COLS "columnas"
+#define _LANG_CONFIG_TOPIC_STATUS "barra de estado"
+#define _LANG_CONFIG_TOPIC_SIDEBAR "barra lateral"
+#define _LANG_CONFIG_TOPIC_SIDEBAR_WIDTH "ancho lateral"
 #define _LANG_CONFIG_TOPIC_ROWS "filas"
 #define _LANG_CONFIG_TOPIC_VERBOSE "detallada"
 #define _LANG_CONFIG_TOPIC_EARMUFFS "tapones"
@@ -74,6 +77,8 @@
 
 #define _LANG_CONFIG_CMD_TERM "terminal"
 #define _LANG_CONFIG_CMD_COLS "columnas"
+#define _LANG_CONFIG_CMD_STATUS "barra"
+#define _LANG_CONFIG_CMD_SIDEBAR "lateral"
 #define _LANG_CONFIG_CMD_ROWS "filas"
 #define _LANG_CONFIG_CMD_VERBOSE "detalle"
 #define _LANG_CONFIG_CMD_INFORM "informar"

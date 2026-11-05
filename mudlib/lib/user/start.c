@@ -23,5 +23,8 @@ void start(varargs int going_invis, int is_new_player)
   // update the current prompt
   parse_prompt();
 
+  // the status bar and sidebar of the account, if it has them on
+  ui_start();
+
   // commands::show_commands();
 }
