@@ -191,7 +191,7 @@ private mixed _memo(string kind, object sect, int sx, int sy, int sz)
   {
     case "w": value = sect->query_border_ways(); break;
     case "r": value = sect->query_border_rivers(); break;
-    case "l": value = sect->has_lake(); break;
+    case "l": value = sect->count_lake_cells(); break;
     default:  value = sect->has_river(); break;
   }
 
@@ -381,6 +381,8 @@ private int _plains_code(int sx, int sy, int sz)
 // A sector with more locations than this carrying the ruins component draws
 // the ruins glyph over everything but a city.
 #define RUINS_OVERRIDE_MIN 5
+// lake cells that draw the lake over any terrain of the sector
+#define LAKE_OVERRIDE_MIN 10
 
 // prototype: _is_coast asks whether a neighbour is open sea
 private int _is_sea(string game, string map_name, int sx, int sy, int sz);
@@ -738,6 +740,8 @@ private string _seen_from_above(object sect, string game, string map_name,
 //   3. many ruins  — more than RUINS_OVERRIDE_MIN locations with the ruins
 //                    component draw the ruins glyph whatever the majority,
 //                    road, river or terrain; only a city or a coast outranks it
+//      big lake    — LAKE_OVERRIDE_MIN lake cells or more draw the lake glyph
+//                    over any road or terrain of the sector
 //   4. road / path — if the sector has road/path exits, draw the way glyph;
 //                    with a river through it as well it is a bridge when the
 //                    road crosses it, and the river otherwise (bridge_code)
@@ -793,6 +797,10 @@ private int sector_code(string game, string map_name, int sx, int sy, int sz)
   lake = hidden ? 0 : _memo("l", sect, sx, sy, sz);
   if (river)
     river_arms_here = river_arms(sect, game, map_name, sx, sy, sz);
+
+  // a big lake shows whatever the terrain around it, as many ruins do
+  if (lake >= LAKE_OVERRIDE_MIN)
+    return MAP_GLYPH_LAKE;
 
   // Farmland is a landcover that shows THROUGH a track: a field sector is
   // only ever reached by a path from the settlement, which would otherwise

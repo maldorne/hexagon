@@ -983,6 +983,25 @@ int has_bridge()
 }
 
 /**
+ * How many lake cells (water of the kind lake, flowing or not) this sector
+ * holds.
+ *
+ * @return the number of nodes of the sector that are lake cells
+ */
+int count_lake_cells()
+{
+  string * keys;
+  int i, n;
+
+  if (!nodes) nodes = ([ ]);
+  keys = map_indices(nodes);
+  for (i = 0; i < sizeof(keys); i++)
+    if (nodes[keys[i]]["lake"])
+      n++;
+  return n;
+}
+
+/**
  * Whether this sector holds a lake cell (water of the kind lake), flowing or
  * not.
  *
@@ -990,15 +1009,7 @@ int has_bridge()
  */
 int has_lake()
 {
-  string * keys;
-  int i;
-
-  if (!nodes) nodes = ([ ]);
-  keys = map_indices(nodes);
-  for (i = 0; i < sizeof(keys); i++)
-    if (nodes[keys[i]]["lake"])
-      return 1;
-  return 0;
+  return count_lake_cells() > 0;
 }
 
 // Whether this sector holds any river cell at all.

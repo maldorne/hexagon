@@ -195,12 +195,15 @@ a forest keeps its size.
 
 A lake is drawn apart. The sector flags every water cell whose kind is `lake`
 (`nodes[...]["lake"]`, lifted by `/lib/handlers/sectors.c` from the water
-component's `query_water_kind()`), flowing or still, and `has_lake()` says so.
+component's `query_water_kind()`), flowing or still; `count_lake_cells()`
+counts them and `has_lake()` says whether there is any.
 A sector with a lake cell draws the lake glyph (`MAP_GLYPH_LAKE`): the white
 circle of an islet (`GLYPH_SHORE_SPOT`) in the blue of the rivers
 (`COLOUR_RIVER`). It ranks where the river does, so a coast still outranks it,
 and it replaces the river line even when a river flows out of the lake; a road
-through a lake sector keeps the road glyph. The world map legend lists it as
+through a lake sector keeps the road glyph. A big lake, `LAKE_OVERRIDE_MIN` (10)
+cells or more, draws the lake whatever the sector's road or terrain, as many
+ruins do, so a lake inside a forest is not hidden by the trees. The world map legend lists it as
 "lake" (`lago`).
 
 Where a road and a river share a sector, a straight road across a straight
