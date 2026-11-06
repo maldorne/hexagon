@@ -47,7 +47,10 @@ void setup()
     "Type is one of: city, forest, coast, underground, empty, none; beach and\n" +
     "marsh paint a coast of that kind of shore. A manual\n" +
     "type only shows on the world map when the sector has no locations of its\n" +
-    "own; 'empty' and 'none' draw nothing. The coords form creates the\n" +
+    "own, or only underground ones at or above the surface (a cave inside\n" +
+    "raised terrain: paint mountain or hills there; without a painted type\n" +
+    "it takes mountain or hills from its neighbours). 'empty' and 'none'\n" +
+    "draw nothing. The coords form creates the\n" +
     "sector.o if it does not exist yet, so a virgin part of the map can be\n" +
     "painted.\n");
 }

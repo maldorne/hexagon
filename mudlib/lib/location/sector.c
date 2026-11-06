@@ -51,7 +51,8 @@ mapping river_exits;
 // Populated by add_location(), cleared on removal. See include/maps/sector.h.
 mapping boundary_exits;
 // a type a programmer set by hand; used only when the sector has no
-// locations to derive a type from. See query_sector_type / set_manual_type.
+// locations to derive a type from (underground ones do not count on the
+// surface map, see query_sector_type). See query_sector_type / set_manual_type.
 string manual_type;
 // the kind of shore a coast painted by hand draws as ("beach", "marsh"), when
 // the sector has no coast locations to tell it
@@ -703,12 +704,29 @@ int query_port()
   return 0;
 }
 
+/**
+ * Whether every location of the sector is underground (the sector has at least
+ * one location). The surface map draws such a sector as the terrain seen from
+ * above, see the world map handler.
+ *
+ * @return 1 when all its locations carry the underground component
+ */
+int has_only_underground()
+{
+  return locations && map_sizeof(locations) > 0 &&
+         count_locations_of_type(SECTOR_TYPE_UNDERGROUND) >=
+         map_sizeof(locations);
+}
+
 // The sector's dominant type: whichever cartography component is
 // attached to the most locations here. Iterates SECTOR_MAP_COMPONENTS
 // in priority order with a strict `>`, so ties go to the earlier entry
 // (city > road > coast > forest > underground). Returns SECTOR_TYPE_NONE
 // if no cartography component has been tallied yet.
-string query_sector_type()
+// With `above_ground` the underground locations do not count: the type the
+// surface map sees, where a cave under raised terrain adds nothing. A sector
+// with only underground locations then answers its manual type.
+string query_sector_type(varargs int above_ground)
 {
   string * order;
   string best;
@@ -722,6 +740,9 @@ string query_sector_type()
 
   for (i = 0; i < sizeof(order); i++)
   {
+    if (above_ground && order[i] == SECTOR_TYPE_UNDERGROUND)
+      continue;
+
     c = undefinedp(type_counts[order[i]]) ? 0 : type_counts[order[i]];
     if (c > best_count)
     {

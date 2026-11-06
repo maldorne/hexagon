@@ -677,6 +677,46 @@ private int _shore_code(object sect, string game, string map_name,
          _arms_code(arms);
 }
 
+/**
+ * The terrain a sector shows when all its locations are underground at or
+ * above the surface (a cave inside raised terrain): the type painted on it,
+ * else mountain or hills, whichever its four orthogonal neighbours hold more
+ * of (mountain on a tie or with neither).
+ *
+ * @param sect the sector, with only underground locations
+ * @return the sector type to draw
+ */
+private string _seen_from_above(object sect, string game, string map_name,
+                                int sx, int sy, int sz)
+{
+  object neigh;
+  string type;
+  int * dx, * dy;
+  int i, mountains, hills;
+
+  type = sect->query_sector_type(1);
+  if (strlen(type) && type != SECTOR_TYPE_NONE && type != SECTOR_TYPE_EMPTY)
+    return type;
+
+  dx = ({ 0, 0, 1, -1 });
+  dy = ({ 1, -1, 0, 0 });
+
+  for (i = 0; i < 4; i++)
+  {
+    neigh = cached_sector(game, map_name, sx + dx[i], sy + dy[i], sz);
+    if (!neigh)
+      continue;
+
+    type = neigh->query_sector_type(1);
+    if (type == SECTOR_TYPE_MOUNTAIN)
+      mountains++;
+    else if (type == SECTOR_TYPE_HILLS)
+      hills++;
+  }
+
+  return hills > mountains ? SECTOR_TYPE_HILLS : SECTOR_TYPE_MOUNTAIN;
+}
+
 // Display priority for a sector (highest first):
 //   1. coast       — the shoreline is a closed perimeter, so a coast sector
 //                    (see _is_coast) keeps its shore glyph whatever city,
@@ -701,16 +741,24 @@ private int _shore_code(object sect, string game, string map_name,
 //   6. river       — blue line, over farmland and any other terrain
 //   7. ruins, plains, tundra — below the river
 //   8. majority    — otherwise the dominant remaining terrain type
+// On the surface map (sector level 0 or above) the underground locations
+// draw nothing of their own: they do not count in the majority, and a sector
+// with only underground locations shows the terrain seen from above (see
+// _seen_from_above) and no road or river. Levels below ground keep the
+// underground glyph.
 private int sector_code(string game, string map_name, int sx, int sy, int sz)
 {
   object sect;
   string type;
   mapping borders;
   int * road_arms, * river_arms_here;
-  int river;
+  int river, hidden;
 
   sect = cached_sector(game, map_name, sx, sy, sz);
   if (!sect) return MAP_GLYPH_EMPTY;
+
+  // a cave inside raised terrain shows what is seen from above
+  hidden = sz >= 0 && sect->has_only_underground();
 
   // the shore of the sea comes first: the coastline is one closed line, drawn
   // wherever the land meets the sea, a town's docks included
@@ -730,9 +778,10 @@ private int sector_code(string game, string map_name, int sx, int sy, int sz)
 
   // query_sector_type is the majority component, or the programmer-set
   // manual type for a sector with no locations of its own
-  type = sect->query_sector_type();
+  type = hidden ? _seen_from_above(sect, game, map_name, sx, sy, sz) :
+                  sect->query_sector_type(sz >= 0);
 
-  river = _memo("h", sect, sx, sy, sz);
+  river = hidden ? 0 : _memo("h", sect, sx, sy, sz);
   if (river)
     river_arms_here = river_arms(sect, game, map_name, sx, sy, sz);
 
@@ -750,8 +799,9 @@ private int sector_code(string game, string map_name, int sx, int sy, int sz)
     return MAP_GLYPH_FARM;
   }
 
-  borders = _memo("w", sect, sx, sy, sz);
-  if (_has_drawn_way(borders))
+  if (!hidden)
+    borders = _memo("w", sect, sx, sy, sz);
+  if (!hidden && _has_drawn_way(borders))
   {
     road_arms = way_arms(sect, game, map_name, sx, sy, sz);
     if (river)
