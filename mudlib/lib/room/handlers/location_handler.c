@@ -2252,7 +2252,7 @@ private mapping _find_inbound_exits(mapping orphan_set)
  * Returns ({ 0, 0, 0 }) immediately (the counts are only known at the end and
  * arrive in the messages).
  */
-mixed * clean_apply(string scope, varargs int all)
+mixed * clean_apply(string scope, varargs int all, int preview)
 {
   string * resolved;
   string save_dir, source_prefix;
@@ -2269,17 +2269,18 @@ mixed * clean_apply(string scope, varargs int all)
   files -= ({ save_dir + "/area.o" });
 
   call_out("_clean_list_orphans", 0, save_dir, source_prefix, all, files, 0,
-           ({ }), this_player());
+           ({ }), this_player(), preview);
 
   return ({ 0, 0, 0 });
 }
 
 // Listing tick: examine a slice of the folder's save files, then schedule the
-// next; at the end start the removal phases. Public: reached via the call_out
+// next; at the end start the removal phases. `preview` runs the same scans and
+// only reports what the removal would do. Public: reached via the call_out
 // dispatcher.
 void _clean_list_orphans(string save_dir, string source_prefix, int all,
                          string * files, int idx, string * orphans,
-                         object initiator)
+                         object initiator, varargs int preview)
 {
   mapping orphan_set;
   int end, i;
@@ -2295,7 +2296,7 @@ void _clean_list_orphans(string save_dir, string source_prefix, int all,
         orphans += ({ files[i] });
 
     call_out("_clean_list_orphans", 0, save_dir, source_prefix, all, files,
-             end, orphans, initiator);
+             end, orphans, initiator, preview);
     return;
   }
 
@@ -2311,24 +2312,27 @@ void _clean_list_orphans(string save_dir, string source_prefix, int all,
     orphan_set[orphans[i]] = 1;
 
   if (initiator)
-    tell_object(initiator, "Cleaning " + sizeof(orphans) + " location" +
+    tell_object(initiator, (preview ? "Checking " : "Cleaning ") +
+                sizeof(orphans) + " location" +
                 (sizeof(orphans) == 1 ? "" : "s") + " in the background ...\n");
 
-  call_out("_clean_scan_orphans", 0, orphans, orphan_set, 0, ([ ]), initiator);
+  call_out("_clean_scan_orphans", 0, orphans, orphan_set, 0, ([ ]), initiator,
+           preview);
 }
 
 // Phase 1 tick: load a slice of orphans and collect the non-orphan
 // destinations of their exits (the only locations that might hold an exit
 // back into the orphan set). Public: reached via the call_out dispatcher.
 void _clean_scan_orphans(string * orphans, mapping orphan_set, int idx,
-                         mapping affected, object initiator)
+                         mapping affected, object initiator,
+                         varargs int preview)
 {
   int end, i;
 
   if (idx >= sizeof(orphans))
   {
     call_out("_clean_scan_affected", 0, orphans, orphan_set,
-             map_indices(affected), 0, ([ ]), initiator);
+             map_indices(affected), 0, ([ ]), initiator, preview);
     return;
   }
 
@@ -2358,19 +2362,36 @@ void _clean_scan_orphans(string * orphans, mapping orphan_set, int idx,
   }
 
   call_out("_clean_scan_orphans", 0, orphans, orphan_set, end, affected,
-           initiator);
+           initiator, preview);
 }
 
 // Phase 2 tick: load a slice of the affected destinations and record the
 // exits that point back into the orphan set (to be trimmed).
 void _clean_scan_affected(string * orphans, mapping orphan_set,
                           string * affected_keys, int idx, mapping trim,
-                          object initiator)
+                          object initiator, varargs int preview)
 {
-  int end, i;
+  int end, i, exits;
+  string * trim_keys;
 
   if (idx >= sizeof(affected_keys))
   {
+    // a preview stops here and reports what the removal would take
+    if (preview)
+    {
+      trim_keys = map_indices(trim);
+      for (i = 0; i < sizeof(trim_keys); i++)
+        exits += sizeof(trim[trim_keys[i]]);
+      if (initiator)
+        tell_object(initiator, "Clean preview: " + sizeof(orphans) +
+                    " location" + (sizeof(orphans) == 1 ? "" : "s") +
+                    " to delete, " + sizeof(trim_keys) + " adjacent location" +
+                    (sizeof(trim_keys) == 1 ? "" : "s") + " with exits to " +
+                    "trim (" + exits + " exit" + (exits == 1 ? "" : "s") +
+                    "). Run it again with 'apply' to execute.\n");
+      return;
+    }
+
     call_out("_clean_trim", 0, orphans, map_indices(trim), trim, 0, 0, 0,
              initiator);
     return;
@@ -2404,7 +2425,7 @@ void _clean_scan_affected(string * orphans, mapping orphan_set,
   }
 
   call_out("_clean_scan_affected", 0, orphans, orphan_set, affected_keys, end,
-           trim, initiator);
+           trim, initiator, preview);
 }
 
 // Phase 3 tick: trim inbound exits on a slice of the affected locations,

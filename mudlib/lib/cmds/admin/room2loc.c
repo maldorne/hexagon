@@ -159,12 +159,6 @@ static int do_clean(string path, int apply, varargs int all)
   string * resolved;
   string save_dir;
   string root_locations, root_areas;
-  mixed * preview;
-  string * orphans;
-  mapping adjacent_trim;
-  string * adj_keys;
-  int trim_count;
-  int i;
 
   if (!path || !strlen(path))
   {
@@ -215,31 +209,11 @@ static int do_clean(string path, int apply, varargs int all)
     }
   }
 
-  // Dry-run: the inbound-exit scan is synchronous, so a huge preview can be
-  // heavy; the apply path below is fully chunked in the background.
+  // Dry-run: the same chunked scans as the apply, in the background, which
+  // report what would be removed and stop there.
   if (!apply)
   {
-    preview = load_object(LOCATION_HANDLER)->clean_preview(path, all);
-    orphans = preview[0];
-    adjacent_trim = preview[1];
-
-    adj_keys = map_indices(adjacent_trim);
-    trim_count = 0;
-    for (i = 0; i < sizeof(adj_keys); i++)
-      trim_count += sizeof(adjacent_trim[adj_keys[i]]);
-
-    if (!sizeof(orphans))
-    {
-      write("Nothing to clean under " + save_dir + ".\n");
-      return 1;
-    }
-
-    write("Clean " + (all ? "all " : "") + "preview for " + save_dir + "\n");
-    write("  Locations to delete: " + sizeof(orphans) + "\n");
-    write("  Adjacent locations with exits to trim: " + sizeof(adj_keys) +
-          " (" + trim_count + " exits)\n");
-    write("Run 'room2loc clean " + (all ? "all " : "") + "apply " + path +
-          "' to execute.\n");
+    load_object(LOCATION_HANDLER)->clean_apply(path, all, 1);
     return 1;
   }
 
