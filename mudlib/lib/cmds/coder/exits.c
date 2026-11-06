@@ -32,7 +32,7 @@ inherit CMD_BASE;
 void setup()
 {
   set_aliases(({ "exits" }));
-  set_usage("exits [-v|-vv] [files|globs | sector <map> <x> <y> [z] | area <name>]");
+  set_usage("exits [-v|-vv] [files|globs | sector <map> <x> <y> [z] | area <name>] | exits stop");
   set_help(
     "Checks exits in the current room/location, in every room matching\n" +
     "a file/glob list, or in every location of a given sector or area.\n" +
@@ -45,9 +45,13 @@ void setup()
     "                                       between sector.o and on-disk coord files.\n" +
     "  exits area <name>                    scan every location of the area\n" +
     "                                       (<name> or <name>/rooms).\n" +
+    "  exits stop                           stop the scan you have running\n" +
     "\n" +
     "  Scans of files, sectors and areas run in the background and report\n" +
-    "  when they finish.\n" +
+    "  when they finish; one of more than 100 files tells its progress\n" +
+    "  every tenth of the way. You can run one scan at a time. A file whose\n" +
+    "  check stops with an error is reported, counted as skipped, and the\n" +
+    "  scan goes on.\n" +
     "\n" +
     "  A scan prints only the files with problems and the totals.\n" +
     "  -v   one line per scanned file, the good ones too; on the current\n" +
@@ -367,7 +371,15 @@ private mixed * scan_files(string * files, int verbose)
       continue;
     }
 
-    checks = check_exits_of(ob);
+    // an error checking one file is reported, the batch goes on
+    err = catch(checks = check_exits_of(ob));
+    if (err)
+    {
+      ret += " " + file_tag(R, "--") + " " + path + "   check failed: " + err +
+             ".\n";
+      skipped_files++;
+      continue;
+    }
 
     if (verbose >= 2)
       ret += render_table(ob, checks);
@@ -447,53 +459,173 @@ private string render_summary(mixed * totals, string extra_lines)
 }
 
 #define SCAN_CHUNK 20
+// a scan of more files than this tells its progress every tenth of the way
+#define SCAN_PROGRESS_MIN 100
 
-// Scan `files` SCAN_CHUNK at a time, one call_out each: checking exits loads
-// every destination, so a big batch in one task runs out of ticks. `acc` is
-// the running ({ text, counters ... }) of scan_files; when the files run out
-// `who` gets `header`, the text, the summary (with `extra`) or `empty` when no
-// .c / .o file was scanned at all.
-void scan_step(string * files, int idx, int verbose, mixed * acc,
-                      object who, string header, string extra, string empty)
+// The scan each user has running, by user: ({ label, files, next index,
+// accumulated result, verbose, header, extra, empty, last tenth told,
+// chunk being checked or nil, chunk size }). One per user; a second is refused
+// until the first ends or is stopped.
+static mapping scans;
+
+#define SCAN_LABEL    0
+#define SCAN_FILES    1
+#define SCAN_NEXT     2
+#define SCAN_ACC      3
+#define SCAN_VERBOSE  4
+#define SCAN_HEADER   5
+#define SCAN_EXTRA    6
+#define SCAN_EMPTY    7
+#define SCAN_TOLD     8
+#define SCAN_PENDING  9
+#define SCAN_SIZE    10
+
+// Add one part of scan_files' result to the running total.
+private void _add_scan_part(mixed * acc, mixed * part)
 {
-  mixed * part;
-  int i, end;
+  int i;
 
+  acc[0] += part[0];
+  for (i = 1; i < sizeof(acc); i++)
+    acc[i] += part[i];
+}
+
+/**
+ * One step of the scan `who` has running: SCAN_CHUNK files, the next step
+ * scheduled before they are checked, so a chunk that dies (out of ticks, an
+ * error in a location) does not stop the scan. The next step finds the chunk
+ * still pending: it checks it again one file at a time, and a single file that
+ * dies is reported and counted as skipped. Public because the call_out
+ * dispatcher reaches it through call_other.
+ *
+ * @param who the user the scan belongs to and reports to
+ */
+void scan_step(object who)
+{
+  mixed * scan, * acc;
+  string * files;
+  int idx, end, size, tenth;
+
+  if (!scans || !who || !scans[who])
+    return;
+
+  scan = scans[who];
+  files = scan[SCAN_FILES];
+  acc = scan[SCAN_ACC];
+
+  // the last chunk died before it ended
+  if (scan[SCAN_PENDING])
+  {
+    idx = scan[SCAN_PENDING][0];
+    end = scan[SCAN_PENDING][1];
+    scan[SCAN_PENDING] = nil;
+    if (end - idx > 1)
+    {
+      // check it again file by file, so only the file that fails is lost
+      scan[SCAN_NEXT] = idx;
+      scan[SCAN_SIZE] = 1;
+    }
+    else
+    {
+      acc[0] += " " + file_tag(R, "--") + " " + files[idx] +
+                "   the check stopped with an error.\n";
+      acc[1]++;
+      acc[4]++;
+      tell_object(who, "exits: " + files[idx] + " stopped the check with an " +
+                  "error; it is skipped and the scan goes on.\n");
+      scan[SCAN_NEXT] = end;
+    }
+  }
+
+  idx = scan[SCAN_NEXT];
   if (idx < sizeof(files))
   {
-    end = idx + SCAN_CHUNK;
+    size = scan[SCAN_SIZE];
+    end = idx + size;
     if (end > sizeof(files))
       end = sizeof(files);
 
-    part = scan_files(files[idx .. end - 1], verbose);
-    acc[0] += part[0];
-    for (i = 1; i < sizeof(acc); i++)
-      acc[i] += part[i];
-    call_out("scan_step", 0, files, idx + SCAN_CHUNK, verbose, acc, who,
-             header, extra, empty);
+    // back to whole chunks once past the chunk that was split
+    if (size == 1 && idx % SCAN_CHUNK == SCAN_CHUNK - 1)
+      scan[SCAN_SIZE] = SCAN_CHUNK;
+
+    scan[SCAN_PENDING] = ({ idx, end });
+    call_out("scan_step", 0, who);
+
+    _add_scan_part(acc, scan_files(files[idx .. end - 1], scan[SCAN_VERBOSE]));
+    scan[SCAN_PENDING] = nil;
+    scan[SCAN_NEXT] = end;
+
+    if (sizeof(files) > SCAN_PROGRESS_MIN)
+    {
+      tenth = end * 10 / sizeof(files);
+      if (tenth > scan[SCAN_TOLD] && tenth < 10)
+      {
+        scan[SCAN_TOLD] = tenth;
+        tell_object(who, "exits " + scan[SCAN_LABEL] + ": " + end + "/" +
+                    sizeof(files) + " files checked (" + (tenth * 10) +
+                    "%).\n");
+      }
+    }
     return;
   }
 
-  if (!who)
-    return;
+  // the end: the step scheduled by the last chunk finds nothing left
+  map_delete(scans, who);
 
-  if (acc[1] == 0 && strlen(empty))
+  if (acc[1] == 0 && strlen(scan[SCAN_EMPTY]))
   {
-    tell_object(who, empty);
+    tell_object(who, scan[SCAN_EMPTY]);
     return;
   }
 
-  tell_object(who, header + acc[0] + render_summary(acc, extra));
+  tell_object(who, scan[SCAN_HEADER] + acc[0] +
+              render_summary(acc, scan[SCAN_EXTRA]));
 }
 
-// Start a chunked scan; the result goes to `who` when it ends.
-private void scan_in_background(object who, string * files, int verbose,
-                                string header, string extra, string empty)
+// Start a chunked scan; the result goes to `who` when it ends. Refused while
+// `who` has another one running.
+private void scan_in_background(object who, string label, string * files,
+                                int verbose, string header, string extra,
+                                string empty)
 {
-  call_out("scan_step", 0, files, 0, verbose,
-           ({ "", 0, 0, 0, 0, 0, 0, 0 }), who, header, extra, empty);
+  mixed * running;
+
+  if (!scans)
+    scans = ([ ]);
+
+  running = scans[who];
+  if (running)
+  {
+    write("You already have an exits scan running (" + running[SCAN_LABEL] +
+          ", " + running[SCAN_NEXT] + "/" + sizeof(running[SCAN_FILES]) +
+          " files). Wait for it or use 'exits stop'.\n");
+    return;
+  }
+
+  scans[who] = ({ label, files, 0, ({ "", 0, 0, 0, 0, 0, 0, 0 }), verbose,
+                  header, extra, empty, 0, nil, SCAN_CHUNK });
+  call_out("scan_step", 0, who);
   write("Scanning " + sizeof(files) + " file" + (sizeof(files) == 1 ? "" : "s") +
         " in the background ...\n");
+}
+
+// "exits stop": stop the scan the user has running.
+private int do_stop(object me)
+{
+  mixed * running;
+
+  running = scans ? scans[me] : nil;
+  if (!running)
+  {
+    write("You have no exits scan running.\n");
+    return 1;
+  }
+
+  map_delete(scans, me);
+  write("Stopped the exits scan of " + running[SCAN_LABEL] + " at " +
+        running[SCAN_NEXT] + "/" + sizeof(running[SCAN_FILES]) + " files.\n");
+  return 1;
 }
 
 // "exits sector <map> <x> <y> [z]" — scan every location of the sector
@@ -597,7 +729,8 @@ private int do_sector(object me, string * tokens, int verbose)
 
   // scan all locations the sector knows about, in the background
   files = pos_files;
-  scan_in_background(me, files, verbose,
+  scan_in_background(me, "sector " + map_name + " (" + sx + "," + sy + "," +
+                     sz + ")", files, verbose,
                      " Sector " + map_name + " (" + sx + "," + sy + "," + sz +
                      ") in " + game + ": " + sizeof(pos_files) +
                      " indexed location" + (sizeof(pos_files) == 1 ? "" : "s") +
@@ -651,7 +784,7 @@ private int do_area(object me, string * tokens, int verbose)
   locations = area->query_locations();
   files = map_indices(locations);
 
-  scan_in_background(me, files, verbose,
+  scan_in_background(me, "area " + name, files, verbose,
                      " Area " + name + " in " + game + ": " + sizeof(files) +
                      " location" + (sizeof(files) == 1 ? "" : "s") + ".\n",
                      "", "");
@@ -691,7 +824,9 @@ static int cmd(string str, object me, string verb)
     return 1;
   }
 
-  // ===== "sector ..." / "area ..." subcommands =====
+  // ===== "stop" / "sector ..." / "area ..." subcommands =====
+  if (sizeof(tokens) == 1 && tokens[0] == "stop")
+    return do_stop(me);
   if (sizeof(tokens) && tokens[0] == "sector")
     return do_sector(me, tokens, verbose);
   if (sizeof(tokens) && tokens[0] == "area")
@@ -733,7 +868,7 @@ static int cmd(string str, object me, string verb)
     return 1;
   }
 
-  scan_in_background(me, files, verbose, "", "",
+  scan_in_background(me, args, files, verbose, "", "",
                      "No .c / .o files matched '" + args + "'.\n");
   return 1;
 }
