@@ -326,7 +326,7 @@ void set_location_original_sources(string location_file, mapping clones)
   rebuild_npc_caps();
   this_object()->trim_monsters_to_caps();
 
-  this_object()->save_me();
+  this_object()->note_location_change();
 }
 
 // This area's own share of `source`, read off the conversion provenance: each

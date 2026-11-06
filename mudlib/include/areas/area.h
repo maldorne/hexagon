@@ -6,6 +6,9 @@
 #define AREA_MAX_ANCESTRY 8
 // the least seconds between two saves of an area marked dirty
 #define AREA_SAVE_INTERVAL 60
+// location changes noted before the area is saved: about ten converted
+// locations, each noting its entry, its connection and its NPC sources
+#define AREA_CHANGES_PER_SAVE 30
 #define AREA_STORAGE_OBJECT "/lib/location/area"
 // periodic NPC population sweep (see /lib/handlers/population.c)
 #define POPULATION_HANDLER "/lib/handlers/population"

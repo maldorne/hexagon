@@ -28,6 +28,10 @@ field of its own, apart from the exploration name, which also grants
 exploration. The title of a map is the map name of the area, else its
 exploration name, else its folder name (the folder above when that is `rooms`).
 
+The map name only groups areas for the mapper: the label the world map writes
+for an area's city is a third field (`areas label <name>`), so an area drawn
+inside another's map keeps its own label.
+
 Areas that share a map name are one map. `mapper update <dir>` on any of them
 rebuilds the whole shared map: every area of the game with that name, all their
 locations together, with as many levels (`z`) as they hold. The file is named

@@ -245,7 +245,8 @@
 #define MAP_GLYPH_TUNDRA_A     (MAP_GLYPH_SHORE + MAP_SHORE_KINDS * MAP_SHORE_ARMS)
 #define MAP_GLYPH_TUNDRA_B     (MAP_GLYPH_TUNDRA_A + 1)
 #define MAP_GLYPH_HILLS        (MAP_GLYPH_TUNDRA_B + 1)
-#define MAP_GLYPH_COUNT        (MAP_GLYPH_HILLS + 1)
+#define MAP_GLYPH_LAKE         (MAP_GLYPH_HILLS + 1)  // a sector whose water is a lake
+#define MAP_GLYPH_COUNT        (MAP_GLYPH_LAKE + 1)
 
 // The fixed glyphs as they are drawn, colour included.
 #define MAP_GLYPHS ({ \

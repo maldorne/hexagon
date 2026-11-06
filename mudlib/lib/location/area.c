@@ -38,6 +38,10 @@ string exploration_name;
 // map name are drawn as one map; empty means the exploration name, else the
 // area's folder name.
 string map_name;
+// The label the world map writes for this area's city. Independent of the map
+// name, so an area can be drawn inside another's map and still be labelled by
+// its own name; empty means the exploration name, else the map name.
+string label_name;
 // the areas that discover this one, by path: its own path when empty. An entry
 // ending in "*" stands for every area under that directory. A part of the place
 // (its farms, its roads) discovers it only if listed, so a road out of a town
@@ -64,6 +68,8 @@ string area_state;
 // when the last save is AREA_SAVE_INTERVAL seconds old, and the shutdown saves
 // whatever is left.
 static int last_saved, dirty;
+// Location changes noted since the last save (see note_location_change).
+static int unsaved_changes;
 
 
 
@@ -86,6 +92,7 @@ void create() {
   gives_exploration = 0;
   exploration_name = "";
   map_name = "";
+  label_name = "";
   exploration_scope = ({ });
   monsters::create();
   schedules::create();
@@ -104,7 +111,7 @@ void create() {
 private void note_names()
 {
   AREA_HANDLER->note_area_names(area_path, map_name, exploration_name,
-                                parent_area);
+                                parent_area, label_name);
 }
 
 void restore_me() {
@@ -118,6 +125,7 @@ private void write_me()
   save_object(file_name);
   last_saved = time();
   dirty = 0;
+  unsaved_changes = 0;
   note_names();
 }
 
@@ -245,6 +253,15 @@ string query_map_name() { return map_name ? map_name : ""; }
 void set_map_name(string name)
 {
   map_name = name ? name : "";
+  save_me();
+}
+
+/** The label set on this area for the world map, empty when it has none. */
+string query_label_name() { return label_name ? label_name : ""; }
+
+void set_label_name(string name)
+{
+  label_name = name ? name : "";
   save_me();
 }
 
@@ -503,10 +520,24 @@ object query_root_area()
   return area;
 }
 
+/**
+ * Notes a change made while a location is converted or removed (its entry, its
+ * connection, its NPC sources): the area is saved once every
+ * AREA_CHANGES_PER_SAVE of them and only marked otherwise, so converting a
+ * big area does not write its whole file once per location.
+ */
+void note_location_change()
+{
+  if (++unsaved_changes >= AREA_CHANGES_PER_SAVE)
+    save_me();
+  else
+    mark_dirty();
+}
+
 void add_location(string location_file_name, mapping location_data) 
 {
   locations[location_file_name] = map_copy(location_data);
-  save_me();
+  note_location_change();
 }
 
 void remove_location(string location_file_name)
@@ -514,7 +545,7 @@ void remove_location(string location_file_name)
   map_delete(locations, location_file_name);
   // the NPCs its room declared go with it, or the caps would go on counting them
   this_object()->set_location_original_sources(location_file_name, ([ ]));
-  save_me();
+  note_location_change();
 }
 
 void add_loaded_location(object location) 
@@ -538,9 +569,10 @@ object * query_loaded_locations()
 mapping query_connections() { return connections; }
 void add_connection(string location_file_name, string direction, string destination)
 {
-  if (!connections[location_file_name])
-    connections[location_file_name] = ({ direction, destination });
+  if (connections[location_file_name])
+    return;
 
-  save_me();
+  connections[location_file_name] = ({ direction, destination });
+  note_location_change();
 }
 

@@ -1825,6 +1825,19 @@ private string * _neighbour_sources(mapping candidates, string * converted)
   return out;
 }
 
+// An area saves only every few location changes during a batch, so the batch
+// writes whatever its areas still hold when it ends.
+private void _save_dirty_areas()
+{
+  object * areas;
+  int i;
+
+  areas = map_values((mapping)load_object(AREA_HANDLER)->query_loaded_areas()) -
+          ({ nil });
+  for (i = 0; i < sizeof(areas); i++)
+    catch(areas[i]->save_if_dirty());
+}
+
 // One tick of a batch conversion: convert up to CONVERT_CHUNK files, then
 // schedule the next tick. Public because the call_out dispatcher reaches
 // it through call_other. `location_files` accumulates the file of every
@@ -1845,6 +1858,8 @@ void convert_step(string * files, int idx, int reload, object initiator,
 
   if (idx >= sizeof(files))
   {
+    _save_dirty_areas();
+
     if (initiator)
       tell_object(initiator, "Conversion finished: " + sizeof(location_files) +
                   " location" + (sizeof(location_files) == 1 ? "" : "s") +
@@ -2460,6 +2475,8 @@ void clean_step(string * orphans, int idx, object * touched_areas,
     // area object, scoped to that area rather than a game-wide scan. An area
     // that merely lost a stale location keeps its people -- pruning there would
     // silently reset a whole population because one obsolete room was cleaned.
+    // Only an area that owns its census prunes, and only its own share of it: a
+    // delegated area's census is its community's, and those people live on.
     npc_pruned = 0;
     for (i = 0; i < sizeof(touched_areas); i++)
       if (touched_areas[i] && !map_sizeof(touched_areas[i]->query_locations()))

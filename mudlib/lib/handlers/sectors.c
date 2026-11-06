@@ -2,6 +2,7 @@
 #include <sector/sector.h>
 #include <room/location.h>
 #include <room/room.h>
+#include <room/water.h>
 
 /*
  * On-disk map index. Each occupied 10x10x10 sector is a directory under
@@ -380,6 +381,10 @@ string add_location(object location)
       }
       if (water)
         location_data["water"] = 1;
+      // a lake cell: still water that the map draws as a lake, even when a
+      // river flows out of it
+      if (water && water->query_water_kind() == WATER_KIND_LAKE)
+        location_data["lake"] = 1;
 
       if (mappingp(exit_map))
       {
@@ -614,16 +619,42 @@ static mapping purge_queue;
  *
  * Loading every location at once runs out of ticks, so the sectors are
  * collected here and swept by purge_step, PURGE_BATCH positions per call_out.
- * `who` is told the number of stale entries removed when it ends.
+ * `who` is told the number of stale entries removed when it ends. `from` and
+ * `to` (sector indices, `to` defaulting to `from`) limit the sweep to the
+ * sectors between them.
  * Returns the number of sectors queued.
  */
-int purge_drift(string game, string map_name, varargs object who)
+int purge_drift(string game, string map_name, varargs object who,
+                int * from, int * to)
 {
   string base;
   string * sector_paths;
+  int sx, sy, sz, i;
+  int * lo, * hi;
 
   base = "/save/games/" + game + "/maps/" + map_name;
-  sector_paths = _sector_paths(base);
+
+  // a range of sector indices sweeps only the sectors saved inside it
+  if (from && sizeof(from) == 3)
+  {
+    if (!to || sizeof(to) != 3)
+      to = from;
+    lo = allocate_int(3);
+    hi = allocate_int(3);
+    for (i = 0; i < 3; i++)
+    {
+      lo[i] = from[i] < to[i] ? from[i] : to[i];
+      hi[i] = from[i] < to[i] ? to[i] : from[i];
+    }
+    sector_paths = ({ });
+    for (sx = lo[0]; sx <= hi[0]; sx++)
+      for (sy = lo[1]; sy <= hi[1]; sy++)
+        for (sz = lo[2]; sz <= hi[2]; sz++)
+          if (file_size(base + "/" + sx + "/" + sy + "/" + sz + "/sector.o") >= 0)
+            sector_paths += ({ base + "/" + sx + "/" + sy + "/" + sz + "/" });
+  }
+  else
+    sector_paths = _sector_paths(base);
 
   if (!purge_queue)
     purge_queue = ([ ]);

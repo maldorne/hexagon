@@ -341,7 +341,12 @@ inherits the shared one) also keeps `schedule_areas`, `([ hour : ({ area path })
 of its own is visited whole by the shared one.
 
 The same handler keeps `area_names`, `([ path : ({ map name, exploration name,
-parent path }) ])`, so a map can name a place without restoring its area. Every
+parent path, label }) ])`, so a map can name a place without restoring its area.
+The map name groups areas into one mapper map, the label is what the world map
+writes for the area's city, and the exploration name is the display name of the
+exploration achievement; the world map labels a city with the label, else the
+exploration name, else the map name (the area's own, then its root's).
+`query_area_names` gives an entry saved before the label existed an empty one. Every
 area writes its entry whenever it is saved or restored (`note_area_names`, from
 `area.c`), replacing it whole, so a renamed or cleared name leaves nothing of the
 old one; `forget_area` drops it and `query_area_names` drops an entry whose
@@ -407,6 +412,10 @@ Setting or clearing a parent moves those books between the two roots
 - **Warnings**, which do not stop it: a type that ends up above its cap (the
   sweep and the staffing only add, so the excess fades as they die), and, on
   leaving, a citizenship or a level band the area took from its parent.
+- **Cleaning** (`room2loc clean`) an area that ends up with no locations deletes the
+  savefiles of its own census rows whose share is that area, and nothing else: an
+  area that delegates to a community never prunes, since the census is the
+  community's and its people are alive.
 - Naming the parent an area already has adopts whatever its own books still
   hold (books written before the link existed) into its community.
 

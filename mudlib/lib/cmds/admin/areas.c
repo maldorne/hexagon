@@ -10,6 +10,8 @@ private int do_state(object area, string * args);
 private int do_exploration(object area, string * args);
 private int do_noexploration(object area);
 private int do_map(object area, string * args);
+private int do_label(object area, string * args);
+private int do_labels(object me, string * args);
 private int do_level(object area, string * args);
 private int do_stats(object area, string * args);
 private int do_diplomacy(object area, string * args);
@@ -28,7 +30,8 @@ void setup()
   set_usage("areas [-c] [locations] [connections]\n" +
             "      areas reindex [ <area> | game ] [save]\n" +
             "      areas < exploration <display name> | noexploration\n" +
-            "            | map [<map name>|none]\n" +
+            "            | map [<map name>|none] | label [<label>|none]\n" +
+            "      areas labels migrate\n" +
             "            | level <n> [<spread>] | level none\n" +
             "            | stats <low> <high> | stats none\n" +
             "            | diplomacy <citizenship|none|inherit>\n" +
@@ -71,6 +74,11 @@ void setup()
            "  areas map [<name>|none]     the map the mapper draws it on; areas sharing a\n" +
            "                              name are drawn as one map. Without it the map\n" +
            "                              takes the exploration name, else the folder name\n" +
+           "  areas label [<name>|none]   the label the world map writes for its city,\n" +
+           "                              whatever map it is drawn on. Without it the\n" +
+           "                              exploration name, else the map name\n" +
+           "  areas labels migrate        one-off: every area of this game with a map name\n" +
+           "                              and no label gets that map name as its label\n" +
            "  areas level <n> [<spread>]  the average level of its NPCs; the spread is\n" +
            "                              left as it was when omitted\n" +
            "  areas level none            drop its own band, take its parent's\n" +
@@ -383,6 +391,54 @@ private int do_map(object area, string * args)
   return 1;
 }
 
+// ===== areas label [<label> | none] =====
+private int do_label(object area, string * args)
+{
+  string name;
+
+  if (sizeof(args) < 2)
+  {
+    name = area->query_label_name();
+    write("Area '" + area->query_area_name() + "' " +
+          (strlen(name) ? "is labelled \"" + name + "\" on the world map.\n" :
+                          "has no label of its own.\n"));
+    return 1;
+  }
+
+  if (args[1] == "none")
+  {
+    area->set_label_name("");
+    write("Area '" + area->query_area_name() + "' has no label of its own " +
+          "any more.\n");
+    return 1;
+  }
+
+  name = rest_of(args, 1);
+  area->set_label_name(name);
+  write("Area '" + area->query_area_name() + "' is labelled \"" + name +
+        "\" on the world map.\n");
+  return 1;
+}
+
+// ===== areas labels migrate =====
+private int do_labels(object me, string * args)
+{
+  string game;
+  int count;
+
+  game = game_name(me);
+  if (sizeof(args) < 2 || args[1] != "migrate" || !strlen(game))
+  {
+    notify_fail("Usage: areas labels migrate (standing inside a game)\n");
+    return 0;
+  }
+
+  count = load_object(AREA_HANDLER)->migrate_area_labels(game, me);
+  write("Giving " + count + " area(s) of " + game + " their map name as " +
+        "label, in the background.\n");
+  return 1;
+}
+
 // ===== areas level <n> [<spread>] | none =====
 private int do_level(object area, string * args)
 {
@@ -593,7 +649,7 @@ private int do_principal(object area, object loc)
 }
 
 // The words that set the metadata of the area the admin stands in.
-#define SET_VERBS ({ "exploration", "noexploration", "map", "level", "stats", \
+#define SET_VERBS ({ "exploration", "noexploration", "map", "label", "level", "stats", \
                      "diplomacy", "parent", "principal", "state", "relevel" })
 
 // Dispatches a metadata verb, once the area under the admin's feet is known.
@@ -626,6 +682,8 @@ private int do_set(object me, string * args)
     return do_noexploration(area);
   if (verb == "map")
     return do_map(area, args);
+  if (verb == "label")
+    return do_label(area, args);
   if (verb == "level")
     return do_level(area, args);
   if (verb == "stats")
@@ -654,6 +712,8 @@ static int cmd(string str, object me, string verb)
   pieces = words(str);
   if (sizeof(pieces) && pieces[0] == "reindex")
     return do_reindex(me, pieces[1 ..]);
+  if (sizeof(pieces) && pieces[0] == "labels")
+    return do_labels(me, pieces);
   if (sizeof(pieces) && member_array(pieces[0], SET_VERBS) >= 0)
     return do_set(me, pieces);
 

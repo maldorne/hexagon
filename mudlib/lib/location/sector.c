@@ -340,6 +340,10 @@ void add_location(string location_file_name, int x, int y, int z, mapping locati
   if (location_data && location_data["water"])
     nodes[key]["water"] = 1;
 
+  // a lake cell: water of the kind lake, drawn as a lake on the world map
+  if (location_data && location_data["lake"])
+    nodes[key]["lake"] = 1;
+
   // a bridge cell: a road or path over water
   if (location_data && location_data["bridge"])
     nodes[key]["bridge"] = 1;
@@ -974,6 +978,25 @@ int has_bridge()
   keys = map_indices(nodes);
   for (i = 0; i < sizeof(keys); i++)
     if (nodes[keys[i]]["bridge"])
+      return 1;
+  return 0;
+}
+
+/**
+ * Whether this sector holds a lake cell (water of the kind lake), flowing or
+ * not.
+ *
+ * @return 1 if any node of the sector is a lake cell
+ */
+int has_lake()
+{
+  string * keys;
+  int i;
+
+  if (!nodes) nodes = ([ ]);
+  keys = map_indices(nodes);
+  for (i = 0; i < sizeof(keys); i++)
+    if (nodes[keys[i]]["lake"])
       return 1;
   return 0;
 }

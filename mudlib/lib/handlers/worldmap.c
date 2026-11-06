@@ -64,6 +64,9 @@ inherit "/lib/core/object.c";
 // A river that never reaches a border of its sector (it starts and ends in it).
 #define GLYPH_RIVER_SPOT (chr(194) + chr(176))     // U+00B0 degree sign
 
+// A lake: the islet's white circle in the colour of the rivers.
+#define GLYPH_LAKE       GLYPH_SHORE_SPOT
+
 // The swell drawn on some of the sea: how many sectors out from a coast the
 // sea reaches, and one sector in how many of them shows a wave.
 #define GLYPH_SEA_WAVE    ("%^CYAN%^~%^RESET%^")
@@ -138,6 +141,7 @@ void create()
   glyphs[MAP_GLYPH_HILLS]    = "%^ORANGE%^" + GLYPH_MAP_HILLS + "%^RESET%^";
   glyphs[MAP_GLYPH_TAIGA] = "%^GREEN%^" + GLYPH_MAP_TAIGA + "%^RESET%^";
   glyphs[MAP_GLYPH_RUINS]    = GLYPH_MAP_RUINS;
+  glyphs[MAP_GLYPH_LAKE]     = COLOUR_RIVER + GLYPH_LAKE + "%^RESET%^";
   // a coast or a beach whose stored code predates its shoreline arms
   glyphs[MAP_GLYPH_COAST]    = COLOUR_SHORE_COAST + GLYPH_BOX_1100 + "%^RESET%^";
   glyphs[MAP_GLYPH_BEACH]    = COLOUR_SHORE_BEACH + GLYPH_BOX_1100 + "%^RESET%^";
@@ -187,6 +191,7 @@ private mixed _memo(string kind, object sect, int sx, int sy, int sz)
   {
     case "w": value = sect->query_border_ways(); break;
     case "r": value = sect->query_border_rivers(); break;
+    case "l": value = sect->has_lake(); break;
     default:  value = sect->has_river(); break;
   }
 
@@ -738,7 +743,10 @@ private string _seen_from_above(object sect, string game, string map_name,
 //                    road crosses it, and the river otherwise (bridge_code)
 //   5. forest, taiga, mountain, hills, swamp — win over a river, so they keep
 //                    their size
-//   6. river       — blue line, over farmland and any other terrain
+//   6. river       — blue line, over farmland and any other terrain. A
+//                    sector whose water is a lake (a lake cell, flowing or
+//                    not) draws the lake glyph, the blue circle, in its place
+//                    even when a river flows out of it; it ranks as the river
 //   7. ruins, plains, tundra — below the river
 //   8. majority    — otherwise the dominant remaining terrain type
 // On the surface map (sector level 0 or above) the underground locations
@@ -752,7 +760,7 @@ private int sector_code(string game, string map_name, int sx, int sy, int sz)
   string type;
   mapping borders;
   int * road_arms, * river_arms_here;
-  int river, hidden;
+  int river, lake, hidden;
 
   sect = cached_sector(game, map_name, sx, sy, sz);
   if (!sect) return MAP_GLYPH_EMPTY;
@@ -782,6 +790,7 @@ private int sector_code(string game, string map_name, int sx, int sy, int sz)
                   sect->query_sector_type(sz >= 0);
 
   river = hidden ? 0 : _memo("h", sect, sx, sy, sz);
+  lake = hidden ? 0 : _memo("l", sect, sx, sy, sz);
   if (river)
     river_arms_here = river_arms(sect, game, map_name, sx, sy, sz);
 
@@ -794,6 +803,8 @@ private int sector_code(string game, string map_name, int sx, int sy, int sz)
   // A river is drawn over it: it is water, not a track.
   if (type == SECTOR_TYPE_FARM)
   {
+    if (lake)
+      return MAP_GLYPH_LAKE;
     if (river)
       return MAP_GLYPH_RIVERS + _arms_code(river_arms_here);
     return MAP_GLYPH_FARM;
@@ -804,7 +815,7 @@ private int sector_code(string game, string map_name, int sx, int sy, int sz)
   if (!hidden && _has_drawn_way(borders))
   {
     road_arms = way_arms(sect, game, map_name, sx, sy, sz);
-    if (river)
+    if (river && !lake)
       return bridge_code(road_arms, river_arms_here);
     return MAP_GLYPH_WAYS + _arms_code(road_arms);
   }
@@ -817,6 +828,8 @@ private int sector_code(string game, string map_name, int sx, int sy, int sz)
   if (type == SECTOR_TYPE_HILLS)       return MAP_GLYPH_HILLS;
   if (type == SECTOR_TYPE_SWAMP)       return MAP_GLYPH_SWAMP;
 
+  if (lake)
+    return MAP_GLYPH_LAKE;
   if (river)
     return MAP_GLYPH_RIVERS + _arms_code(river_arms_here);
 
@@ -1367,10 +1380,9 @@ string dock_report(string game, string map_name, mixed * docks)
 }
 
 // The name of the area a directory of city locations belongs to, asked once
-// per directory in a render: the map it is drawn on, which names the place,
-// else its exploration name, which may name only a part of it (a castle);
-// each its own or, for a part of a town that has none, its root area's.
-// "" when it has none.
+// per directory in a render: its label, else its exploration name, which may
+// name only a part of it (a castle), else the map it is drawn on; each its own
+// or, for a part of a town that has none, its root area's. "" when it has none.
 private string _area_name(string dir)
 {
   string * own, * root, * up;
@@ -1401,13 +1413,17 @@ private string _area_name(string dir)
       root = up;
     }
 
-    name = own[0];
+    name = own[3];
     if (!strlen(name))
-      name = root[0];
+      name = root[3];
     if (!strlen(name))
       name = own[1];
     if (!strlen(name))
       name = root[1];
+    if (!strlen(name))
+      name = own[0];
+    if (!strlen(name))
+      name = root[0];
   }
 
   border_cache["a" + dir] = name ? name : "";
@@ -1882,6 +1898,7 @@ mapping query_legend_glyphs()
     "taiga":       ({ "%^GREEN%^" + GLYPH_MAP_TAIGA, glyphs[MAP_GLYPH_TAIGA] }),
     "ruins":       ({ GLYPH_MAP_RUINS, glyphs[MAP_GLYPH_RUINS] }),
     "river":       ({ COLOUR_RIVER, glyphs[MAP_GLYPH_RIVERS + 12] }),
+    "lake":        ({ COLOUR_RIVER + GLYPH_LAKE, glyphs[MAP_GLYPH_LAKE] }),
     "coast":       ({ _shore_glyphs(COLOUR_SHORE_COAST), glyphs[MAP_GLYPH_SHORE + 12] }),
     "beach":       ({ _shore_glyphs(COLOUR_SHORE_BEACH), glyphs[MAP_GLYPH_SHORE + MAP_SHORE_ARMS + 12] }),
     "marsh":       ({ _shore_glyphs(COLOUR_SHORE_MARSH), glyphs[MAP_GLYPH_SHORE + 2 * MAP_SHORE_ARMS + 12] }),

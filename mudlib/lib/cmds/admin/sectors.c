@@ -16,7 +16,7 @@ void setup()
             "sectors settype <type>\n" +
             "sectors settype <sx> <sy> <sz> <type> [<map>]\n" +
             "sectors verify <sx> <sy> <sz> [<map>]\n" +
-            "sectors purge [<map>]\n" +
+            "sectors purge [<sx> <sy> <sz> [<sx2> <sy2> <sz2>]] [<map>]\n" +
             "sectors reindex [<map>]\n" +
             "sectors glyphs [<map>]\n" +
             "sectors docks [<map>]");
@@ -30,6 +30,9 @@ void setup()
     "  sectors settype <sx> <sy> <sz> <t>  set the sector at index (sx, sy, sz)\n" +
     "  sectors verify <sx> <sy> <sz>       report drift in one sector (read-only)\n" +
     "  sectors purge                       drop the ghost positions it finds\n" +
+    "  sectors purge <sx> <sy> <sz> [<sx2> <sy2> <sz2>]\n" +
+    "                                      the same, only in that sector or in\n" +
+    "                                      the sectors between the two\n" +
     "  sectors reindex                     index every location of the map\n" +
     "                                      again, in the background\n" +
     "  sectors glyphs                      work out the world map glyph of\n" +
@@ -260,7 +263,8 @@ static int cmd(string str, object me, string verb)
   if (sizeof(tokens) && tokens[0] == "purge")
   {
     string game, map_name;
-    int count;
+    int count, i, n;
+    int * coords;
 
     game = game_name(me);
     if (!strlen(game))
@@ -270,9 +274,28 @@ static int cmd(string str, object me, string verb)
       return 0;
     }
 
-    map_name = _resolve_map(me, sizeof(tokens) >= 2 ? tokens[1] : nil);
+    // leading integers are sector indices: one sector, or two corners
+    coords = ({ });
+    for (i = 1; i < sizeof(tokens) && sizeof(coords) < 6; i++)
+    {
+      if (sscanf(tokens[i], "%d", n) != 1)
+        break;
+      coords += ({ n });
+    }
+    if (sizeof(coords) && sizeof(coords) != 3 && sizeof(coords) != 6)
+    {
+      notify_fail("Usage: sectors purge [<sx> <sy> <sz> [<sx2> <sy2> <sz2>]] " +
+                  "[<map>]\n");
+      return 0;
+    }
 
-    count = load_object(SECTORS_HANDLER)->purge_drift(game, map_name, me);
+    map_name = _resolve_map(me, i < sizeof(tokens) ? tokens[i] : nil);
+
+    if (sizeof(coords))
+      count = load_object(SECTORS_HANDLER)->purge_drift(game, map_name, me,
+                coords[0 .. 2], sizeof(coords) == 6 ? coords[3 .. 5] : nil);
+    else
+      count = load_object(SECTORS_HANDLER)->purge_drift(game, map_name, me);
     write("Checking " + count + " sector" + (count == 1 ? "" : "s") +
           " of map '" + map_name + "' for stale positions, in the " +
           "background.\n");

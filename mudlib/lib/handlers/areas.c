@@ -24,6 +24,7 @@
  */
 
 #include <areas/area.h>
+#include <areas/vacancy.h>
 
 // --- runtime, shared: read and written only on the AREA_HANDLER instance ----
 
@@ -65,7 +66,8 @@ mapping schedule_areas;
 
 // The names each area of this game is shown by, so a map can label a place
 // without loading its area: ([ path : ({ map name, exploration name, parent
-// area path }) ]). Every area writes its entry each time it is saved or
+// area path, label }) ]); an entry saved before the label existed has three
+// elements. Every area writes its entry each time it is saved or
 // restored (see note_area_names), and forget_area drops it.
 mapping area_names;
 
@@ -357,9 +359,10 @@ void forget_area(string path)
  * @param map the area's own map name ("" when it has none)
  * @param exploration the area's own exploration name ("" when it has none)
  * @param parent the path of its parent area ("" when it has none)
+ * @param label the label the world map writes for it ("" when it has none)
  */
 void note_area_names(string path, string map, string exploration,
-                     string parent)
+                     string parent, string label)
 {
   object owner;
   mixed * entry, * known;
@@ -372,15 +375,15 @@ void note_area_names(string path, string map, string exploration,
   owner = _owner(game_from_path(path));
   if (owner != this_object())
   {
-    owner->note_area_names(path, map, exploration, parent);
+    owner->note_area_names(path, map, exploration, parent, label);
     return;
   }
 
   entry = ({ map ? map : "", exploration ? exploration : "",
-             parent ? parent : "" });
+             parent ? parent : "", label ? label : "" });
   known = area_names[path];
-  if (known && known[0] == entry[0] && known[1] == entry[1] &&
-      known[2] == entry[2])
+  if (known && sizeof(known) == sizeof(entry) && known[0] == entry[0] &&
+      known[1] == entry[1] && known[2] == entry[2] && known[3] == entry[3])
     return;
 
   area_names[path] = entry;
@@ -389,7 +392,7 @@ void note_area_names(string path, string map, string exploration,
 
 /**
  * The names an area is shown by, without loading it: ({ map name, exploration
- * name, parent area path }), each "" when unset, or nil when the area has not
+ * name, parent area path, label }), each "" when unset, or nil when the area has not
  * told its names yet. An entry whose area.o is gone is dropped.
  *
  * @param path the area's directory
@@ -417,7 +420,88 @@ string * query_area_names(string path)
     return nil;
   }
 
+  // an entry saved before the label existed has none
+  if (sizeof(area_names[path]) < 4)
+    return ({ }) + area_names[path] + ({ "" });
+
   return ({ }) + area_names[path];
+}
+
+// Ticks a migrate_area_labels step leaves unspent before going on in a call_out.
+#define AREA_LABELS_TICK_MARGIN 2000000
+
+/**
+ * Sets the world-map label of every area of a game that has a map name and no
+ * label, to that map name: the one-off step that keeps the labels as they were
+ * when the label became a field of its own. The areas are picked off the name
+ * index and migrated in the background, a few per call_out; an area loaded only
+ * for this is let go again, and `who` is told the result at the end.
+ *
+ * @param game the game whose areas are migrated
+ * @param who the one to tell when it ends
+ * @return the number of areas queued
+ */
+int migrate_area_labels(string game, varargs object who)
+{
+  object owner;
+  string * paths, * queued, * entry;
+  int i;
+
+  owner = _owner(game);
+  if (owner != this_object())
+    return (int)owner->migrate_area_labels(game, who);
+
+  paths = map_indices(area_names);
+  queued = ({ });
+  for (i = 0; i < sizeof(paths); i++)
+  {
+    entry = query_area_names(paths[i]);
+    if (entry && strlen(entry[0]) && !strlen(entry[3]))
+      queued += ({ paths[i] });
+  }
+
+  call_out("migrate_area_labels_step", 0, queued, ({ }), who);
+  return sizeof(queued);
+}
+
+/**
+ * One stretch of migrate_area_labels, resumed from a call_out when the ticks
+ * run low. Public because the call_out dispatcher reaches it through
+ * call_other.
+ *
+ * @param paths the areas still to migrate
+ * @param done the areas that got a label so far
+ * @param who the one to tell when it ends
+ */
+void migrate_area_labels_step(string * paths, string * done, object who)
+{
+  object area;
+  int was_loaded, left;
+
+  while (sizeof(paths))
+  {
+    left = eval_cost();
+    if (left >= 0 && left < AREA_LABELS_TICK_MARGIN)
+    {
+      call_out("migrate_area_labels_step", 0, paths, done, who);
+      return;
+    }
+
+    was_loaded = _global()->is_area_loaded(paths[0]);
+    area = _global()->query_area(paths[0]);
+    if (area)
+    {
+      area->set_label_name(area->query_map_name());
+      done += ({ paths[0] });
+      if (!was_loaded)
+        _global()->release_area(paths[0]);
+    }
+    paths = paths[1 ..];
+  }
+
+  if (who)
+    tell_object(who, sizeof(done) + " area(s) got their map name as label" +
+                (sizeof(done) ? ": " + implode(done, ", ") : "") + ".\n");
 }
 
 // Ticks an index_area_names step leaves unspent before going on in a call_out.
@@ -808,15 +892,21 @@ void delete_npc_saves(string game, string uuid)
     _delete_npc_folder(npc_save_dir(game, uuid));
 }
 
-// Delete the save folders of every NPC in this area's census. Called when the
-// area is being removed (a clean) so its NPCs leave no orphan folder behind.
-// Scoped to the area -- O(area's NPCs), unlike a game-wide verify. Returns the
-// number of folders removed.
+/**
+ * Deletes the save folders of the people an area being removed (a clean) owns,
+ * so they leave no orphan folder behind. Scoped to the area, unlike a
+ * game-wide verify. Only the area's own census is read: an area that delegates
+ * to a community shares the root's census by reference, whose people are still
+ * alive there, so it prunes nothing. Of an own census, only the rows whose
+ * share is this area are dropped; somebody another area of the community holds
+ * is left alone. Returns the number of folders removed.
+ */
 int prune_area_npc_saves(object area)
 {
-  string game;
+  string game, mine;
   string * uuids;
-  int i;
+  mapping census, row;
+  int i, n;
 
   if (!area)
     return 0;
@@ -824,11 +914,24 @@ int prune_area_npc_saves(object area)
   if (!game)
     return 0;
 
-  uuids = map_indices(area->query_npc_census());
-  for (i = 0; i < sizeof(uuids); i++)
-    _delete_npc_folder(npc_save_dir(game, uuids[i]));
+  // a delegated area has no census of its own to take down with it
+  if ((object)area->query_root_area() != area)
+    return 0;
 
-  return sizeof(uuids);
+  mine = (string)area->query_area_path();
+  census = (mapping)area->query_own_census();
+  uuids = map_indices(census);
+  for (i = 0; i < sizeof(uuids); i++)
+  {
+    row = census[uuids[i]];
+    if (!mappingp(row) || row[CENSUS_SHARE] != mine)
+      continue;
+
+    _delete_npc_folder(npc_save_dir(game, uuids[i]));
+    n++;
+  }
+
+  return n;
 }
 
 // --- npcs verify: a chunked, background audit of NPC save folders -----------
