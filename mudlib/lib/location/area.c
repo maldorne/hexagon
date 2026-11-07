@@ -76,6 +76,7 @@ static int unsaved_changes;
 
 // prototype functions
 object query_root_area();
+private void _prune_connections();
 void add_loaded_location(object location);
 object query_loaded_location(string file);
 object * query_loaded_locations();
@@ -117,6 +118,7 @@ private void note_names()
 void restore_me() {
   restore_object(file_name);
   note_names();
+  _prune_connections();
 }
 
 // Writes this area's own file, and only it.
@@ -387,6 +389,7 @@ int restore_from_file_name(string name)
   {
     restore_object(name);
     note_names();
+    _prune_connections();
 
     // Rebuild the derived roster from original_npc_sources on load: npc_caps is not
     // authoritative state, it is the sum of the per-location provenance.
@@ -543,6 +546,7 @@ void add_location(string location_file_name, mapping location_data)
 void remove_location(string location_file_name)
 {
   map_delete(locations, location_file_name);
+  map_delete(connections, location_file_name);
   // the NPCs its room declared go with it, or the caps would go on counting them
   this_object()->set_location_original_sources(location_file_name, ([ ]));
   note_location_change();
@@ -567,12 +571,70 @@ object * query_loaded_locations()
 }
 
 mapping query_connections() { return connections; }
+
+/**
+ * Records the exit by which a location of the area leads out of it: the first
+ * one found, replaced when that same exit now leads somewhere else (the
+ * neighbour moved or was converted again).
+ *
+ * @param location_file_name the location of this area
+ * @param direction the exit
+ * @param destination where it leads, in another area
+ */
 void add_connection(string location_file_name, string direction, string destination)
 {
-  if (connections[location_file_name])
+  mixed * known;
+
+  known = connections[location_file_name];
+  if (known && (known[0] != direction || known[1] == destination))
     return;
 
   connections[location_file_name] = ({ direction, destination });
   note_location_change();
+}
+
+/**
+ * Forgets the exit out of the area recorded for a location, when that exit is
+ * gone.
+ *
+ * @param location_file_name the location of this area
+ * @param direction the exit removed; nil forgets whatever was recorded
+ */
+void remove_connection(string location_file_name, varargs string direction)
+{
+  mixed * known;
+
+  known = connections[location_file_name];
+  if (!known || (direction && known[0] != direction))
+    return;
+
+  map_delete(connections, location_file_name);
+  note_location_change();
+}
+
+// Drops the recorded exits whose location or destination no longer has a
+// save, left behind by areas moved or cleaned before the clean kept them up.
+private void _prune_connections()
+{
+  string * files;
+  int i, pruned;
+
+  if (!connections)
+  {
+    connections = ([ ]);
+    return;
+  }
+
+  files = map_indices(connections);
+  for (i = 0; i < sizeof(files); i++)
+  {
+    if (file_size(files[i]) >= 0 && file_size(connections[files[i]][1]) >= 0)
+      continue;
+    map_delete(connections, files[i]);
+    pruned = 1;
+  }
+
+  if (pruned)
+    mark_dirty();
 }
 
