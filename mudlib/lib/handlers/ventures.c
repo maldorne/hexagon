@@ -60,6 +60,7 @@ void reset_stock(string shop);
 string * query_pubs_array() { return pubs; }
 
 string query_save_file();
+private string * without_converted_rooms(string * list);
 
 void create()
 {
@@ -69,6 +70,10 @@ void create()
   pubs = ({ });
 
   restore_object(query_save_file(), 1);
+
+  // lists saved before a location replaced its room in them
+  shops = without_converted_rooms(shops);
+  pubs = without_converted_rooms(pubs);
 
   ::create();
 }
@@ -123,23 +128,92 @@ void dest_me()
   ::dest_me();
 }
 
+/**
+ * The location a room becomes when it is converted, by name alone:
+ * /games/<game>/<path> -> /save/games/<game>/locations/<path>.o (as
+ * get_location_file_name_from_room of the location handler).
+ *
+ * @param room the room's path, with or without .c
+ * @return the location's save file, or nil for something that is no room
+ */
+private string location_of_room(string room)
+{
+  string * pieces;
+
+  if (!room || room[strlen(room) - 2..] == ".o")
+    return nil;
+  if (room[strlen(room) - 2..] == ".c")
+    room = room[0..strlen(room) - 3];
+
+  pieces = explode(room, "/");
+  if (sizeof(pieces) < 3 || pieces[0] != "games")
+    return nil;
+
+  return "/save/games/" + pieces[1] + "/locations/" + implode(pieces[2..], "/") + ".o";
+}
+
+/**
+ * A venture list with path in it: a location takes the place of the room it
+ * was converted from, and a room whose location is already listed is not
+ * added again.
+ */
+private string * with_venture(string * list, string path)
+{
+  string * rooms;
+  int i;
+
+  if (member_array(path, list) != -1)
+    return list;
+
+  // a room already converted is listed by its location
+  if (location_of_room(path) && member_array(location_of_room(path), list) != -1)
+    return list;
+
+  // the rooms this location was converted from leave the list
+  rooms = ({ });
+  for (i = 0; i < sizeof(list); i++)
+    if (location_of_room(list[i]) == path)
+      rooms += ({ list[i] });
+
+  return (list - rooms) + ({ path });
+}
+
+/**
+ * Drops the rooms of a list whose location is listed too.
+ */
+private string * without_converted_rooms(string * list)
+{
+  string * rooms;
+  int i;
+
+  rooms = ({ });
+  for (i = 0; i < sizeof(list); i++)
+    if (location_of_room(list[i]) && member_array(location_of_room(list[i]), list) != -1)
+      rooms += ({ list[i] });
+
+  return list - rooms;
+}
+
 int include_shop(string path)
 {
-  if (member_array(path, shops) == -1)
-  {
-    shops += ({ path });
+  string * before;
+
+  before = shops;
+  shops = with_venture(shops, path);
+  // the same array back means nothing changed
+  if (shops != before)
     save_handler();
-  }
   return 1;
 }
 
 int include_pub(string path)
 {
-  if (member_array(path, pubs) == -1)
-  {
-    pubs += ({ path });
+  string * before;
+
+  before = pubs;
+  pubs = with_venture(pubs, path);
+  if (pubs != before)
     save_handler();
-  }
   return 1;
 }
 
