@@ -61,22 +61,25 @@ static int cmd(string str, object me, string verb)
 }
 
 /**
- * ventures: every shop and pub the handler knows.
+ * ventures: every shop and pub the handler knows. Nothing is loaded to list
+ * them: loading every location at once runs out of ticks (each load places
+ * its people), so only what is already loaded shows its name.
  */
 private int do_list()
 {
-  string * ventures;
-  string ret;
-  int i, j;
-  object terminal, where;
+  string * shops, * pubs, * ventures;
+  string ret, kind, type;
+  int i;
+  object terminal, where, location_handler;
 
   terminal = load_object(TERM_HANDLER);
+  location_handler = load_object(LOCATION_HANDLER);
 
-  ventures = ({ });
-  ventures += handler("ventures", this_player())->query_shops_array();
-  ventures += handler("ventures", this_player())->query_pubs_array();
+  shops = handler("ventures", this_player())->query_shops_array();
+  pubs = handler("ventures", this_player())->query_pubs_array();
+  ventures = (shops ? shops : ({ })) + (pubs ? pubs : ({ }));
 
-  if (!ventures || !sizeof(ventures))
+  if (!sizeof(ventures))
   {
     write("No ventures stored in the handler.\n");
     return 1;
@@ -86,29 +89,24 @@ private int do_list()
 
   for (i = 0; i < sizeof(ventures); i++)
   {
-    where = load_object(ventures[i]);
+    kind = (shops && member_array(ventures[i], shops) != -1) ? "shop" : "pub";
 
-    // loaded first, it is a room
-    if (where)
+    // a location is stored by its .o savefile, a room by its source
+    if (ventures[i][strlen(ventures[i]) - 2..] == ".o")
     {
-      ret += sprintf(" - %-25s", extract(terminal->clean_string(where->short()), 0, 20));
-      ret += sprintf(" %-6s %-10s", (where->query_shop() ? "shop" : "pub"), "room");
-      ret += sprintf("%30s.c\n", ventures[i]);
-
-    }
-    // check if it is a location
-    else if (where = load_object(LOCATION_HANDLER)->load_location(ventures[i]))
-    {
-      ret += sprintf(" - %-25s", extract(terminal->clean_string(where->short()), 0, 20));
-      ret += sprintf(" %-6s %-10s", (where->has_component(LOCATION_COMPONENT_SHOP) ? "shop" : "pub"), "location");
-      ret += sprintf("%30s\n", ventures[i]);
+      type = "location";
+      where = location_handler->query_loaded_location(ventures[i]);
     }
     else
     {
-      ret += sprintf(" - %-25s", "not loaded");
-      ret += sprintf(" %-17s", "(??)");
-      ret += sprintf("%30s\n", ventures[i]);
+      type = "room";
+      where = find_object(ventures[i]);
     }
+
+    ret += sprintf(" - %-25s", where ?
+             extract(terminal->clean_string(where->short()), 0, 20) : "(not loaded)");
+    ret += sprintf(" %-6s %-10s", kind, type);
+    ret += sprintf("%30s\n", ventures[i]);
   }
 
   write(ret + "\n");
