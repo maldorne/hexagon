@@ -65,6 +65,18 @@ void event_enter(object ob, varargs string msg, object from, mixed avoid)
   water_event_enter(ob);
 }
 
+void event_exit(object ob, varargs string msg, object dest, mixed avoid)
+{
+  water_event_exit(ob);
+}
+
+// Passed on by the location: the living holds its breath or drowns below the
+// surface, and the current drags it.
+void event_heart_beat(object living)
+{
+  water_event_heart_beat(living);
+}
+
 string query_info()
 {
   return (strlen(query_water_kind()) ? query_water_kind() + ", " : "") +

@@ -364,6 +364,14 @@ void heart_beat()
   if (!this_object())
     return;
 
+  // the place hears this living is there another beat (a pool burns, the
+  // water drowns or drags), and may kill it
+  if (environment())
+    environment()->event_heart_beat(this_object());
+
+  if (!this_object())
+    return;
+
   combat::heart_beat();
 
   // Both of these can destruct us and everything below would then run on an

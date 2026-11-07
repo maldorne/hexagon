@@ -92,6 +92,27 @@ adds the action and calls that function on the component. Reseeding a live
 component (`add_component`) asks for its verbs again, and dropping it removes
 them.
 
+### Location components that act on movement
+
+A location passes `event_enter`, `event_exit` and `event_heart_beat` (a living
+in it has had another heart_beat: acid burns, water drowns and drags) on to its
+components (`run_on_components`), and asks `query_exit_refusal(dir, who)` of the ones that
+can stop a typed exit (`bridge`, `jail`, `swamp`); a move by `force_exit` skips
+that question.
+
+- `acid` (`/lib/location/components/acid.c`): a pool of acid. Whoever enters
+  takes `4 + random(10)` damage of type acid at once, and every 10 seconds
+  `4 + random(8)` more while they stay; the acid resistance of the living
+  (`query_resistance`) lowers both. The stay is counted on `event_heart_beat`
+  (the component keeps when each living was last burned and forgets it in
+  `event_exit`), so a monster whose heart_beat is off burns no more. A room becomes one by answering
+  `query_acid_pool()` with 1 (`room2loc` adds the component), or
+  `components add acid <files>`.
+- `swamp` (`/lib/location/components/swamp.c`): the mud holds back whoever
+  tries to leave, with a chance that falls as strength plus dexterity rises
+  (over 50: never, 41-50: 20%, 36-40: 30%, 31-35: 40%, 30 or less: 50%). A race
+  that sets `set_swamp_walker(1)` (`/lib/race.c`) and a ghost are never held.
+
 ## The component
 
 In the order things happen to it:

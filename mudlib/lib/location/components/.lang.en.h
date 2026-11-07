@@ -30,3 +30,12 @@
 #define _LANG_ROPE_LINE "A rope tied"
 #define _LANG_ROPE_HANGS " hangs "
 #define _LANG_ROPE_STRETCHES " stretches towards "
+
+// swamp.c -- mud that holds back whoever leaves
+
+#define _LANG_SWAMP_STUCK "Your feet sink into the mud and, however hard you try, you cannot move on. Walking here is a struggle.\n"
+
+// acid.c -- a pool of acid that burns whoever stands in it
+
+#define _LANG_ACID_ENTER "As you step in you wade into a pool of acid, which causes you terrible pain.\n"
+#define _LANG_ACID_BURN "The acid starts to burn you, causing you great pain. You had better get to safety.\n"

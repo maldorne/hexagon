@@ -30,3 +30,12 @@
 #define _LANG_ROPE_LINE "Una cuerda atada"
 #define _LANG_ROPE_HANGS " cuelga hacia "
 #define _LANG_ROPE_STRETCHES " se tiende en dirección "
+
+// swamp.c -- mud that holds back whoever leaves
+
+#define _LANG_SWAMP_STUCK "Los pies se te hunden en el fango y, por más que lo intentas, no consigues avanzar. Cuesta mucho andar por aquí.\n"
+
+// acid.c -- a pool of acid that burns whoever stands in it
+
+#define _LANG_ACID_ENTER "Al entrar te metes en un charco de ácido, que te causa un terrible dolor.\n"
+#define _LANG_ACID_BURN "El ácido comienza a quemarte, provocándote un gran dolor. Será mejor que te pongas a salvo.\n"

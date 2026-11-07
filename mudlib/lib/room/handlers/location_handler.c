@@ -1383,6 +1383,15 @@ object convert_room_to_location(object room)
     ret += "   Adding component jail.\n";
   }
 
+  // A room that answers query_acid_pool() with 1 becomes an acid component,
+  // which burns whoever is in it.
+  if (function_exists("query_acid_pool", room) && room->query_acid_pool() &&
+      !location->has_component(LOCATION_COMPONENT_ACID))
+  {
+    location->add_component(LOCATION_COMPONENT_ACID, ([ ]));
+    ret += "   Adding component acid.\n";
+  }
+
   // A temple room becomes a temple component, given to the deity the room
   // names; it puts its own sign up from the temples help document on every
   // load.

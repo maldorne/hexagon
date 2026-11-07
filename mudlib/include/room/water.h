@@ -14,7 +14,8 @@
 #define WATER_KINDS ({ WATER_KIND_RIVER, WATER_KIND_SEA, WATER_KIND_LAKE })
 
 // Seconds a living stays in moving water, not swimming, before the current
-// carries it off: long enough to choose where to swim.
+// carries it off (counted in heart_beats): long enough to choose where to
+// swim.
 #define WATER_DRIFT_TIME 20
 
 // The chance of a stroke starts here and adds the swimmer's ability.
@@ -36,11 +37,26 @@
 #define WATER_HURT_DIE             6
 #define WATER_HURT_HP_PERCENT      3
 
-// What the current does to each thing it drags (not a living) in a roll of
-// 100: lost for good below the first number, then washed onto a coast the
-// cell has a swum exit to for the next, and otherwise carried downstream.
-// A unique object is never lost.
-#define WATER_OBJECT_LOST_CHANCE  15
-#define WATER_OBJECT_SHORE_CHANCE 25
+// A thing that falls into moving water is carried on at once, cell by cell,
+// until a coast takes it out; at most this many cells (a current that loops
+// back on itself never ends).
+#define WATER_CARRY_MAX_CELLS 20
+
+// Static property of a thing being carried: the cells it has crossed in this
+// carry (never saved).
+#define WATER_CARRY_PROP "water_carry_cells"
+
+// Static property of a living under the surface holding its breath:
+// ({ heart_beats of breath left, time() of its last submerged heart_beat }).
+// Not there, or too old, it is a full lungful. See /lib/room/water.c.
+#define WATER_BREATH_PROP "water_breath"
+
+// Below the surface (set_water_submerged): a living without a way to breathe
+// holds its breath for this many heart_beats plus the second number for each
+// point of constitution, then drowns: each heart_beat it loses a percentage of
+// its maximum life (at least one point). See /lib/room/water.c.
+#define WATER_BREATH_BASE        10
+#define WATER_BREATH_PER_CON     2
+#define WATER_DROWN_HP_PERCENT   5
 
 #endif

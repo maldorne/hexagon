@@ -60,10 +60,11 @@ void put_on_bridge(object who)
 {
   if (swimmers)
     map_delete(swimmers, who);
+  water_event_exit(who);
 }
 
-// Put `who` in the water, silently; the drift starts and the strokes and the
-// climb back are learned, as for anybody who reaches water.
+// Put `who` in the water, silently; the strokes and the climb back are
+// learned, as for anybody who reaches water.
 void put_in_water(object who)
 {
   if (!swimmers)

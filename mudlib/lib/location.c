@@ -168,7 +168,7 @@ void set_bridge_reachable(int i)
 
 string query_exit_refusal(string dir, object who)
 {
-  object bridge, jail;
+  object bridge, jail, swamp;
   string refusal;
 
   bridge = query_component_by_type(LOCATION_COMPONENT_BRIDGE);
@@ -178,7 +178,13 @@ string query_exit_refusal(string dir, object who)
 
   // a prisoner serving a sentence does not leave a cell
   jail = query_component_by_type(LOCATION_COMPONENT_JAIL);
-  return jail ? jail->query_exit_refusal(dir, who) : nil;
+  refusal = jail ? jail->query_exit_refusal(dir, who) : nil;
+  if (refusal)
+    return refusal;
+
+  // the mud of a swamp sometimes holds somebody back
+  swamp = query_component_by_type(LOCATION_COMPONENT_SWAMP);
+  return swamp ? swamp->query_exit_refusal(dir, who) : nil;
 }
 
 string query_out_of_reach(object attacker, object victim)
@@ -521,6 +527,17 @@ void event_exit(object ob, varargs string msg, object dest, mixed avoid)
 {
   obj::event_exit(ob, msg, dest, avoid);
   run_on_components("event_exit", ob, msg, dest, avoid);
+}
+
+/**
+ * A living in this location has had another heart_beat. Passed on to the
+ * components (an acid pool burns, water drowns and drags).
+ *
+ * @param living  the living whose heart_beat it is
+ */
+void event_heart_beat(object living)
+{
+  run_on_components("event_heart_beat", living);
 }
 
 // void init_original_info()

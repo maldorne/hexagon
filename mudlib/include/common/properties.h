@@ -11,6 +11,10 @@
 #define BLIND_PROP "blind"
 #define SENSE_LIFE_PROP "sense_life"
 
+// whoever has it breathes under water (an item worn, a spell, a nature), so
+// it never drowns. See /lib/room/water.md
+#define WATER_BREATHING_PROP "water_breathing"
+
 #define SWIMMING_PROP "swimming direction"
 #define FOLLOWING_PROP "is following"
 #define STOP_FOLLOWING_PROP "stop following now"

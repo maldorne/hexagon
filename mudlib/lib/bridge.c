@@ -39,6 +39,13 @@ void event_exit(object ob, varargs string msg, object dest, mixed avoid)
   bridge::bridge_event_exit(ob);
 }
 
+// Whoever is in the water here holds its breath or drowns below the surface,
+// and the current drags it.
+void event_heart_beat(object living)
+{
+  water_event_heart_beat(living);
+}
+
 // From the water there are no exit lines: in their place, where the shore is.
 // Worked out only for somebody looking from here, never while the exits are
 // being set up.

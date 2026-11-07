@@ -60,7 +60,7 @@ reaches them. The entity forwards what its components need with
 `run_on_components(func, args...)` (`/lib/core/ecs/entity.c`), which calls the
 function, with the event's own arguments, on every component that defines it:
 
-- `/lib/location.c` forwards `enter` and `exit`, and passes `event_climbed` /
+- `/lib/location.c` forwards `enter`, `exit` and `heart_beat`, and passes `event_climbed` /
   `event_climb_failed` to its bridge component.
 - `/lib/npc.c` forwards `enter`, `exit`, `moved`, `weather`, `fight_in_progress`, `revealed` and `crime`.
 
@@ -101,6 +101,24 @@ Fired by `move()` before the move, to the place being left and its inventory:
 `enter` (players print the text; `/lib/monster.c` follows a fleeing enemy;
 location components get it through `/lib/location.c`, NPC components through
 `/lib/npc.c`).
+
+### heart_beat
+
+```c
+void event_heart_beat(object living)
+```
+
+A living has had another heart_beat in this place. Fired by
+`heart_beat()` in `/lib/living/living.c`, right after the traits tick and
+before combat: `environment()->event_heart_beat(this_object())`, a plain
+`call_other` told to the place only (nothing else listens, and a place that does
+not define it ignores it). The living may be dead or destructed when it
+returns; `heart_beat()` checks. A monster whose heart_beat is off (nobody around,
+`check_heart_beat` in `/lib/monster.c`) fires nothing. `/lib/location.c`
+forwards it to its components (`acid` burns again, `water` and `bridge` hold the
+breath, drown and drag); `/lib/water.c` and `/lib/bridge.c` handle it
+themselves. Hazards of a place use it instead of a `call_out` per place or per
+living.
 
 ### moved
 

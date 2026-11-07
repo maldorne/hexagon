@@ -17,10 +17,28 @@ mixed add_exit(string direc, mixed dest, string type,
                         (options ? options : ([ ])) + ([ "swim": 1 ]));
 }
 
+// Below the surface the sky does not reach: a submerged cell is underground
+// (so a location gets that component and not the outside one).
+int query_outside() { return !query_water_submerged(); }
+int query_underground() { return query_water_submerged() > 0; }
+
 void event_enter(object ob, varargs string msg, object from, mixed avoid)
 {
   room::event_enter(ob, msg, from, avoid);
   water::water_event_enter(ob);
+}
+
+void event_exit(object ob, varargs string msg, object dest, mixed avoid)
+{
+  room::event_exit(ob, msg, dest, avoid);
+  water::water_event_exit(ob);
+}
+
+// A living here has had another heart_beat: it holds its breath or drowns
+// below the surface, and the current drags it.
+void event_heart_beat(object living)
+{
+  water::water_event_heart_beat(living);
 }
 
 // No exit lines in water: in their place, where the shore is. Worked out only

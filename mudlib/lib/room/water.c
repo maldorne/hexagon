@@ -12,6 +12,8 @@
 // the shore is. What a place declares:
 //   kind      river | sea | lake, the body of water it is part of
 //   depth     1 swimming at the surface, 2 deep water, harder to cross
+//   submerged 0 at the surface, 1 or more how far below it: whoever is here
+//             without a way to breathe drowns (see breathe_step)
 //   current   the exit the water flows out by, nil for still water
 //   strength  0 still .. 3 rapids, how hard the current pulls
 //   upstream  free | hard | block, swimming any way but the current's
@@ -22,16 +24,15 @@
 #include <room/water.h>
 #include <room/room.h>
 #include <basic/move.h>
+#include <common/properties.h>
+#include <mud/mudos.h>
 #include <language.h>
 
-private int water_depth, water_strength;
+private int water_depth, water_strength, water_submerged;
 private string water_current, water_upstream, water_swept_to, water_kind;
 
-// who has a drift pending, and the things the current is about to carry
-// (never saved)
+// heart_beats each living has spent in this cell, in moving water (never saved)
 static mapping drifting;
-static object * drift_objects;
-static int drift_objects_due;
 
 object query_water_place() { return this_object(); }
 
@@ -43,6 +44,10 @@ int query_in_water(object who) { return 1; }
 
 string query_water_kind() { return water_kind ? water_kind : ""; }
 void set_water_kind(string kind) { water_kind = kind; }
+
+// How far below the surface the place is: 0 at the surface.
+int query_water_submerged() { return water_submerged; }
+void set_water_submerged(int i) { water_submerged = i; }
 
 int query_water_depth() { return water_depth ? water_depth : 1; }
 void set_water_depth(int i) { water_depth = i; }
@@ -73,6 +78,7 @@ mapping query_water_settings()
   return ([
       "water_kind"     : water_kind,
       "water_depth"    : water_depth,
+      "water_submerged" : water_submerged,
       "water_current"  : water_current,
       "water_strength" : water_strength,
       "water_upstream" : water_upstream,
@@ -85,9 +91,11 @@ void set_water_settings(mapping m)
   if (!m)
     return;
   water_kind = m["water_kind"];
-  water_depth = m["water_depth"];
+  // saves written before a setting existed lack its key: nil is not an int
+  water_depth = m["water_depth"] ? m["water_depth"] : 0;
+  water_submerged = m["water_submerged"] ? m["water_submerged"] : 0;
   water_current = m["water_current"];
-  water_strength = m["water_strength"];
+  water_strength = m["water_strength"] ? m["water_strength"] : 0;
   water_upstream = m["water_upstream"];
   water_swept_to = m["water_swept_to"];
 }
@@ -299,6 +307,8 @@ void tell_water_arrival_hints(object who)
 // A line under the description: that one is in the water, and how to swim.
 string query_water_hint(object who)
 {
+  if (water_submerged > 0)
+    return _LANG_WATER_UNDER_LOOK;
   return _LANG_WATER_LOOK;
 }
 
@@ -319,85 +329,6 @@ int query_water_flows()
 int query_water_drags(object who)
 {
   return who && query_in_water(who) && query_water_flows();
-}
-
-// One drift pending per living: coming back in before it falls due does not
-// add another.
-private void queue_drift(object ob)
-{
-  if (!drifting)
-    drifting = ([ ]);
-  if (drifting[ob])
-    return;
-
-  drifting[ob] = 1;
-  call_out("water_drift", WATER_DRIFT_TIME, ob);
-}
-
-// Whether `ob`, or anything inside it, is a unique object.
-private int holds_unique(object ob)
-{
-  object * inv;
-  int i;
-
-  if (ob->query_unique_object())
-    return 1;
-
-  inv = all_inventory(ob);
-  for (i = 0; i < sizeof(inv); i++)
-    if (holds_unique(inv[i]))
-      return 1;
-
-  return 0;
-}
-
-// Put a thing that is not a living in the queue of what the current carries
-// off. Things that arrive in a cell with a current queue themselves; a place
-// that does not tell them apart (a bridge cell) is asked for the ones in the
-// water.
-void water_carry(object ob)
-{
-  if (!ob || living(ob) || ob->get() || !query_water_flows())
-    return;
-
-  if (!drift_objects)
-    drift_objects = ({ });
-  if (member_array(ob, drift_objects) != -1)
-    return;
-
-  drift_objects += ({ ob });
-
-  // a single call_out for every thing waiting here
-  if (!drift_objects_due)
-  {
-    drift_objects_due = 1;
-    call_out("water_drift_objects", WATER_DRIFT_TIME);
-  }
-}
-
-// Whoever comes into moving water and does not swim on is carried off by it
-// after a while. Anybody who reaches water knows from then on how to swim.
-// Anything else that comes in is carried off too.
-void water_event_enter(object ob)
-{
-  if (!ob)
-    return;
-
-  if (!living(ob))
-  {
-    water_carry(ob);
-    return;
-  }
-
-  if (interactive(ob) && !ob->query_known_skill(SKILL_SWIM))
-    ob->add_known_skill(SKILL_SWIM);
-
-  tell_water_arrival_hints(ob);
-
-  if (ob->query_swims() || water_strength <= 0 || !query_water_swept_to())
-    return;
-
-  queue_drift(ob);
 }
 
 // The current drags somebody who is not swimming: it may hurt them, more the
@@ -426,28 +357,156 @@ private int hurt_by_current(object who)
   return who->query_hp() < 0;
 }
 
-void water_drift(object ob)
+/**
+ * One heart_beat of somebody in moving water who does not swim on: the beats
+ * spent here are counted, and when they add up to WATER_DRIFT_TIME seconds the
+ * current drags them out by the exit it sweeps to (and may hurt them).
+ *
+ * @param who  a living in the water of this place
+ */
+private void drift_step(object who)
 {
-  if (ob && drifting)
-    map_delete(drifting, ob);
+  int beats;
 
-  // only whoever is in the water drifts (not who is on a bridge above it)
-  if (!ob || environment(ob) != query_water_place() || !query_in_water(ob))
+  if (who->query_swims() || water_strength <= 0 || !query_water_swept_to())
     return;
 
-  // a stroke already on its way decides where they go
-  if (ob->query_active_effect("effect"))
+  if (!drifting)
+    drifting = ([ ]);
+
+  beats = drifting[who] ? drifting[who] + 1 : 1;
+  drifting[who] = beats;
+
+  if (beats < WATER_DRIFT_TIME / HEART_BEAT_TIME)
+    return;
+
+  // a stroke already on its way decides where they go: try again next beat
+  if (who->query_active_effect("effect"))
+    return;
+
+  map_delete(drifting, who);
+
+  // a death happens here, in the water
+  if (hurt_by_current(who))
+    return;
+
+  tell_object(who, _LANG_WATER_DRIFT_ME);
+  move_swimmer(who, query_water_swept_to(), _LANG_WATER_SWEPT_MESS);
+}
+
+/**
+ * Whether the living can breathe under water: by a property of its own (a
+ * spell, a nature), of something it wears or holds (a mask), or because it
+ * swims by nature.
+ *
+ * @param who  the living
+ * @return 1 if it never drowns
+ */
+int breathes_under_water(object who)
+{
+  object * equipment;
+  int i;
+
+  if (who->query_swims() || who->query_property(WATER_BREATHING_PROP))
+    return 1;
+
+  equipment = who->query_worn_ob() + who->query_held_ob();
+  for (i = 0; i < sizeof(equipment); i++)
+    if (equipment[i] && equipment[i]->query_property(WATER_BREATHING_PROP))
+      return 1;
+
+  return 0;
+}
+
+/**
+ * One heart_beat of a living under the surface. Whoever breathes there has a
+ * full lungful. The others spend one beat of breath (kept in WATER_BREATH_PROP
+ * with the time of the beat; a gap of more than three beats means they
+ * surfaced, left, or their heart_beat stopped, and the breath starts over) and,
+ * with none left, lose a share of their life each beat.
+ *
+ * @param who  a living in the submerged water of this place
+ */
+private void breathe_step(object who)
+{
+  mixed breath;
+  int max, left;
+
+  if (who->query_dead())
+    return;
+
+  if (breathes_under_water(who))
   {
-    queue_drift(ob);
+    who->remove_static_property(WATER_BREATH_PROP);
     return;
   }
 
-  // a death happens here, in the water
-  if (hurt_by_current(ob))
+  max = WATER_BREATH_BASE + WATER_BREATH_PER_CON * who->query_con();
+  breath = who->query_static_property(WATER_BREATH_PROP);
+
+  // the first beat without a way to breathe: the living holds its breath
+  // a missing property reads as 0, not as an array
+  if (!arrayp(breath) || time() - breath[1] > 3 * HEART_BEAT_TIME)
+  {
+    left = max;
+    tell_object(who, _LANG_WATER_DROWN_START);
+  }
+  else
+    left = breath[0];
+
+  if (left > 0)
+  {
+    left--;
+    if (left == max / 2)
+      tell_object(who, _LANG_WATER_DROWN_HALF);
+    else if (left == 2)
+      tell_object(who, _LANG_WATER_DROWN_LAST);
+    who->add_static_property(WATER_BREATH_PROP, ({ left, time() }));
+    return;
+  }
+
+  who->add_static_property(WATER_BREATH_PROP, ({ 0, time() }));
+
+  tell_object(who, _LANG_WATER_DROWN_ME);
+  tell_room(query_water_place(), _LANG_WATER_DROWN_ROOM, who);
+
+  who->adjust_hp(-(who->query_max_hp() * WATER_DROWN_HP_PERCENT / 100 + 1));
+}
+
+/**
+ * A living in the water of this place has had another heart_beat: below the
+ * surface it holds its breath or drowns, and in moving water it is dragged.
+ * The place passes it on from its own event_heart_beat. Whoever is not in the
+ * water (on a bridge above it) feels nothing.
+ *
+ * @param who  the living
+ */
+void water_event_heart_beat(object who)
+{
+  if (!who || environment(who) != query_water_place() || !query_in_water(who))
     return;
 
-  tell_object(ob, _LANG_WATER_DRIFT_ME);
-  move_swimmer(ob, query_water_swept_to(), _LANG_WATER_SWEPT_MESS);
+  if (water_submerged > 0)
+  {
+    breathe_step(who);
+    // the water may have killed it
+    if (!who)
+      return;
+  }
+
+  drift_step(who);
+}
+
+/**
+ * Somebody leaves the place: the beats of the current they had spent are
+ * forgotten.
+ *
+ * @param ob  who or what leaves
+ */
+void water_event_exit(object ob)
+{
+  if (drifting && ob)
+    map_delete(drifting, ob);
 }
 
 // The exit of this place that leads to a coast by swimming, one of them at
@@ -473,61 +532,82 @@ private string query_shore_exit()
   return sizeof(shores) ? shores[random(sizeof(shores))] : nil;
 }
 
-// One drag of the current on a thing: lost for good, washed onto the shore of
-// this place if it has one, or carried on downstream.
-private void carry_object(object ob)
+/**
+ * A thing that is not a living is in moving water: the current carries it on
+ * at once. Onto the coast, out of the water, if this cell has one; otherwise
+ * to the next cell downstream, whose own event_enter carries it on again, until
+ * a coast takes it out or the river ends. Still water does nothing. The cells
+ * crossed are counted in WATER_CARRY_PROP, so a current that loops stops after
+ * WATER_CARRY_MAX_CELLS.
+ *
+ * @param ob  the thing in the water of this place
+ */
+void water_carry(object ob)
 {
   object place, dest;
   string shore, dir, name;
-  int roll, shored;
+  mixed cells;
+  int shored, top;
+
+  if (!ob || living(ob) || ob->get() || !query_water_flows())
+    return;
 
   place = query_water_place();
-  name = ob->query_short();
-  if (!name)
-    name = "";
+  if (environment(ob) != place)
+    return;
+
+  cells = ob->query_static_property(WATER_CARRY_PROP);
+  if (!cells)
+    cells = 0;
+  if (cells >= WATER_CARRY_MAX_CELLS)
+    return;
 
   shore = query_shore_exit();
-  roll = random(100);
-
-  if (roll < WATER_OBJECT_LOST_CHANCE && !holds_unique(ob))
-  {
-    tell_room(place, replace_string(_LANG_WATER_OBJECT_LOST, "$O", name) + "\n");
-    ob->dest_me();
-    return;
-  }
-
-  shored = shore && roll < WATER_OBJECT_LOST_CHANCE + WATER_OBJECT_SHORE_CHANCE;
+  shored = shore != nil;
   dir = shored ? shore : water_current;
 
   dest = place->query_dest_object(dir);
   if (!dest)
     return;
 
+  name = ob->query_short();
+  if (!name)
+    name = "";
+
+  // only the first cell of a carry clears the count, once the whole chain ends
+  top = !cells;
+  ob->add_static_property(WATER_CARRY_PROP, cells + 1);
+
   tell_room(place, replace_string(replace_string(shored ?
             _LANG_WATER_OBJECT_SHORE_FROM : _LANG_WATER_OBJECT_DRIFT_FROM, "$O",
             name), "$T", ROOM_HAND->query_exit_dir(dir)) + "\n");
 
-  if (ob->move(dest) != MOVE_OK)
-    return;
+  if (ob->move(dest) == MOVE_OK)
+    tell_room(dest, replace_string(shored ? _LANG_WATER_OBJECT_SHORE_TO :
+              _LANG_WATER_OBJECT_DRIFT_TO, "$O", name) + "\n");
 
-  tell_room(dest, replace_string(shored ? _LANG_WATER_OBJECT_SHORE_TO :
-            _LANG_WATER_OBJECT_DRIFT_TO, "$O", name) + "\n");
+  if (top && ob)
+    ob->remove_static_property(WATER_CARRY_PROP);
 }
 
-// Every thing waiting in this place is dragged once. What the current carries
-// into the next cell is queued there, with its own time.
-void water_drift_objects()
+// Anybody who reaches water knows from then on how to swim. A thing that comes
+// in is carried off at once by a current; the strokes, the drift and the
+// breath of a living are worked out on its heart_beats.
+void water_event_enter(object ob)
 {
-  object * obs;
-  int i;
+  if (!ob)
+    return;
 
-  obs = drift_objects ? drift_objects : ({ });
-  drift_objects = ({ });
-  drift_objects_due = 0;
+  if (!living(ob))
+  {
+    water_carry(ob);
+    return;
+  }
 
-  for (i = 0; i < sizeof(obs); i++)
-    if (obs[i] && environment(obs[i]) == query_water_place() && query_water_flows())
-      carry_object(obs[i]);
+  if (interactive(ob) && !ob->query_known_skill(SKILL_SWIM))
+    ob->add_known_skill(SKILL_SWIM);
+
+  tell_water_arrival_hints(ob);
 }
 
 mixed * water_stats()
@@ -535,6 +615,7 @@ mixed * water_stats()
   return ({
       ({ "Water Kind", query_water_kind(), }),
       ({ "Water Depth", query_water_depth(), }),
+      ({ "Water Submerged", water_submerged, }),
       ({ "Water Current", water_current, }),
       ({ "Water Strength", water_strength, }),
       ({ "Water Upstream", query_water_upstream(), }),

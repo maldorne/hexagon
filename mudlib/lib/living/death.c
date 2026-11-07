@@ -417,8 +417,8 @@ object make_corpse(varargs object killer)
 
   corpse->move(environment());
 
-  // the weapons let go above and the gear are queued by a place that does not
-  // queue what lands on it (a bridge cell); the others queued themselves
+  // the weapons let go above and the gear are carried by a place that does not
+  // carry what lands on it (a bridge cell); the others carried themselves
   if (carried)
   {
     dropped += ({ corpse });

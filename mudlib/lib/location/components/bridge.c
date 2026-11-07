@@ -76,6 +76,13 @@ void event_exit(object ob, varargs string msg, object dest, mixed avoid)
   bridge_event_exit(ob);
 }
 
+// Passed on by the location: whoever is in the water holds its breath or
+// drowns below the surface, and the current drags it.
+void event_heart_beat(object living)
+{
+  water_event_heart_beat(living);
+}
+
 string query_info()
 {
   return "current " + (query_water_current() ? query_water_current() : "none") +

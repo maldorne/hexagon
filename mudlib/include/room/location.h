@@ -83,5 +83,8 @@
 // /lib/location/components/jail.c and fines.c.
 #define LOCATION_COMPONENT_JAIL        "jail"
 #define LOCATION_COMPONENT_FINES       "fines"
+// A pool of acid that burns whoever stands in it. See
+// /lib/location/components/acid.c.
+#define LOCATION_COMPONENT_ACID        "acid"
 
 #endif // LOCATION_H

@@ -25,6 +25,7 @@ A water place declares:
     set_water_swept_to(DIR_SOUTH);           // where a failed swimmer ends,
                                              // the current's exit by default
     set_water_depth(2);                      // 1 surface, 2 deep
+    set_water_submerged(1);                  // 0 surface, 1.. below it
 
 The kind names the body of water the place is part of (`WATER_KINDS` in
 `<room/water.h>`): a stretch of a river (an underground stream too), the open
@@ -44,6 +45,49 @@ itself. A swum exit is part of the map and of the coordinate graph, and the
 map draws water as `[~]`, but it is not listed and typing its direction does
 nothing; the path finder leaves it out unless the walker swims. Unlike a sealed
 exit, nothing ever reveals it.
+
+## Under the surface
+
+A cell with `set_water_submerged(n)` (n = how far below the surface, 0 at the
+surface; `query_water_submerged()`, travelling with the other settings into the
+water component and answered by a location too) is underwater. It is built like
+any water place (rooms on `/lib/water.c`, locations with the `water` component),
+and the ways up and down are ordinary swum exits (`DIR_UP`, `DIR_DOWN`; `nadar
+arriba`). `set_water_depth` stays the difficulty of the stroke and is separate:
+a lake bottom is `set_water_depth(2)` and `set_water_submerged(2)`. The look line
+reads "Estás bajo el agua". A place that wants the cell not to be open to the
+sky adds the `underground` component as before.
+
+Drowning is not a trait: the water code does it on the heart_beat of the livings
+in the cell (`event_heart_beat`, see `lib/core/basic/events.md`), with no
+timer on the place. Each beat in a submerged cell, `breathe_step` in
+`/lib/room/water.c` works on whoever is in the water there (on a bridge above
+it, nobody) and cannot breathe (`breathes_under_water(who)`: `query_swims()`,
+`WATER_BREATHING_PROP` on the living or on something it wears or holds). The
+breath is kept on the living in the static property `WATER_BREATH_PROP`,
+`({ beats left, time() of its last submerged beat })`. Without the property, or
+when the last beat is more than three `HEART_BEAT_TIME` old (it surfaced, left,
+or its heart_beat was off), the breath starts full: `WATER_BREATH_BASE` plus
+`WATER_BREATH_PER_CON` per point of constitution heart_beats (`<room/water.h>`).
+Each beat takes one, with a warning at half and near the end; with none left
+the living loses `WATER_DROWN_HP_PERCENT` of its maximum life per beat (and can
+die). Whoever breathes there has the property removed, a full lungful. A monster
+whose heart_beat is off (nobody around) neither drowns nor is dragged.
+
+## Breathing
+
+One property, `WATER_BREATHING_PROP` (`"water_breathing"`, `<common/properties.h>`),
+read with `query_property`: while the living has it, the breath is full and
+nothing hurts. Its sources:
+
+- an item worn or held: give the item `add_property(WATER_BREATHING_PROP, 1)`;
+  `set_in_use` of `lib/item.c` sets it as a static property of whoever uses the
+  item and takes it away when the item stops being used (two such items share
+  the one property, so taking one off drops it);
+- a spell or any effect: `add_timed_property(WATER_BREATHING_PROP, 1, ticks)` and
+  `remove_timed_property` when its lasting effect ends. A spell that is cast
+  underwater needs `allow_on_water = 1`, as the base refuses casting in the water;
+- a nature: an NPC with `swims`, or any NPC given the property in `setup`.
 
 ## Swimming
 
@@ -81,8 +125,12 @@ swimming) may be hurt: rocks, being pulled under. The chance is
 of strength, less a tenth of the swim ability. The damage is one d6
 (`WATER_HURT_DIE`) per point of strength plus 3% (`WATER_HURT_HP_PERCENT`) of
 the victim's maximum life per point. The victim and the room are told, and it
-can kill: the death happens in the water. Ghosts take no damage. A living has
-one drift pending per cell, however often it comes back in.
+can kill: the death happens in the water. Ghosts take no damage. The wait is
+counted in beats: each `event_heart_beat` of a living in moving water that does
+not swim adds one to a count kept by the cell for that living, and at
+`WATER_DRIFT_TIME / HEART_BEAT_TIME` beats it is dragged (a stroke still on its
+way delays it to the next beat); the count restarts after the drag and is
+forgotten when the living leaves (`event_exit`).
 
 A ghost is dragged like anybody, cannot swim (the skill is refused to the
 dead) and walks the swum exits by typing the direction, in water or from a
@@ -90,23 +138,22 @@ coast, as a spirit.
 
 ## Things in the current
 
-Anything that is not a living and can be picked up is carried off when it
-lies in a cell with a current (`query_water_flows`: strength above 0 and the
-exit it flows out by exists). A cell keeps one call_out, `WATER_DRIFT_TIME`
-seconds after the first thing arrives, and drags everything queued by then once.
-Each thing rolls 100:
+Anything that is not a living and can be picked up is carried off the moment
+it falls into a cell with a current (`query_water_flows`: strength above 0 and
+the exit it flows out by exists), in its `event_enter`, with no timer
+(`water_carry(ob)` in `/lib/room/water.c`):
 
-- below `WATER_OBJECT_LOST_CHANCE` (15) it is lost, destructed, unless it is or
-  holds a unique object;
-- below that plus `WATER_OBJECT_SHORE_CHANCE` (25) and the cell has a swum
-  exit to a coast, it is washed onto that coast;
-- otherwise it goes on to the cell the current flows out by, where it is queued
-  again.
+- if the cell has a swum exit to a coast, the thing is washed onto that coast
+  (one of them at random), out of the water;
+- otherwise it goes on to the cell the current flows out by, whose own
+  `event_enter` carries it on again, cell after cell, until a coast takes it.
+  The cells crossed are counted in the static property `WATER_CARRY_PROP` of
+  the thing; at `WATER_CARRY_MAX_CELLS` (20) it stops, so a loop ends.
 
-Both rooms are told. With no current, or no exit to flow out by, things stay.
-A bridge cell queues nothing by itself: what lies on the bridge stays, and
-only what the water takes (a corpse and gear, below) is queued with
-`water_carry(ob)`.
+The room it leaves and the one where it lands are told. Where the current has
+no exit to flow out by, or the water is still, things stay. A bridge cell
+carries nothing by itself: what lies on the bridge stays, and only what the
+water takes (a corpse and gear, below) is carried with `water_carry(ob)`.
 
 ## Corpses
 
@@ -145,7 +192,7 @@ leave it on the bridge.
   `nadar <dir>` takes the swum exits, and a bridge exit answers that one
   cannot get up onto the bridge from the water.
 - `saltar` (`saltar al río`, `saltar al agua`, `jump`) goes from the bridge
-  into the water of the same cell and starts the drift timer.
+  into the water of the same cell and starts counting the beats of the drift.
 - `reachable` (default 1; `set_bridge_reachable(0)` for a high bridge): when
   set, `trepar` (`climb`) from the water gets back onto the bridge, rolled as
   the climb skill (ability plus `BRIDGE_CLIMB_MODIFIER`, minus
