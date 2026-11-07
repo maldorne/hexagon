@@ -823,3 +823,13 @@
 #define _LANG_DOCKS_NO_GAME "No estás en ningún lugar con muelles.\n"
 #define _LANG_DOCKS_COL_DOCK "Muelle"
 #define _LANG_DOCKS_COL_PLACE "Lugar"
+
+// resistances
+
+#define _LANG_CMD_RESISTANCES_ALIAS ({ "resistencias" })
+#define _LANG_CMD_RESISTANCES_SYNTAX "resistencias [<alguien>]"
+#define _LANG_CMD_RESISTANCES_HELP "Muestra tus resistencias a cada tipo de daño. " + \
+  "Un programador puede ver las de cualquiera."
+#define _LANG_CMD_RESISTANCES_TITLE "Resistencias de " + who->query_cap_name()
+#define _LANG_CMD_RESISTANCES_NOT_FOUND "No encuentras a '" + name + "'.\n"
+#define _LANG_CMD_RESISTANCES_INVULNERABLE "Invulnerable a los hechizos"

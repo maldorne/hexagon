@@ -818,3 +818,13 @@
 #define _LANG_DOCKS_NO_GAME "You are not anywhere with docks.\n"
 #define _LANG_DOCKS_COL_DOCK "Dock"
 #define _LANG_DOCKS_COL_PLACE "Place"
+
+// resistances
+
+#define _LANG_CMD_RESISTANCES_ALIAS ({ "resistances" })
+#define _LANG_CMD_RESISTANCES_SYNTAX "resistances [<somebody>]"
+#define _LANG_CMD_RESISTANCES_HELP "Shows your resistance to each damage type. " + \
+  "A coder can see anybody's."
+#define _LANG_CMD_RESISTANCES_TITLE "Resistances of " + who->query_cap_name()
+#define _LANG_CMD_RESISTANCES_NOT_FOUND "You cannot find '" + name + "'.\n"
+#define _LANG_CMD_RESISTANCES_INVULNERABLE "Invulnerable to spells"
