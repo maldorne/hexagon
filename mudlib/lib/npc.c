@@ -753,6 +753,9 @@ void apply_template(mapping t, varargs int born)
     set_real_align(t["align"]);
   if (t["swims"])
     set_swims(1);
+  // the way it fights with its own body (NATURAL_ATTACK_* of <living/combat.h>)
+  if (pointerp(t["attacks"]) && sizeof(t["attacks"]))
+    add_attacks(t["attacks"]);
 
   // Starting coin, handed over once. What the NPC earns or spends afterwards is
   // its own, and persists: the purse itself opts out of the auto-load snapshot,
