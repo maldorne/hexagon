@@ -92,7 +92,7 @@ static int cmd(string name, object me, string verb)
 
   info = handler("frames")->frame(info, 
                                   "Magical characteristics of '" + who->query_cap_name() + "'",
-                                  who->user()->query_cols());
+                                  this_user()->query_cols());
   tell_object(me, info);
   return 1;
 }
