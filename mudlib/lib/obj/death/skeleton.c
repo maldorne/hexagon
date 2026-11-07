@@ -32,12 +32,12 @@ void setup()
 
   set_kill_xp(0);
 
-  add_property(MAGIC_STR, 100);
-  add_property(FIRE_STR, -10);
-  add_property(COLD_STR, 110);
-  add_property(GOOD_STR, -30);
-  add_property(EVIL_STR, 100);
-  add_property(DEATH_STR, 100);
+  add_property(DAMAGE_MAGIC, 100);
+  add_property(DAMAGE_FIRE, -10);
+  add_property(DAMAGE_COLD, 110);
+  add_property(DAMAGE_GOOD, -30);
+  add_property(DAMAGE_EVIL, 100);
+  add_property(DAMAGE_DEATH, 100);
   
   set_aggressive(1);
   add_property(UNDEAD, 1);

@@ -15,6 +15,7 @@
 #include <common/properties.h>
 // Para los mensajes de daño por frio
 #include <living/combat.h>
+#include <living/damage-types.h>
 
 #define NO_SNOWMAN "there is a snowman"
 
@@ -408,20 +409,20 @@ void weather_heart_beat()
     if (environment(this_object())->query_outside())
     {
       // Con mas de 50 de proteccion contra el frio, el clima no hace nada      
-      if (this_object()->query_resistance("cold") >= 50)
+      if (this_object()->query_resistance(DAMAGE_COLD) >= 50)
         do_damage = 0;
       // Con entre 20 y 50 de proteccion, el clima solo afecta a veces
-      else if (this_object()->query_resistance("cold") >= 40)
+      else if (this_object()->query_resistance(DAMAGE_COLD) >= 40)
       {
         if (random(4) != 1)
           do_damage = 0;
       }
-      else if (this_object()->query_resistance("cold") >= 30)
+      else if (this_object()->query_resistance(DAMAGE_COLD) >= 30)
       {
         if (random(3) != 1) 
           do_damage = 0;
       }
-      else if (this_object()->query_resistance("cold") >= 20)
+      else if (this_object()->query_resistance(DAMAGE_COLD) >= 20)
       {
         if (random(2) != 1)
           do_damage = 0;
@@ -458,7 +459,7 @@ void weather_heart_beat()
         }
         // Proteccion de newbies
         else if (my_time > 43200)
-          this_object()->spell_damage(cuanto, "cold");
+          this_object()->spell_damage(cuanto, DAMAGE_COLD);
       }
 
       // Daño por granizo
@@ -483,7 +484,7 @@ void weather_heart_beat()
         }            
         // Proteccion de newbies
         else if (my_time > 43200)
-          this_object()->spell_damage(cuanto, "cold");
+          this_object()->spell_damage(cuanto, DAMAGE_COLD);
       }
     }
   }

@@ -7,7 +7,6 @@
 // /packages/balance/cmds/admin/balance.c.
 
 #include <living/effects.h>
-#include <translations/combat.h>
 #include "balance.h"
 
 // the monster that stands for a caster or a player
@@ -37,27 +36,6 @@ private string * targeting_keys, * extra_keys;
 private int scanning;
 
 // ===== csv =====
-
-/**
- * The damage type in English: the game names them in its language, the dump
- * does not.
- */
-private string english_type(string type)
-{
-  string * mine, * english;
-  int index;
-
-  if (!stringp(type) || !strlen(type))
-    return "";
-
-  mine = RESISTANCES + AC_TYPES_STR;
-  english = ({ "acid", "air", "electrical", "cold", "magic", "psionic",
-    "missiles", "poison", "law", "water", "good", "disease", "fire", "evil",
-    "death", "stone", "chaos", "slashing", "blunt", "piercing" });
-
-  index = member_array(type, mine);
-  return index == -1 ? type : english[index];
-}
 
 /**
  * The folder of the game being dumped.
@@ -695,7 +673,7 @@ private void dump_effect(string file, string id, string path, int powers)
       for (i = 0; i < sizeof(targeting_keys); i++)
         row += ({ balance[targeting_keys[i]] });
 
-      row += ({ english_type(balance["damage_type"]), level,
+      row += ({ balance["damage_type"], level,
         powers ? power : nil, balance["average"], balance["minimum"],
         balance["maximum"], balance["rounds"], balance["cost"] });
 

@@ -701,9 +701,10 @@ int spell_damage(int damage, string type, varargs object caster)
   // Calculamos al modificacion al daño segun resistencias:
   damage = (damage * (100 - prot)) / 100;
 
-  if (original > 0 && damage == 0)
+  // whatever is not fully resisted does at least one point
+  if (prot < 100 && original > 0 && damage == 0)
     damage = 1;
-  if (original < 0 && damage == 0)
+  if (prot < 100 && original < 0 && damage == 0)
     damage = -1;
 
   if (!caster)

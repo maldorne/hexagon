@@ -928,6 +928,16 @@ int query_tmp_resistance(string type)
   return res;
 }
 
+/**
+ * Renames the restored resistances that are keyed by the translated name of a
+ * damage type to its id. A savefile written when the types were keyed by
+ * their names holds them; a restore calls this once it has read the file.
+ */
+void migrate_resistance_keys()
+{
+  resistances = table("damage-types")->migrate_legacy_keys(resistances);
+}
+
 /* **********  Final nuevo sistema de resistencias ************ */
 
 void calc()

@@ -26,12 +26,35 @@ Every attack of a weapon (`weapon_attack` in `weapon.c`; unarmed combat in
    - Physical: `query_ac_against(type) * 10` percent (cap 100), where the value is
      the piece's ac plus its bonus against slashing, blunt or piercing.
    - Elemental: the piece's base ac * 10 percent, plus the piece's own resistance
-     property for that element (`query_property(<element name>)`), clamped to
+     property for that element (`query_property(<damage type id>)`), clamped to
      [-100, 100]. A negative resistance is a weakness: the damage grows.
 
 Equipment ac counts to hit for every type. For an elemental type it is the sum
 of the base ac of what is worn and held, without any per-type bonus (those only
 exist for slashing, blunt and piercing).
+
+## Damage types
+
+A damage type is an int for the rolls (`SLASHING` 0 to `CHAOS` 19) and an
+English id string for everything that is stored or looked up by name
+(`DAMAGE_SLASHING`, `DAMAGE_FIRE`...), both in `include/living/damage-types.h`.
+`DAMAGE_PHYSICAL_TYPES` and `DAMAGE_ELEMENTAL_TYPES` list the ids in the order
+of the ints (`DAMAGE_ELEMENTAL_TYPES[type - sizeof(AC_TYPES)]`).
+
+The ids are the keys of the resistances of a living (`set_resistance`,
+`query_resistance`, `adjust_tmp_resistance`), of the resistance properties of
+an item, of the type passed to `spell_damage` and `skill_damage`, and of the
+`resistances` field of an NPC template. They are never translated. The name a
+player reads is `table("damage-types")->query_damage_type_name(id)`
+(`query_damage_type_id(name)` goes the other way, for what a player types); the
+names live in `include/translations/combat.<lang>.h`, and a weapon gives the
+name of one of its attacks with `query_attack_type_name`
+(`query_attack_type_id` is the id).
+
+A savefile written when the keys were the translated names is migrated when it
+is restored (`migrate_legacy_keys` of the table): the properties of an item in
+`init_auto_load_attributes`, the resistances of a living in
+`migrate_resistance_keys`, which the restore of a player and of an NPC call.
 
 ## Dodge and parry
 
@@ -89,8 +112,8 @@ through `recalc_damage`, which returns `({ damage, location, piece })`.
   (`set_ac_bon_against(type, n)` for the physical ones).
 - **Deal more damage**: `adjust_tmp_damage_bon(n)`, weapon `set_enchant(n)`, more
   dice in `add_attack`, more strength, a higher weapon `multiplier`.
-- **Resist an element**: put the element's name as a property on the armour
-  piece (`add_property(<element name>, n)` with `n` up to 100; negative for a
+- **Resist an element**: put the element's id as a property on the armour
+  piece (`add_property(DAMAGE_FIRE, n)` with `n` up to 100; negative for a
   weakness), and give the piece base ac.
 
 ## Who fights whom, and for how long

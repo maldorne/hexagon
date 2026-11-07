@@ -248,7 +248,8 @@ static int cmd(string name, object me, string verb)
   {
     info += capitalize(_LANG_STATS_AC_AGAINST);
     for (i = 0; i < sizeof(AC_TYPES); i++)
-      info += "\n - " + capitalize(AC_TYPES_STR[i]) + " ("+target->query_total_ac(AC_TYPES[i])+")";
+      info += "\n - " + capitalize(table("damage-types", me)->query_damage_type_name(DAMAGE_PHYSICAL_TYPES[i])) +
+        " ("+target->query_total_ac(AC_TYPES[i])+")";
     info += "\n";
   } 
   else 

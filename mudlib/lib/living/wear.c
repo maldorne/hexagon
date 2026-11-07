@@ -180,7 +180,7 @@ private int elemental_absorbed(object piece, int type, int damage)
   if (percent < 0)
     percent = 0;
 
-  piece_resistance = piece->query_property(RESISTANCES[type - sizeof(AC_TYPES)]);
+  piece_resistance = piece->query_property(DAMAGE_ELEMENTAL_TYPES[type - sizeof(AC_TYPES)]);
   if (intp(piece_resistance))
     percent += piece_resistance;
 

@@ -245,7 +245,10 @@ nomask int restore_me()
 
   // the traits come back with the savefile; sum them up again
   if (ok)
+  {
     this_object()->restore_traits();
+    this_object()->migrate_resistance_keys();
+  }
 
   return ok;
 }

@@ -63,31 +63,31 @@ static int cmd(string name, object me, string verb)
   // }
 
   info += sprintf("%-17s ( %3d )%%      %-17s ( %3d )%%\n", 
-                  "Res. acid:", who->query_resistance(ACID_STR),
-                  "Res. water:", who->query_resistance(WATER_STR));
+                  "Res. acid:", who->query_resistance(DAMAGE_ACID),
+                  "Res. water:", who->query_resistance(DAMAGE_WATER));
   info += sprintf("%-17s ( %3d )%%      %-17s ( %3d )%%\n", 
-                  "Res. air:", who->query_resistance(AIR_STR),
-                  "Res. good:", who->query_resistance(GOOD_STR));
+                  "Res. air:", who->query_resistance(DAMAGE_AIR),
+                  "Res. good:", who->query_resistance(DAMAGE_GOOD));
   info += sprintf("%-17s ( %3d )%%      %-17s ( %3d )%%\n", 
-                  "Res. electrical:", who->query_resistance(ELECTRICAL_STR),
-                  "Res. disease:", who->query_resistance(DISEASE_STR));
+                  "Res. electrical:", who->query_resistance(DAMAGE_ELECTRICAL),
+                  "Res. disease:", who->query_resistance(DAMAGE_DISEASE));
   info += sprintf("%-17s ( %3d )%%      %-17s ( %3d )%%\n", 
-                  "Res. cold:", who->query_resistance(COLD_STR),
-                  "Res. fire:", who->query_resistance(FIRE_STR));
+                  "Res. cold:", who->query_resistance(DAMAGE_COLD),
+                  "Res. fire:", who->query_resistance(DAMAGE_FIRE));
   info += sprintf("%-17s ( %3d )%%      %-17s ( %3d )%%\n", 
-                  "Res. magical:", who->query_resistance(MAGIC_STR),
-                  "Res. evil:", who->query_resistance(EVIL_STR));
+                  "Res. magical:", who->query_resistance(DAMAGE_MAGIC),
+                  "Res. evil:", who->query_resistance(DAMAGE_EVIL));
   info += sprintf("%-17s ( %3d )%%      %-17s ( %3d )%%\n", 
-                  "Res. psionic:", who->query_resistance(PSIONIC_STR),
-                  "Res. death:", who->query_resistance(DEATH_STR));
+                  "Res. psionic:", who->query_resistance(DAMAGE_PSIONIC),
+                  "Res. death:", who->query_resistance(DAMAGE_DEATH));
   info += sprintf("%-17s ( %3d )%%      %-17s ( %3d )%%\n", 
-                  "Res. missile:", who->query_resistance(MISSILES_STR),
-                  "Res. stone:", who->query_resistance(STONE_STR));
+                  "Res. missile:", who->query_resistance(DAMAGE_MISSILES),
+                  "Res. stone:", who->query_resistance(DAMAGE_STONE));
   info += sprintf("%-17s ( %3d )%%      %-17s ( %3d )%%\n", 
-                  "Res. poison:", who->query_resistance(POISON_STR),
-                  "Res. chaos:", who->query_resistance(CHAOS_STR));
+                  "Res. poison:", who->query_resistance(DAMAGE_POISON),
+                  "Res. chaos:", who->query_resistance(DAMAGE_CHAOS));
   info += sprintf("%-17s ( %3d )%%      %-17s %d\n", 
-                  "Res. law:", who->query_resistance(LAW_STR),
+                  "Res. law:", who->query_resistance(DAMAGE_LAW),
                   "Spell invul.:", who->query_property(PROPERTY_SPELL_INVUL));
 
   info = handler("frames")->frame(info, 

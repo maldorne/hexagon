@@ -446,6 +446,9 @@ int restore_npc()
     // the traits came back with the savefile; sum them up again
     restore_traits();
 
+    // resistances saved under the translated name of a damage type
+    migrate_resistance_keys();
+
     // what it can carry follows its strength, not the figure saved with it
     reset_carry_cap();
 
@@ -968,6 +971,19 @@ void apply_template(mapping t, varargs int born)
     if (!undefinedp(fixed["cha"])) set_cha(fixed["cha"]);
     if (!undefinedp(fixed["wil"])) set_wil(fixed["wil"]);
     if (!undefinedp(fixed["per"])) set_per(fixed["per"]);
+  }
+
+  // Resistances by damage type id (DAMAGE_* in <living/damage-types.h>, the
+  // same in every language), in percent: 100 is immune (an acid golem).
+  if (mappingp(t["resistances"]))
+  {
+    string * types;
+    int i;
+
+    types = map_indices(t["resistances"]);
+    for (i = 0; i < sizeof(types); i++)
+      if (intp(t["resistances"][types[i]]))
+        set_resistance(types[i], t["resistances"][types[i]]);
   }
 
   // How this trade's body differs from the average of its place, as deltas over

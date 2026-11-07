@@ -139,22 +139,34 @@ void dest_me()
   ::dest_me();
 }
 
-string query_attack_type_name(int type)
+/**
+ * The damage type id of an attack type (DAMAGE_*): slashing for one it does
+ * not know.
+ */
+string query_attack_type_id(int type)
 {
   switch (type)
   {
     case SLASHING:
-      return SLASHING_STR;
+      return DAMAGE_SLASHING;
     case BLUNT:
-      return BLUNT_STR;
+      return DAMAGE_BLUNT;
     case PIERCING:
-      return PIERCING_STR;
+      return DAMAGE_PIERCING;
     default:
       // elemental types are named after their element
-      if (type >= sizeof(AC_TYPES) && (type - sizeof(AC_TYPES)) < sizeof(RESISTANCES))
-        return RESISTANCES[type - sizeof(AC_TYPES)];
-      return SLASHING_STR;
+      if (type >= sizeof(AC_TYPES) && (type - sizeof(AC_TYPES)) < sizeof(DAMAGE_ELEMENTAL_TYPES))
+        return DAMAGE_ELEMENTAL_TYPES[type - sizeof(AC_TYPES)];
+      return DAMAGE_SLASHING;
   }
+}
+
+/**
+ * The name of the damage type of an attack type, as a player reads it.
+ */
+string query_attack_type_name(int type)
+{
+  return table("damage-types")->query_damage_type_name(query_attack_type_id(type));
 }
 
 mixed * stats()
@@ -252,7 +264,7 @@ void add_extra_damage(string attack,   // name of the attack it goes with
                       varargs mixed * messages) // optional own messages
 {
   // physical types have no extra damage, use add_attack for them
-  if (type < sizeof(AC_TYPES) || (type - sizeof(AC_TYPES)) >= sizeof(RESISTANCES))
+  if (type < sizeof(AC_TYPES) || (type - sizeof(AC_TYPES)) >= sizeof(DAMAGE_ELEMENTAL_TYPES))
     return;
 
   if (!extra_damage[attack])

@@ -107,7 +107,7 @@
 // daño elemental extra que un arma añade a un golpe (element es el nombre del elemento)
 // Elemental damage of a weapon, one line per hit. The weapon is named by its short:
 // "Tu <short>" for its owner, "<article> <short> de <owner>" for the rest.
-// One entry per element, in the order of RESISTANCES: the text for the others
+// One entry per element, in the order of DAMAGE_ELEMENTAL_TYPES: the text for the others
 // and the text for the defender. The tokens are the ones weapons can use in
 // their own messages: $weapon$, $attacker$ and $defender$.
 #define _LANG_WEAPONS_EXTRA_DAMAGE_WEAPON_ME "Tu "+weapon->query_short()

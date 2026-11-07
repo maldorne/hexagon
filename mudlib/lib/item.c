@@ -40,7 +40,7 @@
  *
  * Added magical resistances to objects through properties
  *    add_property("resistance type", percentage);
- *    Resistance types are in /include/resistances.h
+ *    Resistance types are the damage type ids in <living/damage-types.h>
  *    neverbot 13/17/2009
  * 
  * hit_item() added, old hit_weapon, hit_armour, hit_shield removed, neverbot 02/2023
@@ -58,7 +58,7 @@ inherit read_desc "/lib/core/basic/read_desc";
 #include <common/properties.h>
 #include <basic/condition.h>
 #include <living/social.h>
-#include <translations/combat.h> // resistances definitions
+#include <living/damage-types.h> // resistances definitions
 #include <language.h>
 
 int wearable;
@@ -403,11 +403,12 @@ int set_in_use(int i)
       }
     }
 
-    for (count = 0; count < sizeof(RESISTANCES); count++)
+    for (count = 0; count < sizeof(DAMAGE_ELEMENTAL_TYPES); count++)
     {
-      if (query_property(RESISTANCES[count]))
-         environment(this_object())->adjust_tmp_resistance(RESISTANCES[count],
-                                         query_property(RESISTANCES[count]) );
+      if (query_property(DAMAGE_ELEMENTAL_TYPES[count]))
+         environment(this_object())->adjust_tmp_resistance(
+           DAMAGE_ELEMENTAL_TYPES[count],
+           query_property(DAMAGE_ELEMENTAL_TYPES[count]));
     }
 
   } // end we are wearing
@@ -446,11 +447,12 @@ int set_in_use(int i)
       }
     }
 
-    for (count = 0; count < sizeof(RESISTANCES); count++)
+    for (count = 0; count < sizeof(DAMAGE_ELEMENTAL_TYPES); count++)
     {
-      if (query_property(RESISTANCES[count]))
-        environment(this_object())->adjust_tmp_resistance(RESISTANCES[count],
-                                            -(query_property(RESISTANCES[count])) );
+      if (query_property(DAMAGE_ELEMENTAL_TYPES[count]))
+        environment(this_object())->adjust_tmp_resistance(
+          DAMAGE_ELEMENTAL_TYPES[count],
+          -(query_property(DAMAGE_ELEMENTAL_TYPES[count])));
     }
   }
 
@@ -503,7 +505,12 @@ void init_auto_load_attributes(mapping attribute_map)
 
   if (!undefinedp(attribute_map["::"]))
     ::init_auto_load_attributes(attribute_map["::"]);
-} 
+
+  // resistance properties saved when the damage types were keyed by their
+  // translated names are renamed to the ids
+  if (map_sizeof(map_prop))
+    map_prop = table("damage-types")->migrate_legacy_keys(map_prop);
+}
 
 mixed * stats()
 {
