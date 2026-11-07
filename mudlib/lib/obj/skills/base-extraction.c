@@ -2,7 +2,8 @@
 // dismembering, pulling). The race of the dead says which parts its body has
 // and the skill each one needs (see /lib/obj/death/body-parts.md); a skill
 // takes only its own. Whoever knows the skill may use it, however they learnt
-// it. A knife or a dagger has to be wielded, as in the original muds.
+// it. A knife or a dagger has to be wielded, as in the original muds, unless
+// the part names its own tools (BODY_PART_TOOLS; a horn takes a saw).
 //
 //   <verb> <corpse>              the first of the skill's parts still on it
 //   <verb> <part> de <corpse>    that part ("from" / "of" in English)
@@ -186,23 +187,47 @@ mixed resolve_extraction(string str, object caster)
   return ({ corpse, id });
 }
 
-// Why the caster cannot cut now, nil when they can.
-private string blade_refusal(object caster)
+/**
+ * The weapon types that can cut a part: its own tools, or the default for
+ * its id (a saw for a horn, a knife or a dagger for the rest).
+ *
+ * @param id the part id
+ * @param spec the part's spec
+ * @return the weapon base names
+ */
+private string * part_tools(string id, mapping spec)
 {
-  if (!check_weapon_type(caster, ({ KNIFE, DAGGER })))
-    return _LANG_SKILL_EXTRACT_NO_BLADE;
-  return nil;
+  if (spec[BODY_PART_TOOLS])
+    return spec[BODY_PART_TOOLS];
+  if (id == PART_HORN)
+    return ({ SAW });
+  return ({ KNIFE, DAGGER });
+}
+
+// Why the caster cannot cut this part now, nil when they can.
+private string tool_refusal(object caster, string id, mapping spec)
+{
+  string * tools;
+  string tool_names;
+
+  tools = part_tools(id, spec);
+  if (check_weapon_type(caster, tools))
+    return nil;
+
+  tool_names = implode(tools, _LANG_SKILL_EXTRACT_TOOL_SEPARATOR);
+  return _LANG_SKILL_EXTRACT_NO_TOOL;
 }
 
 mixed extra_checks(string str, object caster)
 {
   mixed res;
 
-  if (blade_refusal(caster))
-    return blade_refusal(caster);
-
   res = resolve_extraction(str, caster);
-  return stringp(res) ? res : 0;
+  if (stringp(res))
+    return res;
+
+  // the part is known now, so is the tool it asks for
+  return tool_refusal(caster, res[1], res[0]->query_body_parts()[res[1]]);
 }
 
 int round_extract(object caster, mixed target, mixed out_range, int time, int quiet)
@@ -212,12 +237,6 @@ int round_extract(object caster, mixed target, mixed out_range, int time, int qu
   mixed res;
   string id, file, part_name, corpse_name;
   int chance;
-
-  if (blade_refusal(caster))
-  {
-    tell_object(caster, blade_refusal(caster));
-    return 0;
-  }
 
   // everything is asked again: the body may be gone, or a part taken
   res = resolve_extraction(stringp(target) ? target : "", caster);
@@ -230,6 +249,14 @@ int round_extract(object caster, mixed target, mixed out_range, int time, int qu
   corpse = res[0];
   id = res[1];
   spec = corpse->query_body_parts()[id];
+
+  res = tool_refusal(caster, id, spec);
+  if (stringp(res))
+  {
+    tell_object(caster, res);
+    return 0;
+  }
+
   part_name = load_object(BODY_PART_OB)->part_name(id, spec);
   corpse_name = corpse->query_name() ? corpse->query_name() : "";
 

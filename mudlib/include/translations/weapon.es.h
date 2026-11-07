@@ -7,6 +7,7 @@
 #define CLUB "garrote"
 #define LIGHT_MACE "maza ligera"
 #define SHOVEL "pala"
+#define SAW "sierra"
 #define PICK "pico"
 
 #define HEAVY_MACE "maza pesada"

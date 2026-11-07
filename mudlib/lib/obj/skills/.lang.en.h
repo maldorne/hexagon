@@ -289,7 +289,9 @@
 #define _LANG_SKILL_EXTRACT_START_ROOM "bends over a body, blade in hand."
 #define _LANG_SKILL_EXTRACT_SYNTAX "Syntax: " + query_effect_name() + " <corpse> | " + \
       query_effect_name() + " <part> from <corpse>\n"
-#define _LANG_SKILL_EXTRACT_NO_BLADE "You need to wield a knife or a dagger to do that.\n"
+#define _LANG_SKILL_EXTRACT_TOOL_SEPARATOR ", "
+#define _LANG_SKILL_EXTRACT_NO_TOOL "You need to wield one of these tools to do that: " + \
+      tool_names + ".\n"
 #define _LANG_SKILL_EXTRACT_NO_CORPSE "You see no body like that here.\n"
 #define _LANG_SKILL_EXTRACT_UNKNOWN_RACE "You cannot tell what this being was, so you " + \
       "would not know where to start.\n"

@@ -43,6 +43,9 @@
 #define BODY_PART_PERISHABLE "perishable" // 1 when it rots
 #define BODY_PART_FILE       "file"       // the object it is made of, with ".c"
                                           // (BODY_PART_OB or one inheriting it)
+// optional: the weapon base types (KNIFE, SAW...) that can cut it; a part
+// without it takes a knife or a dagger (a horn, a saw)
+#define BODY_PART_TOOLS      "tools"
 // optional, for a part the translations do not name
 #define BODY_PART_NAME       "name"
 #define BODY_PART_PLURAL     "plural"

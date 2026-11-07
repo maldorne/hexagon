@@ -293,7 +293,9 @@
 #define _LANG_SKILL_EXTRACT_START_ROOM "se inclina sobre un cuerpo con una hoja en la mano."
 #define _LANG_SKILL_EXTRACT_SYNTAX "Sintaxis: " + query_effect_name() + " <cuerpo> | " + \
       query_effect_name() + " <parte> de <cuerpo>\n"
-#define _LANG_SKILL_EXTRACT_NO_BLADE "Necesitas empuñar un cuchillo o una daga para poder hacer eso.\n"
+#define _LANG_SKILL_EXTRACT_TOOL_SEPARATOR ", "
+#define _LANG_SKILL_EXTRACT_NO_TOOL "Necesitas empuñar una de estas herramientas para poder hacer eso: " + \
+      tool_names + ".\n"
 #define _LANG_SKILL_EXTRACT_NO_CORPSE "No ves ningún cuerpo así por aquí.\n"
 #define _LANG_SKILL_EXTRACT_UNKNOWN_RACE "No sabes reconocer qué ser era este, así que no " + \
       "sabrías por dónde empezar.\n"

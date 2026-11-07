@@ -68,6 +68,9 @@ mixed * lookup_weapon_data(string name)
     case SHOVEL: // pala
       weapon_data = ({ 40, 400, 40,8,       BLUNT,    1, 6, 0,   2, 1, 4, 2, MACE_MASTERY,       2 ,1 }); break;
 
+    case SAW: // sierra
+      weapon_data = ({ 20, 200, 30,4,       SLASHING, 1, 4, 0,   2, 0,-1, 2, DAGGER_MASTERY,     1 ,1 }); break;
+
     // medium simple weapons
     case HEAVY_MACE:
       weapon_data = ({ 120,1200,120,5,      BLUNT,    1, 8, 0,   2, 0,-1, 2, MACE_MASTERY,       2 ,1 }); break;

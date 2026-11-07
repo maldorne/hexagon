@@ -1,6 +1,6 @@
 # Corpses and body parts
 
-A living that dies leaves a corpse (`corpse.c`); with the right skill and a knife or a dagger, parts can be taken from it (`body-part.c`). Both can be sold and offered to a deity (see `/lib/room/temple/temple.md`). Ids and spec keys are in `<living/body-parts.h>`.
+A living that dies leaves a corpse (`corpse.c`); with the right skill and a tool (a knife or a dagger, a saw for a horn), parts can be taken from it (`body-part.c`). Both can be sold and offered to a deity (see `/lib/room/temple/temple.md`). Ids and spec keys are in `<living/body-parts.h>`.
 
 ## The corpse
 
@@ -35,7 +35,7 @@ Each race says the kind of body it has (`set_body_kind(BODY_*)`), or it follows 
 | undead | head (dismembering), teeth (pulling) |
 | none | nothing |
 
-A part's spec: `BODY_PART_SKILL`, `BODY_PART_MIN` (least ability), `BODY_PART_WEIGHT`, `BODY_PART_VALUE` (base value), `BODY_PART_COUNT` (1 by default), `BODY_PART_PERISHABLE`, and optionally `BODY_PART_FILE` (the object to clone, one inheriting `body-part.c`) and its own names (`BODY_PART_NAME`, `_PLURAL`, `_ALIASES`, `_FEMININE`, `_PLURAL_NOUN`) for a part the translations (`<translations/body-parts.h>`) do not name.
+A part's spec: `BODY_PART_SKILL`, `BODY_PART_MIN` (least ability), `BODY_PART_WEIGHT`, `BODY_PART_VALUE` (base value), `BODY_PART_COUNT` (1 by default), `BODY_PART_PERISHABLE`, optionally `BODY_PART_TOOLS` (the weapon base types that can cut it, e.g. `({ SAW })`; without it a part takes `KNIFE` or `DAGGER`, and a horn (`PART_HORN`) takes `SAW`), and optionally `BODY_PART_FILE` (the object to clone, one inheriting `body-part.c`) and its own names (`BODY_PART_NAME`, `_PLURAL`, `_ALIASES`, `_FEMININE`, `_PLURAL_NOUN`) for a part the translations (`<translations/body-parts.h>`) do not name.
 
 A race changes them in its setup: `add_body_part(id, spec)` adds a part or merges into the one it has, `remove_body_part(id)` drops it. `query_body_parts()` gives the result. A lineage (`lib/lineage.c`) starts from its base race's parts, the base race's changes included, unless it sets a kind of its own.
 
@@ -43,7 +43,7 @@ A race changes them in its setup: `add_body_part(id, spec)` adds a part or merge
 
 One skill per kind of part, any of them percentage, all on `lib/obj/skills/base-extraction.c`: `skinning` (despellejar / skin), `gutting` (destripar / gut), `dismembering` (desmembrar / dismember), `pulling` (arrancar / pull). Nothing asks where the skill came from. Once a part is taken, the job of whoever took it is told (`on_body_part_taken(player, part, corpse)` in `lib/job.c`), so a trade can reward it.
 
-`<verb> <corpse>` takes the first of the skill's parts still on the body, `<verb> <part> de <corpse>` (`from` in English) a given one. The corpse may be carried or in the room; a knife or a dagger must be wielded; the race must be known; the ability must reach the part's minimum. The chance is 50% plus what the ability passes the minimum (10-95%); a failure ruins the part, and it counts as taken all the same. Not in combat.
+`<verb> <corpse>` takes the first of the skill's parts still on the body, `<verb> <part> de <corpse>` (`from` in English) a given one. The corpse may be carried or in the room; the part's tool must be wielded (checked once the part is known, `part_tools` in `base-extraction.c`); the race must be known; the ability must reach the part's minimum. The chance is 50% plus what the ability passes the minimum (10-95%); a failure ruins the part, and it counts as taken all the same. Not in combat.
 
 ## The body part
 

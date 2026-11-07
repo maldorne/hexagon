@@ -7,6 +7,7 @@
 #define CLUB "club"
 #define LIGHT_MACE "light mace"
 #define SHOVEL "shovel"
+#define SAW "saw"
 #define PICK "pick"
 
 #define HEAVY_MACE "heavy mace"
