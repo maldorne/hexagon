@@ -28,7 +28,7 @@
 //                       anybody of another race finds the door shut (empty:
 //                       any race)
 //   "barred_races"    - race ids (a lineage or its base race) it never opens
-//                       for, even when listed in "races"
+//                       for, even when listed in "races"; "*" opens for nobody
 
 #include <language.h>
 
@@ -92,7 +92,8 @@ private int _is_allowed(object who)
   race = (string)who->query_race_id();
   base = (string)who->query_base_race_id();
 
-  if (member_array(race, gate_barred_races) != -1 ||
+  if (member_array("*", gate_barred_races) != -1 ||
+      member_array(race, gate_barred_races) != -1 ||
       member_array(base, gate_barred_races) != -1)
     return 0;
 

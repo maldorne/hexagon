@@ -29,7 +29,7 @@
 //   "races"           - race ids (a lineage or its base race) it lets through;
 //                       anybody of another race is stopped (empty: any race)
 //   "barred_races"    - race ids (a lineage or its base race) never let through,
-//                       even when listed in "races"
+//                       even when listed in "races"; "*" stops every race
 //   "night_admit"     - "citizens": from nightfall to dawn only fellow citizens
 //                       pass
 //   "message"         - what whoever it stops is told
@@ -447,7 +447,8 @@ private int _is_barred_race(object mover)
   race = (string)mover->query_race_id();
   base = (string)mover->query_base_race_id();
 
-  if (member_array(race, guard_barred_races) != -1 ||
+  if (member_array("*", guard_barred_races) != -1 ||
+      member_array(race, guard_barred_races) != -1 ||
       member_array(base, guard_barred_races) != -1)
     return 1;
 
