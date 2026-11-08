@@ -2,7 +2,8 @@
 
 An **entity** is an object that carries **components**: small objects, one per
 type, each holding one slice of its behaviour. NPCs and locations are entities;
-a schedule, a guard post or a toll is a component of an NPC, a shop, the props
+a schedule, a guard post, a toll or a gatekeeper (it works a door) is a
+component of an NPC, a shop, the props
 or a maze is a component of a location.
 
 | | file |

@@ -87,7 +87,8 @@ arrivals (aggression check, revenge on a player who attacked it and left).
 `/lib/location.c` forwards it to its components; bridges, coasts, water,
 triggers and the blacksmith component use it.
 `/lib/npc.c` forwards it to its components too (the thief component
-schedules its attempt from it, never acting inside the event).
+schedules its attempt from it, never acting inside the event; the gatekeeper
+component queues a look at the arrival, to open or shut its door).
 
 ### exit
 
