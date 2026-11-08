@@ -27,9 +27,6 @@ int body_size; // 1 smaller - 5 human - 9 bigger
 int ext_align;
 // Number of arms
 int limbs;
-// Whether this race walks through mud and bog without sinking (see the swamp
-// location component)
-int swamp_walker;
 // The lineages this race divides into, by name
 string * lineages;
 // System to take a character to its starting zone
@@ -130,9 +127,6 @@ int query_number_wielded() {
 */
 
 /* the number of hands the race has */
-void set_swamp_walker(int i) { swamp_walker = i; }
-int query_swamp_walker() { return swamp_walker; }
-
 void set_limbs(int i) { limbs = i; }
 int query_limbs() { return limbs; }
 

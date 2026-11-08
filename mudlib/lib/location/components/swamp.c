@@ -3,15 +3,18 @@
 // the sector-level "swamp" tally so the world map draws a green wave glyph.
 //
 // The mud holds back whoever tries to leave: the weaker and clumsier the
-// living (strength plus dexterity), the more often the step is lost. A race
-// that walks the bog (query_swamp_walker in /lib/race.c) and a ghost are never
-// held. The location asks it through query_exit_refusal, so a living moved by
+// living (strength plus dexterity), the more often the step is lost. The races
+// of SWAMP_WALKER_RACES (a lineage counts as its base race) and a ghost are
+// never held. The location asks it through query_exit_refusal, so a living moved by
 // force_exit is not held either.
 
 #include <room/location.h>
 #include <language.h>
 
 inherit component "/lib/location/component.c";
+
+// the race ids that walk the bog freely
+#define SWAMP_WALKER_RACES ({ "saurian" })
 
 void create()
 {
@@ -55,15 +58,8 @@ int query_stuck_chance(object who)
  */
 int query_walks_bog(object who)
 {
-  string race;
-  object race_ob;
-
-  race = who->query_race_ob();
-  if (!race)
-    return 0;
-
-  race_ob = load_object(race);
-  return race_ob && race_ob->query_swamp_walker();
+  return member_array((string)who->query_race_id(), SWAMP_WALKER_RACES) != -1 ||
+         member_array((string)who->query_base_race_id(), SWAMP_WALKER_RACES) != -1;
 }
 
 /**
