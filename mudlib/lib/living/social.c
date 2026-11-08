@@ -37,7 +37,7 @@
 inherit skills "/lib/living/skills";
 inherit specs "/lib/living/specs";
 
-// guild_joined[guild_ob] = ({ nivel, 1º vez alistado, ultima vez abandonado, })
+// guild_joined[guild_ob] = ({ level, first time joined, last time left, })
 mapping guild_joined;
 mapping job_joined;
 
@@ -228,7 +228,7 @@ void set_race_ob(string str)
   {
     this_object()->remove_languages(
       social_object_list[RACE_OB]->query_initial_languages(), 1);
-      // Asignamos uno de los lenguajes actuales, neverbot 02/2006
+      // Set one of the current languages, neverbot 02/2006
       if (sizeof(this_object()->query_languages()) > 0)
         this_object()->set_language(this_object()->query_languages()[0]);
 
@@ -240,7 +240,7 @@ void set_race_ob(string str)
 
   social_object_list[RACE_OB] = str;
   this_object()->add_languages(social_object_list[RACE_OB]->query_initial_languages());
-  // Asignamos uno de los lenguajes (el primero), neverbot 02/2006
+  // Set one of the languages (the first one), neverbot 02/2006
   if (sizeof(social_object_list[RACE_OB]->query_initial_languages()) > 0)
     this_object()->set_language(social_object_list[RACE_OB]->query_initial_languages()[0]);
 
@@ -267,7 +267,7 @@ void set_race(string str) { set_race_ob(DEFAULT_RACE_DIR + str + ".c"); }
 
 string query_race_ob() { return social_object_list[RACE_OB]; }
 
-// Nuevo sistema de subrazas, neverbot 6/03
+// New system of subraces, neverbot 6/03
 // The name of the base race of a lineage, or "" for a race that is none
 string query_base_race_name()
 {
@@ -297,8 +297,8 @@ string query_base_race_ob()
   return "";
 }
 
-// Cambio: Ahora el query_race_name devuelve el name de la raza
-// y query_race devuelve su short!! neverbot 6/03
+// Change: now query_race_name returns the name of the race
+// and query_race returns its short!! neverbot 6/03
 string query_race_name()
 {
   if (social_object_list[RACE_OB])
@@ -329,11 +329,11 @@ int query_body_size()
   if (social_object_list[RACE_OB])
     return (int)social_object_list[RACE_OB]->query_body_size();
   else
-    return 5; // Tamaño estandar (humano)
+    return 5; // standard size (human)
 } /* query_body_size() */
 
 // *****************************************
-//  Nuevo objeto para la Clase, neverbot 6/03
+//  New object for the Class, neverbot 6/03
 // *****************************************
 
 void set_class_ob(string str)
@@ -386,7 +386,7 @@ string query_class()
 
 // *****************************************
 
-// guild_joined[guild_ob] = ({ nivel, 1º vez alistado, ultima vez abandonado, })
+// guild_joined[guild_ob] = ({ level, first time joined, last time left, })
 
 mapping query_guild_joined(){ return guild_joined; }
 
@@ -418,10 +418,10 @@ void set_guild_ob(string str)
   old_guild = social_object_list[GUILD_OB];
   old_level = this_object()->query_guild_level();
 
-  // Guardamos los datos del guild que abandonamos
+  // Save the data of the guild we leave
   if (old_guild && load_object(old_guild))
   {
-    // Actualizamos los datos del guild anterior
+    // Update the data of the previous guild
     values = guild_joined[old_guild];
     guild_joined[old_guild] = ({ old_level,
                                 (sizeof(values)?values[1]:time()),
@@ -429,10 +429,10 @@ void set_guild_ob(string str)
                               });
   }
 
-  // Abandonar un guild
+  // Leaving a guild
   if (!strlen(str))
   {
-    // Eliminamos la especializacion si la tuviera
+    // Remove the specialization, if any
     this_object()->reset_guild_spec();
 
     social_object_list[GUILD_OB] = nil;
@@ -446,32 +446,32 @@ void set_guild_ob(string str)
   if ( !load_object(str) || (!load_object(str)->query_legal_player(this_object()) ) )
     return;
 
-  // Asignamos el gremio nuevo
+  // Set the new guild
   social_object_list[GUILD_OB] = str;
   // when it was joined, in played time, which starts the wait before the next
   guild_join_age = _played_age();
-  // this_object()->set_xp(0); // NO!, la experiencia de clase y gremio es la misma
+  // this_object()->set_xp(0); // NO!, class and guild experience are the same
 
-  // Si es uno en el que no hemos estado nunca
+  // If it is one we have never been in
   if (undefinedp(guild_joined[str]))
   {
     guild_level = 1;
     guild_joined[str] = ({ 1, time(), -1, });
   }
-  // Volvemos a alistarnos en un gremio anterior
+  // We join a guild we had left
   else
   {
     values = guild_joined[str];
     guild_level = values[0];
   }
 
-  // Eliminamos la especializacion si la tuviera
+  // Remove the specialization, if any
   this_object()->reset_guild_spec();
 
-  // Inicializacion del player
-  // Esto solo ocurre la primera vez
+  // Player initialization
+  // This only happens the first time
   social_object_list[GUILD_OB]->join_player(this_object());
-  // Esto cada vez que conectemos
+  // This, every time we log in
   social_object_list[GUILD_OB]->start_player(this_object());
 
 } /* set_guild_ob() */
@@ -609,7 +609,7 @@ string query_race_group_name()
     return ("Sin Grupo Racial");
 }
 
-// Sistema de localizaciones de Iolo para Rl, adaptado para Cc, neverbot 4/03
+// Iolo's location system for Rl, adapted for Cc, neverbot 4/03
 mixed query_locations()
 {
   if (social_object_list[RACE_OB])
@@ -624,7 +624,7 @@ mixed obtain_location()
   else return 0;
 }
 
-// Para los oficios, como herrero, mercader, minero, etc
+// For jobs, such as blacksmith, merchant, miner, etc
 mapping query_job_joined(){ return job_joined; }
 
 void set_job_joined(mapping map)
@@ -645,10 +645,10 @@ void set_job_ob(string str)
 
   old_job = social_object_list[JOB_OB];
 
-  // Guardamos los datos del oficio que abandonamos
+  // Save the data of the job we leave
   if (old_job && load_object(old_job))
   {
-      // Actualizamos los datos del guild anterior
+      // Update the data of the previous guild
       values = job_joined[old_job];
       job_joined[old_job] = ({ job_level,
                               (sizeof(values)?values[1]:time()),
@@ -658,7 +658,7 @@ void set_job_ob(string str)
 
   if (!strlen(str))
   {
-    // Eliminamos la especializacion si la tuviera
+    // Remove the specialization, if any
     this_object()->reset_job_spec();
 
     social_object_list[JOB_OB] = nil;
@@ -688,26 +688,26 @@ void set_job_ob(string str)
   social_object_list[JOB_OB] = str;
   job_xp = 0;
 
-  // Si es uno en el que no hemos estado nunca
+  // If it is one we have never been in
   if (undefinedp(job_joined[str]))
   {
     job_level = 1;
     job_joined[str] = ({ 1, time(), -1, });
   }
-  // Volvemos a alistarnos en un oficio anterior
+  // We join a job we had left
   else
   {
     values = job_joined[str];
     job_level = values[0];
   }
 
-  // Eliminamos la especializacion si la tuviera
+  // Remove the specialization, if any
   this_object()->reset_job_spec();
 
-  // Inicializacion del player
-  // Esto solo ocurre la primera vez
+  // Player initialization
+  // This only happens the first time
   social_object_list[JOB_OB]->join_player(this_object());
-  // Esto cada vez que conectemos
+  // This, every time we log in
   social_object_list[JOB_OB]->start_player(this_object());
 }
 
@@ -721,7 +721,7 @@ string query_job_name()
     return ("Sin Oficio");
 }
 
-// Funciones relativas a las estadisticas del oficio
+// Functions about the statistics of the job
 int query_job_xp() { return job_xp; }
 int query_total_job_xp() { return total_job_xp; }
 
@@ -771,13 +771,13 @@ int adjust_job_level(int i)
   // the new rank may carry a title with it
   this_object()->check_new_titles();
 
-  // Log para players
+  // Log for players
   if (interactive(this_object()) && !this_object()->query_property(GUEST_PROP))
   {
     log_file(LOG_ADJUST_JOB_LEVEL, "["+ctime(time(),4)+"] "+this_object()->query_cap_name() +
            " ajusto "+i+" niveles ["+query_job_ob()+"], quedandose en "+job_level+"\n");
 
-      // Ajuste de los rankings para players
+      // Rankings adjustment for players
     ranking = load_object(RANKING_OB);
 
     if (ranking)
@@ -798,7 +798,7 @@ int set_job_level(int i)
   return job_level;
 }
 
-// Nivel maximo de todos los oficios en los que ha estado
+// Max level of all the jobs it has been in
 int query_max_job_level()
 {
   string* list;
@@ -808,9 +808,9 @@ int query_max_job_level()
   res = job_level;
   list = keys(job_joined);
 
-  // job_joined[job_ob] = ({ nivel, 1º vez alistado, ultima vez abandonado, })
+  // job_joined[job_ob] = ({ level, first time joined, last time left, })
   for (i = 0; i < sizeof(list); i++)
-    // El oficio actual estara almacenado con un nivel antiguo
+    // The current job will be stored with an old level
     if (list[i] != query_job_ob())
       if (job_joined[list[i]][0] > res)
         res = job_joined[list[i]][0];
@@ -860,8 +860,8 @@ int set_job_xp(int i)
   return job_xp;
 }/* int set_job_xp(int i) { job_xp = i; return job_xp; } */
 
-// Para las Deidades. Al tener un objeto deidad podremos hacer mas
-// cosas interesantes con los cultos a los dioses
+// For the deities. With a deity object we can do more
+// interesting things with the worship of the gods
 // neverbot 3/2002
 void set_deity_ob(string str)
 {
@@ -935,7 +935,7 @@ string query_deity_name()
 
 string query_deity(){ return query_deity_name(); }
 
-// Para las ciudadanias.
+// For the citizenships.
 // neverbot 4/2003
 void set_city_ob(string str)
 {
@@ -1046,7 +1046,7 @@ int query_max_guild_level()
   res = guild_level;
   list = keys(guild_joined);
 
-  // guild_joined[guild_ob] = ({ nivel, 1º vez alistado, ultima vez abandonado, })
+  // guild_joined[guild_ob] = ({ level, first time joined, last time left, })
   for (i = 0; i < sizeof(list); i++)
     // the current guild will be stored with an old level
     if (list[i] != query_guild_ob())
@@ -1075,7 +1075,7 @@ int adjust_guild_level(int i)
   if (query_guild_ob())
     query_guild_ob()->on_level_change(this_object(), i);
 
-  // Mensaje de subida de nivel (excepto la primera subida que es automatica)
+  // Level up message (except the first level up, which is automatic)
   if ((guild_level >= 1) && (i > 0))
     tell_player(this_object(), "¡Subes tu nivel de gremio!");
 
@@ -1088,13 +1088,13 @@ int adjust_guild_level(int i)
   // the new rank may carry a title with it
   this_object()->check_new_titles();
 
-  // Log para players
+  // Log for players
   if (interactive(this_object()) && !this_object()->query_property(GUEST_PROP))
   {
     log_file(LOG_ADJUST_GUILD_LEVEL, "["+ctime(time(),4)+"] "+this_object()->query_cap_name() +
            " ajusto "+i+" niveles ["+query_guild_ob()+"], quedandose en "+guild_level+"\n");
 
-      // Ajuste de los rankings para players
+      // Rankings adjustment for players
     ranking = load_object(RANKING_OB);
 
     if (ranking)
@@ -1104,7 +1104,7 @@ int adjust_guild_level(int i)
   return guild_level;
 }
 
-// Una ayuda para el sistema de avance de niveles
+// A helper for the level advance system
 int query_class_xp_needed()
 {
   if (social_object_list[CLASS_OB])
@@ -1119,7 +1119,7 @@ int query_guild_xp_needed()
   return 0;
 }
 
-// Para el sistema de tipos de xp, neverbot 07/04
+// For the system of xp types, neverbot 07/04
 mapping query_xp_types()
 {
   if (social_object_list[CLASS_OB])
