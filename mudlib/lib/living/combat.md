@@ -83,14 +83,16 @@ does not exist yet.
 
 ## Natural attacks
 
-A creature with no weapon fights with its body. The template field `attacks`
-(`add_attacks` in `lib/monster/combat.c`) lists the styles it has among
-`fangs claws beak horns hooves teeth paws tail legs`
-(`NATURAL_ATTACK_*` of `include/living/combat.h`). Each blow that hits picks one
-of them at random (`workout_attack` of `living/unarmed_combat.c`), rolls the dice
-of that style in `lib/tables/unarmed-combat.c` and shows one of the message
-variants of the same style (`message_styles` keeps which style each variant
-belongs to), so the line always tells of the attack that did the damage:
+A creature with no weapon fights with its body, in an unarmed style. The damage
+of any unarmed blow is `xDy+z`: the dice and bonus of the style, then
+`query_damage_bonus` and the strength bonus (`workout_attack` of
+`living/unarmed_combat.c`). Every style, in the table or in a race, is
+`({ name, num_dice, dice_size, bonus, message_lists })`; the living keeps the
+dice it fights with (`set_damage_dice(num, size, bonus)`, `query_damage_dice`).
+
+The styles of `lib/tables/unarmed-combat.c` are the ones anybody could learn, and
+the natural ones that races and templates name
+(`NATURAL_ATTACK_*` of `include/living/combat.h`):
 
 | style | dice | style | dice |
 |---|---|---|---|
@@ -100,11 +102,20 @@ belongs to), so the line always tells of the attack that did the damage:
 | paws | 1d6 | legs | 1d3 |
 | beak | 1d4 | a punch | 1d3 |
 
-The damage is `dice + natural_bonus + query_damage_bonus + strength bonus`, where
-`natural_bonus` is the template field `damage_bonus` (`set_natural_damage_bonus`,
-0 by default, not saved: the template sets it at every materialization). Giving a
-living an explicit unarmed style (`set_unarmed_combat_style`) drops its natural
-attacks. A creature hits one blow per round, however many styles it has.
+**Racial styles** live in the race object (`lib/race.c`): `add_unarmed_style(id,
+name, num, size, bonus, message_lists)` adds one that only that race has (a
+dragon mixing claws, fangs and tail), with the same query functions as the table
+(`style_exists`, `query_unarmed_style_info`, `query_messages`, `set_damage_dice`).
+`set_natural_style(id)` says the style the creatures of the race fight with, one
+of its own or an id of the table. When a living gets the race (`set_race_ob` of
+`living/social.c`) it knows that style at 100 and uses it; when it loses the race
+it goes back to its fists. Player races have none. A living asks where a style
+lives through `_style_source` of `living/unarmed_combat.c` (its race, then the
+table); learning and improving (`adjust_unarmed_ability`) only look at the table,
+so a racial style can never be learned.
+
+A template whose race is shared by different beasts (animal, bird, reptile) names
+the style of each in the field `unarmed_style` (a table id, or an id of its race).
 
 ## Hit locations
 

@@ -38,6 +38,11 @@ string race_id;
 // of that kind's parts: part id -> spec, or 0 for a part it lacks.
 string body_kind;
 mapping body_part_changes;
+// The unarmed styles only this race has, shaped like the entries of the
+// unarmed-combat table: id -> ({ name, num_dice, dice_size, bonus, message_lists }),
+// and the style (own or from the table) its creatures fight with
+private mapping unarmed_styles;
+private string natural_style;
 
 // New, to add races for NPCs (they are not playable)
 // Any race in /obj/races becomes playable automatically unless it has this set to 0
@@ -60,6 +65,8 @@ void create()
   race_id = "";
   body_kind = "";
   body_part_changes = ([ ]);
+  unarmed_styles = ([ ]);
+  natural_style = "";
   // Neutral alignment by default
   ext_align = random(100);
 
@@ -432,3 +439,88 @@ mapping query_body_part(string id)
 {
   return query_body_parts()[id];
 }
+
+/**
+ * Adds an unarmed style that only this race has; it cannot be learned by anyone.
+ *
+ * @param id the style id, in English
+ * @param name the translated name of the style
+ * @param num the number of dice
+ * @param size the size of the dice
+ * @param bonus a flat bonus added to the roll
+ * @param message_lists as in the unarmed-combat table: a list per ability band,
+ *        each with the attacker, defender and room messages
+ */
+void add_unarmed_style(string id, string name, int num, int size, int bonus, mixed * message_lists)
+{
+  if (stringp(id) && strlen(id))
+    unarmed_styles[id] = ({ name, num, size, bonus, message_lists });
+}
+
+/** The ids of the unarmed styles of this race. */
+string * query_unarmed_styles()
+{
+  return map_indices(unarmed_styles);
+}
+
+/** Whether the race has an unarmed style of its own with this id. */
+int style_exists(string id)
+{
+  return !undefinedp(unarmed_styles[id]);
+}
+
+/** The entry of a style, ({ }) when the race has none with that id. */
+mixed * query_unarmed_style_info(string id)
+{
+  if (undefinedp(unarmed_styles[id]))
+    return ({ });
+
+  return unarmed_styles[id];
+}
+
+/**
+ * Gives a living the dice of a style, as the unarmed-combat table does.
+ *
+ * @return 0 if the race has no such style
+ */
+int set_damage_dice(string id, object living)
+{
+  if (undefinedp(unarmed_styles[id]))
+    return 0;
+
+  living->set_damage_dice(unarmed_styles[id][1], unarmed_styles[id][2],
+                          unarmed_styles[id][3]);
+  return 1;
+}
+
+/**
+ * The messages of a style for an ability, as the unarmed-combat table gives them.
+ *
+ * @param id the style id
+ * @param ability the ability of the attacker, 0 to 100
+ * @param att the attacker
+ * @return the three messages (or lists of them), ({ }) if the style is unknown
+ */
+mixed * query_messages(string id, int ability, object att)
+{
+  int divs, list;
+
+  if (undefinedp(unarmed_styles[id]))
+    return ({ });
+
+  divs = sizeof(unarmed_styles[id][4]);
+  list = ability / (100 / divs);
+  if (list >= divs)
+    list = divs - 1;
+
+  return unarmed_styles[id][4][list];
+}
+
+/**
+ * Sets the style the creatures of this race fight with: one of its own or an
+ * id of the unarmed-combat table.
+ */
+void set_natural_style(string id) { natural_style = id; }
+
+/** The style the creatures of this race fight with, "" for none. */
+string query_natural_style() { return natural_style; }

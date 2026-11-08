@@ -69,4 +69,5 @@
 // default damage dice 1d6
 #define BDEFNUM 1
 #define BDEFTYPE 6
+#define BDEFBONUS 0
 

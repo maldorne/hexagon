@@ -40,11 +40,7 @@ void add_attacks( string * names )
   int i;
   mixed * tmp;
   mixed * messages;
-  string * styles, * owners;
-  int j, count;
 
-  styles = ({ });
-  owners = ({ });
   messages = allocate(3);
   messages[0] = ({ });
   messages[1] = ({ });
@@ -58,8 +54,6 @@ void add_attacks( string * names )
       // a creature fights its own way at its best: the messages of the top
       // ability band of the style
       tmp = table("unarmed-combat")->query_messages(names[i], 100, this_object());
-      styles += ({ names[i] });
-      count = sizeof(messages[0]);
 
       // Si es una lista, la añadimos
       if (arrayp(tmp[0]))
@@ -74,19 +68,12 @@ void add_attacks( string * names )
         messages[1] += ({ tmp[1] });
         messages[2] += ({ tmp[2] });
       }
-
-      // every message variant added tells of this style
-      for (j = count; j < sizeof(messages[0]); j++)
-        owners += ({ names[i] });
     }
   }
   
   // si tenemos mensajes
   if (sizeof(messages[0]))
-  {
     this_object()->set_messages(messages);
-    this_object()->set_natural_attacks(styles, owners);
-  }
 }
 
 /**

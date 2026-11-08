@@ -753,11 +753,6 @@ void apply_template(mapping t, varargs int born)
     set_real_align(t["align"]);
   if (t["swims"])
     set_swims(1);
-  // the way it fights with its own body (NATURAL_ATTACK_* of <living/combat.h>)
-  if (pointerp(t["attacks"]) && sizeof(t["attacks"]))
-    add_attacks(t["attacks"]);
-  // flat damage added to each of its unarmed blows
-  set_natural_damage_bonus(intp(t["damage_bonus"]) ? t["damage_bonus"] : 0);
 
   // Starting coin, handed over once. What the NPC earns or spends afterwards is
   // its own, and persists: the purse itself opts out of the auto-load snapshot,
@@ -953,6 +948,17 @@ void apply_template(mapping t, varargs int born)
     if (social["group"])      set_group_ob(social["group"]);
     if (social["job"])        set_job_ob(social["job"]);
     if (social["deity"])      set_deity_ob(social["deity"]);
+  }
+
+  // The way it fights with its own body when its race does not give it: an id
+  // of the unarmed-combat table (NATURAL_ATTACK_* of <living/combat.h>) or of
+  // its race.
+  if (stringp(t["unarmed_style"]) && strlen(t["unarmed_style"]) &&
+      (table("unarmed-combat")->style_exists(t["unarmed_style"]) ||
+       (query_race_ob() && query_race_ob()->style_exists(t["unarmed_style"]))))
+  {
+    add_known_unarmed_style(t["unarmed_style"], 100);
+    set_unarmed_combat_style(t["unarmed_style"], 1);
   }
 
   // Roll the eight stats in the type's range, so two NPCs of a type are not the

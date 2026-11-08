@@ -31,6 +31,7 @@
 #include <living/living.h>
 #include <living/social.h>
 #include <living/races.h>
+#include <living/combat.h>
 #include <mud/secure.h>
 #include <language.h>
 
@@ -191,6 +192,7 @@ void start_race()
 void set_race_ob(string str)
 {
   string * old_aliases;
+  string style;
   int i;
 
   if (undefinedp(str) || !strlen(str))
@@ -236,6 +238,14 @@ void set_race_ob(string str)
       old_aliases = social_object_list[RACE_OB]->query_race_aliases();
       for (i = 0; i < sizeof(old_aliases); i++)
         this_object()->remove_alias(old_aliases[i]);
+
+      // the way of fighting of the outgoing race goes with it
+      style = social_object_list[RACE_OB]->query_natural_style();
+      if (strlen(style))
+      {
+        this_object()->remove_known_unarmed_style(style);
+        this_object()->set_unarmed_combat_style(DEF_UNARMED_STYLE_NAME, 1);
+      }
   }
 
   social_object_list[RACE_OB] = str;
@@ -252,6 +262,15 @@ void set_race_ob(string str)
   // with lineages this would add an alias such as "Humano (Velan)"
   // this_object()->add_alias(lower_case(this_object()->query_race()));
   start_race();
+
+  // a race whose creatures fight in their own way: they know that style at
+  // their best and it is the one they use
+  style = social_object_list[RACE_OB]->query_natural_style();
+  if (strlen(style))
+  {
+    this_object()->add_known_unarmed_style(style, 100);
+    this_object()->set_unarmed_combat_style(style, 1);
+  }
 
   // if (this_object()->query_player())
   //  this_object()->add_alias("*"+lower_case(this_object()->query_race())+"*");

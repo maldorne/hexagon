@@ -1,9 +1,10 @@
 /* 
  * New combat styles system for CcMud, neverbot 27/4/2003
- * ([ style_id : ({ style_name, num_dice, dice_type, message_list }) ])
+ * ([ style_id : ({ style_name, num_dice, dice_size, bonus, message_list }) ])
  *
  * style_id is just a word in english, to store with the player data
  * style_name will be translated 
+ * damage of a blow is num_dice d dice_size + bonus (xDy+z)
  *
  * message_list is a list of arrays
  *   initial list
@@ -33,12 +34,13 @@ mapping unarmed_combat_styles;
 
 #define DEFAULT_NUM_DICE 1
 #define DEFAULT_DICE_SIZE 3
+#define DEFAULT_DICE_BONUS 0
 
 void create()
 {
   // seteuid("Room");
   unarmed_combat_styles = ([ 
-     DEF_UNARMED_STYLE_NAME : ({ _LANG_UNARMED_DEFAULT_STYLE, DEFAULT_NUM_DICE, DEFAULT_DICE_SIZE, 
+     DEF_UNARMED_STYLE_NAME : ({ _LANG_UNARMED_DEFAULT_STYLE, DEFAULT_NUM_DICE, DEFAULT_DICE_SIZE, DEFAULT_DICE_BONUS, 
          ({
             ({ // messages up to 33%
                _LANG_UNARMED_INITIAL_ATT_MSGS, 
@@ -69,47 +71,47 @@ void create()
     //   for npcs: each natural attack rolls its own dice
     // *****************************
 
-    NATURAL_ATTACK_FANGS : ({ _LANG_NATURAL_ATTACK_FANGS_STYLE, 1, 6,
+    NATURAL_ATTACK_FANGS : ({ _LANG_NATURAL_ATTACK_FANGS_STYLE, 1, 6, DEFAULT_DICE_BONUS,
        ({ ({ _LANG_NATURAL_ATTACK_FANGS_ATT_MSGS,
               _LANG_NATURAL_ATTACK_FANGS_DEF_MSGS,
               _LANG_NATURAL_ATTACK_FANGS_ROOM_MSGS, }), }),
                 }),
-    NATURAL_ATTACK_CLAWS : ({ _LANG_NATURAL_ATTACK_CLAWS_STYLE, 1, 6,
+    NATURAL_ATTACK_CLAWS : ({ _LANG_NATURAL_ATTACK_CLAWS_STYLE, 1, 6, DEFAULT_DICE_BONUS,
        ({ ({ _LANG_NATURAL_ATTACK_CLAWS_ATT_MSGS,
               _LANG_NATURAL_ATTACK_CLAWS_DEF_MSGS,
               _LANG_NATURAL_ATTACK_CLAWS_ROOM_MSGS, }), }),
                 }),
-    NATURAL_ATTACK_BEAK : ({ _LANG_NATURAL_ATTACK_BEAK_STYLE, 1, 4,
+    NATURAL_ATTACK_BEAK : ({ _LANG_NATURAL_ATTACK_BEAK_STYLE, 1, 4, DEFAULT_DICE_BONUS,
        ({ ({ _LANG_NATURAL_ATTACK_BEAK_ATT_MSGS,
               _LANG_NATURAL_ATTACK_BEAK_DEF_MSGS,
               _LANG_NATURAL_ATTACK_BEAK_ROOM_MSGS, }), }),
                 }),
-    NATURAL_ATTACK_HORNS : ({ _LANG_NATURAL_ATTACK_HORNS_STYLE, 1, 8,
+    NATURAL_ATTACK_HORNS : ({ _LANG_NATURAL_ATTACK_HORNS_STYLE, 1, 8, DEFAULT_DICE_BONUS,
        ({ ({ _LANG_NATURAL_ATTACK_HORNS_ATT_MSGS,
               _LANG_NATURAL_ATTACK_HORNS_DEF_MSGS,
               _LANG_NATURAL_ATTACK_HORNS_ROOM_MSGS, }), }),
                 }),
-    NATURAL_ATTACK_HOOVES : ({ _LANG_NATURAL_ATTACK_HOOVES_STYLE, 1, 6,
+    NATURAL_ATTACK_HOOVES : ({ _LANG_NATURAL_ATTACK_HOOVES_STYLE, 1, 6, DEFAULT_DICE_BONUS,
        ({ ({ _LANG_NATURAL_ATTACK_HOOVES_ATT_MSGS,
               _LANG_NATURAL_ATTACK_HOOVES_DEF_MSGS,
               _LANG_NATURAL_ATTACK_HOOVES_ROOM_MSGS, }), }),
                 }),
-    NATURAL_ATTACK_TEETH : ({ _LANG_NATURAL_ATTACK_TEETH_STYLE, 1, 4,
+    NATURAL_ATTACK_TEETH : ({ _LANG_NATURAL_ATTACK_TEETH_STYLE, 1, 4, DEFAULT_DICE_BONUS,
        ({ ({ _LANG_NATURAL_ATTACK_TEETH_ATT_MSGS,
               _LANG_NATURAL_ATTACK_TEETH_DEF_MSGS,
               _LANG_NATURAL_ATTACK_TEETH_ROOM_MSGS, }), }),
                 }),
-    NATURAL_ATTACK_PAWS : ({ _LANG_NATURAL_ATTACK_PAWS_STYLE, 1, 6,
+    NATURAL_ATTACK_PAWS : ({ _LANG_NATURAL_ATTACK_PAWS_STYLE, 1, 6, DEFAULT_DICE_BONUS,
        ({ ({ _LANG_NATURAL_ATTACK_PAWS_ATT_MSGS,
               _LANG_NATURAL_ATTACK_PAWS_DEF_MSGS,
               _LANG_NATURAL_ATTACK_PAWS_ROOM_MSGS, }), }),
                 }),
-    NATURAL_ATTACK_TAIL : ({ _LANG_NATURAL_ATTACK_TAIL_STYLE, 1, 4,
+    NATURAL_ATTACK_TAIL : ({ _LANG_NATURAL_ATTACK_TAIL_STYLE, 1, 4, DEFAULT_DICE_BONUS,
        ({ ({ _LANG_NATURAL_ATTACK_TAIL_ATT_MSGS,
               _LANG_NATURAL_ATTACK_TAIL_DEF_MSGS,
               _LANG_NATURAL_ATTACK_TAIL_ROOM_MSGS, }), }),
                 }),
-    NATURAL_ATTACK_LEGS : ({ _LANG_NATURAL_ATTACK_LEGS_STYLE, 1, 3,
+    NATURAL_ATTACK_LEGS : ({ _LANG_NATURAL_ATTACK_LEGS_STYLE, 1, 3, DEFAULT_DICE_BONUS,
        ({ ({ _LANG_NATURAL_ATTACK_LEGS_ATT_MSGS,
               _LANG_NATURAL_ATTACK_LEGS_DEF_MSGS,
               _LANG_NATURAL_ATTACK_LEGS_ROOM_MSGS, }), }),
@@ -121,7 +123,7 @@ void create()
 
 int query_valid_attack(string attack, string style)
 {
-  if (member_array(attack, unarmed_combat_styles[style][3])>-1)
+  if (member_array(attack, unarmed_combat_styles[style][4])>-1)
     return 1;
   return 0;
 }
@@ -160,7 +162,8 @@ int set_damage_dice(string style, object player)
      return 0;
 
   player->set_damage_dice(unarmed_combat_styles[style][1], 
-                          unarmed_combat_styles[style][2]);
+                          unarmed_combat_styles[style][2],
+                          unarmed_combat_styles[style][3]);
   return 1;
 }
 
@@ -177,7 +180,7 @@ mixed * query_messages(string style, int ability, object att)
      return ({ });
      
   // divs stores how many message lists there are
-  divs = sizeof(unarmed_combat_styles[style][3]);
+  divs = sizeof(unarmed_combat_styles[style][4]);
 
   //  get the list we have to use depending of the attacker ability
   list = ability/(100/divs);
@@ -190,5 +193,5 @@ mixed * query_messages(string style, int ability, object att)
   // rand = random(list + 1);
 
   // hate arrays with so many dimensions, neverbot 4/03  
-  return unarmed_combat_styles[style][3][list];
+  return unarmed_combat_styles[style][4][list];
 }
