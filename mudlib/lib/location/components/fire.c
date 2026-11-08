@@ -1,5 +1,7 @@
-// Fire component. Attach to a location that is burning: whoever comes in is
-// burned at once, and whoever stays is burned again every FIRE_PULSE seconds.
+// Fire component. Attach to a location that is burning: whoever comes in or
+// stays is burned, at most once every LOCATION_BURN_PULSE seconds; the time of
+// the last fire burn is kept on the living, so running through several burning
+// locations does not burn it at every step.
 // The damage is of type fire, so the fire resistance of the living lowers it
 // (100 is immune). Same structure as the acid component.
 //
@@ -28,8 +30,6 @@
 
 inherit component "/lib/location/component.c";
 
-// seconds between two burns of whoever stays
-#define FIRE_PULSE 10
 // damage when stepping in: FIRE_ENTER_BASE + random(FIRE_ENTER_SPREAD)
 #define FIRE_ENTER_BASE 6
 #define FIRE_ENTER_SPREAD 10
@@ -44,14 +44,11 @@ inherit component "/lib/location/component.c";
 private int fire_end;
 // whether douse() takes effect
 private int fire_quenchable;
-// when each living was last burned here (never saved)
-static mapping burned;
 
 void create()
 {
   component::create();
   set_type(LOCATION_COMPONENT_FIRE);
-  burned = ([ ]);
 }
 
 void init() {}
@@ -162,12 +159,24 @@ int douse(int seconds)
 }
 
 /**
+ * Whether the living was burned by fire, here or in another burning location,
+ * less than LOCATION_BURN_PULSE seconds ago.
+ */
+private int burned_lately(object who)
+{
+  mixed last;
+
+  last = who->query_static_property(LOCATION_BURN_PROP + DAMAGE_FIRE);
+  return intp(last) && last && time() - last < LOCATION_BURN_PULSE;
+}
+
+/**
  * Burns a living with damage of type fire, so its resistance counts. Whoever
  * is immune is not told anything.
  */
 private void burn(object who, int damage, string message)
 {
-  burned[who] = time();
+  who->add_static_property(LOCATION_BURN_PROP + DAMAGE_FIRE, time());
   if ((int)who->query_resistance(DAMAGE_FIRE) >= 100)
     return;
 
@@ -184,43 +193,25 @@ private int burns(object ob)
 }
 
 /**
- * Whoever steps in is burned at once.
+ * Whoever steps in is burned, unless it was burned lately.
  */
 void event_enter(object ob, varargs string msg, object from, mixed avoid)
 {
-  if (!burns(ob) || check_over())
+  if (!burns(ob) || check_over() || burned_lately(ob))
     return;
 
   burn(ob, FIRE_ENTER_BASE + random(FIRE_ENTER_SPREAD), _LANG_FIRE_ENTER);
 }
 
 /**
- * Whoever leaves is forgotten: coming back is a new step in.
- */
-void event_exit(object ob, varargs string msg, object dest, mixed avoid)
-{
-  map_delete(burned, ob);
-}
-
-/**
  * A living in the fire has had another heart_beat: it is burned again when
- * FIRE_PULSE seconds have passed since its last burn.
+ * LOCATION_BURN_PULSE seconds have passed since its last fire burn.
  *
  * @param who  the living
  */
 void event_heart_beat(object who)
 {
-  if (!burns(who) || check_over())
-    return;
-
-  // already here when the component was loaded: its stay starts now
-  if (!burned[who])
-  {
-    burned[who] = time();
-    return;
-  }
-
-  if (time() - burned[who] < FIRE_PULSE)
+  if (!burns(who) || check_over() || burned_lately(who))
     return;
 
   burn(who, FIRE_STAY_BASE + random(FIRE_STAY_SPREAD), _LANG_FIRE_BURN);

@@ -1,6 +1,7 @@
 // Acid component. Attach to a location whose floor is a pool of acid: whoever
-// comes in is burned at once, and whoever stays is burned again every
-// ACID_PULSE seconds. The damage is of type acid, so the acid resistance of
+// comes in or stays is burned, at most once every LOCATION_BURN_PULSE seconds:
+// the time of the last acid burn is kept on the living, so walking through
+// several pools does not burn it at every step. The damage is of type acid, so the acid resistance of
 // the living (a spell, armour) lowers it.
 //
 // The stay is counted on the heart_beats of the livings in the pool (the
@@ -13,8 +14,6 @@
 
 inherit component "/lib/location/component.c";
 
-// seconds between two burns of whoever stays
-#define ACID_PULSE 10
 // damage when stepping in: ACID_ENTER_BASE + random(ACID_ENTER_SPREAD)
 #define ACID_ENTER_BASE 4
 #define ACID_ENTER_SPREAD 10
@@ -22,14 +21,11 @@ inherit component "/lib/location/component.c";
 #define ACID_STAY_BASE 4
 #define ACID_STAY_SPREAD 8
 
-// when each living was last burned here (never saved)
-static mapping burned;
 
 void create()
 {
   component::create();
   set_type(LOCATION_COMPONENT_ACID);
-  burned = ([ ]);
 }
 
 void init() {}
@@ -41,11 +37,23 @@ void initialize(object loc)
 }
 
 /**
+ * Whether the living was burned by acid, here or in another pool, less than
+ * LOCATION_BURN_PULSE seconds ago.
+ */
+private int burned_lately(object who)
+{
+  mixed last;
+
+  last = who->query_static_property(LOCATION_BURN_PROP + DAMAGE_ACID);
+  return intp(last) && last && time() - last < LOCATION_BURN_PULSE;
+}
+
+/**
  * Burns a living with damage of type acid, so its resistance counts.
  */
 private void burn(object who, int damage, string message)
 {
-  burned[who] = time();
+  who->add_static_property(LOCATION_BURN_PROP + DAMAGE_ACID, time());
   tell_object(who, message);
   who->spell_damage(damage, DAMAGE_ACID);
 }
@@ -59,43 +67,25 @@ private int burns(object ob)
 }
 
 /**
- * Whoever steps in is burned at once.
+ * Whoever steps in is burned, unless it was burned lately.
  */
 void event_enter(object ob, varargs string msg, object from, mixed avoid)
 {
-  if (!burns(ob))
+  if (!burns(ob) || burned_lately(ob))
     return;
 
   burn(ob, ACID_ENTER_BASE + random(ACID_ENTER_SPREAD), _LANG_ACID_ENTER);
 }
 
 /**
- * Whoever leaves is forgotten: coming back is a new step in.
- */
-void event_exit(object ob, varargs string msg, object dest, mixed avoid)
-{
-  map_delete(burned, ob);
-}
-
-/**
  * A living in the pool has had another heart_beat: it is burned again when
- * ACID_PULSE seconds have passed since its last burn.
+ * LOCATION_BURN_PULSE seconds have passed since its last acid burn.
  *
  * @param who  the living
  */
 void event_heart_beat(object who)
 {
-  if (!burns(who))
-    return;
-
-  // already in the pool when the component was loaded: its stay starts now
-  if (!burned[who])
-  {
-    burned[who] = time();
-    return;
-  }
-
-  if (time() - burned[who] < ACID_PULSE)
+  if (!burns(who) || burned_lately(who))
     return;
 
   burn(who, ACID_STAY_BASE + random(ACID_STAY_SPREAD), _LANG_ACID_BURN);

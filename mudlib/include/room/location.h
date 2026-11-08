@@ -90,4 +90,10 @@
 // /lib/location/components/fire.c.
 #define LOCATION_COMPONENT_FIRE        "fire"
 
+// The places that burn (acid, fire) burn a living at most once every
+// LOCATION_BURN_PULSE seconds per damage type, wherever it walks: the time of
+// its last burn is a static property named LOCATION_BURN_PROP + the type.
+#define LOCATION_BURN_PROP             "last burn "
+#define LOCATION_BURN_PULSE            5
+
 #endif // LOCATION_H

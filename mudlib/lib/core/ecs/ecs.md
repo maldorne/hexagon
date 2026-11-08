@@ -101,16 +101,18 @@ can stop a typed exit (`bridge`, `jail`, `swamp`); a move by `force_exit` skips
 that question.
 
 - `acid` (`/lib/location/components/acid.c`): a pool of acid. Whoever enters
-  takes `4 + random(10)` damage of type acid at once, and every 10 seconds
-  `4 + random(8)` more while they stay; the acid resistance of the living
-  (`query_resistance`) lowers both. The stay is counted on `event_heart_beat`
-  (the component keeps when each living was last burned and forgets it in
-  `event_exit`), so a monster whose heart_beat is off burns no more. A room becomes one by answering
+  takes `4 + random(10)` damage of type acid, and `4 + random(8)` more while
+  they stay; the acid resistance of the living (`query_resistance`) lowers
+  both. A living burns at most once every `LOCATION_BURN_PULSE` (5) seconds per
+  damage type, wherever it walks: the time of its last burn is the static
+  property `LOCATION_BURN_PROP + type` on the living
+  (`include/room/location.h`). The stay is counted on `event_heart_beat`, so a
+  monster whose heart_beat is off burns no more. A room becomes one by answering
   `query_acid_pool()` with 1 (`room2loc` adds the component), or
   `components add acid <files>`.
 - `fire` (`/lib/location/components/fire.c`): a burning location. Same
-  structure as `acid`, with damage of type fire (`6 + random(10)` on entering and
-  every 10 seconds while staying; fire resistance lowers it). Permanent, or
+  structure as `acid`, with damage of type fire (`6 + random(10)` on entering
+  and while staying, at most once every 5 seconds; fire resistance lowers it). Permanent, or
   timed (`duration` seconds, kept as an absolute end time) and optionally
   quenchable: `douse(seconds)` takes time off a timed quenchable fire. It keeps
   the decorative fixture `/lib/obj/flames.c` in the location while it burns. A

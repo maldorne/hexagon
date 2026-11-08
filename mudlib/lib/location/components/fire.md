@@ -1,9 +1,12 @@
 # Fire component
 
 `/lib/location/components/fire.c` (type `LOCATION_COMPONENT_FIRE`, `"fire"`): a
-burning location. It works like `acid`: whoever enters takes `6 + random(10)`
-damage at once, and every `FIRE_PULSE` (10) seconds `6 + random(10)` more while
-they stay, counted on the `event_heart_beat` of each living. The damage is
+burning location. It works like `acid`: whoever enters or stays takes
+`6 + random(10)` damage, at most once every `LOCATION_BURN_PULSE` (5) seconds.
+The time of the last fire burn is kept on the living (static property
+`LOCATION_BURN_PROP + DAMAGE_FIRE`), so running through several burning
+locations burns once per pulse, not at every step. The stay is counted on the
+`event_heart_beat` of each living. The damage is
 `spell_damage(n, DAMAGE_FIRE)`, so the fire resistance of the living lowers it;
 at 100 the living takes nothing and is told nothing.
 
