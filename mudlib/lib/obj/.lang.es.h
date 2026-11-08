@@ -394,3 +394,11 @@
 #define _LANG_SCROLL_BURNS_ROOM " se traba con las palabras de un pergamino, que estalla en llamas.\n"
 #define _LANG_SCROLL_CRUMBLES_ME "Lees el pergamino en voz alta y se deshace en polvo al escapar el hechizo.\n"
 #define _LANG_SCROLL_CRUMBLES_ROOM " lee un pergamino en voz alta, y este se deshace en polvo.\n"
+
+// flames.c -- the flames of a burning location
+
+#define _LANG_FLAMES_NAME "llamas"
+#define _LANG_FLAMES_ALIASES ({ "fuego", "llama", "incendio" })
+#define _LANG_FLAMES_SHORT "Llamas"
+#define _LANG_FLAMES_PLURALS ({ "llamas" })
+#define _LANG_FLAMES_LONG "Grandes llamas lamen las paredes y el suelo, consumiendo cuanto encuentran a su paso.\n"

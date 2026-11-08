@@ -39,3 +39,10 @@
 
 #define _LANG_ACID_ENTER "As you step in you wade into a pool of acid, which causes you terrible pain.\n"
 #define _LANG_ACID_BURN "The acid starts to burn you, causing you great pain. You had better get to safety.\n"
+
+// fire.c -- a burning location
+
+#define _LANG_FIRE_ENTER "The flames wrap around you as you step in, burning you terribly.\n"
+#define _LANG_FIRE_BURN "The fire keeps burning you, causing you great pain. You had better get to safety.\n"
+#define _LANG_FIRE_OUT "The flames weaken until they die out completely.\n"
+#define _LANG_FIRE_DOUSED "The flames weaken, but keep burning.\n"

@@ -95,7 +95,7 @@ them.
 ### Location components that act on movement
 
 A location passes `event_enter`, `event_exit` and `event_heart_beat` (a living
-in it has had another heart_beat: acid burns, water drowns and drags) on to its
+in it has had another heart_beat: acid and fire burn, water drowns and drags) on to its
 components (`run_on_components`), and asks `query_exit_refusal(dir, who)` of the ones that
 can stop a typed exit (`bridge`, `jail`, `swamp`); a move by `force_exit` skips
 that question.
@@ -108,6 +108,15 @@ that question.
   `event_exit`), so a monster whose heart_beat is off burns no more. A room becomes one by answering
   `query_acid_pool()` with 1 (`room2loc` adds the component), or
   `components add acid <files>`.
+- `fire` (`/lib/location/components/fire.c`): a burning location. Same
+  structure as `acid`, with damage of type fire (`6 + random(10)` on entering and
+  every 10 seconds while staying; fire resistance lowers it). Permanent, or
+  timed (`duration` seconds, kept as an absolute end time) and optionally
+  quenchable: `douse(seconds)` takes time off a timed quenchable fire. It keeps
+  the decorative fixture `/lib/obj/flames.c` in the location while it burns. A
+  room becomes one by answering `query_fire()` with 1 (permanent, not
+  quenchable); a spell adds it with `add_component`. Details: `fire.md` beside
+  the component.
 - `swamp` (`/lib/location/components/swamp.c`): the mud holds back whoever
   tries to leave, with a chance that falls as strength plus dexterity rises
   (over 50: never, 41-50: 20%, 36-40: 30%, 31-35: 40%, 30 or less: 50%). A race

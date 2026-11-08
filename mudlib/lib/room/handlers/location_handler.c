@@ -1392,6 +1392,15 @@ object convert_room_to_location(object room)
     ret += "   Adding component acid.\n";
   }
 
+  // A room that answers query_fire() with 1 becomes a permanent fire
+  // component that cannot be doused: it burns whoever is in it.
+  if (function_exists("query_fire", room) && room->query_fire() &&
+      !location->has_component(LOCATION_COMPONENT_FIRE))
+  {
+    location->add_component(LOCATION_COMPONENT_FIRE, ([ ]));
+    ret += "   Adding component fire.\n";
+  }
+
   // A temple room becomes a temple component, given to the deity the room
   // names; it puts its own sign up from the temples help document on every
   // load.

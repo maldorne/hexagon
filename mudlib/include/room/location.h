@@ -86,5 +86,8 @@
 // A pool of acid that burns whoever stands in it. See
 // /lib/location/components/acid.c.
 #define LOCATION_COMPONENT_ACID        "acid"
+// A burning location: burns whoever is in it, permanent or timed. See
+// /lib/location/components/fire.c.
+#define LOCATION_COMPONENT_FIRE        "fire"
 
 #endif // LOCATION_H

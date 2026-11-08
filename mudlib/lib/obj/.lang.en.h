@@ -394,3 +394,11 @@
 #define _LANG_SCROLL_BURNS_ROOM " stumbles over the words of a scroll, which bursts into flames.\n"
 #define _LANG_SCROLL_CRUMBLES_ME "You read the scroll aloud and it crumbles to dust as the spell leaves it.\n"
 #define _LANG_SCROLL_CRUMBLES_ROOM " reads a scroll aloud, and it crumbles to dust.\n"
+
+// flames.c -- the flames of a burning location
+
+#define _LANG_FLAMES_NAME "flames"
+#define _LANG_FLAMES_ALIASES ({ "fire", "flame", "blaze" })
+#define _LANG_FLAMES_SHORT "Flames"
+#define _LANG_FLAMES_PLURALS ({ "flames" })
+#define _LANG_FLAMES_LONG "Great flames lick the walls and the floor, consuming all in their path.\n"

@@ -115,7 +115,7 @@ before combat: `environment()->event_heart_beat(this_object())`, a plain
 not define it ignores it). The living may be dead or destructed when it
 returns; `heart_beat()` checks. A monster whose heart_beat is off (nobody around,
 `check_heart_beat` in `/lib/monster.c`) fires nothing. `/lib/location.c`
-forwards it to its components (`acid` burns again, `water` and `bridge` hold the
+forwards it to its components (`acid` and `fire` burn again, `water` and `bridge` hold the
 breath, drown and drag); `/lib/water.c` and `/lib/bridge.c` handle it
 themselves. Hazards of a place use it instead of a `call_out` per place or per
 living.
