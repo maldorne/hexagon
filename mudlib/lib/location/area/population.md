@@ -444,7 +444,7 @@ component. The component asks the exit handler to consult it at the exits its
 own `direction` attribute names, or else the `guard_dir` of the
 `town_entrance` POI where its holder works (several exits comma-separated: a
 gate that opens onto two streets). It stops movers whose citizenship is at war with its own (enmity
-cascades through parents), can add guild and class-level rules and a message,
+cascades through parents), can add guild, class-level and race rules (`races` lets only those through, `barred_races` never these) and a message,
 and at a `town_entrance` with `admit` set to `citizens` it lets through only its
 own citizenship and those under it. At a `town_square` it has no direction and
 stops nobody. Defending people is not the guard's: a template that should do it

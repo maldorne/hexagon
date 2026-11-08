@@ -25,7 +25,10 @@
 //   "min_guild_level" - the guild level a member needs to pass
 //   "min_class_level" - the class level anybody needs to pass
 //   "races"           - race ids (a lineage or its base race) it opens for;
-//                       anybody of another race finds the door shut
+//                       anybody of another race finds the door shut (empty:
+//                       any race)
+//   "barred_races"    - race ids (a lineage or its base race) it never opens
+//                       for, even when listed in "races"
 
 #include <language.h>
 
@@ -36,7 +39,7 @@ inherit component "/lib/npc/component.c";
 private string gate_direction;
 private int gate_delay, gate_guildless, gate_min_guild_level,
             gate_min_class_level;
-private string * gate_guilds, * gate_races;
+private string * gate_guilds, * gate_races, * gate_barred_races;
 // the pending close
 static int close_handle;
 
@@ -50,6 +53,7 @@ void create()
   gate_min_class_level = 0;
   gate_guilds = ({ });
   gate_races = ({ });
+  gate_barred_races = ({ });
   close_handle = 0;
 }
 
@@ -83,11 +87,17 @@ private int _can_act()
 // Whether `who` may go through the door by the attributes above.
 private int _is_allowed(object who)
 {
-  string guild;
+  string guild, race, base;
 
-  if (sizeof(gate_races) &&
-      member_array((string)who->query_race_id(), gate_races) == -1 &&
-      member_array((string)who->query_base_race_id(), gate_races) == -1)
+  race = (string)who->query_race_id();
+  base = (string)who->query_base_race_id();
+
+  if (member_array(race, gate_barred_races) != -1 ||
+      member_array(base, gate_barred_races) != -1)
+    return 0;
+
+  if (sizeof(gate_races) && member_array(race, gate_races) == -1 &&
+      member_array(base, gate_races) == -1)
     return 0;
 
   if (gate_min_class_level &&
@@ -218,6 +228,8 @@ mapping query_auto_load_attributes()
     attrs["min_class_level"] = gate_min_class_level;
   if (sizeof(gate_races))
     attrs["races"] = gate_races;
+  if (sizeof(gate_barred_races))
+    attrs["barred_races"] = gate_barred_races;
 
   return attrs;
 }
@@ -242,6 +254,8 @@ void init_auto_load_attributes(mapping args)
     gate_min_class_level = args["min_class_level"];
   if (pointerp(args["races"]))
     gate_races = ({ }) + args["races"];
+  if (pointerp(args["barred_races"]))
+    gate_barred_races = ({ }) + args["barred_races"];
 }
 
 mixed * stats()
@@ -249,5 +263,7 @@ mixed * stats()
   return component::stats() + ({
     ({ "Direction", gate_direction }),
     ({ "Delay", gate_delay }),
+    ({ "Races", implode(gate_races, ", ") }),
+    ({ "Barred Races", implode(gate_barred_races, ", ") }),
   });
 }

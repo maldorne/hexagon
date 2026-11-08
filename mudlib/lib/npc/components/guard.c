@@ -26,7 +26,10 @@
 //   "min_guild_level" - the guild level a member needs to pass
 //   "min_class_level" - the class level anybody needs to pass
 //   "min_align"       - the real alignment anybody needs to pass (0: not evil)
-//   "barred_races"    - race ids (a lineage or its base race) never let through
+//   "races"           - race ids (a lineage or its base race) it lets through;
+//                       anybody of another race is stopped (empty: any race)
+//   "barred_races"    - race ids (a lineage or its base race) never let through,
+//                       even when listed in "races"
 //   "night_admit"     - "citizens": from nightfall to dawn only fellow citizens
 //                       pass
 //   "message"         - what whoever it stops is told
@@ -55,8 +58,9 @@ private int guard_enemies, guard_guildless, guard_min_guild_level,
 private string * guard_guilds;
 // the least real alignment that passes, nil when the guard does not look at it
 private mixed guard_min_align;
-// race ids it never lets through; who it admits at night ("" for anybody)
-private string * guard_barred_races;
+// race ids it lets through (empty: any) and race ids it never lets through; who
+// it admits at night ("" for anybody)
+private string * guard_races, * guard_barred_races;
 private string guard_night_admit;
 // what the last refused mover is told; scan_pending: a scan is already queued
 static string refusal;
@@ -73,6 +77,7 @@ void create()
   guard_min_class_level = 0;
   guard_guilds = ({ });
   guard_min_align = nil;
+  guard_races = ({ });
   guard_barred_races = ({ });
   guard_night_admit = "";
   refusal = nil;
@@ -432,15 +437,22 @@ private int _passes_admission(object mover)
   return _is_fellow_citizen(mover);
 }
 
-// Whether `mover` is of a people the guard never lets through, by its lineage
-// or by the race the lineage belongs to.
+// Whether `mover` is of a people the guard stops: one in "barred_races", or any
+// other than the ones in "races" when it has them. Matches the lineage or the
+// race the lineage belongs to.
 private int _is_barred_race(object mover)
 {
-  if (!sizeof(guard_barred_races))
-    return 0;
+  string race, base;
 
-  return member_array((string)mover->query_race_id(), guard_barred_races) != -1 ||
-         member_array((string)mover->query_base_race_id(), guard_barred_races) != -1;
+  race = (string)mover->query_race_id();
+  base = (string)mover->query_base_race_id();
+
+  if (member_array(race, guard_barred_races) != -1 ||
+      member_array(base, guard_barred_races) != -1)
+    return 1;
+
+  return sizeof(guard_races) && member_array(race, guard_races) == -1 &&
+         member_array(base, guard_races) == -1;
 }
 
 // At night a post that admits only citizens then lets nobody else through.
@@ -523,6 +535,7 @@ mapping query_auto_load_attributes()
     "min_guild_level" : guard_min_guild_level,
     "min_class_level" : guard_min_class_level,
     "min_align"       : guard_min_align,
+    "races"           : guard_races,
     "barred_races"    : guard_barred_races,
     "night_admit"     : guard_night_admit,
     "message"         : guard_message,
@@ -549,6 +562,8 @@ void init_auto_load_attributes(mapping args)
     guard_min_class_level = args["min_class_level"];
   if (intp(args["min_align"]))
     guard_min_align = args["min_align"];
+  if (pointerp(args["races"]))
+    guard_races = ({ }) + args["races"];
   if (pointerp(args["barred_races"]))
     guard_barred_races = ({ }) + args["barred_races"];
   if (stringp(args["night_admit"]))
@@ -567,6 +582,7 @@ mixed * stats()
     ({ "Min Guild Level", guard_min_guild_level }),
     ({ "Min Class Level", guard_min_class_level }),
     ({ "Min Align", intp(guard_min_align) ? "" + guard_min_align : "-" }),
+    ({ "Races", implode(guard_races, ", ") }),
     ({ "Barred Races", implode(guard_barred_races, ", ") }),
     ({ "Night Admit", guard_night_admit }),
   });
