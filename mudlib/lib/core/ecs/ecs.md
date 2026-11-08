@@ -122,9 +122,9 @@ that question.
   the component.
 - `swamp` (`/lib/location/components/swamp.c`): the mud holds back whoever
   tries to leave, with a chance that falls as strength plus dexterity rises
-  (over 50: never, 41-50: 20%, 36-40: 30%, 31-35: 40%, 30 or less: 50%). The races
-  listed in the component (`SWAMP_WALKER_RACES`, a lineage counts as its base
-  race) and a ghost are never held.
+  (over 50: never, 41-50: 20%, 36-40: 30%, 31-35: 40%, 30 or less: 50%). A race
+  whose object answers `query_swamp_walker()` with 1 (a function of that race
+  file alone, not of `/lib/race.c`) and a ghost are never held.
 
 ## The component
 
