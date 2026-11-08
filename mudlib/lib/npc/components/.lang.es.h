@@ -65,12 +65,8 @@
 #define _LANG_GUARD_RACE_BLOCKED "No dejamos pasar a los de tu pueblo."
 #define _LANG_GUARD_NIGHT_BLOCKED "De noche las puertas no se abren a los forasteros."
 
-// gatekeeper
-#define _LANG_GATEKEEPER_OPENS npc_name + " abre " + phrase + ".\n"
-#define _LANG_GATEKEEPER_CLOSES npc_name + " cierra " + phrase + ".\n"
-#define _LANG_GATEKEEPER_LOCKS npc_name + " cierra " + phrase + " y echa la llave.\n"
-#define _LANG_GATEKEEPER_OPENS_BEYOND "Alguien abre " + phrase + " desde el otro lado.\n"
-#define _LANG_GATEKEEPER_CLOSES_BEYOND "Alguien cierra " + phrase + " desde el otro lado.\n"
+// gatekeeper: the commands that close a door and lock it with the carried key
+#define _LANG_GATEKEEPER_LOCK_COMMANDS(close, dir) ({ close + " " + dir + " con llave" })
 
 // gift
 #define _LANG_GIFT_BUSY "$npc$ está en mitad de un combate y ahora no puede atenderte."
