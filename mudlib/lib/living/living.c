@@ -37,6 +37,7 @@ inherit queue     "/lib/living/queue";
 inherit movement  "/lib/living/movement";
 
 inherit social    "/lib/living/social";
+inherit body      "/lib/living/body";
 inherit titles    "/lib/living/titles";
 inherit family    "/lib/living/family";
 inherit mount     "/lib/living/mount";

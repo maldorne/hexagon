@@ -323,15 +323,6 @@ string query_race()
     return "Sin Raza";
 } /* query_race() */
 
-// neverbot 6/03
-int query_body_size()
-{
-  if (social_object_list[RACE_OB])
-    return (int)social_object_list[RACE_OB]->query_body_size();
-  else
-    return 5; // standard size (human)
-} /* query_body_size() */
-
 // *****************************************
 //  New object for the Class, neverbot 6/03
 // *****************************************
@@ -607,21 +598,6 @@ string query_race_group_name()
     return ((string)social_object_list[RACEG_OB]->query_short());
   else
     return ("Sin Grupo Racial");
-}
-
-// Iolo's location system for Rl, adapted for Cc, neverbot 4/03
-mixed query_locations()
-{
-  if (social_object_list[RACE_OB])
-    return social_object_list[RACE_OB]->query_locations();
-  else return 0;
-}
-
-mixed obtain_location()
-{
-  if (social_object_list[RACE_OB])
-    return social_object_list[RACE_OB]->obtain_location();
-  else return 0;
 }
 
 // For jobs, such as blacksmith, merchant, miner, etc
