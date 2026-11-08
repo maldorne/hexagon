@@ -113,10 +113,8 @@ weapons, unarmed combat, spells and skills:
 
 - `pick_hit_location()` -> `({ multiplier, location, piece })`: the living's
   `obtain_location()` (random location, damage multiplier) plus the worn piece
-  covering it, or nil. That is the race's `obtain_location()` unless the living
-  has zones of its own (`set_hit_zones(({ ({ weight, multiplier, name }), … }))`,
-  the template field `hit_zones`, not saved), which are picked by weight; the
-  body type returned stays the race's. A living without locations gives
+  covering it, or nil. The locations are always the race's: every monster and
+  NPC has a race object that defines its body. A living without locations gives
   `({ 1.0, "", nil })`.
 - `query_armour_at(location)`: the first worn piece whose `query_localization()`
   is that location, or nil.

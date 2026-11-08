@@ -57,11 +57,6 @@ mapping deity_totals;
 // string group_ob, race_group_ob;
 // string job_ob, deity_ob;
 
-// the body zones of this living when it does not have those of its race:
-// ({ ({ weight, damage multiplier, name }), ... }); not saved, set by whoever
-// makes the living (an NPC template)
-static mixed * hit_zones;
-
 // jobs
 int total_job_xp, job_xp;
 int job_level;
@@ -77,7 +72,6 @@ void create()
   job_level = 0;
   job_xp = 0;
   total_job_xp = 0;
-  hit_zones = ({ });
 
   skills::create();
   specs::create();
@@ -618,69 +612,16 @@ string query_race_group_name()
 // Sistema de localizaciones de Iolo para Rl, adaptado para Cc, neverbot 4/03
 mixed query_locations()
 {
-  string * names;
-  int i;
-
-  if (sizeof(hit_zones))
-  {
-    names = ({ });
-    for (i = 0; i < sizeof(hit_zones); i++)
-      names |= ({ (string)hit_zones[i][2] });
-    return names;
-  }
-
   if (social_object_list[RACE_OB])
     return social_object_list[RACE_OB]->query_locations();
   else return 0;
 }
 
-/**
- * Gives this living its own body zones instead of those of its race.
- *
- * @param zones ({ ({ weight, damage multiplier, name }), ... }): a zone is hit
- *              with a chance proportional to its weight; an empty list goes
- *              back to the race's zones
- */
-void set_hit_zones(mixed * zones) { hit_zones = zones; }
-mixed * query_hit_zones() { return hit_zones; }
-
-/**
- * The zone a blow lands on, as the race gives it or, when the living has its
- * own zones, picked among them by weight.
- *
- * @return ({ damage multiplier, zone name, body type }) or 0 without a race
- */
 mixed obtain_location()
 {
-  mixed race_zone;
-  int total, roll_value, i;
-
   if (social_object_list[RACE_OB])
-    race_zone = social_object_list[RACE_OB]->obtain_location();
-  else
-    race_zone = 0;
-
-  if (!sizeof(hit_zones))
-    return race_zone;
-
-  total = 0;
-  for (i = 0; i < sizeof(hit_zones); i++)
-    total += (int)hit_zones[i][0];
-
-  if (total < 1)
-    return race_zone;
-
-  roll_value = random(total);
-  for (i = 0; i < sizeof(hit_zones); i++)
-  {
-    roll_value -= (int)hit_zones[i][0];
-    if (roll_value < 0)
-      break;
-  }
-
-  // the body type is still the race's, which armour is checked against
-  return ({ (float)hit_zones[i][1], (string)hit_zones[i][2],
-            race_zone ? race_zone[2] : "" });
+    return social_object_list[RACE_OB]->obtain_location();
+  else return 0;
 }
 
 // Para los oficios, como herrero, mercader, minero, etc
