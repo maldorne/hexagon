@@ -36,6 +36,15 @@ static object defender,
 // style change, to avoid looking through mappings in every hit
 static mixed * messages;
 
+// natural attacks of a creature (see monster/combat.c): the style ids it
+// picks from at each blow, the style each message variant belongs to (parallel
+// to the message lists), the style of the blow being resolved, and a flat
+// damage bonus added to every unarmed blow
+static string * natural_styles;
+static string * message_styles;
+static string natural_style;
+static int natural_bonus;
+
 // mapping with ([ "style name": number ]), the number being how much you
 // know about the style
 mapping known_unarmed_styles;
@@ -81,6 +90,10 @@ void create()
   current_unarmed_style = DEF_UNARMED_STYLE_NAME;
   unarmed_ability = 50;
   messages = ({ });
+  natural_styles = ({ });
+  message_styles = ({ });
+  natural_style = "";
+  natural_bonus = 0;
 }
 
 int unarmed_attack(object def, object att)
@@ -144,8 +157,9 @@ int unarmed_attack(object def, object att)
 mixed * workout_attack(string unarmed_type)
 {
   string happen;
+  mixed * style_info;
   int result, attackerwc, defenderac, damage_done;
-  int tmp, ac_diff;
+  int tmp, ac_diff, dice_num, dice_size;
 
   // should not happen, neverbot 4/03
   if (!defender || !attacker)
@@ -201,7 +215,25 @@ mixed * workout_attack(string unarmed_type)
   if (result > 1)
   {
     happen = HIT;
-    damage_done = (int)roll(ovr_num, ovr_type) + 
+
+    // a creature with natural attacks uses one of them at each blow, with
+    // the dice of that style
+    dice_num = ovr_num;
+    dice_size = ovr_type;
+    natural_style = "";
+    if (sizeof(natural_styles))
+    {
+      natural_style = natural_styles[random(sizeof(natural_styles))];
+      style_info = table("unarmed-combat")->query_unarmed_style_info(natural_style);
+      if (sizeof(style_info))
+      {
+        dice_num = (int)style_info[1];
+        dice_size = (int)style_info[2];
+      }
+    }
+
+    damage_done = (int)roll(dice_num, dice_size) + 
+                  natural_bonus +
                   (int)attacker->query_damage_bonus() +
                   (int)attacker->query_stat_bonus_to_str();
 
@@ -258,6 +290,9 @@ int set_unarmed_combat_style(string style)
   if (member_array(style, keys(known_unarmed_styles))>-1)
   {
     current_unarmed_style = style;
+    // an explicit style replaces the natural attacks
+    natural_styles = ({ });
+    message_styles = ({ });
     // minimum ability
     unarmed_ability = (known_unarmed_styles[style] >= MIN_UNARMED_ABILITY ? known_unarmed_styles[style] : MIN_UNARMED_ABILITY);
 
@@ -520,8 +555,22 @@ void write_message(int damage, string local, object att, object def)
   }
   else // if every element is a message list too
   {
-    int i;
+    int i, j;
+    int * pool;
+
     i = random(sizeof(messages[0]));
+
+    // the message must tell of the natural attack that rolled the damage
+    if (strlen(natural_style) && sizeof(message_styles) == sizeof(messages[0]))
+    {
+      pool = ({ });
+      for (j = 0; j < sizeof(message_styles); j++)
+        if (message_styles[j] == natural_style)
+          pool += ({ j });
+      if (sizeof(pool))
+        i = pool[random(sizeof(pool))];
+    }
+
     msgs = ({ messages[0][i], messages[1][i], messages[2][i], });
   }
 
@@ -550,8 +599,31 @@ int set_messages(mixed * list)
     return 0;
 
   messages = list;
+  message_styles = ({ });
   return 1;
 }
+
+/**
+ * Sets the natural attacks of a creature: at each blow one of the styles is
+ * picked, its dice are rolled and one of its message variants is shown.
+ *
+ * @param styles the style ids, as in the unarmed combat table
+ * @param owners the style each message variant of set_messages belongs to,
+ *               in the same order
+ */
+void set_natural_attacks(string * styles, string * owners)
+{
+  natural_styles = styles;
+  message_styles = owners;
+}
+
+string * query_natural_attacks() { return natural_styles; }
+
+/**
+ * Sets the flat damage added to every unarmed blow of this living.
+ */
+void set_natural_damage_bonus(int bonus) { natural_bonus = bonus; }
+int query_natural_damage_bonus() { return natural_bonus; }
 
 mixed query_damage_dice(){ return ({ ovr_num, ovr_type }); }
 

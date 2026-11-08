@@ -151,7 +151,7 @@ private mapping race_names(object me)
   int i, j;
 
   names = ([ ]);
-  dirs = ({ "/lib/obj/races/", game_root(me) + "obj/races/" });
+  dirs = ({ "/lib/obj/races/", "/lib/obj/races/monsters/", game_root(me) + "obj/races/" });
 
   // the lineages sit in a directory per parent race
   subdirs = get_dir(game_root(me) + "obj/races/*");

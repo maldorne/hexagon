@@ -81,14 +81,43 @@ does not exist yet.
   `has_extra_damage_against(target)` (default 1): when it answers 0 the extra
   damage of that hit is not rolled nor shown.
 
+## Natural attacks
+
+A creature with no weapon fights with its body. The template field `attacks`
+(`add_attacks` in `lib/monster/combat.c`) lists the styles it has among
+`fangs claws beak horns hooves teeth paws tail legs`
+(`NATURAL_ATTACK_*` of `include/living/combat.h`). Each blow that hits picks one
+of them at random (`workout_attack` of `living/unarmed_combat.c`), rolls the dice
+of that style in `lib/tables/unarmed-combat.c` and shows one of the message
+variants of the same style (`message_styles` keeps which style each variant
+belongs to), so the line always tells of the attack that did the damage:
+
+| style | dice | style | dice |
+|---|---|---|---|
+| teeth | 1d4 | horns | 1d8 |
+| fangs | 1d6 | hooves | 1d6 |
+| claws | 1d6 | tail | 1d4 |
+| paws | 1d6 | legs | 1d3 |
+| beak | 1d4 | a punch | 1d3 |
+
+The damage is `dice + natural_bonus + query_damage_bonus + strength bonus`, where
+`natural_bonus` is the template field `damage_bonus` (`set_natural_damage_bonus`,
+0 by default, not saved: the template sets it at every materialization). Giving a
+living an explicit unarmed style (`set_unarmed_combat_style`) drops its natural
+attacks. A creature hits one blow per round, however many styles it has.
+
 ## Hit locations
 
 Aiming at a body part is an API of the defender (`living/wear.c`), shared by
 weapons, unarmed combat, spells and skills:
 
-- `pick_hit_location()` -> `({ multiplier, location, piece })`: the race's
+- `pick_hit_location()` -> `({ multiplier, location, piece })`: the living's
   `obtain_location()` (random location, damage multiplier) plus the worn piece
-  covering it, or nil. A living without locations gives `({ 1.0, "", nil })`.
+  covering it, or nil. That is the race's `obtain_location()` unless the living
+  has zones of its own (`set_hit_zones(({ ({ weight, multiplier, name }), … }))`,
+  the template field `hit_zones`, not saved), which are picked by weight; the
+  body type returned stays the race's. A living without locations gives
+  `({ 1.0, "", nil })`.
 - `query_armour_at(location)`: the first worn piece whose `query_localization()`
   is that location, or nil.
 - `absorb_hit(piece, type, damage)`: how much of `damage` of that type the piece

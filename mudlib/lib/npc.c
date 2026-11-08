@@ -713,6 +713,37 @@ private void drop_untemplated_components(mapping t)
       remove_component(saved[i]);
 }
 
+/**
+ * The body zones a template lists, as set_hit_zones takes them: each one is a
+ * mapping with "name", "weight" (1 if missing) and "multiplier" (1.0 if
+ * missing); anything else in the list is skipped.
+ *
+ * @param zones the template's hit_zones field
+ * @return ({ ({ weight, multiplier, name }), ... }), empty without zones
+ */
+private mixed * template_hit_zones(mixed zones)
+{
+  mixed * out;
+  int i;
+
+  out = ({ });
+  if (!pointerp(zones))
+    return out;
+
+  for (i = 0; i < sizeof(zones); i++)
+  {
+    if (!mappingp(zones[i]) || !stringp(zones[i]["name"]))
+      continue;
+
+    out += ({ ({ intp(zones[i]["weight"]) ? zones[i]["weight"] : 1,
+                 (floatp(zones[i]["multiplier"]) || intp(zones[i]["multiplier"])) ?
+                   (float)zones[i]["multiplier"] : 1.0,
+                 zones[i]["name"] }) });
+  }
+
+  return out;
+}
+
 void apply_template(mapping t, varargs int born)
 {
   int g;
@@ -756,6 +787,10 @@ void apply_template(mapping t, varargs int born)
   // the way it fights with its own body (NATURAL_ATTACK_* of <living/combat.h>)
   if (pointerp(t["attacks"]) && sizeof(t["attacks"]))
     add_attacks(t["attacks"]);
+  // flat damage added to each of its unarmed blows
+  set_natural_damage_bonus(intp(t["damage_bonus"]) ? t["damage_bonus"] : 0);
+  // its own body zones, when it does not have those of its race
+  set_hit_zones(template_hit_zones(t["hit_zones"]));
 
   // Starting coin, handed over once. What the NPC earns or spends afterwards is
   // its own, and persists: the purse itself opts out of the auto-load snapshot,

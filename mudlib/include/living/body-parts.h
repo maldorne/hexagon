@@ -33,6 +33,7 @@
 #define PART_HORN      "horn"
 #define PART_TAIL      "tail"
 #define PART_MANDIBLES "mandibles"
+#define PART_TENTACLE  "tentacle"
 
 // The spec of a part (add_body_part): a mapping with these keys.
 #define BODY_PART_SKILL      "skill"      // the skill id that takes it
