@@ -18,7 +18,6 @@
 //   "direction"       - the exit with the door
 //   "delay"           - seconds the door stays open after the last allowed
 //                       arrival (default 15)
-//   "npcs"            - 1 to react to arriving NPCs too (default 0: only players)
 //   "open_message"    - told to the room when the NPC opens the door
 //   "close_message"   - told to the room when it closes it
 //   "lock_message"    - told to the room when it closes and locks it
@@ -36,7 +35,7 @@ inherit component "/lib/npc/component.c";
 
 private string gate_direction, gate_open_message, gate_close_message,
                gate_lock_message;
-private int gate_delay, gate_npcs, gate_guildless, gate_min_guild_level,
+private int gate_delay, gate_guildless, gate_min_guild_level,
             gate_min_class_level;
 private string * gate_guilds, * gate_barred_races;
 // the door this component opened, the pending close and whether it was locked
@@ -51,7 +50,6 @@ void create()
   gate_close_message = nil;
   gate_lock_message = nil;
   gate_delay = DEFAULT_DELAY;
-  gate_npcs = 0;
   gate_guildless = 0;
   gate_min_guild_level = 0;
   gate_min_class_level = 0;
@@ -262,8 +260,6 @@ void event_enter(object ob, varargs string mess, object from, mixed avoid)
 {
   if (!ob || !living(ob) || ob == query_entity())
     return;
-  if (!gate_npcs && !ob->query_player())
-    return;
 
   call_out("watch", 1, ob);
 }
@@ -282,8 +278,6 @@ mapping query_auto_load_attributes()
   attrs["direction"] = gate_direction;
   if (gate_delay != DEFAULT_DELAY)
     attrs["delay"] = gate_delay;
-  if (gate_npcs)
-    attrs["npcs"] = gate_npcs;
   if (gate_open_message)
     attrs["open_message"] = gate_open_message;
   if (gate_close_message)
@@ -314,8 +308,6 @@ void init_auto_load_attributes(mapping args)
     gate_direction = args["direction"];
   if (intp(args["delay"]) && args["delay"] > 0)
     gate_delay = args["delay"];
-  if (intp(args["npcs"]))
-    gate_npcs = args["npcs"];
   if (stringp(args["open_message"]))
     gate_open_message = args["open_message"];
   if (stringp(args["close_message"]))
@@ -339,7 +331,6 @@ mixed * stats()
   return component::stats() + ({
     ({ "Direction", gate_direction }),
     ({ "Delay", gate_delay }),
-    ({ "Npcs", gate_npcs }),
     ({ "Open", opened_door ? 1 : 0 }),
   });
 }
