@@ -51,6 +51,7 @@ static mixed * pending_clones;
 
 // list of pub file paths
 string * pubs;
+int next_pub;
 
 string * query_shops_array() { return shops; }
 mixed * query_pending_clones() { return pending_clones; }
@@ -68,6 +69,7 @@ void create()
   pending_clones = ({ });
   next_shop = 0;
   pubs = ({ });
+  next_pub = 0;
 
   restore_object(query_save_file(), 1);
 
@@ -217,6 +219,32 @@ int include_pub(string path)
   return 1;
 }
 
+/**
+ * Checks one entry of the pubs list per call, in turn: an entry whose file no
+ * longer exists (a room's .c, a location's .o) leaves the list.
+ */
+private void update_next_pub()
+{
+  string path;
+
+  if (!sizeof(pubs))
+    return;
+
+  if (next_pub >= sizeof(pubs))
+    next_pub = 0;
+
+  path = pubs[next_pub];
+
+  if (file_exists(path[strlen(path) - 2..] == ".o" ? path : path + ".c"))
+  {
+    next_pub++;
+    return;
+  }
+
+  debug("ventures", "pub " + path + " no longer exists, removed from handler\n");
+  pubs -= ({ path });
+}
+
 // called from /lib/handlers/cron.c
 int update_ventures()
 {
@@ -242,8 +270,13 @@ int update_ventures()
 
   debug("ventures", "update_ventures...\n");
 
+  update_next_pub();
+
   if (!sizeof(shops))
+  {
+    save_handler();
     return 0;
+  }
 
   if (next_shop >= sizeof(shops))
     next_shop = 0;
