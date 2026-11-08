@@ -12,8 +12,8 @@ at 100 the living takes nothing and is told nothing.
 Saved with the component (`query_auto_load_attributes`):
 
 - `fire_end`: absolute `time()` at which the fire ends, 0 for a permanent one.
-  Being absolute, a timed fire also ends while nobody is there and when the
-  location is loaded after its time has passed.
+  Being absolute and saved, the fire is over at the first check past that
+  time, even after a reboot.
 - `fire_quenchable`: 0 or 1.
 
 When seeding the component the caller gives instead `duration` (seconds, 0 or
@@ -36,8 +36,10 @@ dropped (`dest_me`) it removes the fixture.
 - `query_fire_time_left()`: seconds left, 0 if permanent or over.
 - `query_permanent()`, `query_quenchable()`.
 - `end_fire()`: tells the room and drops the component.
-- `check_over()`: ends the fire if its time is over. Called by the fire's own
-  `call_out` at the end time, and on every enter and heart_beat.
+- `check_over()`: ends the fire if its time is over. Called on every enter and
+  heart_beat; there is no call_out, so a fire nobody visits stays until the
+  next living comes in. The end time is saved with the location and survives
+  a reboot.
 
 ## Setting a location on fire
 

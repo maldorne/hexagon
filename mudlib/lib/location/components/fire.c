@@ -3,10 +3,10 @@
 // The damage is of type fire, so the fire resistance of the living lowers it
 // (100 is immune). Same structure as the acid component.
 //
-// A fire is permanent or timed. A timed one ends by itself FIRE_END seconds
-// after it was lit, even when nobody is there to see it: the component keeps
-// the absolute end time, so it also ends when the location is loaded after its
-// time has passed. A fire that is `quenchable` can be doused (water, cold
+// A fire is permanent or timed. A timed one keeps the absolute time it ends
+// at, saved with the location, and ends at the first check after that time:
+// whenever a living enters or has a heart_beat here. No call_out is kept, and
+// the fire survives a reboot. A fire that is `quenchable` can be doused (water, cold
 // spells) with douse(), which takes seconds off the time left; a permanent
 // fire cannot be doused.
 //
@@ -44,8 +44,6 @@ inherit component "/lib/location/component.c";
 private int fire_end;
 // whether douse() takes effect
 private int fire_quenchable;
-// call_out for the end of a timed fire (never saved)
-static mixed end_handle;
 // when each living was last burned here (never saved)
 static mapping burned;
 
@@ -54,7 +52,6 @@ void create()
   component::create();
   set_type(LOCATION_COMPONENT_FIRE);
   burned = ([ ]);
-  end_handle = nil;
 }
 
 void init() {}
@@ -65,32 +62,8 @@ void init() {}
  */
 void dest_me()
 {
-  if (end_handle != nil)
-    remove_call_out(end_handle);
-  end_handle = nil;
-
   if (query_entity())
     query_entity()->remove_fixture(FIRE_FLAMES);
-}
-
-/**
- * Schedules the end of a timed fire at its end time.
- */
-private void schedule_end()
-{
-  int left;
-
-  if (end_handle != nil)
-    remove_call_out(end_handle);
-  end_handle = nil;
-
-  if (!fire_end)
-    return;
-
-  left = fire_end - time();
-  if (left < 0)
-    left = 0;
-  end_handle = call_out("check_over", left);
 }
 
 void initialize(object loc)
@@ -101,8 +74,6 @@ void initialize(object loc)
   // adds them
   if (!loc->query_fixtures()[FIRE_FLAMES])
     loc->add_fixture(FIRE_FLAMES);
-
-  schedule_end();
 }
 
 /**
@@ -145,22 +116,18 @@ void end_fire()
 }
 
 /**
- * Ends a timed fire whose time is over. Called by the fire's own call_out and
- * whenever somebody enters or has a heart_beat here.
+ * Ends a timed fire whose time is over. Called whenever somebody enters or has
+ * a heart_beat here.
  *
  * @return 1 if the fire has ended
  */
 int check_over()
 {
-  end_handle = nil;
-
   if (fire_end && time() >= fire_end)
   {
     end_fire();
     return 1;
   }
-
-  schedule_end();
   return 0;
 }
 
@@ -189,7 +156,8 @@ int douse(int seconds)
   }
 
   tell_room(place, _LANG_FIRE_DOUSED);
-  schedule_end();
+  // the shorter fire is saved with the location
+  place->components_changed();
   return 1;
 }
 
@@ -294,10 +262,6 @@ void init_auto_load_attributes(mapping args)
     fire_quenchable = args["fire_quenchable"];
   else
     fire_quenchable = args["quenchable"] ? 1 : 0;
-
-  // reseeding a live fire
-  if (query_entity())
-    schedule_end();
 }
 
 mixed * stats()
