@@ -11,8 +11,8 @@
 //                                hit points or less, still alive
 //                    "killed"    it dies
 //   "template"   - template id of the NPC that appears (areas/<area>/npcs/<type>)
-//   "corpse"     - 1 (default) the original leaves a corpse, 0 it leaves none
-//                  and what it carried falls to the floor
+//   "corpse"     - 1 (default) the original leaves a corpse, 0 its body is
+//                  gone, with everything it carried
 //   "attack"     - 1 (default) the new NPC fights whoever fought the original,
 //                  0 it does not
 //   "hp_percent" - the threshold of "defeated" (default 20)
@@ -109,8 +109,8 @@ private void raise_new(object * attackers)
 }
 
 /**
- * Takes away what the original left: with no corpse, what it carried falls to
- * the floor.
+ * Takes away what the original left: with no corpse its body is gone, and so
+ * is everything it carried.
  *
  * @param  corpse  the corpse the original left, nil for none
  */
@@ -124,7 +124,8 @@ private void clear_corpse(object corpse)
 
   inv = all_inventory(corpse);
   for (i = 0; i < sizeof(inv); i++)
-    inv[i]->move(environment(corpse));
+    if (inv[i])
+      inv[i]->dest_me();
 
   corpse->dest_me();
 }
