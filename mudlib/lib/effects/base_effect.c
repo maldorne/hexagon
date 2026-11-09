@@ -57,6 +57,13 @@ int fast_casting;         // instant effects
 
 string * start_phrases;   // messages shown at the start of the effect (first for the caster, second for the room)
 
+// Components the caster must carry to cast the effect, see set_components and
+// set_optional_components: item ids (see query_spell_component)
+string * required_components;
+string * optional_components;
+int optional_components_max;
+static int used_optional_components; // the optional ones the last use took
+
 // Effect permissions
 int allow_on_self;        // can be cast on oneself
 int allow_on_mounted;     // on mounted people
@@ -156,6 +163,11 @@ void create()
   start_phrases = ({ });
  
   rounds = ({ });
+
+  required_components = ({ });
+  optional_components = ({ });
+  optional_components_max = 0;
+  used_optional_components = 0;
 
   // euid is handled by the object base in hexagon (see lib/core/object.c);
   // the old "/secure/master"->creator_file() seteuid is not needed here.
@@ -419,6 +431,8 @@ int query_effect_level(varargs object caster)
     return clvl;
 }
 
+int is_attack_effect_of(object caster);
+
 /**
  * How strong the caster is in this effect: what the guild gives for this
  * spell alone (add_guild_spell, add_job_spell) when it sets it, else how well the caster
@@ -441,6 +455,10 @@ int query_effect_power(varargs object caster)
   path = object_name(this_object());
   if (strlen(path) < 2 || path[strlen(path) - 2..] != ".c")
     path += ".c";
+
+  // a creature's own gift is known neither well nor poorly
+  if (is_attack_effect_of(caster))
+    return 2;
 
   given = caster->query_guild_spell_power(path);
   if (intp(given) && given)
@@ -779,6 +797,150 @@ int cast_effect(string str, object who, int quiet);
 private int run_cast(string str, object * given, object who, int quiet);
 
 /**
+ * Components: things the caster must carry to cast the effect. A component is
+ * an item with query_spell_component() (a plain id, see the spell component
+ * base); it is named here by the file of the item or, for a plain string
+ * with no slash, by its id. Matching is by id, never by the name of the item.
+ */
+
+// the id an entry stands for: the id its file declares, or the entry itself
+private string component_id(string entry)
+{
+  object blueprint;
+
+  if (strlen(entry) && entry[0] != '/')
+    return entry;
+
+  blueprint = load_object(entry);
+  return blueprint ? (string)blueprint->query_spell_component() : entry;
+}
+
+// what the caster reads for an entry: the short of its item, else the entry
+private string component_name(string entry)
+{
+  object blueprint;
+  string name;
+
+  if (strlen(entry) && entry[0] != '/')
+    return entry;
+
+  blueprint = load_object(entry);
+  name = blueprint ? (string)blueprint->query_short() : nil;
+  return name ? name : entry;
+}
+
+// one item of the caster's inventory that is the component, nil when none
+private object find_component(object caster, string id)
+{
+  object * items;
+  int i;
+
+  items = all_inventory(caster);
+  for (i = 0; i < sizeof(items); i++)
+    if (function_exists("query_spell_component", items[i]) &&
+        (string)items[i]->query_spell_component() == id)
+      return items[i];
+
+  return nil;
+}
+
+/**
+ * The components without which the effect cannot be cast; all are consumed
+ * when the effect works (see use_components).
+ * @param  list  files of the items (or plain ids)
+ */
+void set_components(string * list) { required_components = list ? list : ({ }); }
+string * query_components() { return required_components + ({ }); }
+
+/**
+ * Components that make the effect stronger. The caster uses one of each kind
+ * he carries, up to max, and the effect learns how many it got through
+ * use_components or query_used_optional_components.
+ * @param  list  files of the items (or plain ids)
+ * @param  max   the most that are used in one cast
+ */
+void set_optional_components(string * list, int max)
+{
+  optional_components = list ? list : ({ });
+  optional_components_max = max;
+}
+string * query_optional_components() { return optional_components + ({ }); }
+int query_optional_components_max() { return optional_components_max; }
+
+/**
+ * Why the caster cannot cast the effect for lack of its required components.
+ * @return the message that names what is missing, nil when he has them all
+ */
+string query_missing_components(object caster)
+{
+  string text;
+  int i;
+
+  text = "";
+  for (i = 0; i < sizeof(required_components); i++)
+    if (!find_component(caster, component_id(required_components[i])))
+      text += (strlen(text) ? ", " : "") +
+        component_name(required_components[i]);
+
+  if (!strlen(text))
+    return nil;
+
+  return _LANG_EFFECT_COMPONENTS_MISSING_PRE + text +
+    _LANG_EFFECT_COMPONENTS_MISSING_POST;
+}
+
+/**
+ * Takes the components out of the caster's inventory when the effect works:
+ * every required one, and one of each optional kind he carries up to the
+ * maximum. If a required one is no longer there nothing is taken, the caster
+ * and the room are told, and the effect should end.
+ * @return -1 when a required component is missing, else how many optional
+ *         ones were used (also in query_used_optional_components)
+ */
+int use_components(object caster)
+{
+  object item;
+  int i;
+
+  used_optional_components = 0;
+
+  if (query_missing_components(caster))
+  {
+    tell_object(caster, _LANG_EFFECT_COMPONENTS_LOST);
+    tell_room(environment(caster), caster->query_cap_name() +
+      _LANG_EFFECT_COMPONENTS_LOST_ROOM, caster);
+    return -1;
+  }
+
+  for (i = 0; i < sizeof(required_components); i++)
+  {
+    item = find_component(caster, component_id(required_components[i]));
+    if (item)
+      item->dest_me();
+  }
+
+  for (i = 0; i < sizeof(optional_components) &&
+              used_optional_components < optional_components_max; i++)
+  {
+    item = find_component(caster, component_id(optional_components[i]));
+    if (item)
+    {
+      item->dest_me();
+      used_optional_components++;
+    }
+  }
+
+  return used_optional_components;
+}
+
+/**
+ * How many optional components the last use_components took. The effect
+ * object is shared, so read it right after the call.
+ */
+int query_used_optional_components() { return used_optional_components; }
+
+
+/**
  * The level a cast "at a given level" carries (see cast_effect_at): 0 when
  * the caster is not casting that way. A spell reads it first, in the helpers
  * that feed its formulas the level of the caster, so the amounts and
@@ -849,13 +1011,34 @@ private int is_allowed_by(string path)
 }
 
 /**
- * Whether the caster may use the effect on its own: it is common, or the
- * guild or the job the caster belongs to now allows it. A cast at a given
- * level (a scroll) does not ask: see cast_effect_at.
+ * Whether the effect is one of the attack effects of the caster (see
+ * add_attack_effect in /lib/monster/combat.c): a creature's own gift, which
+ * needs no guild or job and is cast at the class level of the creature.
+ */
+int is_attack_effect_of(object caster)
+{
+  mixed list;
+  string path;
+
+  list = caster->query_attack_effects();
+  if (!pointerp(list))
+    return 0;
+
+  path = object_name(this_object());
+  if (strlen(path) < 2 || path[strlen(path) - 2..] != ".c")
+    path += ".c";
+
+  return member_array(path, list) != -1;
+}
+
+/**
+ * Whether the caster may use the effect on its own: it is common, one of its
+ * attack effects, or the guild or the job the caster belongs to now allows it.
+ * A cast at a given level (a scroll) does not ask: see cast_effect_at.
  */
 int query_usable_by(object caster)
 {
-  if (common_effect)
+  if (common_effect || is_attack_effect_of(caster))
     return 1;
 
   return is_allowed_by(caster->query_guild_ob()) ||
@@ -881,7 +1064,7 @@ int query_casting_level(object caster)
   level = query_given_level(caster);
   if (level < 1)
   {
-    if (common_effect)
+    if (common_effect || is_attack_effect_of(caster))
       level = caster->query_level();
     else if (is_allowed_by(caster->query_guild_ob()))
       level = caster->query_guild_level();
@@ -1233,6 +1416,14 @@ private int run_cast(string str, object * given, object who, int quiet)
 
     if ( function_exists("extra_checks", this_object() ) &&
       ( stringp( exstr = this_object()->extra_checks(str, caster) ) ) )
+    {
+        notify_fail(exstr);
+        return 0;
+    }
+
+    // the components the effect asks for must be carried; a scroll or an
+    // item casts without them
+    if (!at_level && stringp(exstr = query_missing_components(caster)))
     {
         notify_fail(exstr);
         return 0;

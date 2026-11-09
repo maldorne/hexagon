@@ -36,6 +36,10 @@
 #define _LANG_EFFECT_MANY_GONE_PRE "Tu objetivo "
 #define _LANG_EFFECT_MANY_GONE_POST " está demasiado lejos.\n"
 #define _LANG_EFFECT_ROLE_BLOCKS "Tu rol de combate actual no te permite realizar eso.\n"
+#define _LANG_EFFECT_COMPONENTS_MISSING_PRE "Para formular este hechizo necesitas llevar contigo: "
+#define _LANG_EFFECT_COMPONENTS_MISSING_POST ".\n"
+#define _LANG_EFFECT_COMPONENTS_LOST "Después de tanto trabajo te falta el componente esencial del hechizo, y toda su energía se pierde.\n"
+#define _LANG_EFFECT_COMPONENTS_LOST_ROOM " sufre una desconcentración de última hora y pierde el hechizo.\n"
 
 // --- base_effect: mensajes de comienzo ---
 #define _LANG_EFFECT_START_SPELL_PRE "Comienzas a formular el hechizo '"

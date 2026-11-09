@@ -36,6 +36,10 @@
 #define _LANG_EFFECT_MANY_GONE_PRE "Your target "
 #define _LANG_EFFECT_MANY_GONE_POST " is too far away.\n"
 #define _LANG_EFFECT_ROLE_BLOCKS "Your current combat role does not let you do that.\n"
+#define _LANG_EFFECT_COMPONENTS_MISSING_PRE "To cast this spell you need to carry: "
+#define _LANG_EFFECT_COMPONENTS_MISSING_POST ".\n"
+#define _LANG_EFFECT_COMPONENTS_LOST "After all that work the essential component of the spell is gone, and all its energy is lost.\n"
+#define _LANG_EFFECT_COMPONENTS_LOST_ROOM " loses concentration at the last moment and the spell is lost.\n"
 
 // --- base_effect: start messages ---
 #define _LANG_EFFECT_START_SPELL_PRE "You begin to cast the spell '"

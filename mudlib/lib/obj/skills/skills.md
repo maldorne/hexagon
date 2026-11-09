@@ -94,6 +94,10 @@ No skill or spell keeps its own `call_out` chain to repeat something: anything p
 
 `heart_beat_failed()` on the living drops every effect in execution, every lasting effect (`cleared`) and the action queue. The heart_beat handler (`lib/core/secure/heart_beats.c`) calls it when a heart_beat errors, then turns the heart_beat off; the `restart` command calls it and turns the heart_beat back on, whether it was off or not. Dying ends the lasting effects with `death`.
 
+### Components
+
+An effect declares what the caster must carry in `setup()`: `set_components(({ file, ... }))` (required; casting is refused with a message naming what is missing) and `set_optional_components(({ file, ... }), max)` (one of each kind he carries, up to `max`). The last round calls `use_components(caster)` once nothing else can fail: it takes the components out of the inventory and returns how many optional ones it used (`-1` when a required one is gone; `query_used_optional_components()` answers the same right after). A component is an item that inherits `/lib/obj/spell-component.c` and sets `set_spell_component("<id>")`; effects are matched by that id, never by a name. A cast from a scroll or an item asks for none. The components of rl-aeternum are listed in its spells readme.
+
 ## Balance: `query_balance`
 
 An effect that damages or heals describes one cast in `mapping query_balance(object caster)` (`BASE_EFFECT`; the default returns nil: neither). It is a pure function for the `balance` command (`packages/balance/`), which writes the numbers of a game as CSV files (`guilds.csv` and `jobs.csv` list what each guild and job teaches or relates, with the same columns): no rolls, no messages, no change of state, and the numbers come from the same helpers the cast uses, so there is one formula. It reads the caster's level and power the way the cast does (`PROPERTY_CAST_LEVEL` and `PROPERTY_CAST_POWER`, see "At a level"), so the level of its curves is the one in the guild that teaches the ability, and the stats of the caster.

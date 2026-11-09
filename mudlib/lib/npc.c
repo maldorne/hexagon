@@ -813,17 +813,66 @@ void apply_template(mapping t, varargs int born)
     }
   }
 
+  // Chances of its own for what it uses in a fight: the ones the spells and
+  // attack_effects entries below carry, and effect_chances for the rest (a
+  // skill). Taken from the template again on every materialization.
+  clear_effect_chances();
+  if (mappingp(t["effect_chances"]))
+  {
+    string * keys;
+    int i;
+
+    keys = map_indices(t["effect_chances"]);
+    for (i = 0; i < sizeof(keys); i++)
+      if (intp(t["effect_chances"][keys[i]]))
+        set_effect_chance(keys[i], t["effect_chances"][keys[i]]);
+  }
+
   // Spells are named to their casting object, so this one is a mapping rather
-  // than a list: ([ "<spell>" : "/path/to/spell.c" ]).
+  // than a list: ([ "<spell>" : "/path/to/spell.c" ]), or with a chance of its
+  // own ([ "<spell>" : ([ "path": "/path/to/spell.c", "chance": 35 ]) ]).
   if (mappingp(t["spells"]))
   {
+    mixed entry;
     string * names;
     int i;
 
     names = map_indices(t["spells"]);
     for (i = 0; i < sizeof(names); i++)
-      if (stringp(t["spells"][names[i]]))
-        add_spell(names[i], t["spells"][names[i]]);
+    {
+      entry = t["spells"][names[i]];
+      if (stringp(entry))
+        add_spell(names[i], entry);
+      else if (mappingp(entry) && stringp(entry["path"]))
+      {
+        add_spell(names[i], entry["path"]);
+        if (intp(entry["chance"]))
+          set_effect_chance(entry["path"], entry["chance"]);
+      }
+    }
+  }
+
+  // Effects it uses in a fight whatever its guild or job: a list of paths, or
+  // ([ "/path/to/effect.c" : chance ]) to give some a chance of their own.
+  if (pointerp(t["attack_effects"]))
+  {
+    mixed list;
+    int i;
+
+    list = t["attack_effects"];
+    for (i = 0; i < sizeof(list); i++)
+      if (stringp(list[i]))
+        add_attack_effect(list[i]);
+  }
+  else if (mappingp(t["attack_effects"]))
+  {
+    string * paths;
+    int i;
+
+    paths = map_indices(t["attack_effects"]);
+    for (i = 0; i < sizeof(paths); i++)
+      add_attack_effect(paths[i], intp(t["attack_effects"][paths[i]]) ?
+        t["attack_effects"][paths[i]] : 0);
   }
 
   // Whom it loves and hates, which decides whom it fights, and whom it likes

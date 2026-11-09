@@ -8,13 +8,22 @@
 #include <living/skills.h>
 
 string * attack_effects;    // effect objects used in fights, see add_attack_effect
+// own chances of some effects, percent per heart beat: key (an effect path with
+// .c or a skill id) -> percent, see set_effect_chance; the template sets them
+// again on every materialization
+static mapping effect_chances;
+// the rolls of the heart beat being resolved, see combat_effects_heart_beat
+static mapping cast_roll;
 int protecting;             /* Am I protecting someone currently ? */
 string * protect;           /* People that I am protecting */
 int follow_speed;           /* how long before we follow someone */
 
+void set_effect_chance(string key, int percent);
+
 void create()
 {
   attack_effects = ({ });
+  effect_chances = ([ ]);
   protect = ({ });
   protecting = 0;
   follow_speed = 3;
@@ -120,16 +129,22 @@ string * query_attack_effects() { return attack_effects; }
  * Adds an effect the monster uses in a fight without knowing it as a spell or
  * skill, like a creature's own bite or breath. It goes through the same
  * checks as any other (see can_use_effect and the effect's query_usable_by),
- * so an effect meant only for creatures marks itself common in its own file
- * with set_common_effect(1). Its targets come from its own target type and
- * intent, as in choose_effect.
+ * except the guild and the job: an attack effect needs neither, and it is
+ * cast at the class level of the monster. Its targets come from its own
+ * target type and intent, as in choose_effect.
  *
- * @param  path  full path of the effect object, with .c
+ * @param  path    full path of the effect object, with .c
+ * @param  chance  its own chance, percent per heart beat in a fight; none
+ *                 (the default of NPC_CAST_CHANCE shared by the effects
+ *                 without one) when left out or not positive
  */
-void add_attack_effect(string path)
+void add_attack_effect(string path, varargs int chance)
 {
   if (member_array(path, attack_effects) == -1)
     attack_effects += ({ path });
+
+  if (chance > 0)
+    set_effect_chance(path, chance);
 }
 
 /**
@@ -145,6 +160,69 @@ int remove_attack_effect(string path)
 
   attack_effects = delete(attack_effects, i, 1);
   return 1;
+}
+
+/**
+ * Gives a spell, a skill or an attack effect a chance of its own, so a fight
+ * tries it that percent of the heart beats, whatever the chance the effects
+ * without one share (NPC_CAST_CHANCE).
+ *
+ * @param  key      the full path of a spell or attack effect, with .c, or the
+ *                  id of a skill
+ * @param  percent  chance per heart beat in a fight, 1 to 100; 0 or less
+ *                  gives the effect back the shared one
+ */
+void set_effect_chance(string key, int percent)
+{
+  if (!effect_chances)
+    effect_chances = ([ ]);
+
+  if (percent > 0)
+    effect_chances[key] = percent;
+  else
+    effect_chances[key] = nil;
+}
+
+/**
+ * Takes away every chance of its own the monster's effects have.
+ */
+void clear_effect_chances()
+{
+  effect_chances = ([ ]);
+}
+
+/**
+ * @return key (see set_effect_chance) -> percent
+ */
+mapping query_effect_chances()
+{
+  return effect_chances ? effect_chances : ([ ]);
+}
+
+/**
+ * The key under which an effect has a chance of its own.
+ *
+ * @param  effect  a spell or skill object
+ * @return the key, nil when the effect shares the common chance
+ */
+private string effect_chance_key(object effect)
+{
+  string path, key;
+
+  if (!effect_chances || !map_sizeof(effect_chances))
+    return nil;
+
+  path = object_name(effect);
+  if (strlen(path) < 2 || path[strlen(path) - 2..] != ".c")
+    path += ".c";
+  if (effect_chances[path])
+    return path;
+
+  key = effect->query_effect_key();
+  if (key && effect_chances[key])
+    return key;
+
+  return nil;
 }
 
 // Effects in a fight: the spells and skills the monster knows and its attack
@@ -376,6 +454,25 @@ mixed * combat_decision(string question, mixed * args)
 }
 
 /**
+ * Whether the heart beat being resolved (combat_effects_heart_beat) rolled in
+ * favour of an effect: its own chance came up, or it has none and the shared
+ * one did. Outside that heart beat every effect counts.
+ */
+private int is_rolled_effect(object effect)
+{
+  string key;
+
+  if (!cast_roll)
+    return 1;
+
+  key = effect_chance_key(effect);
+  if (key)
+    return !!cast_roll["fired"][key];
+
+  return !!cast_roll["shared"];
+}
+
+/**
  * The choice of what the monster casts in a fight. The context holds who is
  * fighting it ("attackers"), the effects it can use now ("usable") and the
  * choice ("choice", ({ effect, targets })). Whoever decides for the monster
@@ -400,7 +497,7 @@ mixed * choose_effect()
   known = query_combat_effects();
   usable = ({ });
   for (i = 0; i < sizeof(known); i++)
-    if (can_use_effect(known[i]))
+    if (can_use_effect(known[i]) && is_rolled_effect(known[i]))
       usable += ({ known[i] });
 
   ctx = ([ "attackers": attackers, "usable": usable, "choice": nil ]);
@@ -444,16 +541,30 @@ int cast_chosen_effect(mixed * choice)
 }
 
 /**
- * Called each heart beat: in a fight, with a modest chance, and never while
- * the monster is casting or cannot use skills, it uses one of its combat
- * effects.
+ * Called each heart beat: in a fight, and never while the monster is casting or
+ * cannot use skills, it uses one of its combat effects. An effect with a chance
+ * of its own (set_effect_chance) is tried that percent of the heart beats; the
+ * effects without one share a single roll of NPC_CAST_CHANCE percent, and one
+ * of them is picked at random.
  */
 void combat_effects_heart_beat()
 {
+  string * keys;
+  mapping fired;
+  mixed * choice;
+  int i, shared;
+
   if (!sizeof(this_object()->query_attacker_list()))
     return;
 
-  if (random(100) >= NPC_CAST_CHANCE)
+  fired = ([ ]);
+  keys = effect_chances ? map_indices(effect_chances) : ({ });
+  for (i = 0; i < sizeof(keys); i++)
+    if (random(100) < effect_chances[keys[i]])
+      fired[keys[i]] = 1;
+
+  shared = random(100) < NPC_CAST_CHANCE;
+  if (!shared && !map_sizeof(fired))
     return;
 
   // already casting, or locked out of casting
@@ -464,7 +575,12 @@ void combat_effects_heart_beat()
       (environment() && environment()->query_property(NOSKILL_PROP)))
     return;
 
-  cast_chosen_effect(choose_effect());
+  // choose_effect only offers what the rolls above let through
+  cast_roll = ([ "fired": fired, "shared": shared ]);
+  choice = choose_effect();
+  cast_roll = nil;
+
+  cast_chosen_effect(choice);
 }
 
 void add_protect(mixed shield)

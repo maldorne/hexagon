@@ -77,6 +77,8 @@ does not exist yet.
   optional argument gives the weapon its own lines, `({ attacker, defender, room })`,
   with the tokens `$weapon$` (already "Tu <short>" or "<article> <short> de <owner>"),
   `$attacker$` and `$defender$`.
+  A spell can give a weapon extra damage for good (`enchant-weapon`, see
+  the readme of the spells of the game).
   A weapon that adds it only against some targets redefines
   `has_extra_damage_against(target)` (default 1): when it answers 0 the extra
   damage of that hit is not rolled nor shown.
@@ -206,16 +208,26 @@ goes through the usual death. See `lib/handlers/crimes.md`.
 ## Monsters using effects in a fight
 
 `lib/monster/combat.c` gives every monster and NPC a default: each heart beat of
-a fight (`combat_effects_heart_beat`), with `NPC_CAST_CHANCE` percent
-(`include/npc/npc.h`), and never while it is casting or under `noskill`, it tries
-one of its combat effects (`query_combat_effects`: the spells and non-passive
-skills it knows, `query_known_effects`, plus its attack effects). Attack effects
-are effect object paths added with `add_attack_effect(path)` (and
+a fight (`combat_effects_heart_beat`), and never while it is casting or under
+`noskill`, it tries one of its combat effects (`query_combat_effects`: the spells
+and non-passive skills it knows, `query_known_effects`, plus its attack effects).
+Attack effects are effect object paths added with `add_attack_effect(path)` (and
 `remove_attack_effect`, `query_attack_effects`): what a creature does without
-knowing it as a spell or skill, like a bite or a breath. They have no chance,
-name or target of their own; a creature-only effect marks itself common in its
-file (`set_common_effect(1)`) to pass the same checks. Only effects it can
-use now are drawn (`can_use_effect`: an intent other than none, common or allowed by its guild or job,
+knowing it as a spell or skill, like a bite or a breath, or any spell or skill
+given to that creature alone. They need neither guild nor job (`is_attack_effect_of`
+in `lib/effects/base_effect.c`: usable, neutral power, cast at the class level of
+the creature); a creature-only effect does not need `set_common_effect(1)`.
+
+Chances: an effect with a chance of its own (`set_effect_chance(key, percent)`,
+or `add_attack_effect(path, percent)`; the key is the full path with `.c` of a
+spell or attack effect, or the id of a skill; the template fills them, see
+`npc-template`) is tried that percent of the heart beats, rolled by itself. All
+the effects without one share a single roll of `NPC_CAST_CHANCE` percent
+(`include/npc/npc.h`) and one of them is picked at random, so a monster with no
+chances behaves as always. The rolls come first, then `choose_effect()` is offered
+only the effects that rolled in favour (`cast_roll`); a direct call to
+`choose_effect()` outside the heart beat sees them all. Only effects it can
+use now are drawn (`can_use_effect`: an intent other than none, common, one of its attack effects or allowed by its guild or job,
 gp enough, none of the effect's lockout properties set). `choose_effect()` puts them
 in a context (`attackers`, `usable`, `choice`) and hands it to `combat_decision()`:
 a plain monster gives it back untouched, an NPC runs its components' `choose_effect`
