@@ -54,10 +54,12 @@ void create()
 
   /* Taniwha 1995, move it here, players can't pick it up */
   catch(load_object(HANDLERS_HOME));
-  call_out("move", 2, HANDLERS_HOME);
 
   global_adj = SOUL_DATA->query_global_adj();
   soul_data = SOUL_DATA->query_soul_data();
+
+  // last: a full call_out table must not leave the handler half built
+  call_out("move", 2, HANDLERS_HOME);
 }
 
 // string query_long()
