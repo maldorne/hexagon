@@ -15,6 +15,8 @@
 
 private static mixed * _hb_object_list;
 private static int _hb_handle;
+// when rearm_heart_beat last tried to mend a broken chain
+private static int _hb_rearm_time;
 
 // prototypes
 int set_initiator_object(object ob);
@@ -43,6 +45,28 @@ void create()
   _hb_handle = call_out("_heart_beat", HEART_BEAT_TIME);
 }
 
+// Schedules the next round. With the call_out table full this fails and the
+// chain is left broken (_hb_handle -1) for rearm_heart_beat to mend.
+private void schedule_heart_beat()
+{
+  _hb_handle = -1;
+  catch(_hb_handle = call_out("_heart_beat", HEART_BEAT_TIME));
+}
+
+/**
+ * Schedules the next round again if a full call_out table broke the chain.
+ * Run after every call_out; tries at most once a second, since the table
+ * frees its slots only as it drains and every failed try logs an error.
+ */
+static void rearm_heart_beat()
+{
+  if (_hb_handle != -1 || _hb_rearm_time == time())
+    return;
+
+  _hb_rearm_time = time();
+  schedule_heart_beat();
+}
+
 nomask void _heart_beat()
 {
   int i;
@@ -55,8 +79,9 @@ nomask void _heart_beat()
 
   // first thing in business, 
   // queue the next _heart_beat execution, just in case there is 
-  // some error during this execution
-  _hb_handle = call_out("_heart_beat", HEART_BEAT_TIME);
+  // some error during this execution. With the call_out table full this
+  // fails: the round still runs and rearm_heart_beat schedules the next one
+  schedule_heart_beat();
 
   if (CONFIG_LOG_HEART_BEATS)
   {

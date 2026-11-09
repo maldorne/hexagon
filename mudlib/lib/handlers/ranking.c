@@ -42,6 +42,9 @@ mapping ranking;
 // when the last prune ran
 private int last_prune;
 
+// NPCs waiting to be weighed, all in one call_out (see queue_check)
+static object * pending_checks;
+
 // Names that were ranked by mistake before entries had a key, dropped when the
 // old format is read.
 private string * _stale_names()
@@ -113,6 +116,7 @@ private int _migrate()
 void create()
 {
   ranking = ([ ]);
+  pending_checks = ({ });
   ::create();
   restore_object(RANKING_SAVE, 1);
   if (!mappingp(ranking))
@@ -312,6 +316,36 @@ private string _identity_key(object who)
     source = base_name(who);
 
   return "npc:" + source;
+}
+
+/**
+ * Weighs an NPC in the ranking a few seconds from now, once its setup and
+ * template are done. Every NPC created asks; one call_out serves them all, so
+ * an area loading hundreds of NPCs does not fill the driver's call_out table.
+ *
+ * @param npc  the NPC born or levelled
+ */
+void queue_check(object npc)
+{
+  pending_checks += ({ npc });
+  if (find_call_out("flush_checks") == -1)
+    call_out("flush_checks", 5);
+}
+
+/**
+ * Weighs the NPCs queued by queue_check (those destructed meanwhile are
+ * skipped). Public because the call_out dispatcher reaches it through
+ * call_other.
+ */
+void flush_checks()
+{
+  object * npcs;
+  int i;
+
+  npcs = pending_checks - ({ nil });
+  pending_checks = ({ });
+  for (i = 0; i < sizeof(npcs); i++)
+    catch(npcs[i]->check_ranking());
 }
 
 // Weigh somebody against the groups they belong to: their class, their guild

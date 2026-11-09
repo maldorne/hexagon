@@ -47,6 +47,8 @@ mapping queued;
 
 // call_out handle of the worker, 0 when idle.
 int worker_handle;
+// call_out handle of the next evict sweep, 0 when none is scheduled
+static int sweep_handle;
 
 // running total of objects reclaimed by the evict sweep (for introspection).
 int evicted_total;
@@ -65,7 +67,7 @@ void create()
   evicted_total = 0;
 
   // start the periodic evict sweep
-  call_out("_evict_sweep", CLEANER_SWEEP_INTERVAL);
+  sweep_handle = call_out("_evict_sweep", CLEANER_SWEEP_INTERVAL);
 }
 
 // ---------------------------------------------------------------------------
@@ -139,6 +141,10 @@ void register_object(object ob)
     return;
   }
   full_warned = 0;
+
+  // a sweep that could not be scheduled (call_out table full) starts again
+  if (!sweep_handle)
+    catch(sweep_handle = call_out("_evict_sweep", CLEANER_SWEEP_INTERVAL));
 
   g = game_name(ob);
   if (!buckets[g])
@@ -522,6 +528,9 @@ void _evict_sweep()
   object * victims;
   int now, i, g;
 
+  // this sweep is running: none is scheduled until the next one is
+  sweep_handle = 0;
+
   now = time();
   retain = _retain_set();
   victims = ({ });
@@ -558,7 +567,8 @@ void _evict_sweep()
     if (victims[i] && !victims[i]->clean_up())
       evicted_total++;
 
-  call_out("_evict_sweep", CLEANER_SWEEP_INTERVAL);
+  // with the call_out table full this fails: register_object schedules it again
+  catch(sweep_handle = call_out("_evict_sweep", CLEANER_SWEEP_INTERVAL));
 }
 
 // ---------------------------------------------------------------------------

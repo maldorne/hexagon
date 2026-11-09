@@ -826,8 +826,9 @@ void _dispatch_schedule()
       catch(item[0]->wake_and_schedule(item[1], item[2]));
   }
 
+  // with the call_out table full this fails: queue_schedule starts it again
   if (sizeof(pending_schedule))
-    call_out("_dispatch_schedule", 1 + random(2));
+    catch(call_out("_dispatch_schedule", 1 + random(2)));
 }
 
 // Delete an area whose locations are all gone: remove its area.o file,

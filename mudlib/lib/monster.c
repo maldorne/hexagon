@@ -446,7 +446,8 @@ int set_level(int i)
   reset_all();
 
   // player ranking for unique npcs too, neverbot 06/10
-  call_out("check_ranking", 5);
+  // queued in the ranking handler, which weighs them all in one call_out
+  RANKING_OB->queue_check(this_object());
 
   return query_class_level();
 }

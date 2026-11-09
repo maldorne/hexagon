@@ -309,6 +309,9 @@ int _call_out(object ob, mixed * context, string func, varargs mixed args...)
   // restore current context
   restore_execution_context(old_context);
 
+  // mend the heart_beat chain if a full call_out table broke it
+  rearm_heart_beat();
+
   if (CONFIG_LOG_CALL_OUTS)
     stderr(" ~~~ end mudos::call_out()\n");
 }

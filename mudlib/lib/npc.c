@@ -17,6 +17,7 @@
 #include <living/skills.h>
 #include <npc/npc.h>
 #include <living/consents.h>
+#include <living/living.h>
 
 inherit monster   "/lib/monster.c";
 // Inventory persistence, the same mixin players use: create_auto_load snapshots
@@ -938,7 +939,7 @@ void apply_template(mapping t, varargs int born)
   // one particular person is weighed in the ranking whenever it comes into
   // the world, not only when it is born and its level set
   if (proper_name && !born)
-    call_out("check_ranking", 5);
+    RANKING_OB->queue_check(this_object());
 
   // Idle chatter and the addressed variant. Each block is a chance plus the
   // flat weight/message list load_chat itself takes; the chance is per type and
