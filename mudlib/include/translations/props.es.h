@@ -623,14 +623,6 @@
 
 #define _LANG_PROP_MANGER_SMELL         "Hueles el comedero. Huele a grano, a paja húmeda y, sobre todo, a animal."
 
-// Palabras que un jugador antepone al nombre del objeto y que no forman parte
-// de él: "tumbarse EN EL camastro". Se descartan por delante del argumento
-// antes de buscar a qué prop se refiere.
-#define _LANG_PROPS_FILLER_WORDS ({ "en", "sobre", "encima", "dentro", "a", \
-                                    "al", "de", "del", "la", "el", "los", \
-                                    "las", "un", "una", "unos", "unas", \
-                                    "ante", "frente", "delante", "hacia" })
-
 // Pregunta cuando un verbo de prop llega sin objeto ("rezar"). Un verbo sin
 // entrada usa la genérica, con el verbo tal cual lo escribió el jugador.
 #define _LANG_PROPS_VERB_PROMPT_DEFAULT "¿%s qué?"

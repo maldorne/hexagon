@@ -622,13 +622,6 @@
 
 #define _LANG_PROP_MANGER_SMELL         "You smell the manger. It smells of grain, of damp straw and, above all, of animal."
 
-// Words a player puts in front of the thing's name that are not part of it:
-// "lie ON THE bunk". Peeled off the front of the argument before looking up
-// which prop is meant.
-#define _LANG_PROPS_FILLER_WORDS ({ "in", "on", "onto", "into", "at", "to", \
-                                    "the", "a", "an", "before", "front", \
-                                    "of", "toward", "towards" })
-
 // Question asked when a prop verb arrives with no object ("pray"). A verb
 // with no entry uses the generic one, with the verb as the player typed it.
 #define _LANG_PROPS_VERB_PROMPT_DEFAULT "%s what?"

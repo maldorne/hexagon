@@ -25,6 +25,7 @@
 #include <room/location.h>
 #include <room/prop.h>
 #include <translations/props.h>
+#include <translations/filler.h>
 #include <translations/language.h>
 #include <common/frames.h>
 
@@ -1598,7 +1599,7 @@ private string _strip_filler(string str)
   if (!str || !strlen(str))
     return str;
 
-  filler = _LANG_PROPS_FILLER_WORDS;
+  filler = _LANG_FILLER_WORDS;
   words = explode(str, " ") - ({ "" });
 
   for (i = 0; i < sizeof(words); i++)

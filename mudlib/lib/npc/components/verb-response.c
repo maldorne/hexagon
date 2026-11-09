@@ -10,22 +10,38 @@
 //   "verbs"   - the verbs it answers
 //   "words"   - "any" (default): with or without words; "none": only with none,
 //               the verb with words is left to whatever else answers it;
-//               "name": only with the NPC's name ("<verb> <npc>")
+//               "name": only when the words identify this NPC: the filler
+//               words ("al", "to", "the"...) are dropped wherever they stand,
+//               the words of "object" are taken out, and what is left has to
+//               be one of the NPC's ids ("<verb> <npc>", "<verb> to the <npc>",
+//               "<verb> <object> to the <npc>"); otherwise the verb is left
+//               to whatever else answers it
+//   "object"  - with "words": "name", what the player names besides the NPC:
+//               a string, or a list of alternatives; each is one or more
+//               words that must be in the text ("ask the ape FOR A BOOK")
 //   "effect"  - file of the effect cast on the asker
 //   "uses"    - how many times it answers in a period (default 0, no limit)
 //   "period"  - seconds before the uses start again (default 1800)
 //   "only"    - who is served; a mapping whose keys all have to hold:
 //                 "guild" - list of guild objects, "race" - list of race
 //                 objects, "align_min" - the lowest real alignment,
-//                 "property" - a property the asker must have set
+//                 "property" - a property the asker must have set, or
+//                 ({ name, value }) to have it set to that value
 //   "said", "room" - the line for the asker and for the rest of the room when
 //               it answers; "failed" - for the asker when the effect cannot be
 //               cast; "spent" - when no use is left; "refusal" - for somebody
 //               "only" leaves out; "busy" - while it fights (a stock line when
 //               absent). $npc$ and $player$ are the names; an empty line says
-//               nothing
+//               nothing, except an empty "refusal": the NPC then does not
+//               answer somebody "only" leaves out, and the verb is left to
+//               whatever else answers it
+//   "talks"   - target (template id) passed to the quests handler's talked()
+//               each time it answers, so a quest can count the answer as an
+//               objective of kind OBJECTIVE_TALK
 
 #include <language.h>
+#include <translations/filler.h>
+#include <living/quests.h>
 
 inherit component "/lib/npc/component.c";
 
@@ -35,7 +51,8 @@ inherit component "/lib/npc/component.c";
 #define DEFAULT_PERIOD 1800
 
 private string * response_verbs;
-private string response_words, response_effect;
+private string response_words, response_effect, response_talks;
+private string * response_object;
 private int response_uses, response_period;
 private mapping response_only;
 private string response_said, response_room, response_failed, response_spent,
@@ -49,6 +66,8 @@ void create()
   response_verbs = ({ });
   response_words = WORDS_ANY;
   response_effect = nil;
+  response_talks = "";
+  response_object = ({ });
   response_uses = 0;
   response_period = DEFAULT_PERIOD;
   response_only = ([ ]);
@@ -114,7 +133,59 @@ private int is_served(object who)
   if (stringp(response_only["property"]) &&
       !who->query_property(response_only["property"]))
     return 0;
+  if (pointerp(response_only["property"]) &&
+      sizeof(response_only["property"]) == 2 &&
+      who->query_property(response_only["property"][0]) !=
+        response_only["property"][1])
+    return 0;
   return 1;
+}
+
+/**
+ * Whether the words of a verb identify this NPC: the filler words are dropped,
+ * the words of the object (when one is set) must be there and are taken out,
+ * and what is left has to be one of its ids.
+ *
+ * @param me the NPC
+ * @param str what follows the verb
+ * @return 1 when the words name this NPC
+ */
+private int names_npc(object me, string str)
+{
+  string * words, * wanted;
+  int i, j, found;
+
+  if (!stringp(str) || !strlen(str))
+    return 0;
+
+  str = lower_case(str);
+  if (!sizeof(response_object) && me->id(str))
+    return 1;
+
+  words = explode(str, " ") - ({ "" }) - _LANG_FILLER_WORDS;
+
+  if (sizeof(response_object))
+  {
+    found = 0;
+    for (i = 0; i < sizeof(response_object) && !found; i++)
+    {
+      wanted = explode(lower_case(response_object[i]), " ") - ({ "" });
+      found = sizeof(wanted) > 0;
+      for (j = 0; j < sizeof(wanted); j++)
+        if (member_array(wanted[j], words) == -1)
+          found = 0;
+      if (found)
+        words -= wanted;
+    }
+
+    if (!found)
+      return 0;
+  }
+
+  if (!sizeof(words))
+    return 0;
+
+  return me->id(implode(words, " "));
 }
 
 // Whether the NPC is fighting somebody in its own place.
@@ -160,8 +231,7 @@ int do_respond(string str)
     str = trim(str);
   if (response_words == WORDS_NONE && stringp(str) && strlen(str))
     return 0;
-  if (response_words == WORDS_NAME &&
-      (!stringp(str) || !me->id(lower_case(str))))
+  if (response_words == WORDS_NAME && !names_npc(me, str))
     return 0;
 
   if (is_fighting_here(me))
@@ -172,6 +242,9 @@ int do_respond(string str)
 
   if (!is_served(who))
   {
+    // no line of refusal: the verb is left to whatever else answers it
+    if (!strlen(response_refusal))
+      return 0;
     tell_object(who, say_text(response_refusal, who));
     return 1;
   }
@@ -201,6 +274,10 @@ int do_respond(string str)
   }
 
   used++;
+
+  if (strlen(response_talks))
+    handler(QUESTS_HANDLER, who)->talked(who, response_talks);
+
   return 1;
 }
 
@@ -210,6 +287,8 @@ mapping query_auto_load_attributes()
     "verbs"   : response_verbs,
     "words"   : response_words,
     "effect"  : response_effect,
+    "object"  : response_object,
+    "talks"   : response_talks,
     "uses"    : response_uses,
     "period"  : response_period,
     "only"    : response_only,
@@ -234,6 +313,12 @@ void init_auto_load_attributes(mapping args)
     response_words = args["words"];
   if (stringp(args["effect"]))
     response_effect = args["effect"];
+  if (stringp(args["object"]))
+    response_object = ({ args["object"] });
+  else if (pointerp(args["object"]))
+    response_object = ({ }) + args["object"];
+  if (stringp(args["talks"]))
+    response_talks = args["talks"];
   if (intp(args["uses"]))
     response_uses = args["uses"];
   if (intp(args["period"]) && args["period"] > 0)
@@ -260,6 +345,8 @@ mixed * stats()
     ({ "Verbs", implode(response_verbs, ", ") }),
     ({ "Words", response_words }),
     ({ "Effect", response_effect }),
+    ({ "Object", implode(response_object, ", ") }),
+    ({ "Talks", response_talks }),
     ({ "Uses", response_uses + " per " + response_period + "s" }),
     ({ "Used", used }),
   });

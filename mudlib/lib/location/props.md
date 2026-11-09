@@ -216,11 +216,11 @@ filters matching instances, and picks the 2nd one.
 ## Verbs, prepositions and missing targets
 
 A prop verb's argument is trimmed of leading filler words
-(`_LANG_PROPS_FILLER_WORDS`: `en`, `ante`, `frente`, `a`, `el`... /
+(`_LANG_FILLER_WORDS`: `en`, `ante`, `frente`, `a`, `el`... /
 `at`, `before`, `front`, `of`, `the`...) before it is matched, so
 `rezar ante el altar`, `rezar frente al altar`, `pray before the statue`
 and `tumbarse en la cama` all reach the prop. To accept a new
-preposition, add it to that list in both languages.
+preposition, add it to that list (`include/translations/filler.<lang>.h`) in both languages.
 
 A prop verb typed with no target, when some prop here answers to it, asks
 for one: `_LANG_PROPS_VERB_PROMPTS` maps the verb to its question
