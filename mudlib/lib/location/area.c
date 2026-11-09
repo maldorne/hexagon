@@ -63,6 +63,10 @@ string parent_area;
 // refused. Declared by hand (areas state), never inferred from what the
 // area happens to hold at the moment.
 string area_state;
+// The kind of woodland this area grows (an oak wood, a pine forest...), which
+// the forest component of its locations asks for what trees, shrubs and herbs
+// stand there. Empty means the area names none and its parent's is used.
+string forest_kind;
 // When the area last went to disk, and whether it changed since. The frequent
 // changes (people moving, counts of creatures) only mark it; a mark saves it
 // when the last save is AREA_SAVE_INTERVAL seconds old, and the shutdown saves
@@ -90,6 +94,7 @@ void create() {
   area_path = "";
   parent_area = "";
   area_state = AREA_DRAFT;
+  forest_kind = "";
   gives_exploration = 0;
   exploration_name = "";
   map_name = "";
@@ -521,6 +526,58 @@ object query_root_area()
   }
 
   return area;
+}
+
+/**
+ * The woodland kind this area itself declares, "" when it names none. An area
+ * restored from a save written before the field existed answers "".
+ */
+string query_own_forest_kind() { return stringp(forest_kind) ? forest_kind : ""; }
+
+/**
+ * Sets the woodland kind of this area ("" clears it).
+ *
+ * @param kind  a kind of the game's forests table, or ""
+ */
+void set_forest_kind(string kind)
+{
+  forest_kind = kind ? kind : "";
+  save_me();
+}
+
+/**
+ * The woodland kind that applies here: the one this area declares, else the
+ * nearest parent's. "" when nobody up the chain names one. The walk is bounded
+ * like query_root_area's.
+ */
+string query_forest_kind()
+{
+  object area;
+  string path;
+  int steps;
+
+  if (strlen(query_own_forest_kind()))
+    return query_own_forest_kind();
+
+  path = parent_area;
+  area = this_object();
+
+  for (steps = 0; strlen(path) && steps < AREA_MAX_ANCESTRY; steps++)
+  {
+    object up;
+
+    up = AREA_HANDLER->query_area(path);
+    if (!up || up == area)
+      break;
+
+    if (strlen((string)up->query_own_forest_kind()))
+      return (string)up->query_own_forest_kind();
+
+    area = up;
+    path = (string)up->query_parent_area_path();
+  }
+
+  return "";
 }
 
 /**
