@@ -4,7 +4,9 @@
 // location component (/lib/location/components/job-entrance.c).
 //
 // A school may enrol only its own people (set_entrance_citizenships): joining
-// is filtered, members use any house of the job.
+// is filtered, members use any house of the job. The people are named by
+// citizenship (set_entrance_citizenships), by race (set_entrance_races), or
+// both: whoever passes either is admitted.
 //
 // One job at a time. A job levels by itself as its experience is earned
 // (adjust_job_xp in /lib/living/social.c), so there is no advancing here; the
@@ -20,6 +22,9 @@
 private string entrance_job;
 // the diplomacy nodes whose people this entrance enrols; empty admits anybody
 private string * entrance_citizenships;
+// the races this entrance enrols, as full paths ending in ".c": a base race
+// admits all its lineages, a lineage only itself
+private string * entrance_races;
 static object entrance_sign;
 
 int query_job_entrance() { return 1; }
@@ -31,11 +36,29 @@ void create()
 {
   entrance_job = "";
   entrance_citizenships = ({ });
+  entrance_races = ({ });
 }
 
 string query_entrance_job() { return entrance_job; }
 
 string * query_entrance_citizenships() { return entrance_citizenships; }
+
+string * query_entrance_races() { return entrance_races; }
+
+/**
+ * Names the races that may join the job here. A base race admits all its
+ * lineages; a lineage admits only itself. When the list is not empty it
+ * replaces the races of the citizenships' people (see
+ * set_entrance_citizenships): a citizen or ally of those nodes is still
+ * admitted, but their race is judged by this list alone.
+ *
+ * @param race_paths race objects with their full path, ending in ".c"; an
+ *                   empty list leaves the races to the citizenships
+ */
+void set_entrance_races(string * race_paths)
+{
+  entrance_races = race_paths ? race_paths : ({ });
+}
 
 /**
  * Names the diplomacy nodes whose people may join the job here: those who
@@ -107,16 +130,28 @@ void take_down_job_entrance_sign()
 }
 
 // Whether somebody belongs to the people this entrance enrols: by the
-// citizenship they hold (or an ally of it) or by their race.
+// citizenship they hold (or an ally of it) or by their race. With neither
+// declared it admits anybody; the race list, when given, is the only race rule.
 private int admits(object who)
 {
   object diplomacy, city;
-  string held, root, race;
+  string held, root, race, base;
   string * races;
   int i;
 
-  if (!sizeof(entrance_citizenships))
+  if (!sizeof(entrance_citizenships) && !sizeof(entrance_races))
     return 1;
+
+  race = who->query_race_ob();
+  base = who->query_base_race_ob();
+  if (race && sizeof(entrance_races) &&
+      (member_array(race, entrance_races) != -1 ||
+       (strlen(base) && member_array(base, entrance_races) != -1)))
+    return 1;
+
+  // only races declared: the citizenship rule below has nothing to judge
+  if (!sizeof(entrance_citizenships))
+    return 0;
 
   diplomacy = handler("diplomacy", who);
   if (!diplomacy)
@@ -129,7 +164,6 @@ private int admits(object who)
     if (city)
       held = (string)city->query_name();
   }
-  race = who->query_race_ob();
 
   for (i = 0; i < sizeof(entrance_citizenships); i++)
   {
@@ -140,7 +174,7 @@ private int admits(object who)
     // the people of the node: its own races, or those of the citizenship at
     // the top of its chain when no node in the graph declares any
     races = (string *)diplomacy->query_people_races(entrance_citizenships[i]);
-    if (!sizeof(races))
+    if (!sizeof(races) && !sizeof(entrance_races))
     {
       root = (string)diplomacy->query_root_citizenship(entrance_citizenships[i]);
       if (!strlen(root))
@@ -275,5 +309,6 @@ void confirm_leave_job(string answer, object me)
 mixed * stats()
 {
   return ({ ({ "Entrance Job", entrance_job }),
-            ({ "Entrance Citizenships", implode(entrance_citizenships, ", ") }) });
+            ({ "Entrance Citizenships", implode(entrance_citizenships, ", ") }),
+            ({ "Entrance Races", implode(entrance_races, ", ") }) });
 }

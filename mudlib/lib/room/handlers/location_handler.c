@@ -1463,8 +1463,24 @@ object convert_room_to_location(object room)
     location->add_component(LOCATION_COMPONENT_JOB_ENTRANCE, ([
       "entrance_job" : room->query_entrance_job(),
       "entrance_citizenships" : room->query_entrance_citizenships(),
+      "entrance_races" : room->query_entrance_races(),
         ]));
     ret += "   Adding component job entrance.\n";
+  }
+  // An entrance already converted takes the job, citizenships and races the
+  // room declares now, so a reconversion picks up their changes.
+  else if (room->query_job_entrance())
+  {
+    object entrance;
+
+    entrance = location->query_component_by_type(LOCATION_COMPONENT_JOB_ENTRANCE);
+    if (entrance)
+    {
+      entrance->set_entrance_job(room->query_entrance_job());
+      entrance->set_entrance_citizenships(room->query_entrance_citizenships());
+      entrance->set_entrance_races(room->query_entrance_races());
+      ret += "   Refreshing component job entrance.\n";
+    }
   }
   if (room->query_job_room() &&
       !location->has_component(LOCATION_COMPONENT_JOB_ROOM))
