@@ -76,6 +76,7 @@ skill picks.
 - `query_plants(kind)` -> object paths of trees and shrubs, each repeated as
   many times as its weight
 - `query_seeks_herbs(who)` -> whether `who` can see herbs
-- `query_herb_to_grow(who, kind, depth)` -> a herb ready to be placed, or nil
+- `query_herb_to_grow(who, kind, depth, place)` -> a herb ready to be placed, or nil;
+  `place` is the location, so the table may also look at its other components
 
 A game without the table, or a location with no kind, grows nothing.

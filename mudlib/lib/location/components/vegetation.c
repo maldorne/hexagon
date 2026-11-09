@@ -25,7 +25,8 @@
 //
 // The table answers query_plants(kind) -> object paths (weighted by repeating
 // them), query_seeks_herbs(who) -> whether the walker can see herbs, and
-// query_herb_to_grow(who, kind, depth) -> a herb ready to be placed, or nil.
+// query_herb_to_grow(who, kind, depth, place) -> a herb ready to be placed, or
+// nil; the place lets the table look at the location's other components.
 // A location whose area names no kind takes the kind named like its own
 // component type ("swamp", "tundra"...) when the table knows it; with none, or
 // with no table, it grows nothing. Neither does one marked as growing no plants
@@ -343,7 +344,8 @@ private void grow_herb(object who)
     return;
   herb_time = time();
 
-  herb = (object)table_ob->query_herb_to_grow(who, query_vegetation_kind(), query_depth());
+  herb = (object)table_ob->query_herb_to_grow(who, query_vegetation_kind(), query_depth(),
+                                              query_entity());
   if (herb)
     herb->move(query_entity());
 }
