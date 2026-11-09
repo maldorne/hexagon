@@ -18,7 +18,9 @@
  * How to customize objects:
  *
  * If we need it to be for a specific race, guild, deity, etc., we just have 
- *  to set_guild_ob("/path/of/the/guild.c") (or an array of them, any of which may use it), set_race, etc., or gender with set_needed_gender(1 or 2).
+ *  to set_guild_ob("/path/of/the/guild.c") (or an array of them, any of which may use it, .c included, compared
+ *  exactly with the guild_ob of the wielder or wearer; query_guild_obs() gives the list), set_race, etc., or gender
+ *  with set_needed_gender(1 or 2). Never filter by properties: the check is made in set_in_use.
  * The object can be made for a single player by using 
  *  add_property("player", name);
  * The object can be made for a quest by adding the property 
