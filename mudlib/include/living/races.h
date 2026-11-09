@@ -15,6 +15,7 @@
 #define RACE_BIRD    "bird"
 #define RACE_CRITTER "critter"
 #define RACE_HUMAN   "human"
+#define RACE_GROUND_INSECT "ground-insect"
 #define RACE_INSECT  "insect"
 #define RACE_REPTILE "reptile"
 #define RACE_SCORPION "scorpion"

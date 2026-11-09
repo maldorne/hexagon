@@ -38,3 +38,11 @@
 
 #define _LANG_RACES_INSECT_MSG_IN "@$N llega zumbando desde $F."
 #define _LANG_RACES_INSECT_MSG_OUT "@$N se va zumbando hacia $T."
+
+#define _LANG_RACES_GROUND_INSECT_NAME "insecto terrestre"
+#define _LANG_RACES_GROUND_INSECT_DESC "Un insecto sin alas, a veces mayor de lo que debería.\n"
+#define _LANG_RACES_GROUND_INSECT_BODY "insecto"
+#define _LANG_RACES_GROUND_INSECT_STYLE "mordisco de mandíbulas"
+#define _LANG_RACES_GROUND_INSECT_STYLE_ATT_MSGS ({ "muerdes a $defname con tus mandíbulas $local" })
+#define _LANG_RACES_GROUND_INSECT_STYLE_DEF_MSGS ({ "$attname te muerde con sus mandíbulas $local" })
+#define _LANG_RACES_GROUND_INSECT_STYLE_ROOM_MSGS ({ "$attname muerde a $defname con sus mandíbulas $local" })

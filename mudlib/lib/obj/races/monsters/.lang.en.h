@@ -38,3 +38,11 @@
 
 #define _LANG_RACES_INSECT_MSG_IN "@$N buzzes in from $F."
 #define _LANG_RACES_INSECT_MSG_OUT "@$N buzzes away towards $T."
+
+#define _LANG_RACES_GROUND_INSECT_NAME "ground insect"
+#define _LANG_RACES_GROUND_INSECT_DESC "A wingless insect, at times larger than it ought to be.\n"
+#define _LANG_RACES_GROUND_INSECT_BODY "insect"
+#define _LANG_RACES_GROUND_INSECT_STYLE "mandible bite"
+#define _LANG_RACES_GROUND_INSECT_STYLE_ATT_MSGS ({ "you bite $defname with your mandibles $local" })
+#define _LANG_RACES_GROUND_INSECT_STYLE_DEF_MSGS ({ "$attname bites you with its mandibles $local" })
+#define _LANG_RACES_GROUND_INSECT_STYLE_ROOM_MSGS ({ "$attname bites $defname with its mandibles $local" })
