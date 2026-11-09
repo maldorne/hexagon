@@ -11,6 +11,7 @@
 //               file of weight 3 turning up three times as often as one of 1
 //   "where"   - "body" (the default) or "room"
 //   "message" - what the room sees as they turn up (optional)
+//   "chance"  - percentage of deaths that drop anything (optional, 100 by default)
 
 inherit component "/lib/npc/component.c";
 
@@ -21,6 +22,7 @@ private string * drop_items;
 private mapping drop_random;
 private string drop_where;
 private string drop_message;
+private int drop_chance;
 
 void create()
 {
@@ -29,6 +31,7 @@ void create()
   drop_random = ([ ]);
   drop_where = DROPS_ON_BODY;
   drop_message = nil;
+  drop_chance = 100;
 }
 
 /**
@@ -75,6 +78,10 @@ void died(object killer)
   if (!npc || !(env = environment(npc)))
     return;
 
+  // the whole drop is rolled at once
+  if (drop_chance < 100 && random(100) >= drop_chance)
+    return;
+
   files = ({ }) + drop_items;
   drawn = _draw_random();
   if (drawn)
@@ -101,7 +108,7 @@ mapping query_auto_load_attributes()
 {
   return component::query_auto_load_attributes() +
          ([ "items" : drop_items, "random" : drop_random,
-            "where" : drop_where ]) +
+            "where" : drop_where, "chance" : drop_chance ]) +
          (drop_message ? ([ "message" : drop_message ]) : ([ ]));
 }
 
@@ -116,6 +123,8 @@ void init_auto_load_attributes(mapping args)
     drop_random = args["random"];
   if (args["where"] == DROPS_ON_ROOM)
     drop_where = DROPS_ON_ROOM;
+  if (intp(args["chance"]))
+    drop_chance = args["chance"];
   if (stringp(args["message"]))
     drop_message = args["message"];
 }
