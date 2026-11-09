@@ -9,6 +9,23 @@ estos cuatro verbos no tienen nada que contarte.
   hechizos                      lista los que conoces.
   formular <hechizo> [<quién>]  lanza uno.
 
+Según el hechizo, se formula de una de estas maneras:
+
+  formular <hechizo>                 sobre ti, sobre todos o sobre el
+                                     lugar (los de área y detección).
+  formular <hechizo> <quién>         sobre una criatura.
+  formular <hechizo> <a>, <b> y <c>  sobre varias, los que lo admiten.
+  formular <hechizo> <objeto>        sobre algo que llevas o que está
+                                     en el lugar.
+  formular <hechizo> <objeto> de <quién>
+                                     sobre algo que empuña o lleva
+                                     otro (solo algunos hechizos).
+
+Algunos hechizos piden ingredientes: hay que llevarlos encima, y se
+gastan solo si el hechizo sale bien. Unos son obligatorios; otros,
+opcionales, y de esos se usa uno de cada clase que lleves. La ayuda
+de cada hechizo (ayuda <hechizo>) dice cómo se formula y qué pide.
+
 Formular lleva su tiempo: hay un turno de preparación, y no puedes
 empezar otro hasta que el anterior termine. Tampoco puedes formular
 estando muerto, ni vistiendo una armadura que tu gremio no permita.

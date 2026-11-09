@@ -9,6 +9,22 @@ these four verbs have nothing to tell you.
   spells                     lists the ones you know.
   cast <spell> [<target>]    casts one.
 
+Depending on the spell, it is cast in one of these ways:
+
+  cast <spell>                    on yourself, on everybody or on
+                                  the place (area and detection).
+  cast <spell> <who>              on one creature.
+  cast <spell> <a>, <b> and <c>   on several, the ones that allow it.
+  cast <spell> <item>             on something you carry or that is
+                                  in the place.
+  cast <spell> <item> of <who>    on something somebody else wields
+                                  or carries (only some spells).
+
+Some spells need ingredients: you must carry them, and they are used
+up only if the spell works. Some are required; others are optional,
+and of those one of each kind you carry is used. The help of each
+spell (help <spell>) says how it is cast and what it needs.
+
 Casting takes time: there is a round of preparation, and you cannot
 start another one until the first has finished. You cannot cast
 while dead either, nor wearing armour your guild does not allow.
