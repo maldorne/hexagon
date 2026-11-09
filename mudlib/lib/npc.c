@@ -153,9 +153,14 @@ int query_strategy_owns(string what)
 // it does not wander off.
 int query_staying_put()
 {
-  object sched;
+  object sched, guard;
 
   if (query_strategy_owns("wander"))
+    return 1;
+
+  // a guard whose watch is on keeps still
+  guard = query_component_by_type("guard");
+  if (guard && (int)guard->query_staying_put())
     return 1;
 
   sched = query_component_by_type("schedule");

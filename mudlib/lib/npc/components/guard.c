@@ -6,6 +6,10 @@
 // /lib/npc/guardian.c mixin and its /lib/guard.c base: a guard is now a plain
 // generic NPC carrying this component.
 //
+// The registry of the place it watches only holds the guard while it stands
+// there: it is taken off when the guard leaves or dies, and an always-watching
+// guard goes back on when it returns to its post.
+//
 // The room side is unchanged -- the exit handler still calls
 // guard_npc->guardian_check(mover) / guardian_message(); npc.c proxies those to
 // this component. The composing NPC supplies query_city_ob() (its citizenship),
@@ -41,7 +45,8 @@
 //   "chance"          - with "attacked", the percent chance each blow it takes
 //                       starts the watch (default 100)
 //   "duration"        - with "attacked", the seconds the watch lasts once
-//                       started; 0 (default) while it is still fighting
+//                       started; 0 (default) it lasts until the guard leaves
+//                       the place or dies. A guard keeps still while it watches
 //   "start_message"   - told to the room when the watch starts
 //   "end_message"     - told to the room when the watch ends
 //                       (both texts may carry $name$, the guard's name)
@@ -77,12 +82,17 @@ private mixed guard_min_align;
 private string * guard_races, * guard_barred_races;
 private string guard_night_admit;
 // when it watches ("always", "attacked"), the percent chance a blow starts the
-// watch, how long it lasts (0: while fighting) and the room texts
+// watch, how long it lasts (0: until it leaves or dies) and the room texts
 private string guard_when, guard_start_message, guard_end_message;
 private int guard_chance, guard_duration;
-// the watch is on, and the place it registered its exits in; not saved
+// the watch of an "attacked" guard is on; not saved
 static int watching;
+// the place whose registry holds its exits, and whether they are registered
+// there now (an always-watching guard keeps its post while away); not saved
 static object watch_place;
+static int registered;
+// the call_out that ends a timed watch, 0 when none is waiting
+static int end_handle;
 // what the last refused mover is told; scan_pending: a scan is already queued
 static string refusal;
 static int scan_pending;
@@ -109,6 +119,8 @@ void create()
   guard_end_message = "";
   watching = 0;
   watch_place = nil;
+  registered = 0;
+  end_handle = 0;
   refusal = nil;
   scan_pending = 0;
 }
@@ -235,6 +247,45 @@ private void _queue_scan()
   call_out("scan", 1);
 }
 
+// Cancels the call_out that would end a timed watch.
+private void _cancel_end()
+{
+  if (end_handle)
+    remove_call_out(end_handle);
+  end_handle = 0;
+}
+
+/**
+ * Registers the guard on the exits it watches in `place`.
+ */
+private void _register(object place)
+{
+  object me;
+  string * dirs;
+  int i;
+
+  me = query_entity();
+  dirs = _watched_directions();
+  if (!me || !place)
+    return;
+
+  for (i = 0; i < sizeof(dirs); i++)
+    place->register_guard(me, dirs[i]);
+  watch_place = place;
+  registered = sizeof(dirs) > 0;
+}
+
+/**
+ * Takes the guard off the registry of the place it watched, remembering the
+ * place.
+ */
+private void _unregister()
+{
+  if (registered && watch_place && query_entity())
+    watch_place->unregister_guard(query_entity());
+  registered = 0;
+}
+
 /**
  * Somebody has arrived: if the law wants them, the guard goes for them.
  */
@@ -249,7 +300,42 @@ void event_enter(object ob, varargs string mess, object from, mixed avoid)
  */
 void event_moved(object ob, object from, object dest)
 {
+  // leaving the place whose exits it watches frees them; an "attacked" guard
+  // forgets the place and its watch, an always-watching one keeps its post
+  if (registered && from && from == watch_place)
+  {
+    _unregister();
+    if (guard_when == "attacked")
+    {
+      watching = 0;
+      watch_place = nil;
+      _cancel_end();
+    }
+  }
+
+  // back at its post, an always-watching guard watches again
+  if (guard_when != "attacked" && !registered && dest && dest == watch_place)
+    _register(dest);
+
   _queue_scan();
+}
+
+/**
+ * The guard died: its exits are free.
+ */
+void died(varargs object killer)
+{
+  _unregister();
+  watching = 0;
+  _cancel_end();
+}
+
+/**
+ * Whether the guard keeps still: it does not wander while its watch is on.
+ */
+int query_staying_put()
+{
+  return watching;
 }
 
 /**
@@ -303,26 +389,16 @@ private void tell_here(string text)
 
 /**
  * Ends the watch of a guard that watches once attacked: its exits are free
- * again. With no "duration" it holds while the guard still fights.
+ * again.
  */
 void end_watch()
 {
-  object me;
-
-  me = query_entity();
-  if (!watching || !me)
+  end_handle = 0;
+  if (!watching)
     return;
-
-  if (!guard_duration && sizeof(me->query_attacker_list() - ({ nil })) &&
-      !me->query_dead())
-  {
-    call_out("end_watch", 5);
-    return;
-  }
 
   watching = 0;
-  if (watch_place)
-    watch_place->unregister_guard(me);
+  _unregister();
   watch_place = nil;
   tell_here(guard_end_message);
 }
@@ -334,8 +410,6 @@ void end_watch()
 void event_fight_in_progress(object ob, object * fighters)
 {
   object me;
-  string * dirs;
-  int i;
 
   me = query_entity();
   if (guard_when != "attacked" || watching || !me || me->query_dead() ||
@@ -347,13 +421,11 @@ void event_fight_in_progress(object ob, object * fighters)
     return;
 
   watching = 1;
-  watch_place = environment(me);
-  dirs = _watched_directions();
-  for (i = 0; i < sizeof(dirs); i++)
-    watch_place->register_guard(me, dirs[i]);
+  _register(environment(me));
 
   tell_here(guard_start_message);
-  call_out("end_watch", guard_duration > 0 ? guard_duration : 5);
+  if (guard_duration > 0)
+    end_handle = call_out("end_watch", guard_duration);
 }
 
 // Called once the NPC is standing in the world. Register on the exit so the
@@ -363,9 +435,7 @@ void event_fight_in_progress(object ob, object * fighters)
 // it at its post.
 void placed()
 {
-  object me, post;
-  string * dirs;
-  int i;
+  object me;
 
   me = query_entity();
   if (!me)
@@ -379,10 +449,7 @@ void placed()
 
   if (guard_direction && strlen(guard_direction))
   {
-    post = environment(me);
-    dirs = _watched_directions();
-    for (i = 0; post && i < sizeof(dirs); i++)
-      post->register_guard(me, dirs[i]);
+    _register(environment(me));
     return;
   }
 
@@ -398,19 +465,14 @@ void placed()
  */
 void register_at_post()
 {
-  object me, post;
-  string * dirs;
-  int i;
+  object me;
 
   me = query_entity();
-  dirs = _watched_directions();
-  if (!me || !sizeof(dirs))
+  if (!me || !sizeof(_watched_directions()))
     return;
 
-  post = (object)load_object(LOCATION_HANDLER)->load_location(
-           (string)me->query_work());
-  for (i = 0; post && i < sizeof(dirs); i++)
-    post->register_guard(me, dirs[i]);
+  _register((object)load_object(LOCATION_HANDLER)->load_location(
+              (string)me->query_work()));
 }
 
 // The guild rules: the guilds whose members pass, and the level a member needs.
