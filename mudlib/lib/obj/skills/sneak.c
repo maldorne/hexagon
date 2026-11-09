@@ -16,6 +16,10 @@ inherit BASE_EFFECT;
 #define SNEAK_MAX_LIGHT 20
 // the place may forbid it with this property
 #define NO_SNEAK_PROP   "no_sneak"
+// armour type of the feet slot (lib/tables/armours.c)
+#define FEET_ARMOUR_TYPE 4
+// percentage of unseen steps that give the energy back to silent footwear
+#define SILENT_FOOTWEAR_REFUND 59
 
 void setup()
 {
@@ -102,6 +106,27 @@ int try_unnoticed(object who, object place, varargs object other)
 }
 
 /**
+ * Whether the living wears on its feet a piece with the silent footwear
+ * property (SILENT_FOOTWEAR_PROP).
+ * @param who the one who walks
+ */
+int wears_silent_footwear(object who)
+{
+  object * feet;
+  int i;
+
+  if (!who)
+    return 0;
+
+  feet = who->query_worn_ob(FEET_ARMOUR_TYPE);
+  for (i = 0; i < sizeof(feet); i++)
+    if (feet[i] && feet[i]->query_property(SILENT_FOOTWEAR_PROP))
+      return 1;
+
+  return 0;
+}
+
+/**
  * Whether a hidden living opens or closes a door unnoticed (door.c). Only
  * somebody who is hiding and may use the skill gets the roll.
  */
@@ -166,6 +191,14 @@ int do_sneak(object caster, mixed target, mixed out_range, int time, int quiet)
     tell_object(caster, _LANG_SKILL_SNEAK_STUCK);
     return 0;
   }
+
+  // silent footwear gives the energy of an unseen step back, most of the
+  // times, out of combat and when the walker shines little
+  if (silent && gp > caster->query_gp() &&
+      !sizeof(caster->query_attacker_list()) &&
+      caster->query_light() <= SNEAK_MAX_LIGHT &&
+      wears_silent_footwear(caster) && random(100) < SILENT_FOOTWEAR_REFUND)
+    caster->adjust_gp(gp - caster->query_gp());
 
   tell_object(caster, _LANG_SKILL_SNEAK_GO);
   return 1;
