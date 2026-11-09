@@ -356,6 +356,7 @@ mapping query_kind_body_parts(string kind)
         PART_HEAD    : part_spec(SKILL_DISMEMBERING, 10,  5,  3, 1, 1),
         PART_HEART   : part_spec(SKILL_GUTTING,      20,  2,  5, 1, 1),
         PART_CLAWS   : part_spec(SKILL_PULLING,      10,  1,  5, 1, 0),
+        PART_WING    : part_spec(SKILL_DISMEMBERING, 10,  2,  4, 2, 1),
       ]);
     case BODY_REPTILE:
       return ([

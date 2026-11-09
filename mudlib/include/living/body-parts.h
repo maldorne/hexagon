@@ -32,6 +32,7 @@
 #define PART_CLAWS     "claws"
 #define PART_HORN      "horn"
 #define PART_TAIL      "tail"
+#define PART_WING      "wing"
 #define PART_MANDIBLES "mandibles"
 #define PART_TENTACLE  "tentacle"
 

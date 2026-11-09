@@ -4,13 +4,13 @@
     "skin" : "skin", "plumage" : "plumage", "scales" : "scales", \
     "head" : "head", "hand" : "hand", "heart" : "heart", \
     "teeth" : "teeth", "fangs" : "fangs", "claws" : "claws", \
-    "horn" : "horn", "tail" : "tail", "mandibles" : "mandibles", \
+    "horn" : "horn", "tail" : "tail", "wing" : "wing", "mandibles" : "mandibles", \
     "tentacle" : "tentacle" ])
 #define _LANG_BODY_PART_PLURALS ([ \
     "skin" : "skins", "plumage" : "plumages", "scales" : "scales", \
     "head" : "heads", "hand" : "hands", "heart" : "hearts", \
     "teeth" : "teeth", "fangs" : "fangs", "claws" : "claws", \
-    "horn" : "horns", "tail" : "tails", "mandibles" : "mandibles", \
+    "horn" : "horns", "tail" : "tails", "wing" : "wings", "mandibles" : "mandibles", \
     "tentacle" : "tentacles" ])
 // other words a player may use for them
 #define _LANG_BODY_PART_ALIASES ([ \

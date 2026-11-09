@@ -4,13 +4,13 @@
     "skin" : "piel", "plumage" : "plumaje", "scales" : "escamas", \
     "head" : "cabeza", "hand" : "mano", "heart" : "corazón", \
     "teeth" : "dientes", "fangs" : "colmillos", "claws" : "garras", \
-    "horn" : "cuerno", "tail" : "cola", "mandibles" : "mandíbulas", \
+    "horn" : "cuerno", "tail" : "cola", "wing" : "ala", "mandibles" : "mandíbulas", \
     "tentacle" : "tentáculo" ])
 #define _LANG_BODY_PART_PLURALS ([ \
     "skin" : "pieles", "plumage" : "plumajes", "scales" : "escamas", \
     "head" : "cabezas", "hand" : "manos", "heart" : "corazones", \
     "teeth" : "dientes", "fangs" : "colmillos", "claws" : "garras", \
-    "horn" : "cuernos", "tail" : "colas", "mandibles" : "mandíbulas", \
+    "horn" : "cuernos", "tail" : "colas", "wing" : "alas", "mandibles" : "mandíbulas", \
     "tentacle" : "tentáculos" ])
 // other words a player may use for them, plain-ASCII variants included
 #define _LANG_BODY_PART_ALIASES ([ \
@@ -21,5 +21,5 @@
     "mandibles" : ({ "mandibulas", "mandíbula", "mandibula" }), \
     "tentacle" : ({ "tentaculo", "tentaculos" }) ])
 #define _LANG_BODY_PART_FEMININE ({ "skin", "scales", "head", "hand", "claws", \
-    "tail", "mandibles" })
+    "tail", "wing", "mandibles" })
 #define _LANG_BODY_PART_PLURAL_NOUNS ({ "scales", "teeth", "fangs", "claws", "mandibles" })
