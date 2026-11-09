@@ -4,7 +4,7 @@
 
 inherit "/lib/handlers/quests.c";
 
-#define QUESTS "/games/demo-fantasy/obj/quests/the-climb/"
+#define QUESTS "/games/demo-fantasy/obj/quests/"
 
 void create()
 {
