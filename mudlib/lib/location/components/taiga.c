@@ -1,24 +1,15 @@
 // Taiga component. Cold conifer woods, drawn with their own outlined
-// glyph beside the forest one. What sets it apart from the forest component is
-// still to be decided; until then it only names the terrain. Contributes to
-// the sector-level "taiga" tally.
+// glyph beside the forest one. Contributes to the sector-level "taiga" tally.
 //
-// It adds no behaviour yet: it only marks the terrain.
+// Kind, depth and the plants that grow come from the vegetation base; with no
+// kind named by the area, it takes the game's "taiga" kind if there is one.
 
 #include <room/location.h>
 
-inherit component "/lib/location/component.c";
+inherit vegetation "/lib/location/components/vegetation.c";
 
 void create()
 {
-  component::create();
+  vegetation::create();
   set_type(LOCATION_COMPONENT_TAIGA);
-}
-
-void init() {}
-void dest_me() {}
-
-void initialize(object loc)
-{
-  component::initialize(loc);
 }

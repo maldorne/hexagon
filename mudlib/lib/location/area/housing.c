@@ -847,10 +847,13 @@ int demote_house(string file)
   if (house)
   {
     // a bare plot again: the setting the house took goes with it, and any
-    // forest it was given by hand
+    // vegetation it was given by hand
     house->remove_component(LOCATION_COMPONENT_HOME);
     house->remove_component(LOCATION_COMPONENT_CITY);
     house->remove_component(LOCATION_COMPONENT_FOREST);
+    house->remove_component(LOCATION_COMPONENT_TAIGA);
+    house->remove_component(LOCATION_COMPONENT_TUNDRA);
+    house->remove_component(LOCATION_COMPONENT_SWAMP);
     house->add_component(LOCATION_COMPONENT_PLOT, ([ ]));
     house->save_me();
 

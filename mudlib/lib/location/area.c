@@ -63,14 +63,18 @@ string parent_area;
 // refused. Declared by hand (areas state), never inferred from what the
 // area happens to hold at the moment.
 string area_state;
-// The kind of woodland this area grows (an oak wood, a pine forest...), which
-// the forest component of its locations asks for what trees, shrubs and herbs
-// stand there. Empty means the area names none and its parent's is used.
-string forest_kind;
-// How dense the woodland of this area is (garden, thicket, forest, jungle),
-// which decides how many trees its forest locations hold. Empty means the area
-// names none and its parent's is used.
-string forest_depth;
+// The kind of vegetation this area grows (an oak wood, a pine forest, a
+// reedbed...), which the vegetation components of its locations ask for what
+// trees, shrubs and herbs stand there. Empty means the area names none and its
+// parent's is used.
+string vegetation_kind;
+// How dense the vegetation of this area is (garden, thicket, forest, jungle),
+// which decides how many plants its locations hold. Empty means the area names
+// none and its parent's is used.
+string vegetation_depth;
+// The names these two had in saves written before the rename: only read back
+// by migrate_vegetation.
+string forest_kind, forest_depth;
 // When the area last went to disk, and whether it changed since. The frequent
 // changes (people moving, counts of creatures) only mark it; a mark saves it
 // when the last save is AREA_SAVE_INTERVAL seconds old, and the shutdown saves
@@ -98,6 +102,8 @@ void create() {
   area_path = "";
   parent_area = "";
   area_state = AREA_DRAFT;
+  vegetation_kind = "";
+  vegetation_depth = "";
   forest_kind = "";
   forest_depth = "";
   gives_exploration = 0;
@@ -125,8 +131,21 @@ private void note_names()
                                 parent_area, label_name);
 }
 
+// Takes the kind and depth of a save written under the old names, when the
+// new ones are empty. The old ones are cleared so the next save drops them.
+private void migrate_vegetation()
+{
+  if (!strlen(vegetation_kind) && stringp(forest_kind))
+    vegetation_kind = forest_kind;
+  if (!strlen(vegetation_depth) && stringp(forest_depth))
+    vegetation_depth = forest_depth;
+  forest_kind = "";
+  forest_depth = "";
+}
+
 void restore_me() {
   restore_object(file_name);
+  migrate_vegetation();
   note_names();
   _prune_connections();
 }
@@ -398,6 +417,7 @@ int restore_from_file_name(string name)
   if (file_size(name) >= 0)
   {
     restore_object(name);
+    migrate_vegetation();
     note_names();
     _prune_connections();
 
@@ -534,26 +554,26 @@ object query_root_area()
 }
 
 /**
- * The woodland kind this area itself declares, "" when it names none. An area
+ * The vegetation kind this area itself declares, "" when it names none. An area
  * restored from a save written before the field existed answers "".
  */
-string query_own_forest_kind() { return stringp(forest_kind) ? forest_kind : ""; }
+string query_own_vegetation_kind() { return stringp(vegetation_kind) ? vegetation_kind : ""; }
 
 /**
- * Sets the woodland kind of this area ("" clears it).
+ * Sets the vegetation kind of this area ("" clears it).
  *
- * @param kind  a kind of the game's forests table, or ""
+ * @param kind  a kind of the game's vegetation table, or ""
  */
-void set_forest_kind(string kind)
+void set_vegetation_kind(string kind)
 {
-  forest_kind = kind ? kind : "";
+  vegetation_kind = kind ? kind : "";
   save_me();
 }
 
 // The value of `getter` on this area or, when it answers "", on the nearest
 // parent that does. "" when nobody up the chain does. The walk is bounded like
 // query_root_area's.
-private string inherited_forest_value(string getter)
+private string inherited_vegetation_value(string getter)
 {
   object area;
   string path, value;
@@ -586,33 +606,33 @@ private string inherited_forest_value(string getter)
 }
 
 /**
- * The woodland kind that applies here: the one this area declares, else the
+ * The vegetation kind that applies here: the one this area declares, else the
  * nearest parent's. "" when nobody up the chain names one.
  */
-string query_forest_kind() { return inherited_forest_value("query_own_forest_kind"); }
+string query_vegetation_kind() { return inherited_vegetation_value("query_own_vegetation_kind"); }
 
 /**
- * The woodland depth this area itself declares, "" when it names none. An area
+ * The vegetation depth this area itself declares, "" when it names none. An area
  * restored from a save written before the field existed answers "".
  */
-string query_own_forest_depth() { return stringp(forest_depth) ? forest_depth : ""; }
+string query_own_vegetation_depth() { return stringp(vegetation_depth) ? vegetation_depth : ""; }
 
 /**
- * Sets the woodland depth of this area ("" clears it).
+ * Sets the vegetation depth of this area ("" clears it).
  *
- * @param depth  one of FOREST_DEPTHS, or ""
+ * @param depth  one of VEGETATION_DEPTHS, or ""
  */
-void set_forest_depth(string depth)
+void set_vegetation_depth(string depth)
 {
-  forest_depth = depth ? depth : "";
+  vegetation_depth = depth ? depth : "";
   save_me();
 }
 
 /**
- * The woodland depth that applies here: the one this area declares, else the
+ * The vegetation depth that applies here: the one this area declares, else the
  * nearest parent's. "" when nobody up the chain names one.
  */
-string query_forest_depth() { return inherited_forest_value("query_own_forest_depth"); }
+string query_vegetation_depth() { return inherited_vegetation_value("query_own_vegetation_depth"); }
 
 /**
  * Notes a change made while a location is converted or removed (its entry, its

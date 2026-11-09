@@ -299,7 +299,7 @@ raising a house loads its location.
   or `build_house_at()` swaps `plot` for `home` and turns the open passages into
   doors that start closed, and the house takes the `city` component of the
   locations it opens onto (`take_setting`). `demote_house()` is the inverse,
-  drops it again (and a `forest` given by hand) and leaves residents homeless.
+  drops it again (and any vegetation component given by hand) and leaves residents homeless.
 - **Built locations.** `furnish_house(file)` makes a location that already
   exists (a barracks, a room over a shop) a kept house as it stands, keeping its
   exits, short and long.

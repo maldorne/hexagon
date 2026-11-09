@@ -4,26 +4,22 @@
 //
 // The mud holds back whoever tries to leave: the weaker and clumsier the
 // living (strength plus dexterity), the more often the step is lost. A race
-// whose object answers query_swamp_walker() with 1 and a ghost are never held. The location asks it through query_exit_refusal, so a living moved by
+// whose object answers query_swamp_walker() with 1 and a ghost are never held.
+// The location asks it through query_exit_refusal, so a living moved by
 // force_exit is not held either.
+//
+// Kind, depth and the plants that grow come from the vegetation base; with no
+// kind named by the area, it takes the game's "swamp" kind if there is one.
 
 #include <room/location.h>
 #include <language.h>
 
-inherit component "/lib/location/component.c";
+inherit vegetation "/lib/location/components/vegetation.c";
 
 void create()
 {
-  component::create();
+  vegetation::create();
   set_type(LOCATION_COMPONENT_SWAMP);
-}
-
-void init() {}
-void dest_me() {}
-
-void initialize(object loc)
-{
-  component::initialize(loc);
 }
 
 /**

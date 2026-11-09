@@ -3,22 +3,15 @@
 // sector-level "tundra" tally so the world map draws the sector with the plains
 // glyphs in bold.
 //
-// It adds no behaviour yet: it only marks the terrain.
+// Kind, depth and the plants that grow come from the vegetation base; with no
+// kind named by the area, it takes the game's "tundra" kind if there is one.
 
 #include <room/location.h>
 
-inherit component "/lib/location/component.c";
+inherit vegetation "/lib/location/components/vegetation.c";
 
 void create()
 {
-  component::create();
+  vegetation::create();
   set_type(LOCATION_COMPONENT_TUNDRA);
-}
-
-void init() {}
-void dest_me() {}
-
-void initialize(object loc)
-{
-  component::initialize(loc);
 }
