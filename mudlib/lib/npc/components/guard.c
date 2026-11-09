@@ -33,6 +33,18 @@
 //   "night_admit"     - "citizens": from nightfall to dawn only fellow citizens
 //                       pass
 //   "message"         - what whoever it stops is told
+//   "everybody"       - 1 to stop everybody, whatever the other rules say
+//                       (default 0)
+//   "when"            - "always" (default) the guard watches all the time;
+//                       "attacked" it only watches once somebody hits it, and
+//                       blocks nobody until then
+//   "chance"          - with "attacked", the percent chance each blow it takes
+//                       starts the watch (default 100)
+//   "duration"        - with "attacked", the seconds the watch lasts once
+//                       started; 0 (default) while it is still fighting
+//   "start_message"   - told to the room when the watch starts
+//   "end_message"     - told to the room when the watch ends
+//                       (both texts may carry $name$, the guard's name)
 //
 // The POI of its post adds one more: a town_entrance that admits only citizens
 // (POI_FIELD_ADMIT) lets nobody else through. Defending people is the protector
@@ -54,6 +66,7 @@ inherit component "/lib/npc/component.c";
 inherit postpoi "/lib/npc/post-poi.c";
 
 private string guard_direction, guard_message;
+private int guard_everybody;
 private int guard_enemies, guard_guildless, guard_min_guild_level,
             guard_min_class_level;
 private string * guard_guilds;
@@ -63,6 +76,13 @@ private mixed guard_min_align;
 // it admits at night ("" for anybody)
 private string * guard_races, * guard_barred_races;
 private string guard_night_admit;
+// when it watches ("always", "attacked"), the percent chance a blow starts the
+// watch, how long it lasts (0: while fighting) and the room texts
+private string guard_when, guard_start_message, guard_end_message;
+private int guard_chance, guard_duration;
+// the watch is on, and the place it registered its exits in; not saved
+static int watching;
+static object watch_place;
 // what the last refused mover is told; scan_pending: a scan is already queued
 static string refusal;
 static int scan_pending;
@@ -73,6 +93,7 @@ void create()
   guard_direction = nil;
   guard_message = nil;
   guard_enemies = 1;
+  guard_everybody = 0;
   guard_guildless = 0;
   guard_min_guild_level = 0;
   guard_min_class_level = 0;
@@ -81,6 +102,13 @@ void create()
   guard_races = ({ });
   guard_barred_races = ({ });
   guard_night_admit = "";
+  guard_when = "always";
+  guard_chance = 100;
+  guard_duration = 0;
+  guard_start_message = "";
+  guard_end_message = "";
+  watching = 0;
+  watch_place = nil;
   refusal = nil;
   scan_pending = 0;
 }
@@ -256,6 +284,78 @@ void event_crime(object who, object criminal, string type, object victim,
   call_out("react_known", 1, criminal);
 }
 
+/**
+ * Tells the room a text of the guard, with its name in it.
+ *
+ * @param  text  the text, empty for none
+ */
+private void tell_here(string text)
+{
+  object me;
+
+  me = query_entity();
+  if (!me || !environment(me) || !strlen(text))
+    return;
+
+  tell_room(environment(me),
+            replace_string(text, "$name$", me->query_cap_name()) + "\n");
+}
+
+/**
+ * Ends the watch of a guard that watches once attacked: its exits are free
+ * again. With no "duration" it holds while the guard still fights.
+ */
+void end_watch()
+{
+  object me;
+
+  me = query_entity();
+  if (!watching || !me)
+    return;
+
+  if (!guard_duration && sizeof(me->query_attacker_list() - ({ nil })) &&
+      !me->query_dead())
+  {
+    call_out("end_watch", 5);
+    return;
+  }
+
+  watching = 0;
+  if (watch_place)
+    watch_place->unregister_guard(me);
+  watch_place = nil;
+  tell_here(guard_end_message);
+}
+
+/**
+ * A blow in the room: a guard that watches once attacked starts its watch when
+ * the blow lands on it and the chance allows.
+ */
+void event_fight_in_progress(object ob, object * fighters)
+{
+  object me;
+  string * dirs;
+  int i;
+
+  me = query_entity();
+  if (guard_when != "attacked" || watching || !me || me->query_dead() ||
+      !environment(me) || !pointerp(fighters) || sizeof(fighters) < 2 ||
+      fighters[0] != me)
+    return;
+
+  if (random(100) >= guard_chance)
+    return;
+
+  watching = 1;
+  watch_place = environment(me);
+  dirs = _watched_directions();
+  for (i = 0; i < sizeof(dirs); i++)
+    watch_place->register_guard(me, dirs[i]);
+
+  tell_here(guard_start_message);
+  call_out("end_watch", guard_duration > 0 ? guard_duration : 5);
+}
+
 // Called once the NPC is standing in the world. Register on the exit so the
 // exit handler consults us; it checks we are present before asking, so this
 // holds across the walk to the barracks and back. A guard with its own
@@ -272,6 +372,10 @@ void placed()
     return;
 
   _queue_scan();
+
+  // a guard that watches only once it is attacked registers when that happens
+  if (guard_when == "attacked")
+    return;
 
   if (guard_direction && strlen(guard_direction))
   {
@@ -449,6 +553,10 @@ int check(object mover)
   if (!sizeof(_watched_directions()) || !mover || !query_entity())
     return 1;
 
+  // before it is attacked, a guard of that kind blocks nobody
+  if (guard_when == "attacked" && !watching)
+    return 1;
+
   // the wanted do not pass the gate
   if (_is_wanted(mover))
   {
@@ -456,6 +564,9 @@ int check(object mover)
               _LANG_GUARD_WANTED_BLOCKED + "\n";
     return 0;
   }
+
+  if (guard_everybody)
+    return 0;
 
   if (guard_min_class_level &&
       (int)mover->query_class_level() < guard_min_class_level)
@@ -500,6 +611,7 @@ mapping query_auto_load_attributes()
   return component::query_auto_load_attributes() + ([
     "direction"       : guard_direction,
     "enemies"         : guard_enemies,
+    "everybody"       : guard_everybody,
     "guilds"          : guard_guilds,
     "guildless"       : guard_guildless,
     "min_guild_level" : guard_min_guild_level,
@@ -509,6 +621,11 @@ mapping query_auto_load_attributes()
     "barred_races"    : guard_barred_races,
     "night_admit"     : guard_night_admit,
     "message"         : guard_message,
+    "when"            : guard_when,
+    "chance"          : guard_chance,
+    "duration"        : guard_duration,
+    "start_message"   : guard_start_message,
+    "end_message"     : guard_end_message,
   ]);
 }
 
@@ -524,6 +641,8 @@ void init_auto_load_attributes(mapping args)
     guard_enemies = args["enemies"];
   if (pointerp(args["guilds"]))
     guard_guilds = ({ }) + args["guilds"];
+  if (intp(args["everybody"]))
+    guard_everybody = args["everybody"];
   if (intp(args["guildless"]))
     guard_guildless = args["guildless"];
   if (intp(args["min_guild_level"]))
@@ -540,6 +659,16 @@ void init_auto_load_attributes(mapping args)
     guard_night_admit = args["night_admit"];
   if (stringp(args["message"]))
     guard_message = args["message"];
+  if (stringp(args["when"]))
+    guard_when = args["when"];
+  if (intp(args["chance"]) && !undefinedp(args["chance"]))
+    guard_chance = args["chance"];
+  if (intp(args["duration"]))
+    guard_duration = args["duration"];
+  if (stringp(args["start_message"]))
+    guard_start_message = args["start_message"];
+  if (stringp(args["end_message"]))
+    guard_end_message = args["end_message"];
 }
 
 mixed * stats()
@@ -547,6 +676,7 @@ mixed * stats()
   return component::stats() + ({
     ({ "Direction", query_direction() }),
     ({ "Enemies", guard_enemies }),
+    ({ "Everybody", guard_everybody }),
     ({ "Guilds", implode(guard_guilds, ", ") }),
     ({ "Guildless", guard_guildless }),
     ({ "Min Guild Level", guard_min_guild_level }),
@@ -555,5 +685,8 @@ mixed * stats()
     ({ "Races", implode(guard_races, ", ") }),
     ({ "Barred Races", implode(guard_barred_races, ", ") }),
     ({ "Night Admit", guard_night_admit }),
+    ({ "When", guard_when }),
+    ({ "Chance", guard_chance }),
+    ({ "Duration", guard_duration }),
   });
 }
