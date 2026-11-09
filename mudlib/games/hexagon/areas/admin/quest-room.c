@@ -17,7 +17,7 @@
 
 	12/05/92 - Created by Godot.
 	09/2026  - Rewritten for Hexagon, neverbot: quests are now code under
-	           /games/<game>/quests/, so the room no longer creates them. It
+	           /games/<game>/obj/quests/, so the room no longer creates them. It
 	           inspects and validates what each game registers, and lets a
 	           coder move a player's quests around while testing.
 
@@ -157,10 +157,42 @@ private object player_named(string name)
   return player;
 }
 
+/**
+ * Every .c file under a quests directory, as paths relative to it, walking the
+ * subdirectories.
+ *
+ * @param dir the directory to walk, ending in a slash
+ * @param prefix the path of that directory relative to the quests root
+ * @return the relative file names
+ */
+string * quest_files(string dir, string prefix)
+{
+  string * names, * found;
+  int i, len;
+
+  found = ({ });
+  names = get_dir(dir + "*");
+
+  if (!names)
+    return found;
+
+  for (i = 0; i < sizeof(names); i++)
+  {
+    len = strlen(names[i]);
+
+    if (file_size(dir + names[i]) == -2)
+      found += quest_files(dir + names[i] + "/", prefix + names[i] + "/");
+    else if (len > 2 && names[i][len - 2 ..] == ".c")
+      found += ({ prefix + names[i] });
+  }
+
+  return found;
+}
+
 /*
  * list            -> the games that register quests, and the commands
  * list <game>     -> every quest that game registers, and the files under its
- *                    quests directory that it does not
+ *                    quests directory (subdirectories included) that it does not
  */
 int do_list(string game)
 {
@@ -232,11 +264,11 @@ int do_list(string game)
     text += "  No quest registered.\n";
 
   // files in the quests directory the handler does not register
-  files = get_dir(GAMES + game + "/quests/*.c");
+  files = quest_files(GAMES + game + "/obj/quests/", "");
 
   for (i = 0; i < sizeof(files); i++)
   {
-    path = GAMES + game + "/quests/" + files[i][0 .. strlen(files[i]) - 3];
+    path = GAMES + game + "/obj/quests/" + files[i][0 .. strlen(files[i]) - 3];
     if (member_array(path, registered_files) == -1)
       text += "  not registered: " + files[i] + "\n";
   }

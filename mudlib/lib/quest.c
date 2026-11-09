@@ -9,7 +9,7 @@
  *
  * A quest definition is a blueprint and is never cloned: it holds no player
  * state, only the description of the work. A game writes one file per quest
- * under /games/<game>/quests/ inheriting this one, and its quests handler
+ * under /games/<game>/obj/quests/ inheriting this one, and its quests handler
  * registers them.
  *
  * The id is what a player's savefile remembers, so it is a stable string and
