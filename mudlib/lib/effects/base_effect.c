@@ -74,6 +74,7 @@ int allow_on_passed_out;  // on objects with the passed_out property
 int allow_on_pacified;    // on pacified people
 int allow_while_pacified; // can we cast it while pacified
 int allow_on_hidden;      // on hidden people
+int allow_on_items;       // a single-target effect may also be aimed at an item
 int allow_while_hidden;   // if we are hidden
 int allow_on_moving;      // on a moving target
 int allow_while_moving;   // if we are moving
@@ -121,6 +122,7 @@ void create()
   allow_on_pacified = 0;
   allow_while_pacified = 0;
   allow_on_hidden = 1;
+  allow_on_items = 0;
   allow_while_hidden = 1;
   allow_on_moving = 1;
   allow_while_moving = 0;
@@ -1120,6 +1122,60 @@ int cast_effect_at(string str, object who, int level, varargs int power)
 }
 
 /**
+ * The item a caster names: one he carries, one in the place, or one held by a
+ * living in the place, written "<item> of <who>" ("espada de bob"). Only the
+ * effects that declare allow_on_items look for it.
+ *
+ * @param  str     what the caster typed
+ * @param  caster  who casts
+ * @return the item, nil when there is none
+ */
+object find_item_target(string str, object caster)
+{
+  mixed found;
+  object * held;
+  string what, who;
+  int i;
+
+  str = trim(str);
+
+  found = find_one_match(str, caster);
+  if (objectp(found) && !living(found))
+    return found;
+
+  found = find_one_match(str, environment(caster), !allow_on_dead);
+  if (objectp(found) && !living(found))
+    return found;
+
+  if (sscanf(str, "%s " + _LANG_EFFECT_ITEM_OF + " %s", what, who) == 2)
+  {
+    found = find_one_match(who, environment(caster), !allow_on_dead);
+    if (objectp(found) && living(found))
+    {
+      held = found->query_held_ob() - ({ nil });
+      for (i = 0; i < sizeof(held); i++)
+        if (held[i]->id(what))
+          return held[i];
+    }
+  }
+
+  return nil;
+}
+
+/**
+ * Whether an item is within the reach of the caster: carried by him, in his
+ * place or held by a living in it.
+ */
+private int item_in_reach(object item, object caster)
+{
+  object owner;
+
+  owner = environment(item);
+  return owner == caster || owner == environment(caster) ||
+    (owner && environment(owner) == environment(caster));
+}
+
+/**
  * Why a living cannot be the target of this effect, from the permissions the
  * effect declares (allow_on_*). A single and a many-target effect share it.
  *
@@ -1447,8 +1503,13 @@ private int run_cast(string str, object * given, object who, int quiet)
           ob = given[0];
         else
           ob = find_one_match( str, environment(caster), !allow_on_dead);
-        
-        if (ob)
+
+        // an effect that may be aimed at an item looks for one when no one matches
+        if (!ob && allow_on_items)
+          ob = find_item_target(str, caster);
+
+        // an item is checked by the effect itself
+        if (ob && living(ob))
         {
           refusal = target_refusal(ob, caster);
           if (refusal)
@@ -1780,8 +1841,8 @@ int hb_effect(object caster, mixed *params, int time)
         }
         else
         {
-            // If it is not a living target, we lose it
-            if ( !living(target) )
+            // If it is not a living target, we lose it (unless the effect takes items)
+            if ( !living(target) && !(allow_on_items && item_in_reach(target, caster)) )
             {
                 out_of_range = 0;
                 target = 0;
@@ -1789,6 +1850,11 @@ int hb_effect(object caster, mixed *params, int time)
                 tell_room(environment(caster), MSG_CANNOT_NOW_ROOM, caster);
                 call_out("end_effect_now", 0, caster);
                 return 0;
+            }
+            // an item the effect takes only needs to be within reach
+            else if (!living(target))
+            {
+                out_of_range = 0;
             }
             // Check it is within range: without one, it must still be here
             else if ((effect_range <= 0 && environment(target) != environment(caster)) ||

@@ -130,6 +130,31 @@
   ({ "crushes $defender$ with the weight of stone", "crushes you with the weight of stone" }), \
   ({ "rends $defender$ with chaos", "rends you with chaos" }), })
 
+// what detect magic reads in a weapon. One entry for each element, in the order of
+// DAMAGE_ELEMENTAL_TYPES: what the extra damage does with every blow that lands.
+#define _LANG_WEAPONS_EXTRA_DAMAGE_DETECT ({ \
+  "Corrodes whoever it hits with acid", \
+  "Lashes whoever it hits with gusts of wind", \
+  "Shocks whoever it hits with electric discharges", \
+  "Freezes whoever it hits", \
+  "Strikes whoever it hits with magical energy", \
+  "Wounds the mind of whoever it hits", \
+  "Looses magical missiles on whoever it hits", \
+  "Poisons whoever it hits", \
+  "Punishes whoever it hits with the force of law", \
+  "Batters whoever it hits with surges of water", \
+  "Sears whoever it hits with holy light", \
+  "Infects whoever it hits with disease", \
+  "Burns whoever it hits with magical fire", \
+  "Corrupts whoever it hits with its malice", \
+  "Drains the life of whoever it hits", \
+  "Crushes whoever it hits with the weight of stone", \
+  "Rends whoever it hits with chaos", })
+#define _LANG_WEAPONS_DETECT_DAMAGE_OF "of damage"
+#define _LANG_WEAPONS_DETECT_ENCHANT_PLUS "It has an enchantment that improves its blows: +"
+#define _LANG_WEAPONS_DETECT_ENCHANT_MINUS "A curse or a flaw worsens its blows: "
+#define _LANG_WEAPONS_DETECT_LEVEL "It was cast by someone of level "
+
 #define _LANG_WEAPONS_NO_EFFECT " without effect"
 #define _LANG_WEAPONS_WEAKLY " weakly"
 #define _LANG_WEAPONS_WITH_LITTLE_FORCE " with little force"

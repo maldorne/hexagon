@@ -131,6 +131,31 @@
   ({ "aplasta con su peso de roca a $defender$", "te aplasta con su peso de roca" }), \
   ({ "desgarra con el caos a $defender$", "te desgarra con el caos" }), })
 
+// lo que detectar magia lee en un arma. Una entrada por elemento, en el orden de
+// DAMAGE_ELEMENTAL_TYPES: lo que el daño extra hace en cada golpe que alcanza.
+#define _LANG_WEAPONS_EXTRA_DAMAGE_DETECT ({ \
+  "Corroe con ácido a quien alcanza", \
+  "Azota con ráfagas de viento a quien alcanza", \
+  "Sacude con descargas eléctricas a quien alcanza", \
+  "Hiela a quien alcanza", \
+  "Golpea con energía mágica a quien alcanza", \
+  "Hiere la mente de quien alcanza", \
+  "Descarga proyectiles mágicos sobre quien alcanza", \
+  "Envenena a quien alcanza", \
+  "Castiga con la fuerza de la ley a quien alcanza", \
+  "Azota con oleadas de agua a quien alcanza", \
+  "Abrasa con luz sagrada a quien alcanza", \
+  "Infecta con enfermedad a quien alcanza", \
+  "Quema con fuego mágico a quien alcanza", \
+  "Corrompe con su maldad a quien alcanza", \
+  "Drena la vida de quien alcanza", \
+  "Aplasta con el peso de la roca a quien alcanza", \
+  "Desgarra con el caos a quien alcanza", })
+#define _LANG_WEAPONS_DETECT_DAMAGE_OF "de daño"
+#define _LANG_WEAPONS_DETECT_ENCHANT_PLUS "Tiene un encantamiento que mejora sus golpes: +"
+#define _LANG_WEAPONS_DETECT_ENCHANT_MINUS "Una maldición o un defecto empeora sus golpes: "
+#define _LANG_WEAPONS_DETECT_LEVEL "Lo lanzó alguien de nivel "
+
 #define _LANG_WEAPONS_NO_EFFECT " sin efecto"
 #define _LANG_WEAPONS_WEAKLY " débilmente"
 #define _LANG_WEAPONS_WITH_LITTLE_FORCE " con poca fuerza"

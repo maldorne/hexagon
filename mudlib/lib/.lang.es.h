@@ -128,3 +128,6 @@
 #define _LANG_GUILD_REFUSED_NEUTRAL "Este gremio solo admite a quienes los demás ven como neutrales.\n"
 #define _LANG_GUILD_REFUSED_GOOD "Este gremio solo admite a quienes los demás ven como buenos.\n"
 #define _LANG_GUILD_REFUSED_EVIL "Este gremio solo admite a quienes los demás ven como malvados.\n"
+
+// look of a weapon with magic, it does not say what
+#define _LANG_WEAPON_SPECIAL_LOOK "Notas algo especial en esta arma.\n"

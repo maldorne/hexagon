@@ -117,3 +117,6 @@
     "unarmed" : "combate desarmado básico", \
     "exploration" : "exploración", \
   ])
+
+// "<item> de <who>": how an item held by someone is named
+#define _LANG_EFFECT_ITEM_OF "de"

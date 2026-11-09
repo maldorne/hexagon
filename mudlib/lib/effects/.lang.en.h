@@ -117,3 +117,6 @@
     "unarmed" : "basic unarmed combat", \
     "exploration" : "exploration", \
   ])
+
+// "<item> of <who>": how an item held by someone is named
+#define _LANG_EFFECT_ITEM_OF "of"

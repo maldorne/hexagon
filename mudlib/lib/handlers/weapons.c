@@ -243,3 +243,58 @@ void write_extra_damage_message(int attack_type,      // elemental type of the e
   tell_object(attacker, texts[0]);
   tell_object(defender, texts[1]);
 }
+
+/**
+ * What detect magic reads in a weapon: one exact sentence for each extra
+ * damage (its own text, or the one of its element with the dice), for the
+ * enchant and for what a spell put on it, with the level of who cast it.
+ *
+ * @param  weapon  the weapon
+ * @return the sentences, none when it holds no magic
+ */
+string * query_magic_descriptions(object weapon)
+{
+  string * lines, * attacks, * levelled, text;
+  mixed * entries, * mark;
+  mapping extras, marks;
+  int i, j, enchant;
+
+  lines = ({ });
+  extras = weapon->query_extra_damage();
+  attacks = map_indices(extras);
+
+  for (i = 0; i < sizeof(attacks); i++)
+  {
+    entries = extras[attacks[i]];
+    for (j = 0; j < sizeof(entries); j++)
+    {
+      if (sizeof(entries[j]) > 5 && stringp(entries[j][5]))
+        text = entries[j][5];
+      else
+        text = _LANG_WEAPONS_EXTRA_DAMAGE_DETECT[entries[j][0] - sizeof(AC_TYPES)] +
+               " (" + entries[j][1] + "d" + entries[j][2] +
+               (entries[j][3] ? (entries[j][3] > 0 ? "+" : "") + entries[j][3] : "") +
+               " " + _LANG_WEAPONS_DETECT_DAMAGE_OF + ")";
+      lines += ({ text + "." });
+    }
+  }
+
+  enchant = weapon->query_enchant();
+  if (enchant > 0)
+    lines += ({ _LANG_WEAPONS_DETECT_ENCHANT_PLUS + enchant + "." });
+  else if (enchant < 0)
+    lines += ({ _LANG_WEAPONS_DETECT_ENCHANT_MINUS + enchant + "." });
+
+  marks = weapon->query_magic_marks();
+  levelled = map_indices(marks);
+  for (i = 0; i < sizeof(levelled); i++)
+  {
+    mark = marks[levelled[i]];
+    text = mark[2]["text"];
+    if (!text)
+      continue;
+    lines += ({ text + " (" + _LANG_WEAPONS_DETECT_LEVEL + mark[1] + ")." });
+  }
+
+  return lines;
+}

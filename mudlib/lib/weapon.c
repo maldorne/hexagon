@@ -48,6 +48,9 @@ static object attacker, defender;
 mapping attacks;
 // elemental damage that only lands when a physical attack hits, by id
 mapping extra_damage;
+// what a spell put on the weapon, by id: ({ who cast it, their level, data }),
+// see add_magic_mark
+mapping magic_marks;
 
 
 void create() 
@@ -56,8 +59,11 @@ void create()
   enchant = 0;
   attacks = ([]);
   extra_damage = ([]);
+  magic_marks = ([]);
   item::create();
   set_holdable(1);
+  // the look of a weapon that holds some magic
+  add_extra_look(this_object());
 } 
 
 // prototypes
@@ -184,6 +190,7 @@ mixed * stats()
               ({ "Attack Type (nosave)", attack_type, }),
               ({ "Attacks", attacks, }),
               ({ "Extra Damage", extra_damage, }),
+              ({ "Magic Marks", magic_marks, }),
           }); 
 } 
 
@@ -197,6 +204,8 @@ mapping query_auto_load_attributes()
     ret["enchant"] = enchant;
   if (map_sizeof(extra_damage))
     ret["extra damage"] = extra_damage;
+  if (map_sizeof(magic_marks))
+    ret["magic marks"] = magic_marks;
 
   return ret;
 }
@@ -209,6 +218,8 @@ void init_auto_load_attributes(mapping args)
     attacks = args["attacks"];
   if (!undefinedp(args["extra damage"]))
     extra_damage = args["extra damage"];
+  if (!undefinedp(args["magic marks"]))
+    magic_marks = args["magic marks"];
 
   item::init_auto_load_attributes(args);
 }
@@ -256,12 +267,15 @@ int has_extra_damage_against(object target) { return 1; }
 // Each one prints a line after the hit, by element. A weapon may give its own
 // messages instead: ({ for the attacker, for the defender, for the room }), with the
 // tokens $weapon$ (the weapon, already with its owner), $attacker$ and $defender$.
+// A last optional text is what detect magic reads about this extra damage (without
+// it, the line of the element and the dice).
 void add_extra_damage(string attack,   // name of the attack it goes with
                       int type,        // elemental type
                       int num_dice,    // num of dice
                       int type_dice,   // num of faces of the dice
                       int bonus,       // bonus to add
-                      varargs mixed * messages) // optional own messages
+                      varargs mixed * messages, // optional own messages
+                      string description)       // optional text for detect magic
 {
   // physical types have no extra damage, use add_attack for them
   if (type < sizeof(AC_TYPES) || (type - sizeof(AC_TYPES)) >= sizeof(DAMAGE_ELEMENTAL_TYPES))
@@ -270,7 +284,97 @@ void add_extra_damage(string attack,   // name of the attack it goes with
   if (!extra_damage[attack])
     extra_damage[attack] = ({ });
   // entries saved before the messages existed have four elements
-  extra_damage[attack] += ({ ({ type, num_dice, type_dice, bonus, messages }) });
+  extra_damage[attack] += ({ ({ type, num_dice, type_dice, bonus, messages, description }) });
+}
+
+/**
+ * Whether the weapon holds any magic: extra damage, an enchant (or a curse,
+ * which is a negative one) or something a spell put on it.
+ */
+int has_magic()
+{
+  return map_sizeof(extra_damage) || enchant != 0 || map_sizeof(magic_marks);
+}
+
+/**
+ * What a spell put on the weapon, to be told apart and undone later (see
+ * dispel_magic). The kinds are the spells'; a second mark of the same id
+ * replaces the first.
+ *
+ * @param  id     what it is, e.g. "curse"
+ * @param  who    the name of who cast it
+ * @param  level  the level of who cast it, what a dispel has to beat
+ * @param  data   optional: "enchant" (points a dispel gives back to the
+ *                enchant), "attack" (the attack whose extra damage a dispel
+ *                removes), "property" (a property a dispel removes) and "text"
+ *                (what detect magic reads)
+ */
+void add_magic_mark(string id, string who, int level, varargs mapping data)
+{
+  magic_marks[id] = ({ who, level, data ? data : ([ ]) });
+}
+
+mapping query_magic_marks() { return magic_marks; }
+
+/**
+ * Called after a dispel undid a mark, for a weapon that has to change more
+ * than the generic data says.
+ */
+void magic_dispelled(string id, mixed * mark) { }
+
+/**
+ * A dispel magic cast on the weapon: undoes every mark put by a caster of a
+ * lower level than the one who dispels, and nothing else.
+ *
+ * @param  level  the level of who dispels, in the same scale as the marks
+ * @return the ids of the marks undone
+ */
+string * dispel_magic(int level)
+{
+  string * ids, * removed;
+  mixed * mark;
+  mapping data;
+  int i;
+
+  ids = map_indices(magic_marks);
+  removed = ({ });
+
+  for (i = 0; i < sizeof(ids); i++)
+  {
+    mark = magic_marks[ids[i]];
+    if (mark[1] >= level)
+      continue;
+
+    data = mark[2];
+    if (data["enchant"])
+      set_enchant(enchant + data["enchant"]);
+    if (data["attack"])
+      remove_extra_damage(data["attack"]);
+    if (data["property"])
+      remove_property(data["property"]);
+
+    magic_marks = m_delete(magic_marks, ids[i]);
+    removed += ({ ids[i] });
+    magic_dispelled(ids[i], mark);
+  }
+
+  return removed;
+}
+
+/**
+ * What detect magic reads in the weapon, one exact sentence for each thing.
+ */
+string * query_magic_descriptions()
+{
+  return handler("weapons")->query_magic_descriptions(this_object());
+}
+
+/**
+ * Anybody looking at a weapon with magic notices something, but not what.
+ */
+string extra_look()
+{
+  return has_magic() ? _LANG_WEAPON_SPECIAL_LOOK : "";
 }
 
 // workout_attack taken from unarmed_combat to make them similar, neverbot 6/03

@@ -79,6 +79,16 @@ does not exist yet.
   `$attacker$` and `$defender$`.
   A spell can give a weapon extra damage for good (`enchant-weapon`, see
   the readme of the spells of the game).
+  An optional seventh argument is the sentence detect magic reads for that extra
+  damage (without it, the line of the element with the dice, from the weapons
+  handler).
+  A weapon that holds any magic (extra damage, an enchant or a mark) adds one
+  generic line to its look and never says what (`extra_look` of `weapon.c`).
+  What a spell puts on a weapon is recorded with
+  `add_magic_mark(id, who, level, data)` (`data`: `enchant` points to give back,
+  `attack` whose extra damage goes, `property` to remove, `text` for detect
+  magic); `dispel_magic(level)` undoes every mark of a lower level and returns
+  the ids, and `query_magic_descriptions()` lists the exact sentences.
   A weapon that adds it only against some targets redefines
   `has_extra_damage_against(target)` (default 1): when it answers 0 the extra
   damage of that hit is not rolled nor shown.

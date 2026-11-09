@@ -127,3 +127,6 @@
 #define _LANG_GUILD_REFUSED_NEUTRAL "This guild only admits those whom others see as neutral.\n"
 #define _LANG_GUILD_REFUSED_GOOD "This guild only admits those whom others see as good.\n"
 #define _LANG_GUILD_REFUSED_EVIL "This guild only admits those whom others see as evil.\n"
+
+// look of a weapon with magic, it does not say what
+#define _LANG_WEAPON_SPECIAL_LOOK "You notice something special about this weapon.\n"
