@@ -228,6 +228,8 @@ given to that creature alone. They need neither guild nor job (`is_attack_effect
 in `lib/effects/base_effect.c`: usable, neutral power, cast at the class level of
 the creature); a creature-only effect does not need `set_common_effect(1)`.
 
+An effect that should not announce itself when it starts (a bite, a breath) calls `set_silent_start(1)` (`lib/effects/base_effect.c`, off by default): the "begins to cast" lines to the caster and the room and the chant of the spell bases are dropped, and what the effect prints is the first thing read. The creature bases (`breath-spell.c`, `venom-spell.c` of rl-aeternum) set it.
+
 Chances: an effect with a chance of its own (`set_effect_chance(key, percent)`,
 or `add_attack_effect(path, percent)`; the key is the full path with `.c` of a
 spell or attack effect, or the id of a skill; the template fills them, see

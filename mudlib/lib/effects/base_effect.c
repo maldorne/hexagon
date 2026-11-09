@@ -54,6 +54,9 @@ static int casting_at_level;  // set while cast_effect_at starts the effect
 int silence;              // whether messages are shown on screen (useful for
                           // silent spells and similar)
 int fast_casting;         // instant effects
+int silent_start;         // nothing is announced when the effect starts (the
+                          // "begins to cast" lines and the chant); the effect
+                          // itself still says what it does
 
 string * start_phrases;   // messages shown at the start of the effect (first for the caster, second for the room)
 
@@ -162,6 +165,7 @@ void create()
   effect_reach = nil;
   silence = 0;
   fast_casting = 0;
+  silent_start = 0;
   start_phrases = ({ });
  
   rounds = ({ });
@@ -330,6 +334,9 @@ string query_effect_follow_name()
 
 int query_silence() { return silence; }
 void set_silence(int i) { silence = i; }
+
+int query_silent_start() { return silent_start; }
+void set_silent_start(int i) { silent_start = i; }
 
 int query_fast_casting() { return fast_casting; }
 void set_fast_casting(int i) { fast_casting = i; }
@@ -1711,8 +1718,9 @@ private int run_cast(string str, object * given, object who, int quiet)
     // We pass the gp to spend to add_active_effect; we spend it on the
     //   last round of the effect if all went well.
 
-    // If quiet != 0, show the "you begin to run..." message
-    if( !quiet && (effect_type == EFFECT_IS_SPELL))
+    // If quiet != 0, show the "you begin to run..." message (never when the
+    // effect starts silently, it announces itself)
+    if( !silent_start && !quiet && (effect_type == EFFECT_IS_SPELL))
     {
         tell_object(caster, _LANG_EFFECT_START_SPELL_PRE + effect_name +
           _LANG_EFFECT_START_SPELL_POST);
@@ -1720,7 +1728,7 @@ private int run_cast(string str, object * given, object who, int quiet)
           caster->query_cap_name() + _LANG_EFFECT_START_SPELL_ROOM,
           caster);
     }
-    else if ( !quiet && (effect_type == EFFECT_IS_SKILL))
+    else if ( !silent_start && !quiet && (effect_type == EFFECT_IS_SKILL))
     {
         if (sizeof(start_phrases) == 2)
         {
