@@ -61,6 +61,8 @@ Strings go in the directory's `.lang.<lang>.h` as everywhere. `damage-over-time.
 
 - `bleeding.c`: a wound on a body part (`part` and its `article`, named by whoever adds it); raises the flag `bleeding`. Healing closes it by removing it with the reason `cured` (a game's healing spells decide how often), which tells the living the wound closes.
 - `poisoned.c`: venom in the blood; raises the flag `poisoned`.
+- `deaf.c`: the living hears nothing; raises the flag `deaf`. Permanent without `expires`, temporary with it; a permanent one stays when a temporary one is added, between temporary ones the longer lasts. It tells the living when it starts and ends (not on death or replacement) and adds a look line. It does not touch what the living says.
+- `mute.c`: the living cannot speak; raises the flag `mute`, same rules for `expires` and the messages. It does not touch what the living hears.
 
 The `heal-service` NPC component (`lib/npc/components/heal-service.c`) casts a healing spell, so it closes what that spell closes.
 
@@ -68,4 +70,6 @@ The `heal-service` NPC component (`lib/npc/components/heal-service.c`) casts a h
 
 Wired: the stat deltas (`stats_trait` in `lib/living/stats.c`, summed in `query_str` ... `query_wil`; the carry capacity follows strength), the look line (`long` in `lib/living/living.c`), the heart_beat tick, the save, death, and the npc heart_beat staying on while a trait is carried (`check_heart_beat` in `lib/monster.c`).
 
-Pending (the flags are declared, nothing reads them yet): can act, can move, can speak, can hear, can see, to-hit, armour class, damage bonus, regeneration (`heal_hp` / `heal_gp`), and a trait that survives death.
+Flags read: `mute` in `do_say`, `do_tell`, `do_whisper` and `do_shout` of `lib/living/communicate.c` (the speech is refused with a message, an npc's chats and `do_say` lines included, since they all go through `do_say`) and in `cast_effect` of `lib/effects/base_effect.c`, which refuses an effect whose `query_spoken()` is 1 (a game's spell base answers 1 for a spell with a chant); `deaf` in `event_person_whisper` and `event_person_shout` (`lib/core/basic/events.c`), `event_person_say` of `lib/player/events.c`, `do_tell` of `communicate.c` (the sender is told the target cannot hear) and the `listen` command (`query_refusal` of `lib/cmds/sense.c`). An npc that reacts to what is said in its own `event_person_say` asks `query_trait_flag("deaf")` itself.
+
+Pending (the flags are declared, nothing reads them yet): can act, can move, can see, to-hit, armour class, damage bonus, regeneration (`heal_hp` / `heal_gp`), and a trait that survives death.

@@ -141,6 +141,23 @@ void event_soul(object ob, string msg, varargs mixed avoid)
     this_object()->catch_tell(msg + "\n");
 }
 
+/**
+ * A deaf listener who can see the speaker is told that they speak, and nothing
+ * of what they say. Nothing in the dark, nor from a speaker out of sight.
+ *
+ * @param  ob  the speaker
+ */
+static void tell_unheard(object ob)
+{
+  if (!ob || !environment(ob) || environment(ob) != environment(this_object()))
+    return;
+
+  if (this_object()->check_dark(environment(this_object())->query_light()) != 0)
+    return;
+
+  this_object()->catch_tell(_LANG_EVENTS_UNHEARD);
+}
+
 void event_person_say(object ob, string start, string msg, string lang)
 {
   // nothing here, but the function exists for every object
@@ -158,6 +175,14 @@ void event_person_whisper(object ob, string start, string msg,
 
   if (this_object() == ob)
     return;
+
+  // a deaf listener hears no whisper; the others only see that it happens
+  if (this_object()->query_trait_flag("deaf") &&
+      member_array(this_object(), obs) != -1)
+  {
+    tell_unheard(ob);
+    return;
+  }
 
   if (member_array(lang, this_object()->query_languages()) == -1)
   {
@@ -220,6 +245,13 @@ void event_person_shout(object ob, string start, string msg, string lang)
 
   if (ob == this_object())
     return;
+
+  // a shout is only seen by a deaf living that has the shouter beside
+  if (this_object()->query_trait_flag("deaf"))
+  {
+    tell_unheard(ob);
+    return;
+  }
 
   // the earmuffs are kept by the user, the languages by the living
   user = this_object()->user();

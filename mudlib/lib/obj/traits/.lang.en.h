@@ -19,3 +19,13 @@
 #define _LANG_TRAIT_POISONED_ROOM living->query_cap_name() + " shudders in pain.\n"
 #define _LANG_TRAIT_POISONED_ENDS "The poison stops working.\n"
 #define _LANG_TRAIT_POISONED_LOOK "Shows signs of poisoning.\n"
+
+// deaf.c
+#define _LANG_TRAIT_DEAF_STARTS "A deathly silence surrounds you: you cannot hear anything.\n"
+#define _LANG_TRAIT_DEAF_ENDS "The deathly silence finally ends. Sounds from the outside world at last begin to filter through your ears.\n"
+#define _LANG_TRAIT_DEAF_LOOK "Does not seem to hear anything.\n"
+
+// mute.c
+#define _LANG_TRAIT_MUTE_STARTS "Your voice fades: you cannot utter a word.\n"
+#define _LANG_TRAIT_MUTE_ENDS "Your voice returns, and you can speak again.\n"
+#define _LANG_TRAIT_MUTE_LOOK "Moves the mouth, but cannot speak.\n"

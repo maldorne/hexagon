@@ -26,6 +26,9 @@ one, with `sense` being `"smell"`, `"sound"`, `"taste"` or `"feel"`.
   the object as a whole;
 - if nothing here answers to the word, they ask the place for it.
 
+A deaf living (trait flag `deaf`) hears no sounds: `listen` is refused (`query_refusal` of
+`lib/cmds/sense.c`, which each sense command may override).
+
 An object or room with a verb of its own for the same thing (a pendant that
 does something when touched) still wins: actions are tried before commands.
 

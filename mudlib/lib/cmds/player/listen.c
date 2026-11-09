@@ -17,3 +17,9 @@ void setup()
 
 string query_nothing_here() { return _LANG_CMD_LISTEN_NOTHING_HERE; }
 string query_nothing_in(object ob) { return _LANG_CMD_LISTEN_NOTHING_IN; }
+
+// a deaf living hears no sounds
+string query_refusal(object me)
+{
+  return me->query_trait_flag("deaf") ? _LANG_CMD_LISTEN_DEAF : "";
+}

@@ -164,6 +164,13 @@ void event_person_say(object ob, string start, string msg, string lang)
   if (ob == this_object())
     return;
 
+  // a deaf listener only sees that somebody speaks
+  if (this_object()->query_trait_flag("deaf"))
+  {
+    events::tell_unheard(ob);
+    return;
+  }
+
   msg = fix_string(msg);
 
   // if the listener does not speak the language

@@ -19,3 +19,13 @@
 #define _LANG_TRAIT_POISONED_ROOM living->query_cap_name() + " se estremece de dolor.\n"
 #define _LANG_TRAIT_POISONED_ENDS "El veneno deja de hacer efecto.\n"
 #define _LANG_TRAIT_POISONED_LOOK "Muestra signos de envenenamiento.\n"
+
+// deaf.c
+#define _LANG_TRAIT_DEAF_STARTS "Un silencio mortal te rodea: ya no oyes nada.\n"
+#define _LANG_TRAIT_DEAF_ENDS "El silencio mortal finalmente termina. Sonidos del mundo exterior por fin comienzan a filtrarse a través de tus oídos.\n"
+#define _LANG_TRAIT_DEAF_LOOK "No parece oír nada.\n"
+
+// mute.c
+#define _LANG_TRAIT_MUTE_STARTS "Tu voz se apaga: ya no puedes pronunciar palabra.\n"
+#define _LANG_TRAIT_MUTE_ENDS "Tu voz vuelve, y puedes hablar de nuevo.\n"
+#define _LANG_TRAIT_MUTE_LOOK "Mueve la boca, pero no puede hablar.\n"

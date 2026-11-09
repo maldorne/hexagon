@@ -24,6 +24,9 @@ string query_sense_kind() { return sense; }
 string query_nothing_here() { return ""; }
 string query_nothing_in(object ob) { return ""; }
 
+// Why this living cannot use the sense right now, "" when it can.
+string query_refusal(object me) { return ""; }
+
 private void tell(string text)
 {
   if (text[strlen(text) - 1] != '\n')
@@ -41,6 +44,13 @@ static int cmd(string str, object me, string verb)
   place = environment(me);
   if (!place)
     return 0;
+
+  text = query_refusal(me);
+  if (strlen(text))
+  {
+    notify_fail(text);
+    return 0;
+  }
 
   // no word: the place itself
   if (!str || !strlen(str))

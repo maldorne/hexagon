@@ -90,6 +90,10 @@
 // it is known under
 #define _LANG_EVENTS_IN_LANGUAGE " " + _LANG_PREPOSITION + " " + name + ": "
 
+// somebody speaks, and a deaf listener who sees them does not hear it. `ob` is
+// the speaker
+#define _LANG_EVENTS_UNHEARD ob->query_cap_name() + " moves their lips, but you hear nothing.\n"
+
 // marks for whoever deals in quests, in a room listing
 #define _LANG_QUEST_MARK_OFFER " %^RESET%^[%^BOLD%^YELLOW%^!%^RESET%^]"
 #define _LANG_QUEST_MARK_COMPLETE " %^RESET%^[%^BOLD%^YELLOW%^?%^RESET%^]"

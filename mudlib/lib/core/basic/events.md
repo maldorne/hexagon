@@ -205,7 +205,9 @@ room: `start` is the speaker's name and verb, `msg` the speech, `lang` the
 language. The player implementation (`/lib/player/events.c`) garbles the speech
 through the languages handler when the listener does not know `lang`, adds it
 to the past-conversation buffer and prints it, wrapped to the screen. The
-default does nothing.
+default does nothing. A deaf listener (trait flag `deaf`) hears nothing: it is told only
+`<name> mueve los labios, pero no oyes nada` (`tell_unheard` of `events.c`), and only if it
+can see the speaker (same place, not dark).
 
 ### person_whisper
 
@@ -216,7 +218,8 @@ void event_person_whisper(object ob, string start, string msg, object * obs,
 
 A whisper in the room. Fired by `/lib/living/communicate.c` to the room;
 `obs` are the intended listeners. Only they get the text (garbled when they
-lack `lang`); the others see that a whisper took place. The sender is not told.
+lack `lang`); the others see that a whisper took place. The sender is not told. A deaf
+intended listener gets the `tell_unheard` line instead of the text.
 
 ### person_shout
 
@@ -226,7 +229,8 @@ void event_person_shout(object ob, string start, string msg, string lang)
 
 A shout. Fired at `livings()`, so it reaches the whole mud. The default
 discards it for the shouter, players with earmuffs and players who block the
-shouter, garbles it by language and prints it.
+shouter, garbles it by language and prints it. A deaf living hears no shout; if the shouter
+is beside it, it gets the `tell_unheard` line. A mute living cannot shout (`do_shout`).
 
 ### creator_tell, inter_creator_tell
 

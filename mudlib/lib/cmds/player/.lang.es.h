@@ -728,6 +728,7 @@
       "él o llevas encima."
 #define _LANG_CMD_LISTEN_NOTHING_HERE "No oyes nada especial.\n"
 #define _LANG_CMD_LISTEN_NOTHING_IN "No le oyes nada especial.\n"
+#define _LANG_CMD_LISTEN_DEAF "No oyes nada: estás sordo.\n"
 
 #define _LANG_CMD_TASTE_ALIAS ({ "saborear", "probar" })
 #define _LANG_CMD_TASTE_SYNTAX "saborear [<algo>]"

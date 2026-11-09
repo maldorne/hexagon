@@ -725,6 +725,7 @@
 #define _LANG_CMD_LISTEN_HELP "You listen to the place you are in, or to something in it or carried."
 #define _LANG_CMD_LISTEN_NOTHING_HERE "You hear nothing in particular.\n"
 #define _LANG_CMD_LISTEN_NOTHING_IN "You hear nothing in particular from it.\n"
+#define _LANG_CMD_LISTEN_DEAF "You hear nothing: you are deaf.\n"
 
 #define _LANG_CMD_TASTE_ALIAS ({ "taste", "lick" })
 #define _LANG_CMD_TASTE_SYNTAX "taste [<something>]"

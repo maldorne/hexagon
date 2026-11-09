@@ -243,6 +243,13 @@ int do_say(string arg, varargs int no_echo)
     notify_fail(_LANG_COMMS_SYNTAX);
     return 0;
   }
+
+  // a mute living speaks nothing, an npc's chats included
+  if (this_object()->query_trait_flag("mute"))
+  {
+    notify_fail(_LANG_COMMS_MUTE);
+    return 0;
+  }
    
   // neverbot
   if (!strlen(cur_lang))
@@ -304,6 +311,12 @@ int do_tell(string arg, varargs object ob, int silent)
   else
     rest = arg;
 
+  if (this_object()->query_trait_flag("mute"))
+  {
+    notify_fail(_LANG_COMMS_MUTE);
+    return 0;
+  }
+
   // neverbot
   if (!strlen(cur_lang))
   {
@@ -355,6 +368,13 @@ int do_tell(string arg, varargs object ob, int silent)
   if (ob->query_player() && !interactive(ob))
   {
     notify_fail(_LANG_TELL_NO_CONNECTION);
+    return 0;
+  }
+
+  // nothing reaches a deaf living
+  if (ob->query_trait_flag("deaf"))
+  {
+    notify_fail(_LANG_COMMS_DEAF);
     return 0;
   }
 
@@ -413,6 +433,12 @@ int do_whisper(string str)
   if (!strlen(str))
   {
     notify_fail(_LANG_WHISPER_SYNTAX);
+    return 0;
+  }
+
+  if (this_object()->query_trait_flag("mute"))
+  {
+    notify_fail(_LANG_COMMS_MUTE);
     return 0;
   }
 
@@ -541,6 +567,12 @@ int do_shout(string str)
   if (!strlen(str)) 
   {
     notify_fail(_LANG_SHOUT_SYNTAX);
+    return 0;
+  }
+
+  if (this_object()->query_trait_flag("mute"))
+  {
+    notify_fail(_LANG_COMMS_MUTE);
     return 0;
   }
 

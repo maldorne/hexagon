@@ -336,6 +336,13 @@ int query_silence() { return silence; }
 void set_silence(int i) { silence = i; }
 
 int query_silent_start() { return silent_start; }
+
+/**
+ * Whether casting the effect needs the caster's voice. A mute caster cannot
+ * cast one that does. An effect base that has spoken words (a chant)
+ * overrides it.
+ */
+int query_spoken() { return 0; }
 void set_silent_start(int i) { silent_start = i; }
 
 int query_fast_casting() { return fast_casting; }
@@ -1384,6 +1391,12 @@ private int run_cast(string str, object * given, object who, int quiet)
     if (caster->query_property(NOSKILL_PROP))
     {
         notify_fail(MSG_NOSKILL);
+        return 0;
+    }
+
+    if (query_spoken() && caster->query_trait_flag("mute"))
+    {
+        notify_fail(MSG_MUTE);
         return 0;
     }
 
