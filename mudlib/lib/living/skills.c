@@ -754,7 +754,7 @@ int do_skill(string str)
     str_pieces = ({ str });
   }
   else
-    str_pieces = explode(str, " "); 
+    str_pieces = explode(str, " ") - ({ "" });
 
   if (!known_skills) 
   {
@@ -810,6 +810,12 @@ int do_skill(string str)
 
   if (found == -1)
     return 0;
+
+  // the words of a multi-word name that follow the verb are not the target:
+  // 'critical strike orc' reaches here as verb 'critical', str 'strike orc'
+  if (sizeof(skill_pieces) > 1)
+    str = sizeof(str_pieces) >= sizeof(skill_pieces) ?
+          implode(str_pieces[sizeof(skill_pieces) - 1..], " ") : "";
   /*
   {
       tell_object(find_living("folken"), "[SKILL] found="+found+", skill=<not found>\n");
