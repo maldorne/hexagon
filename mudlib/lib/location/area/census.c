@@ -291,6 +291,24 @@ private string * query_birth_citizenships(mapping t)
   return ({ root, root, choice });
 }
 
+// Name a citizen from the naming style of the citizenship it is born under,
+// by its gender, and store it on the NPC. A citizenship with no name style
+// leaves the NPC unnamed. Must run before the template: monster::set_name keeps
+// the first name it is given.
+private void _name_citizen(object npc, string * origin)
+{
+  mixed gname;
+
+  // No (string) cast here: that is a conversion kfun, not a type assertion,
+  // and it errors on nil -- which is what a citizenship with no name style
+  // hands back.
+  gname = this_object()->generate_citizen_name((int)npc->query_gender(),
+    origin[1],
+    (string)handler("diplomacy", this_object())->query_people_name_style(origin[2]));
+  if (stringp(gname) && strlen(gname))
+    npc->set_given_name(gname);
+}
+
 // Write the npc.o of a census row's person, complete. Who somebody is comes from
 // its owners: the type's template says how the people of this trade look, talk
 // and behave; the citizenship draws the race and the name; the area sets the
@@ -340,18 +358,7 @@ private int _build_npc(string id)
   // it gives. A "unique" one keeps its template's short and race but is named
   // like any citizen; the name shows only when it is examined.
   if (t && t["sentient"] && !t["proper_name"])
-  {
-    mixed gname;
-
-    // No (string) cast here: that is a conversion kfun, not a type assertion,
-    // and it errors on nil -- which is what a citizenship with no name style
-    // hands back.
-    gname = this_object()->generate_citizen_name((int)npc->query_gender(),
-      origin[1],
-      (string)handler("diplomacy", this_object())->query_people_name_style(origin[2]));
-    if (stringp(gname) && strlen(gname))
-      npc->set_given_name(gname);
-  }
+    _name_citizen(npc, origin);
 
   npc->apply_template(t, 1);
 
@@ -481,8 +488,9 @@ string create_npc(string source, mapping row)
 // missing npc.o.
 object load_npc(string id)
 {
-  mapping entry;
+  mapping entry, t;
   object npc;
+  int named;
 
   npc = find_living(id);
   if (npc)
@@ -509,8 +517,22 @@ object load_npc(string id)
   if (entry["poi"])
     npc->set_npc_poi(entry["poi"]);
 
-  npc->apply_template((mapping)this_object()->query_area_template(
-                        (string)npc->query_npc_game(), entry["source"]));
+  t = (mapping)this_object()->query_area_template(
+        (string)npc->query_npc_game(), entry["source"]);
+
+  // A unique person saved before uniques were named has no given name: it gets
+  // one now, as a citizen born here would, and keeps it from then on. Whoever
+  // already has a name, and every proper-name person, is left alone. The name
+  // goes in before the template, which would otherwise take the engine name.
+  named = 0;
+  if (t && t["sentient"] && t["unique"] && !t["proper_name"] &&
+      !stringp(npc->query_given_name()))
+  {
+    _name_citizen(npc, query_birth_citizenships(t));
+    named = stringp(npc->query_given_name());
+  }
+
+  npc->apply_template(t);
 
   // aliases are not saved either: the surname and the race it answers to, put
   // back after the template, since applying one replaces the alias list
@@ -519,6 +541,12 @@ object load_npc(string id)
 
   // the purse, rebuilt from the saved money_array, as a player's is
   npc->start_money();
+
+  if (named)
+  {
+    npc->save_npc();
+    update_npc_info(id, npc);
+  }
 
   return npc;
 }

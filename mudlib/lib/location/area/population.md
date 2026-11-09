@@ -222,8 +222,9 @@ but has no effect on hiring.
 - **Name** generated from the naming citizenship's `name_style` and the gender,
   for a sentient type without `proper_name` (a `unique` one included: it keeps
   its template's short and shows the name only when examined); stored on the
-  `npc.o` as the given name. A `unique` person saved before this has no given
-  name until it is born again (its census entry and `npc.o` removed).
+  `npc.o` as the given name. A `unique` person saved before this is named the
+  first time `load_npc` reads it (same generator, saved at once); one that has a
+  given name keeps it, and `proper_name` people are never named.
 - **Race** drawn from the naming citizenship's race pool, for the same kind of
   type; fauna and uniques keep the race their type gives.
 - A node of the diplomacy graph may declare the **people** born under it
