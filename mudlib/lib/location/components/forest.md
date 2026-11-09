@@ -17,9 +17,16 @@ The admin command `forest` shows them: `forest kind <kind>|none` and
 `forest depth <depth>|none` set them on the area. Neither touches the trees
 already planted; they count the next time trees are rolled. `forest replant`
 takes away the trees of the location you stand in and rolls them again;
-`forest replant area` does it in every loaded forest location of the area (the
-unloaded ones keep their saved trees). The kinds are the game's: its `forests`
+`forest replant area` does it in every loaded forest location of the area, a
+few per call_out since each one saves its location (the unloaded ones keep their
+saved trees). The kinds are the game's: its `forests`
 table.
+
+A location among the trees where nothing can take root (a walkway in the
+branches, a bridge, a pier, the canopy) keeps the component, so it still counts
+as woodland on the map, and is marked as growing no plants: `forest plants off`
+(`set_grows_plants(0)` on the component, saved as `grows_plants`) takes its trees
+away and no trees, shrubs or herbs grow there; `forest plants on` undoes it.
 
 ## What grows
 

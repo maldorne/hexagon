@@ -13,7 +13,8 @@ void setup()
   set_usage("forest\n" +
             "     forest kind [<kind>|none]\n" +
             "     forest depth [<garden|thicket|forest|jungle>|none]\n" +
-            "     forest replant [area]");
+            "     forest replant [area]\n" +
+            "     forest plants on|off");
   set_help(
     "Report and set the woodland of the area you are standing in.\n" +
     "\n" +
@@ -31,6 +32,10 @@ void setup()
     "                         new ones by the kind and depth of now\n" +
     "  forest replant area    the same in every loaded forest location of the\n" +
     "                         area (the others keep their saved trees)\n" +
+    "  forest plants off      nothing grows in this location (no trees, shrubs\n" +
+    "                         or herbs), which still counts as woodland: a\n" +
+    "                         walkway in the branches, a bridge, a pier\n" +
+    "  forest plants on       trees and herbs grow here again\n" +
     "\n" +
     "The depth (garden, thicket, forest, jungle) decides how many trees stand " +
     "in a location and how often herbs grow; the kind decides which. The trees " +
@@ -58,25 +63,48 @@ private string * kinds_of(object area)
   return forests ? (string *)forests->query_kinds() : ({ });
 }
 
-// Plants again the trees of the location of the player, or of every loaded
-// location of the area with a forest. How many locations were replanted.
-private int replant(object area, object me, int whole_area)
-{
-  object * locations, forest;
-  int i, count;
+// the locations replanted per call_out: each one saves its location
+#define REPLANT_BATCH 10
 
-  locations = whole_area ? area->query_loaded_locations() : ({ environment(me) });
-  for (i = 0; i < sizeof(locations); i++)
+// Plants again the trees of one location. Whether it has a forest.
+private int replant_location(object location)
+{
+  object forest;
+
+  forest = location ? location->query_component_by_type(LOCATION_COMPONENT_FOREST) : nil;
+  if (!forest)
+    return 0;
+
+  forest->replant();
+  return 1;
+}
+
+/**
+ * One batch of 'forest replant area': a few locations per call_out, since
+ * every replant saves its location and a whole area does not fit in one
+ * execution. Tells who asked when the list is done. Public because the
+ * call_out dispatcher reaches it through call_other.
+ *
+ * @param locations  the loaded locations of the area
+ * @param idx        the first one of this batch
+ * @param count      the locations replanted so far
+ * @param who        who gets the summary
+ */
+void replant_step(object * locations, int idx, int count, object who)
+{
+  int i;
+
+  for (i = idx; i < sizeof(locations) && i < idx + REPLANT_BATCH; i++)
+    catch(count += replant_location(locations[i]));
+
+  if (i < sizeof(locations))
   {
-    forest = locations[i]->query_component_by_type(LOCATION_COMPONENT_FOREST);
-    if (forest)
-    {
-      forest->replant();
-      count++;
-    }
+    call_out("replant_step", 0, locations, i, count, who);
+    return;
   }
 
-  return count;
+  if (who)
+    tell_object(who, "Trees planted again in " + count + " locations.\n");
 }
 
 private int do_report(object area, object me)
@@ -94,7 +122,8 @@ private int do_report(object area, object me)
         (forest ? "This location is a forest, depth " +
                   (string)forest->query_depth() + ", own depth '" +
                   (string)forest->query_own_depth() + "', plants " +
-                  (string)implode(map_indices(forest->query_plants()), ", ") + ".\n"
+                  (string)implode(map_indices(forest->query_plants()), ", ") +
+                  (forest->query_grows_plants() ? "" : ", grows no plants") + ".\n"
                 : "This location has no forest component.\n"));
   return 1;
 }
@@ -137,8 +166,38 @@ private int do_depth(object area, object me, string depth)
 
 private int do_replant(object area, object me, int whole_area)
 {
-  write("Trees planted again in " + replant(area, me, whole_area) +
-        " locations.\n");
+  object * locations;
+
+  if (!whole_area)
+  {
+    write("Trees planted again in " + replant_location(environment(me)) +
+          " locations.\n");
+    return 1;
+  }
+
+  locations = area->query_loaded_locations();
+  write("Planting again the trees of " + sizeof(locations) + " loaded " +
+        "locations, a few at a time.\n");
+  call_out("replant_step", 0, locations, 0, 0, me);
+  return 1;
+}
+
+private int do_plants(object me, string flag)
+{
+  object forest;
+
+  forest = environment(me)->query_component_by_type(LOCATION_COMPONENT_FOREST);
+  if (!forest)
+  {
+    notify_fail("This location has no forest component.\n");
+    return 0;
+  }
+
+  forest->set_grows_plants(flag == "on");
+  if (flag == "on")
+    forest->restore_plants();
+  write(flag == "on" ? "Trees and herbs grow here again.\n" :
+        "Nothing grows here now; the location still counts as woodland.\n");
   return 1;
 }
 
@@ -172,7 +231,11 @@ static int cmd(string str, object me, string verb)
   if (args[0] == "replant" && sizeof(args) == 2 && args[1] == "area")
     return do_replant(area, me, 1);
 
+  if (args[0] == "plants" && sizeof(args) == 2 &&
+      (args[1] == "on" || args[1] == "off"))
+    return do_plants(me, args[1]);
+
   notify_fail("Usage: forest [ kind <kind>|none | depth <depth>|none | " +
-              "replant [area] ]\n");
+              "replant [area] | plants on|off ]\n");
   return 0;
 }

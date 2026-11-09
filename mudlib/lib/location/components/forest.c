@@ -28,7 +28,9 @@
 // them), query_seeks_herbs(who) -> whether the walker can see herbs, and
 // query_herb_to_grow(who, kind, depth) -> a herb ready to be placed, or nil.
 // A location whose area has no kind, or a game with no such table, grows
-// nothing.
+// nothing. Neither does one marked as growing no plants (set_grows_plants):
+// it still counts as woodland on the map, for a place among the trees where
+// nothing can take root (a walkway in the branches, a bridge, a pier).
 
 #include <room/location.h>
 
@@ -41,6 +43,8 @@ inherit component "/lib/location/component.c";
 private string depth;
 // the trees and shrubs planted here, as path -> amount (saved)
 private mapping plants;
+// whether trees, shrubs and herbs grow here (saved)
+private int grows_plants;
 // the live trees and shrubs of `plants`
 static object * grown;
 // the herb standing here, and when the last one was rolled
@@ -54,6 +58,7 @@ void create()
   depth = "";
   plants = ([ ]);
   grown = ({ });
+  grows_plants = 1;
 }
 
 void init() {}
@@ -128,6 +133,29 @@ string query_depth()
   return stringp(value) && strlen(value) ? value : "forest";
 }
 
+/**
+ * Whether trees, shrubs and herbs grow in this location.
+ */
+int query_grows_plants() { return grows_plants; }
+
+/**
+ * Marks whether trees, shrubs and herbs grow here. A location that grows none
+ * loses the trees standing in it and keeps counting as woodland.
+ *
+ * @param flag  0 for a location where nothing grows, 1 otherwise
+ */
+void set_grows_plants(int flag)
+{
+  grows_plants = flag ? 1 : 0;
+  if (!grows_plants)
+  {
+    uproot();
+    plants = ([ ]);
+  }
+  if (query_entity())
+    query_entity()->components_changed();
+}
+
 // The game's forests table, nil when it has none.
 private object forests_table()
 {
@@ -183,6 +211,9 @@ private void roll_plants()
   string * paths, path;
   int * counts;
   int i, amount;
+
+  if (!grows_plants)
+    return;
 
   table_ob = forests_table();
   if (!table_ob)
@@ -292,6 +323,9 @@ private void grow_herb(object who)
 {
   object table_ob;
 
+  if (!grows_plants)
+    return;
+
   table_ob = forests_table();
   if (!table_ob || !table_ob->query_seeks_herbs(who))
     return;
@@ -330,7 +364,8 @@ mapping query_auto_load_attributes()
   reconcile_plants();
 
   return component::query_auto_load_attributes() +
-         ([ "own_depth": depth, "plants": plants, ]);
+         ([ "own_depth": depth, "plants": plants,
+            "grows_plants": grows_plants, ]);
 }
 
 void init_auto_load_attributes(mapping args)
@@ -340,11 +375,13 @@ void init_auto_load_attributes(mapping args)
     depth = args["own_depth"];
   if (mappingp(args["plants"]))
     plants = ([ ]) + args["plants"];
+  if (!undefinedp(args["grows_plants"]))
+    grows_plants = args["grows_plants"] ? 1 : 0;
 }
 
 mixed * stats()
 {
   return component::stats() +
          ({ ({ "Depth", query_depth(), }), ({ "Kind", query_forest_kind(), }),
-            ({ "Plants", plants, }), });
+            ({ "Plants", plants, }), ({ "Grows plants", grows_plants, }), });
 }
