@@ -393,6 +393,20 @@ Called directly on a quest object by the quests handler
 and before the rewards are paid. The default in `/lib/quest.c` does nothing; a
 quest overrides it to take back what it asked for.
 
+### accepted and abandoned
+
+```c
+void event_accepted(object who)
+void event_abandoned(object who)
+```
+
+Called directly on a quest object by the quests handler: `event_accepted` when
+`who` takes the quest, once it is recorded and its accept message told;
+`event_abandoned` when `who` drops it (`quests abandon`), once it is no longer
+in their record and the abandon message is told. The defaults in `/lib/quest.c`
+do nothing; a quest overrides the pair to give and clear what it sets on the
+player or the world.
+
 ## Other
 
 ### commands
@@ -431,4 +445,4 @@ the game object to keep its player records accurate. Nothing fires it.
 | `revealed` | `hide_sh.c` | direct | the hidden one |
 | `climbed`, `climb_failed` | climb skill | direct | the thing climbed |
 | `weather` | `handlers/weather.c` | `event()` on observers | observer + inventory |
-| `completed` | `handlers/quests.c` | direct | the quest |
+| `completed`, `accepted`, `abandoned` | `handlers/quests.c` | direct | the quest |

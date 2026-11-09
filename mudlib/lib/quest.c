@@ -200,3 +200,9 @@ void event_completed(object who)
 void event_accepted(object who)
 {
 }
+
+// Called as a player drops the quest, once it is no longer recorded as theirs:
+// a quest that gave or set something when it was taken clears it here.
+void event_abandoned(object who)
+{
+}

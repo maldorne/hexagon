@@ -22,6 +22,11 @@
 //   "effect"  - file of the effect cast on the asker
 //   "uses"    - how many times it answers in a period (default 0, no limit)
 //   "period"  - seconds before the uses start again (default 1800)
+//   "per_player" - 1: "uses" and "period" count for each player apart; what
+//               each one has used is kept as a property of the player (a
+//               record of its start and its count, in real time), so it is
+//               saved with the player and survives reboots. Default 0: one
+//               count shared by everybody, which a reboot starts again
 //   "only"    - who is served; a mapping whose keys all have to hold:
 //                 "guild" - list of guild objects, "race" - list of race
 //                 objects, "align_min" - the lowest real alignment,
@@ -53,7 +58,7 @@ inherit component "/lib/npc/component.c";
 private string * response_verbs;
 private string response_words, response_effect, response_talks;
 private string * response_object;
-private int response_uses, response_period;
+private int response_uses, response_period, response_per_player;
 private mapping response_only;
 private string response_said, response_room, response_failed, response_spent,
                response_refusal, response_busy;
@@ -70,6 +75,7 @@ void create()
   response_object = ({ });
   response_uses = 0;
   response_period = DEFAULT_PERIOD;
+  response_per_player = 0;
   response_only = ([ ]);
   response_said = "";
   response_room = "";
@@ -85,7 +91,8 @@ string query_info()
 {
   return implode(response_verbs, ", ") +
          (response_effect ? " -> " + response_effect : "") +
-         (response_uses ? " (" + used + "/" + response_uses + ")" : "");
+         (response_uses ? (response_per_player ? " (" + response_uses + " per player)" :
+                          " (" + used + "/" + response_uses + ")") : "");
 }
 
 mapping query_component_actions()
@@ -203,11 +210,37 @@ private int is_fighting_here(object me)
   return 0;
 }
 
+// The property of a player that keeps their uses of this NPC and verb.
+private string use_property()
+{
+  object me;
+
+  me = query_entity();
+  return "verb-response:" + (me->query_npc_source() ? me->query_npc_source() :
+                             base_name(me)) + ":" + response_verbs[0];
+}
+
+// What a player has used: ({ start of the period, answers given }).
+private int * player_uses(object who)
+{
+  mixed record;
+
+  record = who->query_property(use_property());
+  if (!pointerp(record) || sizeof(record) != 2 ||
+      time() - record[0] >= response_period)
+    return ({ 0, 0 });
+
+  return ({ record[0], record[1] });
+}
+
 // Whether a use is left in the current period, starting a new one when due.
-private int has_use_left()
+private int has_use_left(object who)
 {
   if (!response_uses)
     return 1;
+
+  if (response_per_player)
+    return player_uses(who)[1] < response_uses;
 
   if (time() - period_start >= response_period)
   {
@@ -221,6 +254,7 @@ private int has_use_left()
 int do_respond(string str)
 {
   object me, who, effect;
+  int * record;
 
   me = query_entity();
   who = this_player();
@@ -249,7 +283,7 @@ int do_respond(string str)
     return 1;
   }
 
-  if (!has_use_left())
+  if (!has_use_left(who))
   {
     tell_object(who, say_text(response_spent, who));
     return 1;
@@ -273,7 +307,15 @@ int do_respond(string str)
     return 1;
   }
 
-  used++;
+  if (response_per_player)
+  {
+    record = player_uses(who);
+    if (!record[1])
+      record[0] = time();
+    who->add_property(use_property(), ({ record[0], record[1] + 1 }));
+  }
+  else
+    used++;
 
   if (strlen(response_talks))
     handler(QUESTS_HANDLER, who)->talked(who, response_talks);
@@ -291,6 +333,7 @@ mapping query_auto_load_attributes()
     "talks"   : response_talks,
     "uses"    : response_uses,
     "period"  : response_period,
+    "per_player" : response_per_player,
     "only"    : response_only,
     "said"    : response_said,
     "room"    : response_room,
@@ -323,6 +366,8 @@ void init_auto_load_attributes(mapping args)
     response_uses = args["uses"];
   if (intp(args["period"]) && args["period"] > 0)
     response_period = args["period"];
+  if (intp(args["per_player"]))
+    response_per_player = args["per_player"];
   if (mappingp(args["only"]))
     response_only = ([ ]) + args["only"];
   if (stringp(args["said"]))
@@ -347,7 +392,8 @@ mixed * stats()
     ({ "Effect", response_effect }),
     ({ "Object", implode(response_object, ", ") }),
     ({ "Talks", response_talks }),
-    ({ "Uses", response_uses + " per " + response_period + "s" }),
+    ({ "Uses", response_uses + " per " + response_period + "s" +
+               (response_per_player ? " per player" : "") }),
     ({ "Used", used }),
   });
 }

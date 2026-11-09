@@ -369,7 +369,12 @@ void abandon(object who, string id)
   who->abandon_quest(game_of(who), id);
 
   if (quest)
+  {
     tell_object(who, _LANG_QUEST_ABANDONED);
+
+    // whatever the quest set or gave when it was taken
+    quest->event_abandoned(who);
+  }
 }
 
 /*
