@@ -30,8 +30,8 @@ and rereads a file when it changes.
 Everything an area stores about a type is keyed by that template id. A template
 can say `sentient` (an individual, tracked one by one) or not (a creature,
 counted). A `sentient` type that also states `proper_name` or `unique` is one
-particular person: it keeps its template's name, race and level instead of being
-generated. Its template `level`, `guild` and `guild_level` are re-applied every
+particular person: it keeps its template's name (`proper_name`; a `unique` one
+only its short), race and level instead of being generated. Its template `level`, `guild` and `guild_level` are re-applied every
 time it materializes (the guild only takes them if they meet its rules, like a player: race, class, stats, alignment),
 so editing them reaches the person already living.
 
@@ -220,7 +220,10 @@ but has no effect on hiring.
 
 - **Gender** from the template (fixed, or rolled among the genders it lists).
 - **Name** generated from the naming citizenship's `name_style` and the gender,
-  for a sentient, non-unique type; stored on the `npc.o` as the given name.
+  for a sentient type without `proper_name` (a `unique` one included: it keeps
+  its template's short and shows the name only when examined); stored on the
+  `npc.o` as the given name. A `unique` person saved before this has no given
+  name until it is born again (its census entry and `npc.o` removed).
 - **Race** drawn from the naming citizenship's race pool, for the same kind of
   type; fauna and uniques keep the race their type gives.
 - A node of the diplomacy graph may declare the **people** born under it
