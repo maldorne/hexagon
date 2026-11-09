@@ -9,6 +9,11 @@
 // gatekeeper in the location reacts; two doing the same thing only get the
 // door's "already open/closed" answer.
 //
+// The doors it works are the exits of its "direction", or, without one, the
+// ones the town_entrance POI of the post it works at names (as the guard
+// component reads them), and only while it stands at that post. Several exits
+// are several doors, all worked together.
+//
 // The component never moves anybody and is independent of the guard
 // component: what stops somebody walking through an open door is the guard,
 // and the rules here only say for whom the door is opened.
@@ -17,7 +22,8 @@
 // that are hidden.
 //
 // Attributes:
-//   "direction"       - the exit with the door
+//   "direction"       - the exits with a door, comma-separated; without it,
+//                       the ones the town_entrance POI of its post names
 //   "delay"           - seconds the door stays open after the last allowed
 //                       arrival (default 15)
 //   "guilds"          - guild objects whose members pass
@@ -33,6 +39,7 @@
 #include <language.h>
 
 inherit component "/lib/npc/component.c";
+inherit postpoi "/lib/npc/post-poi.c";
 
 #define DEFAULT_DELAY 15
 
@@ -57,20 +64,27 @@ void create()
   close_handle = 0;
 }
 
-string query_direction() { return gate_direction; }
-
-// The door of the exit this NPC watches, nil when the place has none.
-private object _door()
+// The exits whose doors this NPC works: its own "direction", else the ones its
+// post names, in which case it works them only while it stands at the post.
+private string * _directions()
 {
   object me, env;
 
   me = query_entity();
   env = me ? environment(me) : nil;
-  if (!env || !gate_direction || !strlen(gate_direction))
-    return nil;
+  if (!env)
+    return ({ });
 
-  return env->query_door_ob(gate_direction);
+  if (gate_direction && strlen(gate_direction))
+    return postpoi::query_post_directions(me, gate_direction);
+
+  if (env->query_file_name() != me->query_work())
+    return ({ });
+
+  return postpoi::query_post_directions(me, nil);
 }
+
+string query_direction() { return implode(_directions(), ","); }
 
 // Whether the NPC is in a state to work the door.
 private int _can_act()
@@ -118,21 +132,21 @@ private int _is_allowed(object who)
   return (int)who->query_guild_level() >= gate_min_guild_level;
 }
 
-// Makes the NPC open the door, unlocking it with its key if needed.
-private void _open(object door)
+// Makes the NPC open the door of an exit, unlocking it with its key if needed.
+private void _open(object door, string dir)
 {
-  query_entity()->queue_action(door->query_open_verb() + " " + gate_direction);
+  query_entity()->queue_action(door->query_open_verb() + " " + dir);
 }
 
-// Makes the NPC close the door and lock it with its key.
-private void _close(object door)
+// Makes the NPC close the door of an exit and lock it with its key.
+private void _close(object door, string dir)
 {
   object me;
   string * cmds;
   int i;
 
   me = query_entity();
-  cmds = _LANG_GATEKEEPER_LOCK_COMMANDS(door->query_close_verb(), gate_direction);
+  cmds = _LANG_GATEKEEPER_LOCK_COMMANDS(door->query_close_verb(), dir);
   for (i = 0; i < sizeof(cmds); i++)
     me->queue_action(cmds[i]);
 }
@@ -146,52 +160,72 @@ private void _cancel_close()
 }
 
 /**
- * Closes and locks the door if it is still open. Public because it runs from
+ * Closes and locks the doors that are still open. Public because it runs from
  * a call_out.
  */
 void close_door()
 {
-  object door;
+  object env, door;
+  string * dirs;
+  int i;
 
   close_handle = 0;
-  door = _door();
-  if (!door || !_can_act() || !door->is_open() || door->is_broken())
+  if (!_can_act())
     return;
 
-  _close(door);
+  env = environment(query_entity());
+  dirs = _directions();
+  for (i = 0; i < sizeof(dirs); i++)
+  {
+    door = env->query_door_ob(dirs[i]);
+    if (door && door->is_open() && !door->is_broken())
+      _close(door, dirs[i]);
+  }
 }
 
 /**
- * Looks at somebody who arrived: opens the door for whoever may pass and shuts
- * and locks it for whoever may not. Public because it runs from a call_out.
+ * Looks at somebody who arrived: opens the doors for whoever may pass and
+ * shuts and locks them for whoever may not. Public because it runs from a
+ * call_out.
  */
 void watch(object who)
 {
-  object door;
+  object env, door;
+  string * dirs;
+  int i, allowed, opened;
 
   if (!who || !_can_act() || environment(who) != environment(query_entity()))
     return;
   if (who->query_hidden() || who->query_dead())
     return;
 
-  door = _door();
-  if (!door || door->is_broken())
-    return;
-
-  if (_is_allowed(who))
+  env = environment(query_entity());
+  dirs = _directions();
+  allowed = _is_allowed(who);
+  opened = 0;
+  for (i = 0; i < sizeof(dirs); i++)
   {
-    if (!door->is_open())
-      _open(door);
+    door = env->query_door_ob(dirs[i]);
+    if (!door || door->is_broken())
+      continue;
 
-    _cancel_close();
-    close_handle = call_out("close_door", gate_delay);
-    return;
+    if (allowed)
+    {
+      if (!door->is_open())
+        _open(door, dirs[i]);
+      opened = 1;
+    }
+    else if (door->is_open())
+    {
+      _cancel_close();
+      _close(door, dirs[i]);
+    }
   }
 
-  if (door->is_open())
+  if (opened)
   {
     _cancel_close();
-    _close(door);
+    close_handle = call_out("close_door", gate_delay);
   }
 }
 
@@ -262,7 +296,7 @@ void init_auto_load_attributes(mapping args)
 mixed * stats()
 {
   return component::stats() + ({
-    ({ "Direction", gate_direction }),
+    ({ "Direction", query_direction() }),
     ({ "Delay", gate_delay }),
     ({ "Races", implode(gate_races, ", ") }),
     ({ "Barred Races", implode(gate_barred_races, ", ") }),

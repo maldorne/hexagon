@@ -51,6 +51,7 @@
 #include <language.h>
 
 inherit component "/lib/npc/component.c";
+inherit postpoi "/lib/npc/post-poi.c";
 
 private string guard_direction, guard_message;
 private int guard_enemies, guard_guildless, guard_min_guild_level,
@@ -84,24 +85,6 @@ void create()
   scan_pending = 0;
 }
 
-// The POI of the post this guard works at, or nil.
-private mapping _post_poi()
-{
-  object me, post;
-  mixed work;
-
-  me = query_entity();
-  work = me ? me->query_work() : nil;
-  if (!stringp(work) || !strlen(work))
-    return nil;
-
-  post = (object)load_object(LOCATION_HANDLER)->load_location(work);
-  if (!post || !post->query_area())
-    return nil;
-
-  return ((mapping)post->query_area()->query_pois())[work];
-}
-
 // The exits this guard watches: its own "direction" when it has one, otherwise
 // read off the post it works at rather than stored: a town_entrance POI names
 // the ways in, and a guard is posted to a place before it is posted to a
@@ -109,21 +92,7 @@ private mapping _post_poi()
 // stopped. Several exits are written comma-separated.
 private string * _watched_directions()
 {
-  mapping poi;
-  string dirs;
-
-  if (guard_direction && strlen(guard_direction))
-    dirs = guard_direction;
-  else
-  {
-    poi = _post_poi();
-    if (!poi || poi[POI_FIELD_KIND] != POI_KIND_TOWN_ENTRANCE ||
-        !stringp(poi[POI_FIELD_GUARD_DIR]))
-      return ({ });
-    dirs = poi[POI_FIELD_GUARD_DIR];
-  }
-
-  return explode(dirs, ",") - ({ "" });
+  return postpoi::query_post_directions(query_entity(), guard_direction);
 }
 
 string query_direction() { return implode(_watched_directions(), ","); }
@@ -428,7 +397,7 @@ private int _passes_admission(object mover)
 {
   mapping poi;
 
-  poi = _post_poi();
+  poi = postpoi::query_post_poi(query_entity());
   if (!poi || poi[POI_FIELD_ADMIT] != POI_ADMIT_CITIZENS)
     return 1;
   if (!query_entity()->query_city_ob())

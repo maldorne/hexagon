@@ -452,6 +452,9 @@ carries the `protector` component (names, citizenships, guilds or races it
 protects, wherever it stands; see `lib/npc/components/protector.c`).
 A guard is a `GENERIC_NPC` plus this component. The barracks is the job's
 `home`, and shifts are two jobs.
+The `gatekeeper` component (`lib/npc/components/gatekeeper.c`) reads the same
+`guard_dir` when it has no `direction`: the holders of a gate post open and
+close the doors of its exits for those who may pass, while they stand at the post.
 
 Under a law a guard also attacks on sight the wanted and outlaws of its
 citizenship, and when a crime is recorded where no guard stands the crimes
