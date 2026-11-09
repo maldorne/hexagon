@@ -1123,7 +1123,7 @@ int cast_effect_at(string str, object who, int level, varargs int power)
 
 /**
  * The item a caster names: one he carries, one in the place, or one held by a
- * living in the place, written "<item> of <who>" ("espada de bob"). Only the
+ * living in the place, written "<item> of <who>" ("sword of bob"). Only the
  * effects that declare allow_on_items look for it.
  *
  * @param  str     what the caster typed
