@@ -1,4 +1,4 @@
-// Slice (rebanar) — active skill. Spinning two slashing weapons, a series of
+// Slice — active skill. Spinning two slashing weapons, a series of
 // quick cuts at one opponent, each of them a full attack with both blades, for
 // a couple of rounds.
 //

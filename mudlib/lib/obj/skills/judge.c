@@ -1,4 +1,4 @@
-// Judge (juzgar) — active skill: 'judge <item>'. Rates, with a word, how much
+// Judge — active skill: 'judge <item>'. Rates, with a word, how much
 // harm a weapon carried does (one line for each of its attacks) or how well an
 // armour or shield carried protects. Ported from the juzgar command of the RL
 // muds (std/commands/juzgar.c of ancient-kingdoms, Timion): there it was a

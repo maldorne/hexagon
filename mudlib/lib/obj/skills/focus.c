@@ -1,4 +1,4 @@
-// Focus (centrar) — active skill: 'focus <someone>' / 'focus off'. Keeps every
+// Focus — active skill: 'focus <someone>' / 'focus off'. Keeps every
 // blow of the character on one of the opponents for a while, instead of the
 // one the fight would pick. Ported from the centrar command of the RL muds
 // (std/commands/centrar.c of ancient-kingdoms, Wonderflug).

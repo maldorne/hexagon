@@ -1,4 +1,4 @@
-// Sneak (sigilar) — active skill: a step in a direction that nobody sees,
+// Sneak — active skill: a step in a direction that nobody sees,
 // neither leaving nor arriving, and that keeps a hiding. The same roll lets a
 // hidden living open or close a door in silence (see door.c). Ported from the
 // ancient-kingdoms command (std/commands/sneak.c), neverbot 10/2026.

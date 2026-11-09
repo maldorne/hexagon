@@ -1,4 +1,4 @@
-// Protect (proteger) -- active skill: 'protect <someone>' / 'protect off
+// Protect -- active skill: 'protect <someone>' / 'protect off
 // [<someone>]'. The character stands by someone in the same place, so blows
 // aimed at them may fall on the character instead (query_protect_valid in
 // /lib/living/combat.c decides each blow). Was the protect and unprotect

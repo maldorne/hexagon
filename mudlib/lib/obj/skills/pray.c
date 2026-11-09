@@ -1,4 +1,4 @@
-// Pray (rezar) — 'pray <what>': asks one's deity for a favour. Ported from the
+// Pray — 'pray <what>': asks one's deity for a favour. Ported from the
 // rezar command of the RL muds (std/commands/rezar.c of ancient-kingdoms).
 // 10/2026 - Moved to the mudlib: a fixed skill every worshipper is given, and
 //           the prayers, their odds and their effects belong to the deity

@@ -1,4 +1,4 @@
-// Dismembering (desmembrar): cuts the head, hands or tail off a corpse.
+// Dismembering: cuts the head, hands or tail off a corpse.
 // Which parts a body has, and which skill takes each, is its race's; the
 // work is shared with the other extraction skills (base-extraction.c).
 // 10/2026 - Written beside the skinning skill, neverbot.

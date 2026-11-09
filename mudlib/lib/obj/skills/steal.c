@@ -1,4 +1,4 @@
-// Steal (robar) — active skill. Takes an item, or a few coins, from somebody
+// Steal — active skill. Takes an item, or a few coins, from somebody
 // in the same place, rolled against their perception:
 //
 //   steal <item> from <someone>

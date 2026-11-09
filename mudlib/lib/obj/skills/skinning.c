@@ -1,4 +1,4 @@
-// Skinning (despellejar): takes the skin, plumage or scales off a corpse.
+// Skinning: takes the skin, plumage or scales off a corpse.
 // Which parts a body has, and which skill takes each, is its race's; the
 // work is shared with the other extraction skills (base-extraction.c).
 // 10/2026 - The skinning of CcMud (despellejar, neverbot 30/03/2009) made a
