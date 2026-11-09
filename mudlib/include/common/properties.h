@@ -32,9 +32,9 @@
 #define NOSTEAL_PROP "nosteal"
 // a victim who caught or noticed a thief stays alert for a while
 #define STEAL_ALERT_PROP "steal alert"
-// a worn piece with this property gives back the energy of a sneaking step
-// (sneak skill, wears_silent_footwear)
-#define SILENT_FOOTWEAR_PROP "silent_footwear"
+// static property of a living: percentage of its sneaking steps that cost no
+// energy (sneak skill)
+#define SILENT_STEPS_PROP "silent_steps"
 // the place has no law: nothing done there is a crime (crimes handler)
 #define LAWLESS_PROP "lawless"
 // #define NOCAST_PROP "nocast"
