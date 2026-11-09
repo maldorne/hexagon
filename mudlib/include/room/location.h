@@ -52,6 +52,8 @@
 #define LOCATION_COMPONENT_CITY        "city"
 #define LOCATION_COMPONENT_ROAD        "road"
 #define LOCATION_COMPONENT_FOREST      "forest"
+// The depths of a woodland, from the sparsest to the densest.
+#define FOREST_DEPTHS                  ({ "garden", "thicket", "forest", "jungle" })
 #define LOCATION_COMPONENT_COAST       "coast"
 // A place where one swims instead of walking. See
 // /lib/location/components/water.c.

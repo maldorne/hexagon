@@ -67,6 +67,10 @@ string area_state;
 // the forest component of its locations asks for what trees, shrubs and herbs
 // stand there. Empty means the area names none and its parent's is used.
 string forest_kind;
+// How dense the woodland of this area is (garden, thicket, forest, jungle),
+// which decides how many trees its forest locations hold. Empty means the area
+// names none and its parent's is used.
+string forest_depth;
 // When the area last went to disk, and whether it changed since. The frequent
 // changes (people moving, counts of creatures) only mark it; a mark saves it
 // when the last save is AREA_SAVE_INTERVAL seconds old, and the shutdown saves
@@ -95,6 +99,7 @@ void create() {
   parent_area = "";
   area_state = AREA_DRAFT;
   forest_kind = "";
+  forest_depth = "";
   gives_exploration = 0;
   exploration_name = "";
   map_name = "";
@@ -545,19 +550,18 @@ void set_forest_kind(string kind)
   save_me();
 }
 
-/**
- * The woodland kind that applies here: the one this area declares, else the
- * nearest parent's. "" when nobody up the chain names one. The walk is bounded
- * like query_root_area's.
- */
-string query_forest_kind()
+// The value of `getter` on this area or, when it answers "", on the nearest
+// parent that does. "" when nobody up the chain does. The walk is bounded like
+// query_root_area's.
+private string inherited_forest_value(string getter)
 {
   object area;
-  string path;
+  string path, value;
   int steps;
 
-  if (strlen(query_own_forest_kind()))
-    return query_own_forest_kind();
+  value = (string)call_other(this_object(), getter);
+  if (strlen(value))
+    return value;
 
   path = parent_area;
   area = this_object();
@@ -570,8 +574,9 @@ string query_forest_kind()
     if (!up || up == area)
       break;
 
-    if (strlen((string)up->query_own_forest_kind()))
-      return (string)up->query_own_forest_kind();
+    value = (string)call_other(up, getter);
+    if (strlen(value))
+      return value;
 
     area = up;
     path = (string)up->query_parent_area_path();
@@ -579,6 +584,35 @@ string query_forest_kind()
 
   return "";
 }
+
+/**
+ * The woodland kind that applies here: the one this area declares, else the
+ * nearest parent's. "" when nobody up the chain names one.
+ */
+string query_forest_kind() { return inherited_forest_value("query_own_forest_kind"); }
+
+/**
+ * The woodland depth this area itself declares, "" when it names none. An area
+ * restored from a save written before the field existed answers "".
+ */
+string query_own_forest_depth() { return stringp(forest_depth) ? forest_depth : ""; }
+
+/**
+ * Sets the woodland depth of this area ("" clears it).
+ *
+ * @param depth  one of FOREST_DEPTHS, or ""
+ */
+void set_forest_depth(string depth)
+{
+  forest_depth = depth ? depth : "";
+  save_me();
+}
+
+/**
+ * The woodland depth that applies here: the one this area declares, else the
+ * nearest parent's. "" when nobody up the chain names one.
+ */
+string query_forest_depth() { return inherited_forest_value("query_own_forest_depth"); }
 
 /**
  * Notes a change made while a location is converted or removed (its entry, its

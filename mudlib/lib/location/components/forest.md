@@ -1,15 +1,25 @@
 # Forests
 
-A location with the `forest` component is woodland. It has a `depth` (garden <
-thicket < forest < jungle) and, through its area, a woodland **kind**.
+A location with the `forest` component is woodland. Through its area it has a
+woodland **kind** and a **depth** (garden < thicket < forest < jungle).
 
-## Kind
+## Kind and depth
 
-The area keeps the kind (`set_forest_kind`, saved with the area);
-`query_forest_kind()` answers the area's own or, when it names none, the
-nearest parent's. The admin command `forest` shows it and `forest kind <kind>`
-(or `none`) sets it, then plants again the trees of the loaded locations of the
-area. The kinds are the game's: its `forests` table.
+The area keeps both (`set_forest_kind`, `set_forest_depth`, saved with the
+area); `query_forest_kind()` and `query_forest_depth()` answer the area's own or,
+when it names none, the nearest parent's. A location may carry a depth of its
+own (`set_depth` on the component, saved as `own_depth`), which wins over the
+area's; the component's `query_depth()` answers the one that applies ("forest"
+when nobody names one). The sector tally of the world map only counts forest
+locations and does not read the depth.
+
+The admin command `forest` shows them: `forest kind <kind>|none` and
+`forest depth <depth>|none` set them on the area. Neither touches the trees
+already planted; they count the next time trees are rolled. `forest replant`
+takes away the trees of the location you stand in and rolls them again;
+`forest replant area` does it in every loaded forest location of the area (the
+unloaded ones keep their saved trees). The kinds are the game's: its `forests`
+table.
 
 ## What grows
 
@@ -20,9 +30,17 @@ area. The kinds are the game's: its `forests` table.
 | forest | 90% | 2-3 |
 | jungle | 100% | 3-4 |
 
-The trees and shrubs are planted the first time a living walks into the location
-(not when it loads, so loading a whole map clones nothing). They are fixtures,
-chosen from `query_plants(kind)` of the table, and go with the location.
+The trees and shrubs are fixtures chosen from `query_plants(kind)` of the table.
+They are planted when the location loads (`components_ready`), and the component
+saves what it planted as `plants` (path -> amount) in the location's file. Every
+later load clones exactly those again. New ones are rolled only when none is
+saved and no plant (`query_plant()`) stands in the location; a roll that gives
+nothing is rolled again at the next load. The location is saved
+(`components_changed`) whenever the plants change.
+
+A tree that is gone is forgotten: the saved amounts are recounted from the plants
+that still stand in the location every time it saves, and `remove_plant(ob)` (for
+cutting a tree down) destroys it, forgets it and saves at once.
 
 Herbs: a player who knows herbalism walking in may find one growing, at most one
 at a time and once a minute per location. The table decides which and how often

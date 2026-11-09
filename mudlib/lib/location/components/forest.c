@@ -6,20 +6,23 @@
 // when half or more of its city locations are forest, the map draws the
 // sector as a forest city (bold green woods glyph).
 //
-// Classifier `depth` grades canopy density and how easy it is to
-// travel through, smallest -> densest:
-//   garden < thicket < forest < jungle
+// How dense the woodland is (garden < thicket < forest < jungle) grades the
+// canopy and how easy it is to travel through. It belongs to the area (set
+// with the forest command, resolved up the area's parent chain like the kind);
+// a location may override it with its own `depth`.
 //
-// What grows there depends on the woodland kind of the area (set with the
-// forest command, resolved up the area's parent chain) and on the depth, with
-// the data in the game's forests table (table("forests", location)):
+// What grows there depends on the woodland kind of the area and on the depth,
+// with the data in the game's forests table (table("forests", location)):
 //
-//   trees and shrubs  planted the first time somebody walks in, as many as the
-//                     depth says (FOREST_PLANTS_*): they are fixtures
-//                     (/lib/obj/fixture.c), cloned again on every load
+//   trees and shrubs  planted when the location loads, as many as the depth
+//                     says: they are fixtures (/lib/obj/fixture.c). The paths
+//                     planted are kept in this component's saved state and
+//                     cloned again, the same ones, on every later load. New
+//                     ones are rolled only when none is saved and none stands
+//                     here (see replant)
 //   herbs             a herbalist walking in may find one growing, at most one
 //                     at a time and once every FOREST_HERB_WAIT seconds; the
-//                     table rolls the herb and how often by depth
+//                     table rolls the herb and how often by depth. Transient
 //
 // The table answers query_plants(kind) -> object paths (weighted by repeating
 // them), query_seeks_herbs(who) -> whether the walker can see herbs, and
@@ -31,16 +34,15 @@
 
 inherit component "/lib/location/component.c";
 
-void plant();
-
 // the seconds between two herbs growing in the same place
 #define FOREST_HERB_WAIT 60
 
-// garden | thicket | forest | jungle
+// this location's own depth, "" to use the area's
 private string depth;
-// the trees and shrubs this component planted, and whether it has planted yet
+// the trees and shrubs planted here, as path -> amount (saved)
+private mapping plants;
+// the live trees and shrubs of `plants`
 static object * grown;
-static int planted;
 // the herb standing here, and when the last one was rolled
 static object herb;
 static int herb_time;
@@ -49,13 +51,14 @@ void create()
 {
   component::create();
   set_type(LOCATION_COMPONENT_FOREST);
-  depth = "forest";
+  depth = "";
+  plants = ([ ]);
   grown = ({ });
 }
 
 void init() {}
 
-// Takes away the trees and shrubs this component planted.
+// Takes away the trees and shrubs this component holds.
 private void uproot()
 {
   int i;
@@ -76,15 +79,19 @@ void initialize(object loc)
   component::initialize(loc);
 }
 
-string query_depth() { return depth; }
+/**
+ * The depth this location overrides the area's with, "" when it uses the
+ * area's.
+ */
+string query_own_depth() { return depth; }
 
-void set_depth(string s)
-{
-  depth = s;
-  // the new depth decides how many trees stand here
-  if (planted)
-    plant();
-}
+/**
+ * Sets the depth of this location alone ("" to use the area's again). It
+ * only counts for the next time trees are rolled.
+ *
+ * @param s  one of FOREST_DEPTHS, or ""
+ */
+void set_depth(string s) { depth = s ? s : ""; }
 
 /**
  * The woodland kind of the area this location is in ("" when no area up the
@@ -102,6 +109,25 @@ string query_forest_kind()
   return stringp(kind) ? kind : "";
 }
 
+/**
+ * The depth that applies here: this location's own, else the area's, else
+ * "forest".
+ */
+string query_depth()
+{
+  object place, area;
+  mixed value;
+
+  if (strlen(depth))
+    return depth;
+
+  place = query_entity();
+  area = place ? (object)place->query_area() : nil;
+  value = area ? area->query_forest_depth() : nil;
+
+  return stringp(value) && strlen(value) ? value : "forest";
+}
+
 // The game's forests table, nil when it has none.
 private object forests_table()
 {
@@ -112,7 +138,7 @@ private object forests_table()
 // most that do: ({ chance, least, most }).
 private int * plant_counts()
 {
-  switch (depth)
+  switch (query_depth())
   {
     case "garden":  return ({ 30, 1, 1 });
     case "thicket": return ({ 60, 1, 2 });
@@ -121,23 +147,45 @@ private int * plant_counts()
   }
 }
 
-/**
- * Plants the trees and shrubs of the kind of woodland, as many as the depth
- * says, in place of any it planted before. Called the first time a living
- * walks in, and again when the kind of the area changes.
- */
-void plant()
+// Clones one tree or shrub into the location and keeps it. Whether it exists.
+private int put_plant(string path)
 {
-  object table_ob, plant_ob;
-  string * paths;
+  object plant_ob;
+
+  plant_ob = nil;
+  catch(plant_ob = clone_object(path));
+  if (!plant_ob)
+    return 0;
+
+  plant_ob->move(query_entity());
+  grown += ({ plant_ob });
+  return 1;
+}
+
+// Whether something that is a tree or a shrub stands in the location.
+private int has_plants_standing()
+{
+  object * here;
+  int i;
+
+  here = all_inventory(query_entity());
+  for (i = 0; i < sizeof(here); i++)
+    if (here[i] && here[i]->query_plant())
+      return 1;
+
+  return 0;
+}
+
+// Rolls new trees and shrubs from the table, by kind and depth, and notes them.
+private void roll_plants()
+{
+  object table_ob;
+  string * paths, path;
   int * counts;
   int i, amount;
 
-  planted = 1;
-  uproot();
-
   table_ob = forests_table();
-  if (!table_ob || !query_entity())
+  if (!table_ob)
     return;
 
   paths = (string *)table_ob->query_plants(query_forest_kind());
@@ -151,14 +199,91 @@ void plant()
   amount = counts[1] + random(counts[2] - counts[1] + 1);
   for (i = 0; i < amount; i++)
   {
-    plant_ob = nil;
-    catch(plant_ob = clone_object(paths[random(sizeof(paths))]));
-    if (!plant_ob)
-      continue;
-
-    plant_ob->move(query_entity());
-    grown += ({ plant_ob });
+    path = paths[random(sizeof(paths))];
+    if (put_plant(path))
+      plants[path] = (plants[path] ? plants[path] : 0) + 1;
   }
+}
+
+// The saved amounts brought up to what really stands here: a tree that is gone
+// (cut, destroyed, moved away) is forgotten.
+private void reconcile_plants()
+{
+  object place;
+  int i;
+
+  place = query_entity();
+  plants = ([ ]);
+  grown -= ({ nil });
+
+  for (i = 0; i < sizeof(grown); i++)
+    if (environment(grown[i]) == place)
+    {
+      string path;
+
+      path = base_name(grown[i]) + ".c";
+      plants[path] = (plants[path] ? plants[path] : 0) + 1;
+    }
+}
+
+/**
+ * Clones again the trees and shrubs saved for this location. When none is
+ * saved and none stands here, rolls new ones by the kind and depth, and saves
+ * the location.
+ */
+void restore_plants()
+{
+  string * paths;
+  int i, j;
+
+  if (!query_entity())
+    return;
+
+  paths = map_indices(plants);
+  for (i = 0; i < sizeof(paths); i++)
+    for (j = 0; j < plants[paths[i]]; j++)
+      put_plant(paths[i]);
+
+  if (sizeof(grown) || has_plants_standing())
+    return;
+
+  plants = ([ ]);
+  roll_plants();
+  if (map_sizeof(plants))
+    query_entity()->components_changed();
+}
+
+/**
+ * The trees and shrubs saved for this location, as path -> amount.
+ */
+mapping query_plants() { return ([ ]) + plants; }
+
+/**
+ * Takes away all the trees and shrubs, saved and standing, and rolls new ones
+ * by the kind and depth of now.
+ */
+void replant()
+{
+  uproot();
+  plants = ([ ]);
+  roll_plants();
+  query_entity()->components_changed();
+}
+
+/**
+ * Takes away one tree or shrub for good (it is cut down, say): it is destroyed
+ * and forgotten, and the location is saved.
+ *
+ * @param plant_ob  a tree or shrub standing here
+ */
+void remove_plant(object plant_ob)
+{
+  if (!plant_ob || member_array(plant_ob, grown) < 0)
+    return;
+
+  grown -= ({ plant_ob });
+  plant_ob->dest_me();
+  query_entity()->components_changed();
 }
 
 // A herbalist walking in may find a herb growing: not while one stands here
@@ -177,40 +302,49 @@ private void grow_herb(object who)
     return;
   herb_time = time();
 
-  herb = (object)table_ob->query_herb_to_grow(who, query_forest_kind(), depth);
+  herb = (object)table_ob->query_herb_to_grow(who, query_forest_kind(), query_depth());
   if (herb)
     herb->move(query_entity());
 }
 
 /**
- * The first living in plants the trees; a player walking in may find a herb.
+ * The trees and shrubs stand again as soon as the location has all its
+ * components.
+ */
+void components_ready()
+{
+  restore_plants();
+}
+
+/**
+ * A player walking in may find a herb.
  */
 void event_enter(object ob, varargs string msg, object from, mixed avoid)
 {
-  if (!ob || !living(ob))
-    return;
-
-  if (!planted)
-    plant();
-  if (ob->query_player())
+  if (ob && living(ob) && ob->query_player())
     grow_herb(ob);
 }
 
 mapping query_auto_load_attributes()
 {
+  reconcile_plants();
+
   return component::query_auto_load_attributes() +
-         ([ "depth": depth, ]);
+         ([ "own_depth": depth, "plants": plants, ]);
 }
 
 void init_auto_load_attributes(mapping args)
 {
   component::init_auto_load_attributes(args);
-  if (!undefinedp(args["depth"]))
-    depth = args["depth"];
+  if (stringp(args["own_depth"]))
+    depth = args["own_depth"];
+  if (mappingp(args["plants"]))
+    plants = ([ ]) + args["plants"];
 }
 
 mixed * stats()
 {
   return component::stats() +
-         ({ ({ "Depth", depth, }), ({ "Kind", query_forest_kind(), }), });
+         ({ ({ "Depth", query_depth(), }), ({ "Kind", query_forest_kind(), }),
+            ({ "Plants", plants, }), });
 }
