@@ -142,7 +142,7 @@ void check_expired() {
   last_say = time();
 }
 
-void event_person_say(object ob, string start, string rest) {
+void event_person_say(object ob, string start, string rest, string lang) {
   check_expired();
   LOGGER->log_it(start+rest+"\n");
 }
