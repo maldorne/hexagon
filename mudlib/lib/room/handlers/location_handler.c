@@ -2484,7 +2484,7 @@ void _clean_trim(string * orphans, string * trim_keys, mapping trim, int idx,
 
   for (i = idx; i < end; i++)
   {
-    object loc;
+    object loc, area;
     string * dirs;
     int was_loaded;
 
@@ -2494,8 +2494,14 @@ void _clean_trim(string * orphans, string * trim_keys, mapping trim, int idx,
       continue;
 
     dirs = trim[trim_keys[i]];
+    area = loc->query_area();
     for (j = 0; j < sizeof(dirs); j++)
+    {
       loc->remove_exit(dirs[j]);
+      // the neighbour's area forgets the exit out of it that is gone
+      if (area)
+        area->remove_connection(trim_keys[i], dirs[j]);
+    }
     loc->save_me();
     release_location(loc, was_loaded);
 
