@@ -21,6 +21,8 @@
         "a él antes de aprender otro.\n"
 #define _LANG_JOB_ENTRANCE_NOT_LEGAL "No reúnes las condiciones para aprender " + \
         "este oficio.\n"
+#define _LANG_JOB_ENTRANCE_NOT_ADMITTED "Esta escuela solo admite a los suyos: " + \
+        "no eres de los que aquí se alistan.\n"
 #define _LANG_JOB_ENTRANCE_JOINED "Te alistas: desde hoy tu oficio es «" + \
         (string)job->query_short() + "». En la sala principal de " + \
         "la casa, escribe 'normas' para leer las normas del oficio.\n"

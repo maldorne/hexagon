@@ -56,7 +56,8 @@ string query_info()
 mapping query_auto_load_attributes()
 {
   return component::query_auto_load_attributes() +
-         ([ "entrance_job" : query_entrance_job() ]);
+         ([ "entrance_job" : query_entrance_job(),
+            "entrance_citizenships" : query_entrance_citizenships() ]);
 }
 
 void init_auto_load_attributes(mapping args)
@@ -65,6 +66,8 @@ void init_auto_load_attributes(mapping args)
 
   if (args && stringp(args["entrance_job"]))
     actions::set_entrance_job(args["entrance_job"]);
+  if (args && pointerp(args["entrance_citizenships"]))
+    actions::set_entrance_citizenships(args["entrance_citizenships"]);
 }
 
 mixed * stats()

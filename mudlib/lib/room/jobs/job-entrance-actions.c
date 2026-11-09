@@ -3,6 +3,9 @@
 // entrance room (/lib/room/jobs/job-entrance-room.c) and the job entrance
 // location component (/lib/location/components/job-entrance.c).
 //
+// A school may enrol only its own people (set_entrance_citizenships): joining
+// is filtered, members use any house of the job.
+//
 // One job at a time. A job levels by itself as its experience is earned
 // (adjust_job_xp in /lib/living/social.c), so there is no advancing here; the
 // general coste command shows what the next level asks. Its rules (normas)
@@ -15,6 +18,8 @@
 
 // the job taught here, as the path of its object, ending in ".c"
 private string entrance_job;
+// the diplomacy nodes whose people this entrance enrols; empty admits anybody
+private string * entrance_citizenships;
 static object entrance_sign;
 
 int query_job_entrance() { return 1; }
@@ -25,9 +30,25 @@ object query_job_entrance_place() { return this_object(); }
 void create()
 {
   entrance_job = "";
+  entrance_citizenships = ({ });
 }
 
 string query_entrance_job() { return entrance_job; }
+
+string * query_entrance_citizenships() { return entrance_citizenships; }
+
+/**
+ * Names the diplomacy nodes whose people may join the job here: those who
+ * hold one of them or an ally of one, and those whose race is the people of
+ * one. Only joining is filtered; whoever holds the job uses any of its
+ * houses.
+ *
+ * @param nodes diplomacy node names; an empty list admits anybody
+ */
+void set_entrance_citizenships(string * nodes)
+{
+  entrance_citizenships = nodes ? nodes : ({ });
+}
 
 /**
  * Names the job taught here.
@@ -85,6 +106,57 @@ void take_down_job_entrance_sign()
   entrance_sign = nil;
 }
 
+// Whether somebody belongs to the people this entrance enrols: by the
+// citizenship they hold (or an ally of it) or by their race.
+private int admits(object who)
+{
+  object diplomacy, city;
+  string held, root, race;
+  string * races;
+  int i;
+
+  if (!sizeof(entrance_citizenships))
+    return 1;
+
+  diplomacy = handler("diplomacy", who);
+  if (!diplomacy)
+    return 1;
+
+  held = "";
+  if (who->query_city_ob())
+  {
+    city = load_object(who->query_city_ob());
+    if (city)
+      held = (string)city->query_name();
+  }
+  race = who->query_race_ob();
+
+  for (i = 0; i < sizeof(entrance_citizenships); i++)
+  {
+    if (strlen(held) &&
+        diplomacy->is_ally(held, entrance_citizenships[i]))
+      return 1;
+
+    // the people of the node: its own races, or those of the citizenship at
+    // the top of its chain when no node in the graph declares any
+    races = (string *)diplomacy->query_people_races(entrance_citizenships[i]);
+    if (!sizeof(races))
+    {
+      root = (string)diplomacy->query_root_citizenship(entrance_citizenships[i]);
+      if (!strlen(root))
+        root = entrance_citizenships[i];
+      city = load_object("/games/" + game_name(who) + "/obj/citizenships/" +
+                         root + ".c");
+      races = city ? (string *)city->query_races() : ({ });
+    }
+
+    if (race && member_array(race, races) != -1)
+      return 1;
+  }
+
+  return 0;
+}
+
 void init()
 {
   add_action("do_join_job", _LANG_JOB_ENTRANCE_CMDS_JOIN);
@@ -118,6 +190,12 @@ int do_join_job(string str)
   if (!job->query_legal_player(me))
   {
     notify_fail(_LANG_JOB_ENTRANCE_NOT_LEGAL);
+    return 0;
+  }
+
+  if (!admits(me))
+  {
+    notify_fail(_LANG_JOB_ENTRANCE_NOT_ADMITTED);
     return 0;
   }
 
@@ -196,5 +274,6 @@ void confirm_leave_job(string answer, object me)
 
 mixed * stats()
 {
-  return ({ ({ "Entrance Job", entrance_job }) });
+  return ({ ({ "Entrance Job", entrance_job }),
+            ({ "Entrance Citizenships", implode(entrance_citizenships, ", ") }) });
 }

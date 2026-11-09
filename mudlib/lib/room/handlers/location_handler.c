@@ -1462,6 +1462,7 @@ object convert_room_to_location(object room)
   {
     location->add_component(LOCATION_COMPONENT_JOB_ENTRANCE, ([
       "entrance_job" : room->query_entrance_job(),
+      "entrance_citizenships" : room->query_entrance_citizenships(),
         ]));
     ret += "   Adding component job entrance.\n";
   }

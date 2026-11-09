@@ -21,6 +21,8 @@
         "give it up before you take up another.\n"
 #define _LANG_JOB_ENTRANCE_NOT_LEGAL "You do not meet the conditions to take up " + \
         "this job.\n"
+#define _LANG_JOB_ENTRANCE_NOT_ADMITTED "This school only admits its own people: you are " + \
+        "not of those it enrols.\n"
 #define _LANG_JOB_ENTRANCE_JOINED "You join: from today your job is \"" + \
         (string)job->query_short() + "\". In the main hall of the " + \
         "house, type 'rules' to read the rules of the job.\n"
