@@ -1,4 +1,8 @@
+// Insects: the flying ones -- wasps, mosquitoes, dragonflies, butterflies.
+
 #include <living/races.h>
+#include <living/body-parts.h>
+#include <living/skills.h>
 #include <language.h>
 #include <translations/races.h>
 
@@ -11,6 +15,8 @@ void setup()
   set_body_size(1);
   set_name(_LANG_RACES_INSECT_NAME);
   set_race_id(RACE_INSECT);
+  // the wings, cut off like any other wing
+  add_body_part(PART_WING, part_spec(SKILL_DISMEMBERING, 10, 1, 2, 2, 1));
   set_short(capitalize(_LANG_RACES_INSECT_NAME));
   set_light_limits(LIGHT_STD_LOW, LIGHT_STD_HIGH);
 
@@ -25,8 +31,8 @@ string query_desc(object ob)
 
 void start_player(object ob)
 {
-  // No move-message override: an unset slot already resolves to the
-  // current-language default (see movement.c).
+  ob->set_min(_LANG_RACES_INSECT_MSG_IN);
+  ob->set_mout(_LANG_RACES_INSECT_MSG_OUT);
 }
 
 void set_racial_bonuses(object ob)

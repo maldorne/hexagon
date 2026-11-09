@@ -14,6 +14,8 @@
 #define _LANG_RACES_MSG_OUT_SCUTTLE "@$N se escabulle hacia $T."
 #define _LANG_RACES_MSG_IN_SWIM "@$N llega nadando desde $F."
 #define _LANG_RACES_MSG_OUT_SWIM "@$N se aleja nadando hacia $T."
+#define _LANG_RACES_MSG_IN_FLY "@$N llega volando desde $F."
+#define _LANG_RACES_MSG_OUT_FLY "@$N se va volando hacia $T."
 
 // body locations
 
@@ -26,6 +28,9 @@
 #define _LANG_RACES_LOCATIONS_BIRD_WING "un ala"
 #define _LANG_RACES_LOCATIONS_BEAK "el pico"
 #define _LANG_RACES_LOCATIONS_INSECT_WING "un ala"
+#define _LANG_RACES_LOCATIONS_BAT_WING "un ala"
+#define _LANG_RACES_LOCATIONS_STINGER "el aguijón"
+#define _LANG_RACES_LOCATIONS_PINCER "una pinza"
 #define _LANG_RACES_LOCATIONS_CHEST "el pecho"
 #define _LANG_RACES_LOCATIONS_ARM "un brazo"
 #define _LANG_RACES_LOCATIONS_LEG "una pierna"

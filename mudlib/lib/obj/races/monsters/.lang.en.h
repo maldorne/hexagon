@@ -19,3 +19,22 @@
 #define _LANG_RACES_REPTILE_NAME "reptile"
 #define _LANG_RACES_REPTILE_DESC "A small wild reptile.\n"
 #define _LANG_RACES_REPTILE_BODY "reptile"
+
+#define _LANG_RACES_BAT_NAME "bat"
+#define _LANG_RACES_BAT_DESC "A bat, with membranous wings and small fangs.\n"
+#define _LANG_RACES_BAT_BODY "bat"
+#define _LANG_RACES_BAT_STYLE "bite"
+#define _LANG_RACES_BAT_STYLE_ATT_MSGS ({ "you bite $defname with your fangs $local" })
+#define _LANG_RACES_BAT_STYLE_DEF_MSGS ({ "$attname bites you with its fangs $local" })
+#define _LANG_RACES_BAT_STYLE_ROOM_MSGS ({ "$attname bites $defname with its fangs $local" })
+
+#define _LANG_RACES_SCORPION_NAME "scorpion"
+#define _LANG_RACES_SCORPION_DESC "A scorpion, with sturdy pincers and a curved tail ending in a stinger.\n"
+#define _LANG_RACES_SCORPION_BODY "scorpion"
+#define _LANG_RACES_SCORPION_STYLE "pincers and sting"
+#define _LANG_RACES_SCORPION_STYLE_ATT_MSGS ({ "you grip $defname with your pincers $local", "you sting $defname with your stinger $local" })
+#define _LANG_RACES_SCORPION_STYLE_DEF_MSGS ({ "$attname grips you with its pincers $local", "$attname stings you with its stinger $local" })
+#define _LANG_RACES_SCORPION_STYLE_ROOM_MSGS ({ "$attname grips $defname with its pincers $local", "$attname stings $defname with its stinger $local" })
+
+#define _LANG_RACES_INSECT_MSG_IN "@$N buzzes in from $F."
+#define _LANG_RACES_INSECT_MSG_OUT "@$N buzzes away towards $T."

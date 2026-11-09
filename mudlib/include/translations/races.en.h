@@ -14,6 +14,8 @@
 #define _LANG_RACES_MSG_OUT_SCUTTLE "@$N scuttles towards $T."
 #define _LANG_RACES_MSG_IN_SWIM "@$N comes swimming from $F."
 #define _LANG_RACES_MSG_OUT_SWIM "@$N swims away towards $T."
+#define _LANG_RACES_MSG_IN_FLY "@$N flies in from $F."
+#define _LANG_RACES_MSG_OUT_FLY "@$N flies away towards $T."
 
 // body locations
 
@@ -26,6 +28,9 @@
 #define _LANG_RACES_LOCATIONS_BIRD_WING "a wing"
 #define _LANG_RACES_LOCATIONS_BEAK "the beak"
 #define _LANG_RACES_LOCATIONS_INSECT_WING "a wing"
+#define _LANG_RACES_LOCATIONS_BAT_WING "a wing"
+#define _LANG_RACES_LOCATIONS_STINGER "the stinger"
+#define _LANG_RACES_LOCATIONS_PINCER "a pincer"
 #define _LANG_RACES_LOCATIONS_CHEST "the chest"
 #define _LANG_RACES_LOCATIONS_ARM "an arm"
 #define _LANG_RACES_LOCATIONS_LEG "a leg"
