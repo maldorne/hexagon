@@ -85,6 +85,17 @@ and `"hiding"` (the `hidden` component is dropped at placement).
 the NPC cannot do now: it picks from the usable effects and `use_skill` checks
 `can_use_effect` first.
 
+#### The transform and apparition components
+
+`transform` (`/lib/npc/components/transform.c`) replaces its NPC with another
+one made from a template when it is attacked, defeated (hit points under a
+percentage) or killed, with or without the corpse of the original. It hears
+`event_fight_in_progress` for the first two and `died` / `second_life` (forwarded
+by `/lib/npc.c`) for the third. `apparition` (`/lib/npc/components/apparition.c`)
+makes an NPC a timed scene: texts and items at given seconds, then it vanishes;
+it can be intangible (`/lib/obj/shadows/intangible.c`). Attributes of both:
+`reference/npc-template.md`, component list.
+
 ### Verbs
 
 A component stands nowhere, so it cannot carry a verb. One that wants a verb

@@ -526,6 +526,15 @@ int do_death(varargs object killer)
   return monster::do_death(killer);
 }
 
+// The body has been made and the death announced: the components hear of it
+// with the corpse (nil when none was made), before the NPC is destructed. An
+// NPC never lives on.
+int second_life(object corpse, object initiator)
+{
+  run_on_components("second_life", corpse, initiator);
+  return 0;
+}
+
 // The NPC dealt a killing blow: the components hear whom it killed.
 int do_kill(object victim)
 {

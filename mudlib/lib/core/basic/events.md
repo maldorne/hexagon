@@ -62,7 +62,7 @@ function, with the event's own arguments, on every component that defines it:
 
 - `/lib/location.c` forwards `enter`, `exit` and `heart_beat`, and passes `event_climbed` /
   `event_climb_failed` to its bridge component.
-- `/lib/npc.c` forwards `enter`, `exit`, `moved`, `weather`, `fight_in_progress`, `revealed` and `crime`.
+- `/lib/npc.c` forwards `enter`, `exit`, `moved`, `weather`, `fight_in_progress`, `revealed` and `crime`, and the calls `died` (before the body is made, while it stands), `second_life` (with the corpse, or nil, once the death is announced) and `event_kill` (it dealt a killing blow). The `transform` component answers `event_fight_in_progress`, `died` and `second_life`.
 
 ## Movement
 
