@@ -3,12 +3,23 @@
 #define LOCATION_H
 
 #include <ecs/ecs.h>
+#include <common/properties.h>
+#include <room/room.h>
 
 #define BASE_LOCATION_OBJ "/lib/location.c"
 // why uncarve_location refuses a location with something in it and nowhere to
 // move it, so a caller can say where that somewhere should come from
 #define LOCATION_NOT_EMPTY "That location is not empty."
 #define LOCATION_HANDLER "/lib/room/handlers/location_handler.c"
+
+// Static properties of a room that are rules of the place (what may be done,
+// cast, stolen or killed there, who may raise undead, whether the law applies,
+// whether the cleaner may reclaim it). The room -> location conversion copies
+// these onto the location, so they are saved with it and a timed property of
+// the same name can be added to a location at run time.
+#define LOCATION_PLACE_PROPS ({ NOCAST_PROP, NOSKILL_PROP, NOKILL_PROP, \
+                                NOSTEAL_PROP, NOUNDEAD_PROP, LAWLESS_PROP, \
+                                NO_CLEAN_UP_PROP })
 
 // location component types
 

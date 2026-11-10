@@ -1235,6 +1235,46 @@ private void _replace_live_location(object old, object location)
   old->dest_me();
 }
 
+/**
+ * Copies the room's place-rule properties (LOCATION_PLACE_PROPS) onto the
+ * location. A listed property the room no longer sets is removed from the
+ * location; any other property of the location is left alone.
+ *
+ * @param room the source room
+ * @param location the location being built
+ * @return a line for the conversion report, "" when nothing was copied
+ */
+private string _copy_place_properties(object room, object location)
+{
+  string * names, * copied;
+  mixed value;
+  int i;
+
+  names = LOCATION_PLACE_PROPS;
+  copied = ({ });
+
+  for (i = 0; i < sizeof(names); i++)
+  {
+    // static properties only: a timed one on the room is not a rule of the place
+    value = room->query_old_property(names[i]);
+    if (!value)
+      value = room->query_static_property(names[i]);
+
+    if (value)
+    {
+      location->add_property(names[i], value);
+      copied += ({ names[i] });
+    }
+    else
+      location->remove_property(names[i]);
+  }
+
+  if (!sizeof(copied))
+    return "";
+
+  return "   Place properties: " + implode(copied, ", ") + ".\n";
+}
+
 object convert_room_to_location(object room)
 {
   object location, area, old;
@@ -1283,6 +1323,9 @@ object convert_room_to_location(object room)
   location->set_location_senses(room->query_senses());
   location->stamp_last_imported_at();
 
+  // rules of the place the room sets (nocast, noskill...)
+  ret = _copy_place_properties(room, location);
+
   if (sizeof(room->query_room_zones()))
     location->set_room_zones(room->query_room_zones());
 
@@ -1308,8 +1351,6 @@ object convert_room_to_location(object room)
   }
 
   location->set_exits_from_exit_map(exit_map);
-
-  ret = "";
 
   // add components to the location object. Keys use the mixin-namespaced
   // names defined in /lib/ventures/*.c::query_auto_load_attributes(). The
