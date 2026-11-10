@@ -4,7 +4,8 @@
 
 inherit "/lib/room";
 
-#define LOGGER "/obj/handlers/meeting_log"
+// conversations go to /log/meeting
+#define MEETING_LOG "meeting"
 object floor;
 string chair;
 int last_say;
@@ -137,25 +138,25 @@ int log_mode(string str) {
 /* this will divide up separate conversation. */
 void check_expired() {
   if( (time() - last_say) > (600) )
-    LOGGER->log_it("* * * * *\n");
+    log_file(MEETING_LOG, "* * * * *\n");
     
   last_say = time();
 }
 
 void event_person_say(object ob, string start, string rest, string lang) {
   check_expired();
-  LOGGER->log_it(start+rest+"\n");
+  log_file(MEETING_LOG, start + ": " + rest + "\n");
 }
 
 void event_say(object ob, string rest, varargs mixed avoid) {
   check_expired();
-  LOGGER->log_it(rest);
+  log_file(MEETING_LOG, rest);
 }
 
-void event_soul(object ob, string rest) {
+void event_soul(object ob, string rest, varargs mixed avoid) {
   if(log_souls) {
     check_expired();
-    LOGGER->log_it(rest);
+    log_file(MEETING_LOG, rest);
   }
 }
 
