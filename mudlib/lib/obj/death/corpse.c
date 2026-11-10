@@ -325,7 +325,7 @@ int undead_okay(object room)
   if ("/global/omiq.c"->flag_in_progress())
     corpse_fine = 0;
   */
-  if (room->query_property(NO_UNDEAD))
+  if (room->query_property(NOUNDEAD_PROP))
     corpse_fine = 0;
 
   return corpse_fine;

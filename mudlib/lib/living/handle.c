@@ -138,7 +138,7 @@ int do_give(string str, varargs string verb, object *bing, string bing2, int blu
       {
         if (!interactive(per[j]) && interactive(this_object()))
         {
-          obs[i]->add_static_property(PC_GAVE_NPC_PROPERTY, 1);
+          obs[i]->add_static_property(PC_GAVE_NPC_PROP, 1);
         }
         ret += ({ obs[i] });
         tot += (int)obs[i]->query_weight();

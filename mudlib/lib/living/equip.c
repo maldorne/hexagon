@@ -155,7 +155,7 @@ int do_equip(string str)
   // Split into holdables and wearables
   for (i = 0; i < sizeof(obs); i++)
   {
-    if (!interactive(this_object()) && obs[i]->query_static_property(PC_GAVE_NPC_PROPERTY))
+    if (!interactive(this_object()) && obs[i]->query_static_property(PC_GAVE_NPC_PROP))
      continue;
     if ( (obs[i]->query_holdable()) && !obs[i]->query_in_use() )
       holds += ({ obs[i] });

@@ -42,7 +42,7 @@ void setup()
   add_property(DAMAGE_DEATH, 100);
   
   set_aggressive(1);
-  add_property(UNDEAD, 1);
+  add_property(UNDEAD_PROP, 1);
 }
 
 // TO DO

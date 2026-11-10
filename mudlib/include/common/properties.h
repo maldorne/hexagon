@@ -45,9 +45,9 @@
 #define STONED_PROP "stoned"
 
 // do not allow creation of undead npcs in a room
-#define NO_UNDEAD "no_undead"
+#define NOUNDEAD_PROP "no_undead"
 // this npc is undead
-#define UNDEAD "undead"
+#define UNDEAD_PROP "undead"
 
 // things dry off faster
 // (see /global/pweath.c)
@@ -56,7 +56,7 @@
 // related with inform events
 #define NO_INFORM "no_inform"
 
-#define PC_GAVE_NPC_PROPERTY "pc_gave_npc"
+#define PC_GAVE_NPC_PROP "pc_gave_npc"
 
 // initial character adjust
 #define ORIGINAL_ADJUST_PROP "original adjust"
