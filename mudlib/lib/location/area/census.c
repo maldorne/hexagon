@@ -466,7 +466,7 @@ string create_npc(string source, mapping row)
   id = UUID_OB->uuid();
 
   row = ([ ]) + (row ? row : ([ ]));
-  row["source"] = source;
+  row["source"] = BESTIARY_HANDLER->template_id(game, source);
   row["savefile"] = npc_save_dir(game, id) + NPC_SAVE_FILE;
   query_npc_census()[id] = row;
 

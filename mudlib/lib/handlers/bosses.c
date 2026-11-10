@@ -19,6 +19,7 @@
 
 #include <mud/config.h>
 #include <user/player.h>
+#include <living/persisted.h>
 
 inherit "/lib/core/object.c";
 
@@ -91,8 +92,9 @@ private int _is_left_out(object who)
 }
 
 /**
- * The key a boss is recorded under: its game and its template path (or its
- * file), so two games cannot clash.
+ * The key a boss is recorded under: its game and its template id (the
+ * source, or its file, without the game prefix and the .c), so two games
+ * cannot clash.
  */
 string query_boss_key(object npc)
 {
@@ -105,7 +107,11 @@ string query_boss_key(object npc)
   game = npc->query_npc_game();
   if (!stringp(game) || !strlen(game))
     game = game_name(npc);
-  return (stringp(game) && strlen(game)) ? game + ":" + source : source;
+  if (!stringp(game) || !strlen(game))
+    return source;
+
+  // one boss, one key: a source given as a file path reads the same as its template id
+  return game + ":" + BESTIARY_HANDLER->template_id(game, source);
 }
 
 private mapping _new_entry(string name, string game)
