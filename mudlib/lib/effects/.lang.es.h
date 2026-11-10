@@ -95,6 +95,7 @@
 #define MSG_CANNOT_NOW_ROOM  caster->query_cap_name()+" deja de hacer lo que estaba haciendo.\n"
 #define MSG_NOSKILL     "Ahora mismo no puedes concentrarte en eso.\n"
 #define MSG_NOSKILL_HERE "Aquí no puedes hacer eso.\n"
+#define MSG_NO_CAST_HERE "Los hechizos no pueden formularse en este lugar.\n"
 #define MSG_MUTE        "Intentas pronunciar las palabras, pero no te sale la voz.\n"
 #define MSG_PASSED_OUT  "Estás inconsciente y no puedes hacer nada.\n"
 // the effect's name, and the seconds left of its lockout

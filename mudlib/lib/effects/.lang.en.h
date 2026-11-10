@@ -95,6 +95,7 @@
 #define MSG_CANNOT_NOW_ROOM  caster->query_cap_name()+" stops what they were doing.\n"
 #define MSG_NOSKILL     "You cannot focus on that right now.\n"
 #define MSG_NOSKILL_HERE "You cannot do that here.\n"
+#define MSG_NO_CAST_HERE "Spells cannot be cast in this place.\n"
 #define MSG_MUTE        "You try to say the words, but your voice does not come out.\n"
 #define MSG_PASSED_OUT  "You are unconscious and can do nothing.\n"
 // the effect's name, and the seconds left of its lockout

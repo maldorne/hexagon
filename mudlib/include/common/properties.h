@@ -27,6 +27,9 @@
 #define NOSKILL_PROP "noskill"
 // whoever has it cannot cast spells (formular), though may use skills
 #define NOCAST_PROP "nocast"
+// a place where no spell can be cast (the effect base refuses a spell cast
+// there; skills still work)
+#define NO_CAST_PROP "no_cast"
 #define NOKILL_PROP "nokill"
 // nothing can be stolen from this item, living or place (steal skill)
 #define NOSTEAL_PROP "nosteal"
