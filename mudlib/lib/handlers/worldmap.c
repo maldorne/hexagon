@@ -21,7 +21,7 @@
 //      third (see _shore_code).
 //      Rivers (the swum exits of flowing water, see sector.c query_border_rivers)
 //      are drawn the same way in blue, over roads, farmland and open land but
-//      under cities, forests, taiga, mountains and swamps; where a road crosses
+//      under cities, mountains, hills and swamps; where a road crosses
 //      a straight river it is a bridge (see bridge_code).
 //   4. Where a city wall meets a road, the wall glyph swaps to a wall/road
 //      hybrid so the road visibly enters the settlement.
@@ -745,9 +745,9 @@ private string _seen_from_above(object sect, string game, string map_name,
 //   4. road / path — if the sector has road/path exits, draw the way glyph;
 //                    with a river through it as well it is a bridge when the
 //                    road crosses it, and the river otherwise (bridge_code)
-//   5. forest, taiga, mountain, hills, swamp — win over a river, so they keep
-//                    their size
-//   6. river       — blue line, over farmland and any other terrain. A
+//   5. mountain, hills, swamp — win over a river, so they keep their size
+//   6. river       — blue line, over forest, taiga, farmland and any other
+//                    terrain. A
 //                    sector whose water is a lake (a lake cell, flowing or
 //                    not) draws the lake glyph, the blue circle, in its place
 //                    even when a river flows out of it; it ranks as the river
@@ -828,10 +828,8 @@ private int sector_code(string game, string map_name, int sx, int sy, int sz)
     return MAP_GLYPH_WAYS + _arms_code(road_arms);
   }
 
-  // a forest wins over a river running through it: the woods read as their
-  // true size; so do the other terrain with a shape of its own
-  if (type == SECTOR_TYPE_FOREST)      return MAP_GLYPH_FOREST;
-  if (type == SECTOR_TYPE_TAIGA)       return MAP_GLYPH_TAIGA;
+  // a river is drawn over forest and taiga; the terrain with a shape of its
+  // own wins over it
   if (type == SECTOR_TYPE_MOUNTAIN)    return MAP_GLYPH_MOUNTAIN;
   if (type == SECTOR_TYPE_HILLS)       return MAP_GLYPH_HILLS;
   if (type == SECTOR_TYPE_SWAMP)       return MAP_GLYPH_SWAMP;
@@ -841,6 +839,8 @@ private int sector_code(string game, string map_name, int sx, int sy, int sz)
   if (river)
     return MAP_GLYPH_RIVERS + _arms_code(river_arms_here);
 
+  if (type == SECTOR_TYPE_FOREST)      return MAP_GLYPH_FOREST;
+  if (type == SECTOR_TYPE_TAIGA)       return MAP_GLYPH_TAIGA;
   if (type == SECTOR_TYPE_RUINS)       return MAP_GLYPH_RUINS;
   if (type == SECTOR_TYPE_PLAINS)      return _plains_code(sx, sy, sz);
   if (type == SECTOR_TYPE_TUNDRA)
