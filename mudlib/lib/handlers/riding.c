@@ -394,9 +394,8 @@ string query_move_refusal(object who, object room, string dir)
       member_array(type, spec[RIDE_TERRAIN_ONLY]) == -1)
     return text(spec, "refuse_terrain", who, steed);
 
-  // how big the exit is: what its type says; an exit with no size does not
-  // hold it back
-  size = type ? ROOM_HAND->query_exit_type(type, dir)[2] : nil;
+  // how big the exit is; an exit with no size does not hold it back
+  size = room->query_size(dir);
   if (intp(size) && size > 0 && size < (int)spec[RIDE_EXIT_SIZE])
     return text(spec, "refuse_exit_size", who, steed);
 

@@ -242,27 +242,27 @@ mixed* remove_exit(mapping door_control,
             dest_direc, hidden_objects });
 }
 
-mixed *query_size(mixed *dest_other, string direc, object room_ob)
+/**
+ * How big an exit is: what the exit stores, or what the function it names
+ * answers (on the room, or on the object given with it). 0 when there is no
+ * such exit or it has no size.
+ */
+int query_size(mixed *dest_other, string direc, object room_ob)
 {
   int i;
- 
+  mixed size;
+
   if ((i = member_array(direc, dest_other)) == -1)
-    return ({ });
+    return 0;
 
-  if (stringp(dest_other[i+1][ROOM_SIZE]))
-  {   
-    i = call_other(room_ob, dest_other[i+1][ROOM_SIZE]); 
-    return ({ });
-  }
+  size = dest_other[i+1][ROOM_SIZE];
 
-  if (pointerp(dest_other[i+1][ROOM_SIZE]))
-  {
-    i = call_other(dest_other[i+1][ROOM_SIZE][0],
-                      dest_other[i+1][ROOM_SIZE][1]);
-    return ({ });
-  }
+  if (stringp(size))
+    size = call_other(room_ob, size);
+  else if (pointerp(size))
+    size = call_other(size[0], size[1]);
 
-  return dest_other[i+1][ROOM_SIZE];
+  return intp(size) ? size : 0;
 }
 
 int do_exit_command(mapping door_control,
