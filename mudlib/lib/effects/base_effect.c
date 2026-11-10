@@ -1390,7 +1390,7 @@ private int run_cast(string str, object * given, object who, int quiet)
 
     // a place can forbid spells (not skills), whoever casts them
     if (effect_type == EFFECT_IS_SPELL &&
-        environment(caster)->query_property(NO_CAST_PROP))
+        environment(caster)->query_property(NOCAST_PROP))
     {
         notify_fail(MSG_NO_CAST_HERE);
         return 0;
