@@ -100,7 +100,7 @@ int query_equip_ac(int tipo) { return query_held_ac(tipo) + query_worn_ac(tipo);
 
 int do_equip(string str)
 {
-  object *obs, *holds, *wears;
+  object *obs, *holds, *wears, *cursed;
   string * words;
   int i, j;
 
@@ -151,6 +151,13 @@ int do_equip(string str)
   // Get the objects from the player, we don't care about what he's got
   // in various containers
   obs = all_inventory(this_object());
+
+  // Cursed items go first, so they always get their slot
+  cursed = ({ });
+  for (i = 0; i < sizeof(obs); i++)
+    if (obs[i]->query_property(CURSED_PROP))
+      cursed += ({ obs[i] });
+  obs = cursed + (obs - cursed);
 
   // Split into holdables and wearables
   for (i = 0; i < sizeof(obs); i++)
