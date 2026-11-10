@@ -196,6 +196,11 @@
 #define GLYPH_MAP_RUINS    (chr(226) + chr(136) + chr(180))         // U+2234 therefore
 #define GLYPH_MAP_UNDERGROUND "."
 
+// A volcano is the mountain triangle in another colour. ANSI has no orange:
+// YELLOW (bold dark yellow) reads as orange in many palettes, and the mountain
+// itself is ORANGE (the plain dark yellow, brown). The one place to change it.
+#define COLOUR_MAP_VOLCANO "%^YELLOW%^"
+
 // Shoreline glyphs: a coast is a line joining the coast sectors around it, as
 // a way joins its arms, with rounded corners so it never reads as a road.
 #define GLYPH_SHORE_SPOT   (chr(226) + chr(151) + chr(139))         // U+25CB white circle (an islet)
@@ -246,7 +251,8 @@
 #define MAP_GLYPH_TUNDRA_B     (MAP_GLYPH_TUNDRA_A + 1)
 #define MAP_GLYPH_HILLS        (MAP_GLYPH_TUNDRA_B + 1)
 #define MAP_GLYPH_LAKE         (MAP_GLYPH_HILLS + 1)  // a sector whose water is a lake
-#define MAP_GLYPH_COUNT        (MAP_GLYPH_LAKE + 1)
+#define MAP_GLYPH_VOLCANO      (MAP_GLYPH_LAKE + 1)   // a mountain sector whose locations are mostly volcano
+#define MAP_GLYPH_COUNT        (MAP_GLYPH_VOLCANO + 1)
 
 // The fixed glyphs as they are drawn, colour included.
 #define MAP_GLYPHS ({ \

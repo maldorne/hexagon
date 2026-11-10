@@ -1442,6 +1442,30 @@ object convert_room_to_location(object room)
     ret += "   Adding component fire.\n";
   }
 
+  // A room that answers query_volcano() with 1 is a mountain of the volcano
+  // kind: the mountain component is attached, or its kind set when it is
+  // already there.
+  if (function_exists("query_volcano", room) && room->query_volcano())
+  {
+    object mountain;
+
+    if (!location->has_component(LOCATION_COMPONENT_MOUNTAIN))
+    {
+      location->add_component(LOCATION_COMPONENT_MOUNTAIN,
+                              ([ "mountain_kind" : MOUNTAIN_KIND_VOLCANO ]));
+      ret += "   Adding component mountain (volcano).\n";
+    }
+    else
+    {
+      mountain = location->query_component_by_type(LOCATION_COMPONENT_MOUNTAIN);
+      if (mountain && mountain->query_kind() != MOUNTAIN_KIND_VOLCANO)
+      {
+        mountain->set_kind(MOUNTAIN_KIND_VOLCANO);
+        ret += "   Setting mountain kind volcano.\n";
+      }
+    }
+  }
+
   // A temple room becomes a temple component, given to the deity the room
   // names; it puts its own sign up from the temples help document on every
   // load.

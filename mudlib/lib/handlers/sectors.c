@@ -297,6 +297,15 @@ string add_location(object location)
     if (sizeof(my_types))
       location_data["types"] = my_types;
 
+    // a volcano among the mountains, so the map can draw the sector as one
+    if (location->has_component(LOCATION_COMPONENT_MOUNTAIN))
+    {
+      object mountain;
+      mountain = location->query_component_by_type(LOCATION_COMPONENT_MOUNTAIN);
+      if (mountain && mountain->query_kind() == MOUNTAIN_KIND_VOLCANO)
+        location_data["volcano"] = 1;
+    }
+
     // the kind of shore, so the map can tell a beach or a marsh from the rest and mark
     // where a dock (a port or harbor) reaches out to sea
     if (location->has_component(LOCATION_COMPONENT_COAST))

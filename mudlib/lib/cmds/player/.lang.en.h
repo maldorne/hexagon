@@ -432,6 +432,7 @@
 #define _LANG_CMD_WORLDMAP_SWAMP       "Swamp"
 #define _LANG_CMD_WORLDMAP_HILLS       "Hills"
 #define _LANG_CMD_WORLDMAP_MOUNTAIN    "Mountains"
+#define _LANG_CMD_WORLDMAP_VOLCANO     "Volcano"
 #define _LANG_CMD_WORLDMAP_TAIGA       "Taiga"
 #define _LANG_CMD_WORLDMAP_RUINS       "Ruins"
 #define _LANG_CMD_WORLDMAP_FARM        "Farmland"

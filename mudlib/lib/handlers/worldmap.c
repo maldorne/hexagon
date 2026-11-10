@@ -138,6 +138,7 @@ void create()
   glyphs[MAP_GLYPH_TUNDRA_B] = "%^BOLD%^" + GLYPH_MAP_PLAINS_B + "%^RESET%^";
   glyphs[MAP_GLYPH_SWAMP]    = "%^GREEN%^" + GLYPH_MAP_SWAMP + "%^RESET%^";
   glyphs[MAP_GLYPH_MOUNTAIN] = "%^ORANGE%^" + GLYPH_MAP_MOUNTAIN + "%^RESET%^";
+  glyphs[MAP_GLYPH_VOLCANO]  = COLOUR_MAP_VOLCANO + GLYPH_MAP_MOUNTAIN + "%^RESET%^";
   glyphs[MAP_GLYPH_HILLS]    = "%^ORANGE%^" + GLYPH_MAP_HILLS + "%^RESET%^";
   glyphs[MAP_GLYPH_TAIGA] = "%^GREEN%^" + GLYPH_MAP_TAIGA + "%^RESET%^";
   glyphs[MAP_GLYPH_RUINS]    = GLYPH_MAP_RUINS;
@@ -746,7 +747,9 @@ private string _seen_from_above(object sect, string game, string map_name,
 //                    with a river through it as well it is a bridge when the
 //                    road crosses it, and the river otherwise (bridge_code)
 //   5. forest, taiga, mountain, hills, swamp — win over a river, so they keep
-//                    their size
+//                    their size. A mountain sector whose mountain locations are
+//                    mostly volcano is drawn as a volcano: the same triangle in
+//                    COLOUR_MAP_VOLCANO (its type stays mountain)
 //   6. river       — blue line, over farmland and any other terrain. A
 //                    sector whose water is a lake (a lake cell, flowing or
 //                    not) draws the lake glyph, the blue circle, in its place
@@ -832,7 +835,8 @@ private int sector_code(string game, string map_name, int sx, int sy, int sz)
   // true size; so do the other terrain with a shape of its own
   if (type == SECTOR_TYPE_FOREST)      return MAP_GLYPH_FOREST;
   if (type == SECTOR_TYPE_TAIGA)       return MAP_GLYPH_TAIGA;
-  if (type == SECTOR_TYPE_MOUNTAIN)    return MAP_GLYPH_MOUNTAIN;
+  if (type == SECTOR_TYPE_MOUNTAIN)
+    return sect->query_volcano() ? MAP_GLYPH_VOLCANO : MAP_GLYPH_MOUNTAIN;
   if (type == SECTOR_TYPE_HILLS)       return MAP_GLYPH_HILLS;
   if (type == SECTOR_TYPE_SWAMP)       return MAP_GLYPH_SWAMP;
 
@@ -1902,6 +1906,7 @@ mapping query_legend_glyphs()
     "tundra":      ({ ({ "%^BOLD%^" + GLYPH_MAP_PLAINS_A, "%^BOLD%^" + GLYPH_MAP_PLAINS_B }), glyphs[MAP_GLYPH_TUNDRA_A] }),
     "swamp":       ({ "%^GREEN%^" + GLYPH_MAP_SWAMP, glyphs[MAP_GLYPH_SWAMP] }),
     "mountain":    ({ "%^ORANGE%^" + GLYPH_MAP_MOUNTAIN, glyphs[MAP_GLYPH_MOUNTAIN] }),
+    "volcano":     ({ COLOUR_MAP_VOLCANO + GLYPH_MAP_MOUNTAIN, glyphs[MAP_GLYPH_VOLCANO] }),
     "hills":       ({ "%^ORANGE%^" + GLYPH_MAP_HILLS, glyphs[MAP_GLYPH_HILLS] }),
     "taiga":       ({ "%^GREEN%^" + GLYPH_MAP_TAIGA, glyphs[MAP_GLYPH_TAIGA] }),
     "ruins":       ({ GLYPH_MAP_RUINS, glyphs[MAP_GLYPH_RUINS] }),

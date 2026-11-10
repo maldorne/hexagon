@@ -678,6 +678,34 @@ int query_marsh()
 }
 
 /**
+ * Whether most of the mountain locations of the sector are volcano. The
+ * sector type stays mountain; only the map draws it apart.
+ *
+ * @return 1 when more than half of them are, 0 otherwise
+ */
+int query_volcano()
+{
+  string * files;
+  int mountains, volcanoes, i;
+
+  if (!locations)
+    return 0;
+
+  files = map_indices(locations);
+  for (i = 0; i < sizeof(files); i++)
+  {
+    if (!mappingp(locations[files[i]]) || !arrayp(locations[files[i]]["types"]) ||
+        member_array(SECTOR_TYPE_MOUNTAIN, locations[files[i]]["types"]) == -1)
+      continue;
+    mountains++;
+    if (locations[files[i]]["volcano"])
+      volcanoes++;
+  }
+
+  return volcanoes * 2 > mountains;
+}
+
+/**
  * Whether most of the coast locations of the sector are river banks.
  *
  * @return 1 when more than half of them are, 0 otherwise

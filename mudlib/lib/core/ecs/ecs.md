@@ -143,6 +143,12 @@ that question.
   room becomes one by answering `query_fire()` with 1 (permanent, not
   quenchable); a spell adds it with `add_component`. Details: `fire.md` beside
   the component.
+- `mountain` (`/lib/location/components/mountain.c`): steep rock; it only marks
+  the terrain for the world map. Optional kind `MOUNTAIN_KIND_VOLCANO`
+  (`set_kind`, saved with the location); a sector whose mountain locations are
+  mostly volcano is drawn as a volcano (same triangle, `COLOUR_MAP_VOLCANO`)
+  while its sector type stays mountain. A room declares it by answering
+  `query_volcano()` with 1 (`room2loc` attaches the component or sets the kind).
 - `swamp` (`/lib/location/components/swamp.c`): the mud holds back whoever
   tries to leave, with a chance that falls as strength plus dexterity rises
   (over 50: never, 41-50: 20%, 36-40: 30%, 31-35: 40%, 30 or less: 50%). A race

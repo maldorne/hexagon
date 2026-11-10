@@ -81,6 +81,10 @@
 #define LOCATION_COMPONENT_SWAMP       "swamp"
 #define LOCATION_COMPONENT_HILLS       "hills"
 #define LOCATION_COMPONENT_MOUNTAIN    "mountain"
+// The kind a mountain location may declare (none: plain mountain). A sector
+// whose mountain locations are mostly volcano is drawn as a volcano on the
+// world map. See /lib/location/components/mountain.c.
+#define MOUNTAIN_KIND_VOLCANO          "volcano"
 #define LOCATION_COMPONENT_TAIGA       "taiga"
 #define LOCATION_COMPONENT_RUINS       "ruins"
 // A buildable empty lot, and a dwelling raised on one. See
