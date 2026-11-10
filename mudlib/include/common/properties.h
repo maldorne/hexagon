@@ -38,7 +38,6 @@
 #define SILENT_STEPS_PROP "silent_steps"
 // the place has no law: nothing done there is a crime (crimes handler)
 #define LAWLESS_PROP "lawless"
-// #define NOCAST_PROP "nocast"
 // #define NOGUILD_PROP "noguild"
 #define CURSED_PROP "cursed"
 #define FEAR_PROP "fear"
