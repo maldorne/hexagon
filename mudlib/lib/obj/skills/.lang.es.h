@@ -369,3 +369,18 @@
 #define _LANG_SKILL_SNEAK_NO_SURFACE "El suelo de aquí no te deja pasar desapercibido.\n"
 #define _LANG_SKILL_SNEAK_STUCK "No consigues andar sigilosamente por ahí.\n"
 #define _LANG_SKILL_SNEAK_GO "Andas sigilosamente hacia " + dir + ".\n"
+
+// ride.c, drive.c, pilot.c
+
+#define _LANG_SKILL_RIDE_NAME "montar"
+#define _LANG_SKILL_RIDE_ALIASES ({ })
+#define _LANG_SKILL_RIDE_HELP "Esta habilidad mide lo bien que manejas una " + \
+    "montura. Quien la pide la necesita para sentarse en la silla.\n"
+#define _LANG_SKILL_DRIVE_NAME "conducir"
+#define _LANG_SKILL_DRIVE_ALIASES ({ })
+#define _LANG_SKILL_DRIVE_HELP "Esta habilidad mide lo bien que conduces un " + \
+    "vehículo terrestre. Quien la pide la necesita para ponerse a los mandos.\n"
+#define _LANG_SKILL_PILOT_NAME "pilotar"
+#define _LANG_SKILL_PILOT_ALIASES ({ })
+#define _LANG_SKILL_PILOT_HELP "Esta habilidad mide lo bien que pilotas una " + \
+    "nave voladora o un barco. Quien la pide la necesita para ponerse a los mandos.\n"

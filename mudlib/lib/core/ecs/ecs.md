@@ -96,6 +96,18 @@ makes an NPC a timed scene: texts and items at given seconds, then it vanishes;
 it can be intangible (`/lib/obj/shadows/intangible.c`). Attributes of both:
 `reference/npc-template.md`, component list.
 
+#### The rideable component
+
+`rideable` (`/lib/npc/components/rideable.c`) makes an NPC a steed. Its attributes
+are the spec of the steed (the kind, the seats, the speed, what it may cross;
+`<living/riding.h>`), `/lib/npc.c` answers `query_rideable()` with them, and the
+riding handler (`/lib/handlers/riding.c`) does everything else. The component
+gives the NPC the verbs of its kind (`verbs_board`, `verbs_dismount` of the row
+in the steeds table), unseats the riders when the NPC dies, is destructed or
+loses the component, and tells the handler when the NPC is moved away from
+them (`event_moved`). Template: `"rideable": { "kind": "horse" }`. Details:
+`/lib/living/riding.md`.
+
 ### Verbs
 
 A component stands nowhere, so it cannot carry a verb. One that wants a verb

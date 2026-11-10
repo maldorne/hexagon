@@ -40,7 +40,7 @@ inherit social    "/lib/living/social";
 inherit body      "/lib/living/body";
 inherit titles    "/lib/living/titles";
 inherit family    "/lib/living/family";
-inherit mount     "/lib/living/mount";
+inherit riding    "/lib/living/riding";
 inherit drunk     "/lib/living/drunk";
 inherit spells    "/lib/living/spells";
 inherit consent   "/lib/living/consent";
@@ -125,7 +125,7 @@ void create()
   queue::create();
   social::create();
   titles::create();
-  mount::create();
+  riding::create();
   drunk::create();
   spells::create();
   consent::create();
@@ -481,7 +481,7 @@ mixed * stats()
          handle::stats() + 
          queue::stats() + 
          social::stats() +
-         mount::stats() +
+         riding::stats() +
          drunk::stats() +
          spells::stats() +
          consent::stats() +

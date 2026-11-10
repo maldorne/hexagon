@@ -310,15 +310,6 @@ int do_load_auto()
 
   reset_hands();
 
-  // mounts, neverbot 07/05
-  if (this_object()->query_mount_file_name())
-  {
-    if (this_object()->query_administrator() && this_object()->query_invis() == 2)
-      tell_object(this_object(), "Tu montura no será cargada por estar en total invisibilidad.\n");
-    else
-      load_mount();
-  }
-
   remove_timed_property(LOADING_PROP);
   call_out("do_auto_equip",3);
 

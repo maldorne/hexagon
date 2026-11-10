@@ -31,6 +31,10 @@ string * move_msgs;
 // moving without being seen (see the sneak skill): not saved
 static int sneaking;
 
+// set while this living walks through an exit by its own doing, so the move is
+// not taken for a push when it is on a steed
+static int walking;
+
 void create()
 {
   move_msgs = ({ "", "", "", "" });
@@ -64,6 +68,18 @@ private void _ensure_move_msgs()
     move_msgs = ({ "", "", "", "" });
 }
 
+/**
+ * This living has just been moved. A rider moved by anything but its own walk
+ * (a teleport, a push) is thrown off its steed; the rest is the object's.
+ */
+void event_moved(object ob, object from, object dest)
+{
+  container::event_moved(ob, from, dest);
+
+  if (!walking && this_object()->query_mount())
+    handler("riding", this_object())->rider_moved(this_object(), from, dest);
+}
+
 int query_sneaking() { return sneaking; }
 void set_sneaking(int i) { sneaking = i; }
 
@@ -92,12 +108,29 @@ int move_living(string dir, mixed dest, varargs mixed message, mixed enter)
 {
   int ret, no_see;
   string arrive, leave, my_short, aux, leave_tpl, arrive_tpl;
-  object last, new_env;
+  string out_text, in_text, line;
+  object last, new_env, riding;
   object * group;
 
   no_see = 0;
 
   last = environment();
+
+  // a rider leaves and arrives the way the kind of its steed says
+  out_text = query_mout();
+  in_text = query_min();
+
+  if (this_object()->query_riding() && dir && dir != "X")
+  {
+    riding = handler("riding", this_object());
+
+    line = riding->query_travel_line(this_object(), 0);
+    if (line)
+      out_text = line;
+    line = riding->query_travel_line(this_object(), 1);
+    if (line)
+      in_text = line;
+  }
 
   // sneaking: nobody sees us leave or arrive, and nobody comes along
   if (sneaking)
@@ -143,13 +176,13 @@ int move_living(string dir, mixed dest, varargs mixed message, mixed enter)
     if (pointerp(message))
       message = message[0];
 
-    leave = implode(explode(implode(explode((message ? message : query_mout()), "$N"),
+    leave = implode(explode(implode(explode((message ? message : out_text), "$N"),
               my_short), "$T"), aux) + "\n";
 
     switch (enter[0])
     {
       case 0 :
-        arrive = implode(explode(implode(explode(query_min(), "$N"), my_short), "$F"),
+        arrive = implode(explode(implode(explode(in_text, "$N"), my_short), "$F"),
             enter[1])+"\n";
         break;
       case 1 :
@@ -158,9 +191,9 @@ int move_living(string dir, mixed dest, varargs mixed message, mixed enter)
     }
 
     // the same lines with $N left in, for the one told for the whole group
-    leave_tpl = implode(explode((message ? message : query_mout()), "$T"), aux);
+    leave_tpl = implode(explode((message ? message : out_text), "$T"), aux);
     arrive_tpl = enter[0] ? enter[1] :
-                 implode(explode(query_min(), "$F"), enter[1]);
+                 implode(explode(in_text, "$F"), enter[1]);
   }
 
   // locations
@@ -190,17 +223,26 @@ int move_living(string dir, mixed dest, varargs mixed message, mixed enter)
     }
   }
 
+  // only a walk through an exit is the rider's own; a teleport throws it off
+  walking = (dir && dir != "X") ? 1 : 0;
+
   // with followers we go in silence: one line is told for all of us after
   if (arrive && !(sizeof(group) && leave_tpl))
     ret = move(dest, arrive[1..], leave[1..]);
   else
     ret = move(dest);
 
+  walking = 0;
+
   // important: MOVE_OK == 0, value != 0 means it did not move
   if (ret != MOVE_OK)
     return 0;
 
   new_env = environment();
+
+  // the steed and whoever else sits on it come along
+  if (riding)
+    riding->carry(this_object(), last);
 
   // Record area exploration for players (no-op for monsters and for
   // rooms-only games, which have no location/area).

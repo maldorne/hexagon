@@ -94,6 +94,17 @@ void create()
     SKILL_PRAY :
       ({ SKILLS_PATH + SKILL_PRAY, 1, 0, ACTIVE_SKILL, SKILL_KIND_FIXED, }),
 
+    // passive skills: what the driver of a steed needs (see the requires of a
+    // steed's spec, /lib/living/riding.md). A steed that names one in its spec
+    // under learn gives it at 10% to whoever sits in its driver's seat for the
+    // first time; nothing teaches drive or pilot yet.
+    SKILL_RIDE :
+      ({ SKILLS_PATH + SKILL_RIDE, 10, 0, PASSIVE_SKILL, }),
+    SKILL_DRIVE :
+      ({ SKILLS_PATH + SKILL_DRIVE, 10, 0, PASSIVE_SKILL, }),
+    SKILL_PILOT :
+      ({ SKILLS_PATH + SKILL_PILOT, 10, 0, PASSIVE_SKILL, }),
+
     // active skills: taking body parts from a corpse, each kind of part by its
     // own skill (the race says which). Taught by whoever teaches them, then
     // they climb with use.

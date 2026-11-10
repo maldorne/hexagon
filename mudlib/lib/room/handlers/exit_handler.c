@@ -337,11 +337,19 @@ int do_exit_command(mapping door_control,
     }
   }
 
-  // mounts cannot use exits with types rope nor door
-  if (ob->query_ride() && 
-      (room_ob->query_ex_type(dest_direc[i]) == "rope" || 
-       room_ob->query_ex_type(dest_direc[i]) == "door" ) )
+  // a rider goes only where the steed can: the kind of exit, its size, what
+  // lies beyond (see the riding handler)
+  if (ob->query_riding())
+  {
+    string refusal;
+
+    refusal = handler("riding", ob)->query_move_refusal(ob, room_ob, dest_direc[i]);
+    if (refusal)
+    {
+      notify_fail(refusal);
       return 0;
+    }
+  }
 
   door = room_ob->query_door_ob(dest_direc[i]);
 

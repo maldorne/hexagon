@@ -193,3 +193,33 @@
 #define _LANG_NATURAL_ATTACK_LEGS_ATT_MSGS "golpeas a $defname con tus patas $local"
 #define _LANG_NATURAL_ATTACK_LEGS_DEF_MSGS "$attname te golpea con sus patas $local"
 #define _LANG_NATURAL_ATTACK_LEGS_ROOM_MSGS "$attname golpea a $defname con sus patas $local"
+
+// steeds.c
+
+#define _LANG_STEEDS_VERBS_BOARD ({ "montar", "cabalgar" })
+#define _LANG_STEEDS_VERBS_DISMOUNT ({ "desmontar" })
+#define _LANG_STEEDS_PREPOSITIONS ({ "a", "al", "en", "sobre", "el", "la", "un", "una" })
+#define _LANG_STEEDS_BOARD_ME "Te subes a la montura.\n"
+#define _LANG_STEEDS_BOARD_ROOM "$N se sube a la montura.\n"
+#define _LANG_STEEDS_DISMOUNT_ME "Te bajas de la montura.\n"
+#define _LANG_STEEDS_DISMOUNT_ROOM "$N se baja de la montura.\n"
+#define _LANG_STEEDS_LEAVE "@$N se va hacia $T montado."
+#define _LANG_STEEDS_ARRIVE "@$N llega desde $F montado."
+#define _LANG_STEEDS_LISTING "(montado)"
+#define _LANG_STEEDS_LOOK "$N va montado.\n"
+#define _LANG_STEEDS_FALL_ME "¡Te caes de la montura!\n"
+#define _LANG_STEEDS_FALL_ROOM "¡$N se cae de la montura!\n"
+#define _LANG_STEEDS_REFUSE_DEAD "En tu estado no puedes hacer eso.\n"
+#define _LANG_STEEDS_REFUSE_PASSED_OUT "En tu estado no puedes hacer eso.\n"
+#define _LANG_STEEDS_REFUSE_ALREADY "Ya vas montado.\n"
+#define _LANG_STEEDS_REFUSE_FULL "No queda sitio en ella.\n"
+#define _LANG_STEEDS_REFUSE_SKILL "No sabes cómo manejarla.\n"
+#define _LANG_STEEDS_REFUSE_BODY_SIZE "No cabes en ella.\n"
+#define _LANG_STEEDS_REFUSE_PASSENGER "Solo eres un pasajero.\n"
+#define _LANG_STEEDS_REFUSE_EXIT "No puede ir por ahí.\n"
+#define _LANG_STEEDS_REFUSE_EXIT_SIZE "No cabe por ahí.\n"
+#define _LANG_STEEDS_REFUSE_TERRAIN "No puede ir por ahí.\n"
+#define _LANG_STEEDS_REFUSE_INDOORS "No puede entrar en un edificio.\n"
+#define _LANG_STEEDS_REFUSE_UNDERGROUND "No puede ir bajo tierra.\n"
+#define _LANG_STEEDS_REFUSE_WATER "No puede cruzar el agua.\n"
+#define _LANG_STEEDS_REFUSE_GROUND "No puede ir por tierra.\n"

@@ -142,6 +142,19 @@ private string quest_mark(object ob, object me)
   return "";
 }
 
+// A rider is followed by where they sit ("(riding the horse)"); the words
+// are the kind of its steed's.
+private string ride_mark(object ob)
+{
+  string listing;
+
+  if (!ob || !living(ob))
+    return "";
+
+  listing = (string)ob->query_riding_listing();
+  return stringp(listing) && strlen(listing) ? " " + listing : "";
+}
+
 // Whoever makes things to order is marked too, in its own colour, for whoever
 // it deals with.
 private string craft_mark(object ob, object me)
@@ -225,8 +238,8 @@ string query_contents(string str, varargs object *obs)
     // only when alone: a group is named in the plural and the mark would not
     // say which of them it is about
     if (j <= 1)
-      ret += quest_mark(inv[1][i][0], me) + craft_mark(inv[1][i][0], me) +
-                boss_mark(inv[1][i][0], me);
+      ret += ride_mark(inv[1][i][0]) + quest_mark(inv[1][i][0], me) +
+                craft_mark(inv[1][i][0], me) + boss_mark(inv[1][i][0], me);
 
     count--;
     if (count > 1)

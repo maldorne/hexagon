@@ -259,8 +259,9 @@ int do_death(varargs object killed_by)
   this_object()->clear_lasting_effects(LASTING_END_DEATH);
   this_object()->clear_traits(TRAIT_END_DEATH);
 
+  // a dead rider is thrown from the steed, which stays
   if (this_object()->query_riding())
-    this_object()->destruct_ride_shadow();
+    handler("riding", this_object())->dismount(this_object(), 1);
   
   // if (OMIQ_HAND->omiq_in_progress() && interactive(this_object()))
   //   this_object()->add_property("OMIQ_KILLED",1);

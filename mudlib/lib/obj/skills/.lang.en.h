@@ -364,3 +364,18 @@
 #define _LANG_SKILL_SNEAK_NO_SURFACE "The ground here will not let you pass unnoticed.\n"
 #define _LANG_SKILL_SNEAK_STUCK "You fail to sneak that way.\n"
 #define _LANG_SKILL_SNEAK_GO "You sneak " + dir + ".\n"
+
+// ride.c, drive.c, pilot.c
+
+#define _LANG_SKILL_RIDE_NAME "ride"
+#define _LANG_SKILL_RIDE_ALIASES ({ })
+#define _LANG_SKILL_RIDE_HELP "This skill measures how well you handle a riding " + \
+      "animal. Whoever asks for it needs it to sit in the saddle.\n"
+#define _LANG_SKILL_DRIVE_NAME "drive"
+#define _LANG_SKILL_DRIVE_ALIASES ({ })
+#define _LANG_SKILL_DRIVE_HELP "This skill measures how well you drive a land " + \
+      "vehicle. Whoever asks for it needs it to take the controls.\n"
+#define _LANG_SKILL_PILOT_NAME "pilot"
+#define _LANG_SKILL_PILOT_ALIASES ({ })
+#define _LANG_SKILL_PILOT_HELP "This skill measures how well you pilot a flying " + \
+      "or sailing craft. Whoever asks for it needs it to take the controls.\n"

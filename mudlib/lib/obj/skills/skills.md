@@ -122,7 +122,7 @@ Every projectile or touch is assumed to land and no target to resist, unless the
 
 ## Common, guild and job effects
 
-Every effect is a guild or job effect unless it is marked common with `set_common_effect(1)` in its `setup()` (`is_common_effect()`). A common effect is open to everyone, whatever their guild or job, even one a guild or job teaches (a job skill a member keeps using after leaving). The common skills are climb, dismembering, evade, focus, follow, gutting, hide, judge, orientation, pray, protect, pulling, repair, search, skinning, slice, steal and swim; no spell is common. Search, follow, evade and protect are also default skills (`DEFAULT_SKILLS` in `include/living/skills.h`): every player is given them at each login.
+Every effect is a guild or job effect unless it is marked common with `set_common_effect(1)` in its `setup()` (`is_common_effect()`). A common effect is open to everyone, whatever their guild or job, even one a guild or job teaches (a job skill a member keeps using after leaving). The common skills are climb, dismembering, drive, evade, focus, follow, gutting, hide, judge, orientation, pilot, pray, protect, pulling, repair, ride, search, skinning, slice, steal and swim; no spell is common. Search, follow, evade and protect are also default skills (`DEFAULT_SKILLS` in `include/living/skills.h`): every player is given them at each login.
 
 A guild or job effect can only be used inside a guild or a job that allows it (`query_allows(key)` of the guild or job, with `key` = `query_effect_key()`: the spell's full path with `.c`, the skill's id, compared exactly). A guild allows what it teaches (`add_guild_spell` by path, `add_guild_skill` by id, which is the skill's file name) and what it relates (`add_guild_related_spell`, `add_guild_related_skill`: tied to the guild but not taught in its room, learned through quests or items). Related effects are not offered by `aprender`, not granted on joining or levelling, not in `query_guild_spells` / `query_guild_skills` and not given by the NPC template `guild_abilities`; read them with `query_guild_related_spells()` / `query_guild_related_skills()`.
 
@@ -189,6 +189,10 @@ A scroll (`/lib/obj/scroll.c`, an item) holds one spell. An item inherits it and
 - **Refusals.** Not in combat, not mounted, not with a light over 20 on the walker, not in a place with the `no_sneak` property.
 - **Silent doors.** `door.c` (open and close) asks `try_quiet_door` of the skill for a living that is hidden (`query_hidden`), knows the skill and may use it: the same witnesses (both sides of the door), roll and cost. On success nobody else is told, on either side, and the hiding is kept; otherwise the room is told as always.
 - **Strategies.** An NPC sets `set_sneaking(1)` itself for a walk; `try_unnoticed(who, place [, other])` is the public roll.
+
+## Riding
+
+`ride`, `drive` and `pilot` are passive percentage skills read by the riding handler: a steed asks for one in the `requires` of its spec and may name it in `learn`, which gives it at 10% to whoever takes the driver's seat for the first time. Nothing else teaches them. See `/lib/living/riding.md`.
 
 ## Body parts
 

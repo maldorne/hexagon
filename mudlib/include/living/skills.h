@@ -43,6 +43,11 @@
 #define SKILL_PROTECT     "protect"
 #define SKILL_JUDGE       "judge"
 #define SKILL_PRAY        "pray"
+// riding: what the driver of a steed needs, by kind of steed (see the
+// requires of the spec in /lib/living/riding.md)
+#define SKILL_RIDE        "ride"
+#define SKILL_DRIVE       "drive"
+#define SKILL_PILOT       "pilot"
 // taking body parts from a corpse, one skill per kind of part
 #define SKILL_SKINNING     "skinning"
 #define SKILL_GUTTING      "gutting"

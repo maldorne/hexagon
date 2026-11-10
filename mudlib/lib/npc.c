@@ -164,6 +164,11 @@ int query_staying_put()
   if (guard && (int)guard->query_staying_put())
     return 1;
 
+  // a steed does not wander off with somebody on it
+  if (has_component("rideable") &&
+      sizeof(handler("riding", this_object())->query_riders(this_object())))
+    return 1;
+
   sched = query_component_by_type("schedule");
   return sched ? (int)sched->query_staying_put() : 0;
 }
@@ -185,7 +190,20 @@ int query_resting()
  */
 void event_moved(object ob, object from, object dest)
 {
+  monster::event_moved(ob, from, dest);
   run_on_components("event_moved", ob, from, dest);
+}
+
+/**
+ * What can be ridden about this NPC: the spec its rideable component holds,
+ * or nil when it carries none (see /lib/living/riding.md).
+ */
+mapping query_rideable()
+{
+  object rideable;
+
+  rideable = query_component_by_type("rideable");
+  return rideable ? rideable->query_rideable() : nil;
 }
 
 /**
@@ -369,6 +387,11 @@ string short(varargs int dark)
 // header) and must not leak into the grouping key.
 string pretty_short(varargs int dark)
 {
+  // a steed with somebody on it does not show: its rider does
+  if (has_component("rideable") &&
+      sizeof(handler("riding", this_object())->query_riders(this_object())))
+    return "";
+
   if (npc_given_name && strlen(npc_given_name))
     return query_short();
   return ::pretty_short(dark);
