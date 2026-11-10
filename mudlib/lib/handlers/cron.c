@@ -6,6 +6,7 @@
 #include <mud/cron.h>
 #include <mud/time.h>
 #include <mud/config.h>
+#include <room/room.h>
 // #include <diplomacy.h>
 #include <areas/weather.h>
 
@@ -61,7 +62,7 @@ void setup()
   set_long("This is the cron handler!\n");
   reset_get();
 
-  add_property("no_clean_up", 1);
+  add_property(NO_CLEAN_UP_PROP, 1);
 
   call_out("read_crontab", 10);
 

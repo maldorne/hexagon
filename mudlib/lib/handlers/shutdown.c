@@ -13,6 +13,7 @@
  */
 
 #include <mud/config.h>
+#include <room/room.h>
 #include <status.h>
 #include <areas/weather.h>
 #include <areas/area.h>
@@ -89,7 +90,7 @@ int shutdown_activated()
 void do_delay_prop()
 {
   if (environment(this_object()))
-    environment(this_object())->add_property("no_clean_up",1);
+    environment(this_object())->add_property(NO_CLEAN_UP_PROP,1);
 }
  
 // More Radix stuff...

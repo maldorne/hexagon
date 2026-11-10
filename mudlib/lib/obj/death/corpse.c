@@ -1,5 +1,6 @@
 
 #include <common/properties.h>
+#include <room/room.h>
 #include <living/death.h>
 #include <living/races.h>
 #include <living/body-parts.h>
@@ -181,7 +182,7 @@ void set_owner(string n, object ob)
   if (ob && interactive(ob))
   {
     wasplayer = 1;
-    environment(ob)->add_timed_property("no_clean_up", 1, 30000);
+    environment(ob)->add_timed_property(NO_CLEAN_UP_PROP, 1, 30000);
   }
 }
 

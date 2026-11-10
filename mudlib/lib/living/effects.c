@@ -1,4 +1,5 @@
 
+#include <common/properties.h>
 #include <living/effects.h>
 #include <user/xp.h>
 
@@ -129,9 +130,9 @@ int do_active_effects(object attacker)
         //  neverbot 7/2001
         
         if (effects[i] == EFFECT_TYPE_SPELL){
-          if (this_object()->query_property("nocast") ||
-            environment(this_object())->query_property("nocast") ||
-            this_object()->query_property("passed out"))
+          if (this_object()->query_property(NOCAST_PROP) ||
+            environment(this_object())->query_property(NOCAST_PROP) ||
+            this_object()->query_property(PASSED_OUT_PROP))
           {
 
             remove_active_effect(effects[i+1][j]);
