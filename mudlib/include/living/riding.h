@@ -16,7 +16,6 @@
 // spec keys
 #define RIDE_KIND         "kind"          // row of the steeds table
 #define RIDE_SEATS        "seats"         // how many ride at once
-#define RIDE_SPEED        "speed"         // 1 = walking; divides the cost of a step
 #define RIDE_MEDIUM       "medium"        // RIDE_MEDIUM_* it can cross
 #define RIDE_TERRAIN_DENY "terrain_deny"  // RIDE_TERRAIN_* it cannot enter
 #define RIDE_TERRAIN_ONLY "terrain_only"  // exit types it is limited to, if any

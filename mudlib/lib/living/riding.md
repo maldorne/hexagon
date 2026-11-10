@@ -21,7 +21,6 @@ A steed answers `query_rideable()` with a mapping (nil: it cannot be ridden). Th
 |---|---|
 | `kind` | row of the steeds table; unknown kind: the default row |
 | `seats` | how many ride at once (default 1) |
-| `speed` | 1 is walking; answered by `query_speed(who)` (see Speed) |
 | `medium` | `ground`, `water`, `air`: what a place beyond an exit may be. A water place needs `water`; any other needs `ground` or `air` |
 | `terrain_deny` | `indoors` (a destination that is not `query_outside()`), `underground` (`query_underground()`) |
 | `terrain_only` | exit types it is limited to; empty: any |
@@ -48,7 +47,7 @@ Besides the spec keys a row holds every text a ride says. `$N` is the rider's na
 - `query_riders(steed)` (driver first; not stored: the livings in the steed's place whose `query_mount()` is it), `query_seat_taken`, `query_free_seat`, `query_addressed(steed, str)` (whether the words after a verb name the steed).
 - `query_board_refusal(who, steed, seat)` (a text for the rider, or nil; seat -1 is the first free one), `board(who, steed)`, `board_seat(who, steed, seat)`, `dismount(who, fall)`, `unseat_riders(steed [, place])`.
 - `query_move_refusal(who, room, dir)`: asked by the exit handler of whoever rides; a passenger cannot move the steed.
-- `query_travel_line(who, arriving)`, `query_listing(who)`, `query_look(who)`, `query_speed(who)`.
+- `query_travel_line(who, arriving)`, `query_listing(who)`, `query_look(who)`.
 - `carry(who, from)`, `rider_moved`, `steed_moved`: movement, below.
 
 Hooks the handler calls on the steed, all optional (they are plain `call_other`: a steed that does not define one answers nil): `steed_can_board(who, seat)` (a refusal text, or nil), `steed_boarded(who)`, `steed_dismounted(who)`. A hand-written NPC or a vehicle defines them.
@@ -61,10 +60,6 @@ Hooks the handler calls on the steed, all optional (they are plain `call_other`:
 - A steed that dies, or is destructed or has its component taken out, unseats its riders (`unseat_riders`). A rider that dies is dismounted.
 - Every fall is words only: no damage.
 - An NPC steed with somebody on it does not wander (`query_staying_put` of `/lib/npc.c`), and neither steed nor ridden vehicle shows in the room list (`pretty_short` empty): the rider does, with its `listing`.
-
-## Speed
-
-The spec's `speed` (1 is walking) is answered by `query_speed(who)` of the handler. Walking costs the action queue nothing: the time budget (`time_left`) is never charged by a step, and the cap on trivial actions counts only commands that mark themselves trivial (see `lib/living/queue.c`), so a step has no throttle to divide.
 
 ## Skills
 

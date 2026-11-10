@@ -470,23 +470,6 @@ string query_look(object who)
 }
 
 /**
- * The speed of the steed a rider is on, 1 being walking pace; 1 when they
- * ride nothing.
- */
-int query_speed(object who)
-{
-  mapping spec;
-  object steed;
-
-  steed = who ? who->query_mount() : nil;
-  spec = query_spec(steed);
-  if (!spec || (int)spec[RIDE_SPEED] < 1)
-    return 1;
-
-  return (int)spec[RIDE_SPEED];
-}
-
-/**
  * The driver has just walked through an exit: the steed and the others in the
  * seats come after, in silence. If the steed cannot follow, the driver falls.
  * @param from  the place the driver left

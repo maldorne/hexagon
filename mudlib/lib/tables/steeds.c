@@ -12,7 +12,7 @@
 //     void create()
 //     {
 //       ::create();
-//       add_kind("horse", ([ "seats" : 1, "speed" : 2, "arrive" : "@$N ..." ]));
+//       add_kind("horse", ([ "seats" : 1, "arrive" : "@$N ..." ]));
 //     }
 
 #include <living/riding.h>
@@ -26,7 +26,6 @@ void create()
     RIDING_DEFAULT_KIND : ([
       // spec defaults
       RIDE_SEATS        : 1,
-      RIDE_SPEED        : 1,
       RIDE_MEDIUM       : ({ RIDE_MEDIUM_GROUND }),
       RIDE_TERRAIN_DENY : ({ }),
       RIDE_TERRAIN_ONLY : ({ }),
