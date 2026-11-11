@@ -442,6 +442,22 @@ int record_death(string id)
   return 1;
 }
 
+/**
+ * A player that retires leaves their family as if they had died: the spouse
+ * is left a widow, the history keeps the name, and the houses of a family left
+ * without members are freed. Nothing happens for a player in no family.
+ *
+ * @param name name of the retired character
+ */
+void retire_user(string name)
+{
+  if (!this_user() || (this_user()->player() &&
+      this_user()->player()->query_name() != name && !this_user()->query_admin()))
+    return;
+
+  record_death(FAMILY_PLAYER + name);
+}
+
 // The areas of this register's game that keep books of their own: each
 // community's root, where its houses are recorded.
 private object * _root_areas()

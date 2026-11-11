@@ -422,6 +422,35 @@ int remove_name(string name)
   return found;
 }
 
+/**
+ * A character that stops existing leaves every group of the ranking. Called
+ * when the player retires.
+ *
+ * @param name name of the retired character
+ */
+void retire_user(string name)
+{
+  string * groups;
+  string key;
+  int i;
+
+  if (!this_user() || (this_user()->player() &&
+      this_user()->player()->query_name() != name && !this_user()->query_admin()))
+    return;
+
+  key = "player:" + lower_case(name);
+  groups = map_indices(ranking);
+  for (i = 0; i < sizeof(groups); i++)
+  {
+    _remove_entry(ranking[groups[i]], key, nil);
+
+    if (!map_sizeof(ranking[groups[i]]))
+      map_delete(ranking, groups[i]);
+  }
+
+  save_handler();
+}
+
 // The lowercase names a template gives its NPC (one, or one per gender), only
 // when it is a named one; an empty list otherwise.
 private string * _template_names(mapping t)

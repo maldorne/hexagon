@@ -124,6 +124,23 @@ void save_handler()
   save_object(query_save_file(), 1);
 }
 
+/**
+ * A character that stops existing takes its criminal record and its sentence
+ * with it. Called when the player retires.
+ *
+ * @param name name of the retired character
+ */
+void retire_user(string name)
+{
+  if (!this_user() || (this_user()->player() &&
+      this_user()->player()->query_name() != name && !this_user()->query_admin()))
+    return;
+
+  map_delete(records, name);
+  map_delete(jailed, name);
+  save_handler();
+}
+
 void dest_me()
 {
   save_handler();

@@ -120,6 +120,28 @@ int create_board(string board, int priva) {
   return 1;
 } /* create_board() */
 
+/**
+ * A character that stops existing leaves every security list. The messages
+ * they posted stay, as public text. Called when the player retires.
+ *
+ * @param name name of the retired character
+ */
+void retire_user(string name)
+{
+  string * names;
+  int i;
+
+  if (!this_user() || (this_user()->player() &&
+      this_user()->player()->query_name() != name && !this_user()->query_admin()))
+    return;
+
+  names = map_indices(security);
+  for (i = 0; i < sizeof(names); i++)
+    security[names[i]] -= ({ name });
+
+  save_me();
+}
+
 int add_allowed(string board, string name) {
   string nam;
 

@@ -64,6 +64,33 @@ void dest_me()
   ::dest_me();
 }
 
+/**
+ * A character that stops existing leaves every deity's devotion book. Called
+ * when the player retires.
+ *
+ * @param name name of the retired character
+ */
+void retire_user(string name)
+{
+  string * deities;
+  int i;
+
+  if (!this_user() || (this_user()->player() &&
+      this_user()->player()->query_name() != name && !this_user()->query_admin()))
+    return;
+
+  deities = map_indices(devotion);
+  for (i = 0; i < sizeof(deities); i++)
+  {
+    map_delete(devotion[deities[i]], name);
+
+    if (!map_sizeof(devotion[deities[i]]))
+      map_delete(devotion, deities[i]);
+  }
+
+  save_handler();
+}
+
 /** Points a prayer gives. */
 int query_devotion_prayer() { return DEITY_DEVOTION_PRAYER; }
 

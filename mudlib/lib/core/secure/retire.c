@@ -12,8 +12,8 @@
 // #include <user/user.h>
 #include <user/player.h>
 #include <language.h>
-
-// #define BANK_HANDLER "/obj/handlers/bank_handler"
+#include <living/living.h>
+#include <item/board.h>
 
 string password;
 int no_times;
@@ -114,8 +114,9 @@ static int remove_player_dir(string dir)
  */
 nomask int do_retirejob(string name)
 {
-  object u;
+  object u, * games;
   string dir;
+  int i;
 
   // the initiating user
   u = initial_object();
@@ -149,9 +150,19 @@ nomask int do_retirejob(string name)
   // and the player killing records
   "/lib/handlers/pk"->retire_user(name);
 
-  // Hmm.. should add a delete of bank accounts, think i have some code.
-  // WHY does the BANK_HANDLER thingie work here and not in bank.c ?
-  // BANK_HANDLER->refresh_account(name);
+  // the mud-wide records kept outside the player folder
+  catch(RANKING_OB->retire_user(name));
+  catch(BOARD_HAND->retire_user(name));
+
+  // the records of each game: a game's own handler keeps its own file, and
+  // one that has none answers with the shared handler of the mudlib
+  games = (object *)handler("games")->query_game_objects();
+  for (i = 0; i < sizeof(games); i++)
+  {
+    catch(handler("crimes", games[i])->retire_user(name));
+    catch(handler("deities", games[i])->retire_user(name));
+    catch(handler("families", games[i])->retire_user(name));
+  }
 
   write(_LANG_RETIRE_GUEST_MSG);
 
