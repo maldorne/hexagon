@@ -20,6 +20,7 @@ int no_times;
 
 nomask int put_password(string str);
 nomask int do_retirejob(string name);
+static int remove_player_dir(string dir);
 
 int try_retire(object who)
 {
@@ -79,13 +80,42 @@ nomask int put_password(string str)
   return 1;
 } /* put_password() */
 
-/* The deleting of the player. */
-/* have to get root access to be able to do the RM of the file. */
-/* Done by putting the whole thingie in the master. */
+/**
+ * Removes a directory with everything inside it. DGD's remove_dir only
+ * accepts empty directories, so files and subfolders go first.
+ *
+ * @param dir directory path, ending in a slash
+ * @return 1 when the directory is gone, 0 otherwise
+ */
+static int remove_player_dir(string dir)
+{
+  mixed * entries;
+  int i;
 
+  entries = get_dir(dir, -1);
+
+  for (i = 0; i < sizeof(entries); i++)
+  {
+    if (entries[i][1] == -2)
+      remove_player_dir(dir + entries[i][0] + "/");
+    else
+      rm(dir + entries[i][0]);
+  }
+
+  return rmdir(dir);
+}
+
+/**
+ * The deleting of the player. Root access is needed to remove the files, so
+ * it lives in the master.
+ *
+ * @param name name of the character to delete
+ * @return 0 always
+ */
 nomask int do_retirejob(string name)
 {
   object u;
+  string dir;
 
   // the initiating user
   u = initial_object();
@@ -94,20 +124,17 @@ nomask int do_retirejob(string name)
   if (!u->player() || u->player()->query_name() != name)
     return 0;
 
-  // remove exploration data
-  if (file_size("/save/explorers/" + name[0..0] + "/" + name + ".o"))
-    rm ("/save/explorers/" + name[0..0] + "/" + name + ".o");
-
-  // remove mount
-  if (file_size("/save/mounts/" + name[0..0] + "/" + name + ".o"))
-    rm ("/save/mounts/" + name[0..0] + "/" + name + ".o");
-
   // remove the character from the account
   u->remove_player(name);
   u->update_last_connection();
 
-  // last but not least, remove the character
-  rm(player_save_dir(name) + "player.o");
+  // last but not least, remove the whole player folder (player.o, exploration,
+  // mounts and anything else saved there)
+  // the folder must be this character's own, never a parent of other folders
+  dir = player_save_dir(name);
+  if (strlen(name) && strlen(dir) > strlen(name) + 1 &&
+      dir[strlen(dir) - strlen(name) - 2 ..] == "/" + name + "/")
+    remove_player_dir(dir);
 
   write(_LANG_RETIRE_OK);
   this_player()->add_property(GUEST_PROP, 1);
