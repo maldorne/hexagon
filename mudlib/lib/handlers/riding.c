@@ -53,7 +53,8 @@ mapping stored;
 
 // prototypes
 int board_seat(object who, object steed, int seat);
-private void record_location(object steed, object dest);
+private void record_location(object steed, object dest, varargs mapping own);
+private object find_steed(string id, mapping entry);
 
 void create()
 {
@@ -209,6 +210,9 @@ private string text(mapping spec, string key, object who, object steed,
   return str;
 }
 
+string query_owner(object steed);
+string query_steed_id(object steed);
+
 /**
  * The reason somebody cannot take a seat of a steed, written for them, or nil
  * when they can. A driver who does not know the skill the steed teaches counts
@@ -244,6 +248,11 @@ string query_board_refusal(object who, object steed, int seat)
 
   if (seat == -1)
     seat = free_seat;
+
+  // an owned steed is driven only by its owner; others may still be passengers
+  if (seat == RIDING_DRIVER_SEAT && query_owner(steed) &&
+      query_owner(steed) != (string)who->query_name())
+    return text(spec, "refuse_not_owner", who, steed);
 
   // only whoever drives has to know how
   if (seat == RIDING_DRIVER_SEAT && mappingp(spec[RIDE_REQUIRES]))
@@ -667,7 +676,8 @@ mapping query_owned(string owner, object where)
   out = ([ ]);
   ids = map_indices(registry);
   for (i = 0; i < sizeof(ids); i++)
-    out[ids[i]] = ([ ]) + registry[ids[i]] + ([ "steed" : live[ids[i]] ]);
+    out[ids[i]] = ([ ]) + registry[ids[i]] +
+                  ([ "steed" : find_steed(ids[i], registry[ids[i]]) ]);
 
   return out;
 }
@@ -707,6 +717,38 @@ private object load_place(string path)
     catch(place = load_object(path));
 
   return place;
+}
+
+/**
+ * The steed of an entry when it exists: the one this handler made, or, when
+ * the handler has been reloaded since and no longer knows it, the one standing
+ * where the entry says with that key (it is known again from then on).
+ *
+ * @param id     the key of the entry
+ * @param entry  the entry of the registry
+ * @return the steed, or nil when it is not out
+ */
+private object find_steed(string id, mapping entry)
+{
+  object place, * inv;
+  int i;
+
+  if (live[id])
+    return live[id];
+
+  if (!mappingp(entry) || !strlen(entry[STEED_LOCATION]))
+    return nil;
+
+  place = load_place(entry[STEED_LOCATION]);
+  if (!place)
+    return nil;
+
+  inv = all_inventory(place);
+  for (i = 0; i < sizeof(inv); i++)
+    if (query_steed_id(inv[i]) == id)
+      return live[id] = inv[i];
+
+  return nil;
 }
 
 /**
@@ -819,38 +861,46 @@ object add_steed(string owner, mapping stock, object where)
 }
 
 /**
- * Notes where an owned steed stands, in memory: the registry is written when
- * the owner quits or the steed goes.
+ * Notes where an owned steed stands, and writes the registry when it changed.
  */
-private void record_location(object steed, object dest)
+private void record_location(object steed, object dest, varargs mapping own)
 {
   mapping registry;
   string owner, id;
 
-  owner = query_owner(steed);
-  id = query_steed_id(steed);
-  if (!owner || !id || !dest)
+  owner = own ? own[RIDE_OWNER] : query_owner(steed);
+  id = own ? own[RIDE_ID] : query_steed_id(steed);
+  if (!stringp(owner) || !stringp(id) || !dest)
     return;
 
   registry = query_registry(owner, steed);
-  if (registry[id])
+  if (registry[id] && registry[id][STEED_LOCATION] != place_of(dest))
+  {
     registry[id][STEED_LOCATION] = place_of(dest);
+    // on disk at once: the handler may be reloaded, or the mud may stop
+    save_registry(owner, steed);
+  }
 }
 
 /**
  * An owned steed is being destructed: it stays in the registry where it
  * stood, so its owner finds it at the next login.
+ *
+ * @param steed  the steed going
+ * @param own    optional: its spec, for a provider that can no longer answer
+ *               query_rideable (an NPC's components are let go before they
+ *               clean up)
  */
-void steed_gone(object steed)
+void steed_gone(object steed, varargs mapping own)
 {
   string owner, id;
 
-  owner = query_owner(steed);
-  id = query_steed_id(steed);
-  if (!owner || !id || live[id] != steed)
+  owner = own ? own[RIDE_OWNER] : query_owner(steed);
+  id = own ? own[RIDE_ID] : query_steed_id(steed);
+  if (!stringp(owner) || !stringp(id) || (live[id] && live[id] != steed))
     return;
 
-  record_location(steed, environment(steed));
+  record_location(steed, environment(steed), own);
   map_delete(live, id);
   save_registry(owner, steed);
 }
@@ -880,6 +930,7 @@ void steed_died(object steed)
  */
 void owner_quit(object owner)
 {
+  mapping registry;
   string name, * ids;
   object steed;
   int i;
@@ -893,17 +944,12 @@ void owner_quit(object owner)
   if (!stringp(name) || !strlen(name))
     return;
 
-  ids = map_indices(live);
+  registry = query_registry(name, owner);
+  ids = map_indices(registry);
   for (i = 0; i < sizeof(ids); i++)
   {
-    steed = live[ids[i]];
+    steed = find_steed(ids[i], registry[ids[i]]);
     if (!steed)
-    {
-      map_delete(live, ids[i]);
-      continue;
-    }
-
-    if (query_owner(steed) != name)
       continue;
 
     // steed_gone notes where it stood, saves the registry and frees the key
@@ -932,7 +978,8 @@ void owner_enter(object owner)
   ids = map_indices(registry);
   for (i = 0; i < sizeof(ids); i++)
   {
-    if (!strlen(registry[ids[i]][STEED_LOCATION]) || live[ids[i]])
+    if (!strlen(registry[ids[i]][STEED_LOCATION]) ||
+        find_steed(ids[i], registry[ids[i]]))
       continue;
 
     dest = load_place(registry[ids[i]][STEED_LOCATION]);

@@ -75,7 +75,10 @@ A steed a player buys is theirs. The riding handler keeps one **registry** per o
 The steed itself only knows who owns it and under which key: `owner` (`RIDE_OWNER`) and `steed_id` (`RIDE_ID`) in its spec, so in the attributes of its `rideable` component (a vehicle: its `set_rideable` spec). `query_owner(steed)` and `query_steed_id(steed)` read them.
 
 - `add_steed(owner, stock, where)`: makes the steed in `where` (a template through the bestiary, a file by cloning), ties it to the owner, registers it and saves. The cap and the price are asked by whoever sells.
-- Every move of an owned steed reaches `steed_moved`, which notes its place in memory (`location`). The registry is written when it changes hands, when the steed goes (`steed_gone`, from the destruction of the component or vehicle: it stays registered where it stood) and at quit. A steed that dies (`steed_died`) leaves the registry.
+- Every move of an owned steed reaches `steed_moved`, which notes its place (`location`) and writes the registry. It is also written when it changes hands and when the steed goes (`steed_gone`, from the destruction of the component or vehicle: it stays registered where it stood; an NPC lets its components go before they clean up, so the component passes its spec along). A steed that dies (`steed_died`) leaves the registry.
+- Which steeds are out is kept in memory (`live`) only as a shortcut: when the handler has been reloaded, `find_steed` looks for the steed where its entry says, so quit and login never lose nor duplicate one.
+- Only the owner may take the driver's seat of an owned steed (`refuse_not_owner`); anybody may still ride as a passenger.
+- An owned steed belongs to its player, not to an area: it is made through the bestiary, outside any census.
 - **Quit** (`lib/player/quit.c`): `owner_quit` takes the player off what they ride, then every steed of theirs that is out is destructed, saved where it stood.
 - **Login** (`lib/player/start.c`, not on a reconnect): `owner_enter` makes again each steed with a `location` where it stood (a location by its `.o`, a room by its path), or beside the player when that place does not load. Its `hp` is restored.
 - `query_owned(owner, where)` (the entries, each with its live `steed`), `query_owned_count`, `query_live_steed(id)`.

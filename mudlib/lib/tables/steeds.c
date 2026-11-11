@@ -60,6 +60,7 @@ void create()
       "refuse_skill"      : _LANG_STEEDS_REFUSE_SKILL,
       "refuse_body_size"  : _LANG_STEEDS_REFUSE_BODY_SIZE,
       "refuse_passenger"  : _LANG_STEEDS_REFUSE_PASSENGER,
+      "refuse_not_owner"  : _LANG_STEEDS_REFUSE_NOT_OWNER,
       "refuse_exit"       : _LANG_STEEDS_REFUSE_EXIT,
       "refuse_exit_size"  : _LANG_STEEDS_REFUSE_EXIT_SIZE,
       "refuse_terrain"    : _LANG_STEEDS_REFUSE_TERRAIN,

@@ -216,6 +216,7 @@
 #define _LANG_STEEDS_REFUSE_SKILL "You do not know how to handle it.\n"
 #define _LANG_STEEDS_REFUSE_BODY_SIZE "You do not fit on it.\n"
 #define _LANG_STEEDS_REFUSE_PASSENGER "You are only a passenger.\n"
+#define _LANG_STEEDS_REFUSE_NOT_OWNER "It is not yours: only its owner may drive it.\n"
 #define _LANG_STEEDS_REFUSE_EXIT "It cannot go that way.\n"
 #define _LANG_STEEDS_REFUSE_EXIT_SIZE "It does not fit through there.\n"
 #define _LANG_STEEDS_REFUSE_TERRAIN "It cannot go that way.\n"

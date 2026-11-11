@@ -137,9 +137,10 @@ void dest_me()
   if (npc && environment(npc))
     handler("riding", npc)->unseat_riders(npc);
 
-  // an owned steed stays in its owner's registry where it stood
+  // an owned steed stays in its owner's registry where it stood; the NPC has
+  // already let this component go, so the spec travels with the call
   if (npc)
-    handler("riding", npc)->steed_gone(npc);
+    handler("riding", npc)->steed_gone(npc, spec);
 
   component::dest_me();
 }
