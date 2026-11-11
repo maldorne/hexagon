@@ -44,6 +44,8 @@ A skill or spell object inherits `BASE_EFFECT` (`lib/effects/base_effect.c`, in 
 
 `set_rounds(({ "round1", "do_it" }))` lists what happens in each round: a function name of the effect (`int f(caster, target, out_of_range, round, quiet)`), a message for the caster, or a pair of messages (caster, room). `cast_effect` checks everything and stores the effect on the caster with `add_active_effect`; the living runs one round per combat round (every two heart_beats) from `do_active_effects`, and `set_fast_casting(1)` runs the first round at once. A round that returns 0 or less interrupts the effect; after the last round the caster pays the gp, gets the lockout (`LOCK <file>`) and, for a skill, a use towards improving it.
 
+`run_now(caster, targets, [level, power, quiet])` runs only the last round at once, for an NPC or a race that must fire an effect immediately (a burst on death): no gp, lockout, active effect, casting checks nor xp; `level` and `power` are held on the caster only during the call. It does not suit effects whose work spans several rounds or runs later on the caster's heart_beat (lasting effects, volleys, damage over rounds).
+
 Only one effect runs at a time: while one is in execution any other fails with `MSG_BUSY`.
 
 ### Intent and targets

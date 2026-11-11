@@ -1135,6 +1135,74 @@ int cast_effect_at(string str, object who, int level, varargs int power)
   return ok;
 }
 
+// The last round of the effect, as hb_effect would run it.
+private int run_last_round(object caster, mixed targets, int quiet)
+{
+  mixed mess;
+  int last;
+
+  last = sizeof(rounds) - 1;
+  mess = rounds[last];
+
+  if (stringp(mess) && function_exists(mess, this_object()))
+    return call_other(this_object(), mess, caster, targets, nil, last, quiet);
+
+  if (stringp(mess) && !quiet)
+    tell_object(caster, mess);
+  else if (pointerp(mess) && sizeof(mess) >= 2 && !quiet)
+  {
+    tell_object(caster, mess[0]);
+    if (environment(caster))
+      tell_room(environment(caster), mess[1], caster);
+  }
+
+  return 1;
+}
+
+/**
+ * Runs only the last round of the effect, at once: no gp, no lockout, no
+ * active effect, no casting checks (a dead caster, places that forbid it,
+ * combat, components, extra_checks) and no xp. For an NPC or a race that must
+ * fire an effect straight away, a burst on its death for instance.
+ *
+ * It does not suit an effect whose real work spans several rounds or runs
+ * later on the caster's heart_beat: lasting effects, volleys of arrows and
+ * damage spread over rounds do their work in the rounds that are skipped.
+ *
+ * @param  caster  who fires it
+ * @param  targets the target the round receives (an object, or an array)
+ * @param  level   the guild level (1 to 20) it runs at; 0 leaves the caster's own
+ * @param  power   the power it runs with (1 minor, 2 neutral, 3 major); 0 leaves
+ *                 the caster's own
+ * @param  quiet   1 to show no messages of the caster's own
+ * @return what the round returned
+ */
+int run_now(object caster, mixed targets, varargs int level, int power, int quiet)
+{
+  string err;
+  int ret;
+
+  if (!caster || !sizeof(rounds))
+    return 0;
+
+  if (level > 0)
+    caster->add_timed_property(PROPERTY_CAST_LEVEL, level > 20 ? 20 : level, 3);
+  if (power > 0)
+    caster->add_timed_property(PROPERTY_CAST_POWER, power > 3 ? 3 : power, 3);
+
+  err = catch(ret = run_last_round(caster, targets, quiet));
+
+  if (level > 0)
+    caster->remove_timed_property(PROPERTY_CAST_LEVEL);
+  if (power > 0)
+    caster->remove_timed_property(PROPERTY_CAST_POWER);
+
+  if (err)
+    error(err);
+
+  return ret;
+}
+
 /**
  * The item a caster names: one he carries, one in the place, or one held by a
  * living in the place, written "<item> of <who>" ("sword of bob"). Only the
