@@ -24,6 +24,14 @@
 #define RIDE_REQUIRES     "requires"      // what the driver needs, see below
 #define RIDE_LEARN        "learn"         // skill the driver gets at 10% on a first ride
 #define RIDE_SWAMP_WALKER "swamp_walker"  // 1 when it crosses a bog without sinking
+#define RIDE_COMBAT       "combat"        // RIDE_COMBAT_* how it takes part in its rider's fights
+#define RIDE_PROTECT      "protect"       // percent chance it takes the blows aimed at its rider
+#define RIDE_WIMPY        "wimpy"         // percent of its hit points under which it flees with its rider
+#define RIDE_FEARS        "fears"         // names, race ids or properties that make it flee with its rider
+
+// RIDE_COMBAT values
+#define RIDE_COMBAT_LINKED "linked"  // it fights whoever fights its rider, and the rider whoever fights it
+#define RIDE_COMBAT_NONE   "none"    // it stays out of the fights
 
 // RIDE_MEDIUM values
 #define RIDE_MEDIUM_GROUND "ground"

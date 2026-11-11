@@ -224,3 +224,7 @@
 #define _LANG_MOUNTS_REFUSE_UNDERGROUND "No puede ir bajo tierra.\n"
 #define _LANG_MOUNTS_REFUSE_WATER "No puede cruzar el agua.\n"
 #define _LANG_MOUNTS_REFUSE_GROUND "No puede ir por tierra.\n"
+#define _LANG_MOUNTS_REFUSE_ATTACK "¿Piensas atacar a tu montura?\n"
+#define _LANG_MOUNTS_PROTECT_ROOM "¡La montura se interpone para defender a $N!\n"
+#define _LANG_MOUNTS_FLEE_ME "¡Tu montura sale huyendo contigo encima!\n"
+#define _LANG_MOUNTS_FLEE_ROOM "¡La montura de $N sale huyendo con su jinete!\n"

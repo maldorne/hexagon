@@ -10,15 +10,21 @@
 // added to differ from the kind.
 
 #include <living/riding.h>
+#include <npc/npc.h>
+#include <ecs/ecs.h>
 
 inherit component "/lib/npc/component.c";
 
 private mapping spec;
+private int fear_handle;  // the call_out that looks for what it fears
+
+void watch_for_fears();
 
 void create()
 {
   component::create();
   spec = ([ ]);
+  fear_handle = 0;
 }
 
 /**
@@ -149,5 +155,62 @@ void dest_me()
 void event_moved(object ob, object from, object dest)
 {
   if (ob == query_entity())
+  {
     handler("riding", ob)->mount_moved(ob, from, dest);
+    watch_for_fears();
+  }
+}
+
+mapping query_hooks()
+{
+  return ([ "flee": HOOK_PRIORITY_GATE ]);
+}
+
+/**
+ * With somebody on it, the mount runs when it is hurt under its wimpy or is
+ * fighting what it fears (RIDE_WIMPY, RIDE_FEARS).
+ */
+int hook_flee(mixed * args)
+{
+  if (query_entity() && handler("riding", query_entity())->query_wants_to_flee(query_entity()))
+    return FLEE_FORCE;
+
+  return FLEE_ABSTAIN;
+}
+
+/**
+ * Looks, a moment later, for something it fears in its place.
+ */
+void watch_for_fears()
+{
+  if (fear_handle)
+    remove_call_out(fear_handle);
+  fear_handle = call_out("check_fears", 1);
+}
+
+/**
+ * With somebody on it and something it fears in the place, the mount bolts.
+ */
+void check_fears()
+{
+  object npc;
+
+  fear_handle = 0;
+  npc = query_entity();
+  if (!npc || npc->query_dead() || !environment(npc))
+    return;
+
+  if (!sizeof(handler("riding", npc)->query_riders(npc)))
+    return;
+
+  if (handler("riding", npc)->query_fear_present(npc))
+    handler("riding", npc)->run_away(npc);
+}
+
+// Somebody has come in: a ridden mount that fears it runs.
+void event_enter(object ob, varargs string mess, object from, mixed avoid)
+{
+  if (ob != query_entity() && query_entity() &&
+      handler("riding", query_entity())->query_feared(query_entity(), ob))
+    watch_for_fears();
 }

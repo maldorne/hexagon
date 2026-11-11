@@ -146,8 +146,8 @@ int do_death(varargs object killed_by)
     // if (!undefinedp(damage_done[attacker_list[i]]))
     //   total += damage_done[attacker_list[i]];
 
-    // mounts do not count to quit xp, neverbot 05/2009
-    if (!attacker_list[i]->query_ride())
+    // the mount of one of the attackers does not share the xp
+    if (handler("riding", this_object())->query_shares_xp(attacker_list[i], attacker_list))
       attackers++;
   }
   
@@ -184,6 +184,9 @@ int do_death(varargs object killed_by)
   for (i = 0; i < sizeof(attacker_list); i++) 
   {
     if (!attacker_list[i]) 
+      continue;
+
+    if (!handler("riding", this_object())->query_shares_xp(attacker_list[i], attacker_list))
       continue;
     
     if (function_exists("adjust_xp", attacker_list[i]))
@@ -259,9 +262,9 @@ int do_death(varargs object killed_by)
   this_object()->clear_lasting_effects(LASTING_END_DEATH);
   this_object()->clear_traits(TRAIT_END_DEATH);
 
-  // a dead rider is thrown from the mount, which stays
+  // a dead rider leaves the mount, which stays where it is
   if (this_object()->query_riding())
-    handler("riding", this_object())->dismount(this_object(), 1);
+    handler("riding", this_object())->dismount(this_object(), 0, 1);
   
   // if (OMIQ_HAND->omiq_in_progress() && interactive(this_object()))
   //   this_object()->add_property("OMIQ_KILLED",1);

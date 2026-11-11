@@ -31,6 +31,10 @@ A mount answers `query_rideable()` with a mapping (nil: it cannot be ridden). Th
 | `exit_size` | smallest exit size it fits (the size its exit type has in `room_handler.c`: door 5, corridor 10, gate 15, road 30). An exit whose type has no size does not hold it back |
 | `requires` | what the driver needs: `"skill": ({ id, minimum })`, `"body_size": ({ smallest, biggest })` (race body size) |
 | `swamp_walker` | 1 when it crosses a bog without sinking (`RIDE_SWAMP_WALKER`); a mount whose race answers `query_swamp_walker()` does too. Read by the `swamp` component, which judges a rider by its mount |
+| `combat` | `linked` (default) or `none` (`RIDE_COMBAT`): whether the mount takes part in its rider's fights, see Combat |
+| `protect` | percent chance (default 0) that the mount takes the blows aimed at its rider (`RIDE_PROTECT`) |
+| `wimpy` | percent of its hit points under which a ridden mount flees carrying its rider (default 0, `RIDE_WIMPY`) |
+| `fears` | list of names, race ids or properties that make a ridden mount flee, in sight or when they fight it (`RIDE_FEARS`) |
 | `learn` | skill id the driver is given at 10% the first time they take the driver's seat without knowing it. It counts as known at 10 for `requires`, so a first ride is never refused for lack of it |
 
 Only the driver's seat asks for `requires` and `learn`; any seat may be taken by whoever fits.
@@ -43,7 +47,8 @@ Besides the spec keys a row holds every text a ride says. `$N` is the rider's na
 - `board_me` / `board_room`, `dismount_me` / `dismount_room`, `fall_me` / `fall_room`.
 - `leave`, `arrive`: replace the race's move lines while mounted; they start with `@`, the marker `move_living` strips. An exit that has its own message keeps it.
 - `listing`: follows the rider's name in a room listing. `look`: the line `look` adds to the rider.
-- `refuse_<reason>`: `dead`, `passed_out`, `already`, `full`, `skill`, `body_size`, `passenger`, `exit`, `exit_size`, `terrain`, `indoors`, `underground`, `water`, `ground`, plus one per exit type a kind denies.
+- `protect_room`, `flee_me` / `flee_room`: the mount covers its rider, the mount bolts with its rider.
+- `refuse_<reason>`: `attack` (a rider tries to attack its own mount), `dead`, `passed_out`, `already`, `full`, `skill`, `body_size`, `passenger`, `exit`, `exit_size`, `terrain`, `indoors`, `underground`, `water`, `ground`, plus one per exit type a kind denies.
 
 ## Handler API (`/lib/handlers/riding.c`)
 
@@ -53,6 +58,7 @@ Besides the spec keys a row holds every text a ride says. `$N` is the rider's na
 - `query_move_refusal(who, room, dir)`: asked by the exit handler of whoever rides; a passenger cannot move the mount.
 - `query_travel_line(who, arriving)`, `query_listing(who)`, `query_look(who)`.
 - `carry(who, from)`, `rider_moved`, `mount_moved`: movement, below.
+- `query_mates(a, b)`, `query_attack_refusal(who, other)`, `rider_fights`, `rider_attacked`, `mount_attacked`, `query_shares_xp(attacker, attackers)`, `query_feared(mount, who)`, `query_wants_to_flee(mount)`, `query_fear_present(mount)`, `run_away(mount)`: combat, below.
 
 Hooks the handler calls on the mount, all optional (they are plain `call_other`: a mount that does not define one answers nil): `mount_can_board(who, seat)` (a refusal text, or nil), `mount_boarded(who)`, `mount_dismounted(who)`. A hand-written NPC or a vehicle defines them.
 
@@ -61,9 +67,22 @@ Hooks the handler calls on the mount, all optional (they are plain `call_other`:
 - The exit handler asks `query_move_refusal` before a mounted rider leaves (`do_exit_command`): seat, exit type, size, what lies beyond.
 - `move_living` writes the step lines from `query_travel_line` while the living rides, then calls `carry(rider, from)`: the mount and the passengers are moved after the driver with a plain `move(dest)`, with no lines (the driver's line is the room's). If the mount cannot be moved the driver falls.
 - A rider moved by anything else (`goto`, a spell, a push) reaches `event_moved` of `/lib/living/movement.c`, which is not its own walk, so `rider_moved` throws it off (a move to the place it already is in, as the login of a link-dead player does, throws nobody off). A mount moved while it is not following its driver (`event_moved` of the NPC or the vehicle) throws off whoever is on it with `mount_moved`. The two walks that are its own are flagged (`walking` on the rider, the handler's `carrying` list for the mount and the passengers).
-- A mount that dies, or is destructed or has its component taken out, unseats its riders (`unseat_riders`). A rider that dies is dismounted.
+- A mount that dies, or is destructed or has its component taken out, unseats its riders (`unseat_riders`: the fall lines, no damage). A rider that dies is dismounted with no lines (`dismount(who, 0, 1)` from `death.c`) and the mount stays where it is.
 - Every fall is words only: no damage.
 - An NPC mount with somebody on it does not wander (`query_staying_put` of `/lib/npc.c`), and neither mount nor ridden vehicle shows in the room list (`pretty_short` empty): the rider does, with its `listing`.
+
+## Combat
+
+A rider and its own mount (it sits on it, or it is the owner of an owned mount, ridden or not) never attack each other: `kill` refuses with `refuse_attack` and `attack_ob` / `attack_by` of `/lib/living/combat.c` drop the blow (`query_mates`).
+
+With `combat` `linked` (every NPC kind by default; a vehicle is no living and never fights) the mount is one more combatant:
+
+- A rider attacks, or is attacked: the mount takes on the foe (`rider_fights` from `attack_ob`, `rider_attacked` from `attack_by`). In `rider_attacked`, with the chance `protect`, the mount steps in instead: the foe stops fighting the rider and takes on the mount.
+- A ridden mount is attacked: every rider takes on the foe (`mount_attacked`).
+- A ridden mount runs when it is under its `wimpy` percent of hit points or fights something it `fears`: the `rideable` component votes `FLEE_FORCE` in the flee chain of `/lib/npc.c`, and `run_away` of `/lib/living/movement.c` hands the run to the handler's `run_away(mount)`, which picks a random exit the driver may take and walks the driver through it, so the mount and the passengers come along (lines `flee_me`, `flee_room`). It also bolts, a second after something it fears enters its place or it arrives in a place where it stands (`check_fears` of the component). A passenger-only ride (no driver) or a place with no valid exit keeps it fighting.
+- Experience: a mount whose rider or owner is among the killers does not share the xp of a kill and gets none (`query_shares_xp` from `death.c`).
+
+rl-aeternum values (`/games/rl-aeternum/tables/mounts.c`): horse `protect` 25, `wimpy` 35, fears wolf, warg and bear; warg 60 / 10 / none; crocodile 50 / 10 / none; donkey 5 / 50 and pony 10 / 50 (they keep the fears of the horse).
 
 ## Skills
 

@@ -278,6 +278,11 @@ void run_away()
   // nowhere to run: stay and fight
   if (!environment())
     return;
+
+  // a mount with somebody on it runs with them
+  if (mappingp(this_object()->query_rideable()) &&
+      handler("riding", this_object())->run_away(this_object()))
+    return;
   direcs = (mixed *)environment()->query_dest_dir();
   if (!sizeof(direcs))
     return;

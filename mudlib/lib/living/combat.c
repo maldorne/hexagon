@@ -455,6 +455,10 @@ void attack_by(object ob)
   if (ob == this_object())
     return;
 
+  // a rider and its own mount never fight each other
+  if (handler("riding", this_object())->query_mates(this_object(), ob))
+    return;
+
   // a rival back after the chase ran out starts a new fight
   expire_chases();
 
@@ -487,6 +491,12 @@ void attack_by(object ob)
 
   if (!query_heart_beat())
     set_heart_beat(1);
+
+  // the mount of a rider joins in, and the riders of a mount
+  if (this_object()->query_riding())
+    handler("riding", this_object())->rider_attacked(this_object(), ob);
+  else if (mappingp(this_object()->query_rideable()))
+    handler("riding", this_object())->mount_attacked(this_object(), ob);
 }
 
 // Tell this living who has started attacking it since the last notice, in
@@ -545,6 +555,10 @@ void attack_ob(object ob)
   if (ob->query_dead())
     return;
 
+  // a rider and its own mount never fight each other
+  if (handler("riding", this_object())->query_mates(this_object(), ob))
+    return;
+
   // a place may keep two of its inhabitants out of each other's reach
   if (environment() && environment() == environment(ob) &&
       environment()->query_out_of_reach(this_object(), ob))
@@ -571,6 +585,10 @@ void attack_ob(object ob)
       catch(handler("crimes", environment(ob))->report_attack(this_object(), ob));
 
     attacker_list += ({ ob });
+
+    // the mount of a rider joins the fight
+    if (this_object()->query_riding())
+      handler("riding", this_object())->rider_fights(this_object(), ob);
   }
 
   if (ob)

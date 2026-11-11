@@ -31,6 +31,10 @@ void create()
       RIDE_TERRAIN_ONLY : ({ }),
       RIDE_EXITS_DENY   : ({ }),
       RIDE_EXIT_SIZE    : 0,
+      RIDE_COMBAT       : RIDE_COMBAT_LINKED,
+      RIDE_PROTECT      : 0,
+      RIDE_WIMPY        : 0,
+      RIDE_FEARS        : ({ }),
 
       // the verbs the mount answers to
       "verbs_board"    : _LANG_MOUNTS_VERBS_BOARD,
@@ -51,6 +55,11 @@ void create()
       "look"         : _LANG_MOUNTS_LOOK,
       "fall_me"      : _LANG_MOUNTS_FALL_ME,
       "fall_room"    : _LANG_MOUNTS_FALL_ROOM,
+      // the mount takes the blows aimed at its rider; $N the rider
+      "protect_room" : _LANG_MOUNTS_PROTECT_ROOM,
+      // the mount runs from a fight or from what it fears, carrying its rider
+      "flee_me"      : _LANG_MOUNTS_FLEE_ME,
+      "flee_room"    : _LANG_MOUNTS_FLEE_ROOM,
 
       // why a ride is refused
       "refuse_dead"       : _LANG_MOUNTS_REFUSE_DEAD,
@@ -68,6 +77,7 @@ void create()
       "refuse_underground": _LANG_MOUNTS_REFUSE_UNDERGROUND,
       "refuse_water"      : _LANG_MOUNTS_REFUSE_WATER,
       "refuse_ground"     : _LANG_MOUNTS_REFUSE_GROUND,
+      "refuse_attack"     : _LANG_MOUNTS_REFUSE_ATTACK,
     ]),
   ]);
 }

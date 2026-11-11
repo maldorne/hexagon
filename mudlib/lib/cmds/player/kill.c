@@ -87,6 +87,14 @@ static int cmd (string str, object me, string verb)
     return 0;
   }
 
+  // nobody fights its own mount
+  mess = handler("riding", me)->query_attack_refusal(me, obs[0]);
+  if (stringp(mess))
+  {
+    notify_fail(mess);
+    return 0;
+  }
+
   // a place may keep two of its inhabitants out of each other's reach
   mess = environment(me)->query_out_of_reach(me, obs[0]);
   if (stringp(mess))

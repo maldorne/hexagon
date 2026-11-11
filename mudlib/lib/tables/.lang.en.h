@@ -224,3 +224,7 @@
 #define _LANG_MOUNTS_REFUSE_UNDERGROUND "It cannot go underground.\n"
 #define _LANG_MOUNTS_REFUSE_WATER "It cannot cross water.\n"
 #define _LANG_MOUNTS_REFUSE_GROUND "It cannot go over the ground.\n"
+#define _LANG_MOUNTS_REFUSE_ATTACK "Do you mean to attack your own mount?\n"
+#define _LANG_MOUNTS_PROTECT_ROOM "The mount steps in to defend $N!\n"
+#define _LANG_MOUNTS_FLEE_ME "Your mount bolts, carrying you away!\n"
+#define _LANG_MOUNTS_FLEE_ROOM "The mount of $N bolts, carrying its rider away!\n"

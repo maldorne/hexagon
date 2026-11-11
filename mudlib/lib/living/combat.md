@@ -263,3 +263,7 @@ its components first through the `flee` chain: each votes `FLEE_VETO`,
 everything and a force over the wimpy, whatever the order they answer in. A
 protector vetoes while somebody it protects is fighting there; a responder or an
 escort vetoes while on its errand.
+
+## Mounts
+
+A rider and its own mount never attack each other. A mount joins the fights of its rider (and the riders those of their mount), may take the blows aimed at its rider, runs with it when hurt or frightened, and does not share the xp of a kill with its own rider: see the Combat section of `riding.md`.

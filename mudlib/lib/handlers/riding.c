@@ -57,6 +57,7 @@ int mount_hp;           // its hit points, 0 when unhurt
 
 // prototypes
 int board_seat(object who, object mount, int seat);
+string query_move_refusal(object who, object room, string dir);
 
 void create()
 {
@@ -339,10 +340,11 @@ int board_seat(object who, object mount, int seat)
 /**
  * Takes somebody off the mount they ride, with nothing but words: a fall does
  * no damage.
- * @param fall  1 to tell the fall instead of the dismount
+ * @param fall   1 to tell the fall instead of the dismount
+ * @param quiet  1 to say nothing at all (a rider that died)
  * @return 1 when they were riding
  */
-int dismount(object who, varargs int fall)
+int dismount(object who, varargs int fall, int quiet)
 {
   mapping spec;
   object mount;
@@ -362,12 +364,15 @@ int dismount(object who, varargs int fall)
   who->clear_mount();
   who->remove_extra_look(who);
 
-  mine = text(spec, fall ? "fall_me" : "dismount_me", who, mount);
-  others = text(spec, fall ? "fall_room" : "dismount_room", who, mount);
+  if (!quiet)
+  {
+    mine = text(spec, fall ? "fall_me" : "dismount_me", who, mount);
+    others = text(spec, fall ? "fall_room" : "dismount_room", who, mount);
 
-  tell_object(who, mine);
-  if (environment(who))
-    tell_room(environment(who), others, ({ who }));
+    tell_object(who, mine);
+    if (environment(who))
+      tell_room(environment(who), others, ({ who }));
+  }
 
   mount->mount_dismounted(who);
   return 1;
@@ -391,6 +396,263 @@ void unseat_riders(object mount, varargs object where)
   for (i = 0; i < sizeof(riders); i++)
     if (living(riders[i]) && riders[i]->query_mount() == mount)
       dismount(riders[i], 1);
+}
+
+// --- Combat ---------------------------------------------------------------------
+
+/**
+ * Whether `who` owns `mount`: the owner of a bought mount, ridden or not.
+ */
+private int owns_mount(object who, object mount)
+{
+  string owner;
+
+  if (!who || !mount || !mappingp(mount->query_rideable()))
+    return 0;
+
+  owner = query_owner(mount);
+  return stringp(owner) && owner == (string)who->query_name();
+}
+
+/**
+ * Whether two livings are a rider and its own mount: the one sits on the other
+ * or owns it. They never attack each other.
+ */
+int query_mates(object a, object b)
+{
+  if (!a || !b)
+    return 0;
+
+  if (a->query_mount() == b || b->query_mount() == a)
+    return 1;
+
+  return owns_mount(a, b) || owns_mount(b, a);
+}
+
+/**
+ * The refusal for `who` when it tries to attack `other`: they are a rider and
+ * its own mount. Nil when they may fight.
+ */
+string query_attack_refusal(object who, object other)
+{
+  object mount;
+
+  if (!query_mates(who, other))
+    return nil;
+
+  mount = mappingp(other->query_rideable()) ? other : who;
+  return text(query_spec(mount), "refuse_attack", who, mount);
+}
+
+/**
+ * Whether a mount takes part in the fights of its rider: it is a living, alive,
+ * and its kind is linked to the fights.
+ */
+private int fights_beside_rider(object mount)
+{
+  mapping spec;
+
+  if (!mount || !living(mount) || mount->query_dead())
+    return 0;
+
+  spec = query_spec(mount);
+  return spec && spec[RIDE_COMBAT] == RIDE_COMBAT_LINKED;
+}
+
+/**
+ * A rider has taken on `foe`, or `foe` has taken on the rider: the mount joins
+ * the fight as one more combatant.
+ */
+void rider_fights(object rider, object foe)
+{
+  object mount;
+
+  mount = rider ? rider->query_mount() : nil;
+  if (!mount || !foe || query_mates(mount, foe) || !fights_beside_rider(mount) ||
+      environment(mount) != environment(foe))
+    return;
+
+  mount->attack_ob(foe);
+}
+
+/**
+ * `foe` has started on a rider. The mount joins the fight and, with the chance
+ * of its kind (RIDE_PROTECT), takes the foe's blows in the rider's place.
+ */
+void rider_attacked(object rider, object foe)
+{
+  mapping spec;
+  object mount;
+
+  mount = rider ? rider->query_mount() : nil;
+  if (!mount || !foe || query_mates(mount, foe) || !fights_beside_rider(mount) ||
+      environment(mount) != environment(foe))
+    return;
+
+  spec = query_spec(mount);
+  if (member_array(mount, foe->query_attacker_list()) == -1 &&
+      random(100) < (int)spec[RIDE_PROTECT])
+  {
+    tell_room(environment(mount), text(spec, "protect_room", rider, mount));
+    foe->stop_fight(rider, 1);
+    foe->attack_ob(mount);
+    return;
+  }
+
+  mount->attack_ob(foe);
+}
+
+/**
+ * `foe` has started on a mount with somebody on it: those riding take it on.
+ */
+void mount_attacked(object mount, object foe)
+{
+  object * riders;
+  int i;
+
+  if (!foe || query_mates(mount, foe) || !fights_beside_rider(mount))
+    return;
+
+  riders = query_riders(mount);
+  for (i = 0; i < sizeof(riders); i++)
+    if (riders[i] != foe && environment(riders[i]) == environment(foe))
+      riders[i]->attack_ob(foe);
+}
+
+/**
+ * Whether `attacker` shares in the experience of a kill. A mount does not when
+ * whoever rides it or owns it is among the `attackers`.
+ */
+int query_shares_xp(object attacker, object * attackers)
+{
+  int i;
+
+  if (!attacker || !mappingp(attacker->query_rideable()))
+    return 1;
+
+  for (i = 0; i < sizeof(attackers); i++)
+    if (attackers[i] != attacker && query_mates(attacker, attackers[i]))
+      return 0;
+
+  return 1;
+}
+
+/**
+ * Whether `who` is something the mount fears: it answers to one of the names,
+ * is of one of the race ids or carries one of the properties in the RIDE_FEARS
+ * of the mount.
+ */
+int query_feared(object mount, object who)
+{
+  mapping spec;
+  mixed * fears;
+  int i;
+
+  spec = query_spec(mount);
+  if (!spec || !who || who == mount || query_mates(mount, who))
+    return 0;
+
+  fears = spec[RIDE_FEARS];
+  if (!pointerp(fears))
+    return 0;
+
+  for (i = 0; i < sizeof(fears); i++)
+    if (stringp(fears[i]) &&
+        (who->id(fears[i]) || who->query_race_id() == fears[i] ||
+         who->query_property(fears[i])))
+      return 1;
+
+  return 0;
+}
+
+/**
+ * Whether a mount with somebody on it wants to run: it is hurt under its
+ * wimpy (RIDE_WIMPY) or it is fighting what it fears. Only while ridden.
+ */
+int query_wants_to_flee(object mount)
+{
+  mapping spec;
+  object * foes;
+  int i, wimpy;
+
+  if (!mount || !living(mount) || !sizeof(query_riders(mount)))
+    return 0;
+
+  spec = query_spec(mount);
+  wimpy = (int)spec[RIDE_WIMPY];
+  if (wimpy && (int)mount->query_hp() < (int)mount->query_max_hp() * wimpy / 100)
+    return 1;
+
+  foes = mount->query_attacker_list();
+  for (i = 0; i < sizeof(foes); i++)
+    if (query_feared(mount, foes[i]))
+      return 1;
+
+  return 0;
+}
+
+/**
+ * Whether something the mount fears stands in its place.
+ */
+int query_fear_present(object mount)
+{
+  object * here;
+  int i;
+
+  if (!mount || !environment(mount))
+    return 0;
+
+  here = all_inventory(environment(mount));
+  for (i = 0; i < sizeof(here); i++)
+    if (living(here[i]) && !here[i]->query_dead() && query_feared(mount, here[i]))
+      return 1;
+
+  return 0;
+}
+
+/**
+ * A mount runs from where it is through an exit its driver may take, chosen at
+ * random, carrying whoever rides it. The driver does the walking, so the mount
+ * and the passengers follow as in any ride.
+ * @return 1 when it ran, 0 when there is nobody on it or nowhere it may go
+ */
+int run_away(object mount)
+{
+  mapping spec;
+  object * riders;
+  object driver, env;
+  mixed * dirs;
+  int i, n, start;
+
+  riders = query_riders(mount);
+  env = mount ? environment(mount) : nil;
+  if (!sizeof(riders) || !env)
+    return 0;
+
+  driver = riders[0];
+  dirs = env->query_dest_dir();
+  n = sizeof(dirs) / 2;
+  if (!n)
+    return 0;
+
+  spec = query_spec(mount);
+  start = random(n);
+  for (i = 0; i < n; i++)
+  {
+    string dir;
+
+    dir = dirs[((start + i) % n) * 2];
+    if (query_move_refusal(driver, env, dir))
+      continue;
+
+    tell_object(driver, text(spec, "flee_me", driver, mount));
+    tell_room(env, text(spec, "flee_room", driver, mount), ({ driver }));
+
+    if (env->do_exit_command("", dir, driver))
+      return 1;
+  }
+
+  return 0;
 }
 
 /**
