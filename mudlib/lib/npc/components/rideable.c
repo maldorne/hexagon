@@ -118,11 +118,15 @@ int do_dismount(string str)
   return handler("riding", query_entity())->dismount(who);
 }
 
-// Those riding fall when the NPC dies, and when it goes.
+// Those riding fall when the NPC dies, and when it goes. A dead steed is no
+// longer in its owner's registry.
 void died(object killer)
 {
   if (query_entity())
+  {
     handler("riding", query_entity())->unseat_riders(query_entity());
+    handler("riding", query_entity())->steed_died(query_entity());
+  }
 }
 
 void dest_me()
@@ -132,6 +136,10 @@ void dest_me()
   npc = query_entity();
   if (npc && environment(npc))
     handler("riding", npc)->unseat_riders(npc);
+
+  // an owned steed stays in its owner's registry where it stood
+  if (npc)
+    handler("riding", npc)->steed_gone(npc);
 
   component::dest_me();
 }

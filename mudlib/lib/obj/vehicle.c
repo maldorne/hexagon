@@ -111,6 +111,9 @@ void dest_me()
   if (environment())
     handler("riding", this_object())->unseat_riders(this_object());
 
+  // an owned vehicle stays in its owner's registry where it stood
+  handler("riding", this_object())->steed_gone(this_object());
+
   ::dest_me();
 }
 

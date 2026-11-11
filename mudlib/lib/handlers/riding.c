@@ -15,6 +15,12 @@
  * that spec, so a game gives a horse and a motorbike different words without
  * touching this file. The meaning of every key: /lib/living/riding.md.
  *
+ * The steeds a player has bought are kept in a registry per owner, saved in
+ * /save/games/<game>/steeds/<letter>/<owner>.o (query_registry_file): the
+ * registry is the authority, and the steed only knows who owns it and under
+ * which key (RIDE_OWNER, RIDE_ID in its spec). A steed that is out goes with
+ * its owner when they quit and is made again where it stood when they log in.
+ *
  * A game may have its own copy: /games/<game>/handlers/riding.c inherits this
  * one and redefines what differs. Reach it with handler("riding", ob), never by
  * path.
@@ -25,20 +31,35 @@
 #include <common/properties.h>
 #include <basic/move.h>
 #include <room/room.h>
+#include <room/location.h>
+#include <living/persisted.h>
 
 // who is moving by the rider's own doing right now: the steed and the others
 // in the seats follow the driver, and nobody falls
 static object * carrying;
 
+// the registries in memory, ([ save file : ([ id : entry ]) ]), for the owners
+// who are in the mud; an entry is described by the STEED_* keys of <living/riding.h>
+static mapping registries;
+
+// the steeds that exist, ([ id : steed ])
+static mapping live;
+
+// what save_object and restore_object go through to move one registry
+mapping stored;
+
 // the value a skill the steed teaches is given at
 #define RIDING_LEARN_VALUE 10
 
-// prototype
+// prototypes
 int board_seat(object who, object steed, int seat);
+private void record_location(object steed, object dest);
 
 void create()
 {
   carrying = ({ });
+  registries = ([ ]);
+  live = ([ ]);
 }
 
 /**
@@ -523,8 +544,401 @@ void rider_moved(object who, object from, object dest)
  */
 void steed_moved(object steed, object from, object dest)
 {
+  record_location(steed, dest);
+
   if (member_array(steed, carrying) != -1)
     return;
 
   unseat_riders(steed, from);
+}
+
+// --- The steeds a player owns -------------------------------------------------
+
+/**
+ * How many steeds a player may own at once; a game's handler may change it.
+ */
+int query_max_owned_steeds()
+{
+  return MAX_OWNED_STEEDS;
+}
+
+/**
+ * The file a player's registry is saved in, in the save tree of the game of
+ * `where` (without the .o).
+ * @param where  an object in the game: the player, a place, a steed
+ */
+string query_registry_file(string owner, object where)
+{
+  return game_save_dir(where) + STEEDS_SAVE_DIR + owner[0 .. 0] + "/" + owner;
+}
+
+/**
+ * Who owns a steed, or nil.
+ */
+string query_owner(object steed)
+{
+  mapping own;
+
+  own = steed ? steed->query_rideable() : nil;
+  return mappingp(own) && stringp(own[RIDE_OWNER]) ? own[RIDE_OWNER] : nil;
+}
+
+/**
+ * The key of a steed in its owner's registry, or nil.
+ */
+string query_steed_id(object steed)
+{
+  mapping own;
+
+  own = steed ? steed->query_rideable() : nil;
+  return mappingp(own) && stringp(own[RIDE_ID]) ? own[RIDE_ID] : nil;
+}
+
+/**
+ * The steed of an entry of the registry, when it exists.
+ */
+object query_live_steed(string id)
+{
+  return live[id];
+}
+
+/**
+ * The registry of a player, ([ id : entry ]), read from its file the first
+ * time it is asked for and then kept until they quit.
+ */
+private mapping query_registry(string owner, object where)
+{
+  string file;
+
+  file = query_registry_file(owner, where);
+  if (registries[file])
+    return registries[file];
+
+  registries[file] = ([ ]);
+  if (file_exists(file + ".o"))
+  {
+    stored = nil;
+    restore_object(file);
+    if (mappingp(stored))
+      registries[file] = stored;
+    stored = nil;
+  }
+
+  return registries[file];
+}
+
+/**
+ * Writes the registry of a player; an empty one leaves no file.
+ */
+private void save_registry(string owner, object where)
+{
+  string file, * pieces;
+
+  file = query_registry_file(owner, where);
+  if (!registries[file])
+    return;
+
+  if (!map_sizeof(registries[file]))
+  {
+    if (file_exists(file + ".o"))
+      rm(file + ".o");
+    return;
+  }
+
+  pieces = explode(file, "/");
+  mkdir(implode(pieces[.. sizeof(pieces) - 2], "/") + "/");
+
+  stored = registries[file];
+  save_object(file, 1);
+  stored = nil;
+}
+
+/**
+ * The entries of a player's registry (the live ones carry their steed under
+ * "steed"), each a copy.
+ */
+mapping query_owned(string owner, object where)
+{
+  mapping registry, out;
+  string * ids;
+  int i;
+
+  registry = query_registry(owner, where);
+  out = ([ ]);
+  ids = map_indices(registry);
+  for (i = 0; i < sizeof(ids); i++)
+    out[ids[i]] = ([ ]) + registry[ids[i]] + ([ "steed" : live[ids[i]] ]);
+
+  return out;
+}
+
+/**
+ * How many steeds a player owns.
+ */
+int query_owned_count(string owner, object where)
+{
+  return map_sizeof(query_registry(owner, where));
+}
+
+// What names a place in a registry: the file of a location, the path of a room.
+private string place_of(object env)
+{
+  if (!env)
+    return "";
+
+  if (env->query_location())
+    return (string)env->query_file_name();
+
+  return file_name(env);
+}
+
+// The place a path names, or nil when it does not load.
+private object load_place(string path)
+{
+  object place;
+
+  if (!stringp(path) || !strlen(path))
+    return nil;
+
+  place = nil;
+  if (strlen(path) > 2 && path[strlen(path) - 2 ..] == ".o")
+    catch(place = LOCATION_HANDLER->load_location(path));
+  else
+    catch(place = load_object(path));
+
+  return place;
+}
+
+/**
+ * Ties a steed to its owner and to its entry in the registry: both go in the
+ * spec the steed carries (the rideable component of an NPC, the spec of a
+ * vehicle).
+ */
+private void mark_owner(object steed, string owner, string id)
+{
+  mapping own;
+
+  own = steed->query_rideable();
+  own = ([ ]) + (mappingp(own) ? own : ([ ])) + ([ RIDE_OWNER : owner, RIDE_ID : id ]);
+
+  if (steed->query_component_by_type("rideable"))
+    steed->add_component("rideable", own);
+  else
+    steed->set_rideable(own);
+}
+
+/**
+ * Makes the steed of an entry and puts it in a place, ready to be ridden.
+ * @return nil when it cannot be made or moved
+ */
+private object make_steed(string owner, string id, mapping entry, object dest)
+{
+  object steed;
+  mapping state;
+  int hp;
+
+  steed = nil;
+  if (stringp(entry[STEED_TEMPLATE]))
+    steed = BESTIARY_HANDLER->spawn_from_template(game_name(dest),
+                                                  entry[STEED_TEMPLATE]);
+  else if (stringp(entry[STEED_FILE]))
+    catch(steed = clone_object(entry[STEED_FILE]));
+
+  if (!steed)
+    return nil;
+
+  mark_owner(steed, owner, id);
+
+  state = entry[STEED_STATE];
+  if (mappingp(state) && intp(state["hp"]) && state["hp"] > 0)
+  {
+    hp = state["hp"];
+    if (hp > (int)steed->query_max_hp())
+      hp = (int)steed->query_max_hp();
+    steed->set_hp(hp);
+  }
+
+  live[id] = steed;
+  if (steed->move(dest) != MOVE_OK)
+  {
+    map_delete(live, id);
+    steed->dest_me();
+    return nil;
+  }
+
+  // its components may need to see the world it now stands in
+  steed->components_placed();
+  return steed;
+}
+
+/**
+ * Buys a steed: makes the one the stock entry names in `where`, registers it
+ * to its owner and saves the registry. Whoever sells has already asked for the
+ * price and the cap (query_owned_count, query_max_owned_steeds).
+ * @param stock  ([ "template" : id ]) or ([ "file" : path ])
+ * @return the steed, or nil when the owner has too many or it cannot be made
+ */
+object add_steed(string owner, mapping stock, object where)
+{
+  mapping registry, entry;
+  string id;
+  object steed;
+
+  if (!stringp(owner) || !mappingp(stock) || !where)
+    return nil;
+
+  registry = query_registry(owner, where);
+  if (map_sizeof(registry) >= query_max_owned_steeds())
+    return nil;
+
+  do
+    id = "" + time() + "-" + random(1000000);
+  while (registry[id]);
+
+  entry = ([ STEED_STATE : ([ ]), STEED_LOCATION : place_of(where),
+             STEED_NAME : "" ]);
+  if (stringp(stock[STEED_TEMPLATE]))
+    entry[STEED_TEMPLATE] = stock[STEED_TEMPLATE];
+  else if (stringp(stock[STEED_FILE]))
+    entry[STEED_FILE] = stock[STEED_FILE];
+  else
+    return nil;
+
+  // registered before it is moved in, so its first move is recorded
+  registry[id] = entry;
+  steed = make_steed(owner, id, entry, where);
+  if (!steed)
+  {
+    map_delete(registry, id);
+    return nil;
+  }
+
+  entry[STEED_NAME] = (string)steed->query_short();
+  save_registry(owner, where);
+  return steed;
+}
+
+/**
+ * Notes where an owned steed stands, in memory: the registry is written when
+ * the owner quits or the steed goes.
+ */
+private void record_location(object steed, object dest)
+{
+  mapping registry;
+  string owner, id;
+
+  owner = query_owner(steed);
+  id = query_steed_id(steed);
+  if (!owner || !id || !dest)
+    return;
+
+  registry = query_registry(owner, steed);
+  if (registry[id])
+    registry[id][STEED_LOCATION] = place_of(dest);
+}
+
+/**
+ * An owned steed is being destructed: it stays in the registry where it
+ * stood, so its owner finds it at the next login.
+ */
+void steed_gone(object steed)
+{
+  string owner, id;
+
+  owner = query_owner(steed);
+  id = query_steed_id(steed);
+  if (!owner || !id || live[id] != steed)
+    return;
+
+  record_location(steed, environment(steed));
+  map_delete(live, id);
+  save_registry(owner, steed);
+}
+
+/**
+ * An owned steed has died: it is not the owner's any more.
+ */
+void steed_died(object steed)
+{
+  mapping registry;
+  string owner, id;
+
+  owner = query_owner(steed);
+  id = query_steed_id(steed);
+  if (!owner || !id)
+    return;
+
+  registry = query_registry(owner, steed);
+  map_delete(registry, id);
+  map_delete(live, id);
+  save_registry(owner, steed);
+}
+
+/**
+ * A player quits: they get off whatever they ride, and every steed of theirs
+ * that is out is saved where it stands and taken away.
+ */
+void owner_quit(object owner)
+{
+  string name, * ids;
+  object steed;
+  int i;
+
+  if (!owner)
+    return;
+
+  dismount(owner);
+
+  name = (string)owner->query_name();
+  if (!stringp(name) || !strlen(name))
+    return;
+
+  ids = map_indices(live);
+  for (i = 0; i < sizeof(ids); i++)
+  {
+    steed = live[ids[i]];
+    if (!steed)
+    {
+      map_delete(live, ids[i]);
+      continue;
+    }
+
+    if (query_owner(steed) != name)
+      continue;
+
+    // steed_gone notes where it stood, saves the registry and frees the key
+    steed->dest_me();
+  }
+
+  // the registry is read again at the next login
+  map_delete(registries, query_registry_file(name, owner));
+}
+
+/**
+ * A player logs in: each steed of theirs that was out is made again where it
+ * stood, or beside them when that place does not load.
+ */
+void owner_enter(object owner)
+{
+  mapping registry;
+  string * ids;
+  object dest;
+  int i;
+
+  if (!owner || !environment(owner) || !strlen((string)owner->query_name()))
+    return;
+
+  registry = query_registry((string)owner->query_name(), owner);
+  ids = map_indices(registry);
+  for (i = 0; i < sizeof(ids); i++)
+  {
+    if (!strlen(registry[ids[i]][STEED_LOCATION]) || live[ids[i]])
+      continue;
+
+    dest = load_place(registry[ids[i]][STEED_LOCATION]);
+    if (!dest)
+      dest = environment(owner);
+
+    make_steed((string)owner->query_name(), ids[i], registry[ids[i]], dest);
+  }
 }

@@ -830,3 +830,15 @@
 #define _LANG_CMD_RESISTANCES_TITLE "Resistances of " + who->query_cap_name()
 #define _LANG_CMD_RESISTANCES_NOT_FOUND "You cannot find '" + name + "'.\n"
 #define _LANG_CMD_RESISTANCES_INVULNERABLE "Invulnerable to spells"
+
+// steeds
+
+#define _LANG_CMD_STEEDS_ALIAS ({ "steeds" })
+#define _LANG_CMD_STEEDS_SYNTAX "steeds"
+#define _LANG_CMD_STEEDS_HELP "Shows the steeds you own and where each one is."
+#define _LANG_CMD_STEEDS_NONE "You do not own any steed.\n"
+#define _LANG_CMD_STEEDS_HEADER "Your steeds:\n"
+// owned[ids[i]]["name"] is the short of the steed when it was bought
+#define _LANG_CMD_STEEDS_LINE "  " + owned[ids[i]]["name"] + ": " + place + ".\n"
+#define _LANG_CMD_STEEDS_NOWHERE "stabled"
+#define _LANG_CMD_STEEDS_UNKNOWN "somewhere"

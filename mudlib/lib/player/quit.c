@@ -118,11 +118,9 @@ int really_quit()
   this_object()->save_me();
   user->save_me();
 
-  // TODO mounts
-  // mounts, neverbot 07/05
-  // save_mount();
-  // if (query_mount())
-  //   query_mount()->owner_quit();
+  // get off whatever we ride; the steeds we own that are out are saved where
+  // they stand and taken away, they come back at the next login
+  catch(handler("riding", this_object())->owner_quit(this_object()));
 
   /* get rid of the money.... we dont want them taking it twice now do we? */
   if ((money = present(MONEY_NAME, this_object())))

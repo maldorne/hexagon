@@ -9,6 +9,9 @@ A **steed** is anything a living can be carried by: a horse, a dragon, a motorbi
 | the kinds and every text | `/lib/tables/steeds.c`, per game: `table("steeds", ob)` |
 | an NPC steed | component `rideable` (`/lib/npc/components/rideable.c`) |
 | an item steed | `/lib/obj/vehicle.c` |
+| the steeds a player owns | registry of the riding handler, below |
+| a place that sells steeds | location component `steed-shop` (`/lib/location/components/steed-shop.c`) |
+| the player's list | the `steeds` / `monturas` command (`/lib/cmds/player/steeds.c`) |
 | spec keys | `<living/riding.h>` |
 
 A game's handler inherits the shared one and redefines what differs; a game's table inherits the shared one and adds kinds with `add_kind` (rl-aeternum: `horse`).
@@ -64,3 +67,25 @@ Hooks the handler calls on the steed, all optional (they are plain `call_other`:
 ## Skills
 
 `ride`, `drive` and `pilot` are common passive skills (`lib/obj/skills/`), percentage, ids in `<living/skills.h>`, names and help in `lib/obj/skills/.lang.<lang>.h`. Nothing teaches `drive` or `pilot` yet; a steed that wants one in its `requires` and `learn` gets it granted at 10%.
+
+## Owned steeds: the registry
+
+A steed a player buys is theirs. The riding handler keeps one **registry** per owner, saved in `/save/games/<game>/steeds/<first letter>/<owner>.o` (`query_registry_file`; the game is the one of the object it is asked with). The registry is the authority: `([ id : entry ])`, an entry being `template` (bestiary template id) or `file` (cloned path), `state` (what it keeps: `hp`), `location` (where it stands; empty when it is not out) and `name` (its short when bought), keys `STEED_*` of `<living/riding.h>`. A player owns at most `MAX_OWNED_STEEDS` (10; `query_max_owned_steeds`, a game's handler may change it).
+
+The steed itself only knows who owns it and under which key: `owner` (`RIDE_OWNER`) and `steed_id` (`RIDE_ID`) in its spec, so in the attributes of its `rideable` component (a vehicle: its `set_rideable` spec). `query_owner(steed)` and `query_steed_id(steed)` read them.
+
+- `add_steed(owner, stock, where)`: makes the steed in `where` (a template through the bestiary, a file by cloning), ties it to the owner, registers it and saves. The cap and the price are asked by whoever sells.
+- Every move of an owned steed reaches `steed_moved`, which notes its place in memory (`location`). The registry is written when it changes hands, when the steed goes (`steed_gone`, from the destruction of the component or vehicle: it stays registered where it stood) and at quit. A steed that dies (`steed_died`) leaves the registry.
+- **Quit** (`lib/player/quit.c`): `owner_quit` takes the player off what they ride, then every steed of theirs that is out is destructed, saved where it stood.
+- **Login** (`lib/player/start.c`, not on a reconnect): `owner_enter` makes again each steed with a `location` where it stood (a location by its `.o`, a room by its path), or beside the player when that place does not load. Its `hp` is restored.
+- `query_owned(owner, where)` (the entries, each with its live `steed`), `query_owned_count`, `query_live_steed(id)`.
+
+## Selling steeds: the `steed-shop` component
+
+A location with `steed-shop` sells what its `stock` lists, a list of `([ "template" : id, "price" : value ])` or `([ "file" : path, "price" : value ])`, the price in the base unit of the money; the label of each is the short of the steed. Verbs (`.lang` files of `lib/location/components/`): `list`, `examine <steed>` (short, first paragraph of the description, price, and whether the player cannot afford it) and `buy <steed>`; a steed is named by what it answers to or by its number in the list. A buy is refused over the cap or without the money; otherwise the player pays, the steed is made in the location and registered to them, and the player and the room are told. The component puts up a sign that lists the commands.
+
+Adding it to a location from the mud, with its stock (`components add` takes no attributes), standing in the location:
+
+    exec environment(TP)->add_component("steed-shop", ([ "stock" : ({ ([ "template" : "<template id>", "price" : <value> ]) }) ])); environment(TP)->save_me(); return 1;
+
+`components remove steed-shop` takes it away with its sign. More stock afterwards: `exec environment(TP)->query_component_by_type("steed-shop")->add_stock(([ "template" : "<id>", "price" : <value> ])); return 1;`.

@@ -116,6 +116,13 @@ adds the action and calls that function on the component. Reseeding a live
 component (`add_component`) asks for its verbs again, and dropping it removes
 them.
 
+### The steed shop
+
+`steed-shop` (`/lib/location/components/steed-shop.c`) sells steeds: its attribute `stock` lists
+the templates or files on sale with their price, and its verbs (`list`, `examine`, `buy`, from
+`query_component_actions`) make the steed in the location, tied to the buyer's registry in the
+riding handler. Details: `/lib/living/riding.md`.
+
 ### Location components that act on movement
 
 A location passes `event_enter`, `event_exit` and `event_heart_beat` (a living

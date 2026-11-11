@@ -46,3 +46,35 @@
 #define _LANG_FIRE_BURN "The fire keeps burning you, causing you great pain. You had better get to safety.\n"
 #define _LANG_FIRE_OUT "The flames weaken until they die out completely.\n"
 #define _LANG_FIRE_DOUSED "The flames weaken, but keep burning.\n"
+
+// steed-shop.c -- a place that sells steeds
+// The texts use the variables of the function that writes them: label (the
+// short of the steed), price_text (its price in words), number (its place in
+// the list), description (the first paragraph of its description), max (how
+// many steeds a player may own) and buyer.
+
+#define _LANG_STEED_SHOP_LIST_VERBS ({ "list" })
+#define _LANG_STEED_SHOP_EXAMINE_VERBS ({ "examine", "browse" })
+#define _LANG_STEED_SHOP_BUY_VERBS ({ "buy" })
+#define _LANG_STEED_SHOP_ARTICLES ({ "the", "a", "an" })
+
+#define _LANG_STEED_SHOP_SIGN_DESC "A wooden sign, with letters carved by hand.\n"
+#define _LANG_STEED_SHOP_SIGN_TEXT "" + \
+    "Steeds for sale:\n" + \
+    "  - 'list' to see the steeds on sale and their prices.\n" + \
+    "  - 'examine <steed>' to see one up close and what it costs.\n" + \
+    "  - 'buy <steed>' to buy it: from then on it is yours.\n" + \
+    "  - 'steeds' to see the steeds you own and where they are.\n"
+
+#define _LANG_STEED_SHOP_EMPTY "Nothing is for sale here right now.\n"
+#define _LANG_STEED_SHOP_LIST_HEADER "Steeds for sale:\n"
+#define _LANG_STEED_SHOP_LIST_LINE "  " + number + ". " + label + ": " + price_text + ".\n"
+#define _LANG_STEED_SHOP_EXAMINE label + "\n" + description + "\nIt costs " + price_text + ".\n"
+#define _LANG_STEED_SHOP_EXAMINE_CANNOT_AFFORD "You cannot afford it.\n"
+#define _LANG_STEED_SHOP_BUY_WHAT "Buy which steed?\n"
+#define _LANG_STEED_SHOP_NOT_SOLD "That is not for sale here.\n"
+#define _LANG_STEED_SHOP_BUY_LIMIT "You already own as many steeds as you can look after (" + max + ").\n"
+#define _LANG_STEED_SHOP_BUY_CANNOT_AFFORD "You cannot afford it: " + label + " costs " + price_text + ".\n"
+#define _LANG_STEED_SHOP_BUY_FAILED "The steed cannot be brought out right now.\n"
+#define _LANG_STEED_SHOP_BUY_ME "You pay " + price_text + " and the steed is yours: " + label + ".\n"
+#define _LANG_STEED_SHOP_BUY_ROOM buyer->query_cap_name() + " buys a steed: " + label + ".\n"

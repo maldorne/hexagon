@@ -25,6 +25,8 @@
 
 #define LOCATION_COMPONENT_SHOP        "shop"
 #define LOCATION_COMPONENT_PUB         "pub"
+// Sells steeds, which are then the buyer's. See /lib/location/components/steed-shop.c.
+#define LOCATION_COMPONENT_STEED_SHOP  "steed-shop"
 #define LOCATION_COMPONENT_OUTSIDE     "outside"
 #define LOCATION_COMPONENT_MAZE        "maze"
 // Leads astray whoever leaves without keeping their bearings. See

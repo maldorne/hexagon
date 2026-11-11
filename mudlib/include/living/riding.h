@@ -37,4 +37,21 @@
 #define RIDE_REQ_SKILL     "skill"      // ({ skill id, minimum value })
 #define RIDE_REQ_BODY_SIZE "body_size"  // ({ smallest, biggest }) body size of the race
 
+// the steeds a player owns: how many at most, and the keys that tie a steed to
+// its owner (kept in its spec) and to its entry in the registry of the riding
+// handler
+#define MAX_OWNED_STEEDS 10
+#define RIDE_OWNER       "owner"      // name of the player who owns it
+#define RIDE_ID          "steed_id"   // key of its entry in the owner's registry
+
+// keys of an entry of the registry
+#define STEED_TEMPLATE "template"  // bestiary template it is made from, or
+#define STEED_FILE     "file"      // the file it is cloned from
+#define STEED_STATE    "state"     // what it keeps between logins ("hp")
+#define STEED_LOCATION "location"  // where it stands; empty when it is not out
+#define STEED_NAME     "name"      // its short when it was bought
+
+// the directory of a game's save tree that holds the registries
+#define STEEDS_SAVE_DIR "steeds/"
+
 #endif

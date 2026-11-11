@@ -835,3 +835,15 @@
 #define _LANG_CMD_RESISTANCES_TITLE "Resistencias de " + who->query_cap_name()
 #define _LANG_CMD_RESISTANCES_NOT_FOUND "No encuentras a '" + name + "'.\n"
 #define _LANG_CMD_RESISTANCES_INVULNERABLE "Invulnerable a los hechizos"
+
+// steeds
+
+#define _LANG_CMD_STEEDS_ALIAS ({ "monturas", "steeds" })
+#define _LANG_CMD_STEEDS_SYNTAX "monturas"
+#define _LANG_CMD_STEEDS_HELP "Muestra las monturas que tienes y dónde está cada una."
+#define _LANG_CMD_STEEDS_NONE "No tienes ninguna montura.\n"
+#define _LANG_CMD_STEEDS_HEADER "Tus monturas:\n"
+// owned[ids[i]]["name"] es el corto de la montura cuando se compró
+#define _LANG_CMD_STEEDS_LINE "  " + owned[ids[i]]["name"] + ": " + place + ".\n"
+#define _LANG_CMD_STEEDS_NOWHERE "en el establo"
+#define _LANG_CMD_STEEDS_UNKNOWN "en algún lugar"
