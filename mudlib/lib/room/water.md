@@ -74,6 +74,12 @@ the living loses `WATER_DROWN_HP_PERCENT` of its maximum life per beat (and can
 die). Whoever breathes there has the property removed, a full lungful. A monster
 whose heart_beat is off (nobody around) neither drowns nor is dragged.
 
+On the first beat in a cell that is not submerged (the surface, an air pocket),
+`surface_step` finds the breath property, removes it (the lungs are full again)
+and tells the living once "You get your head above the water and breathe
+deeply." (`_LANG_WATER_SURFACE`); a record more than three beats old is dropped
+silently. The next dive starts a fresh count.
+
 ## Breathing
 
 One property, `WATER_BREATHING_PROP` (`"water_breathing"`, `<common/properties.h>`),

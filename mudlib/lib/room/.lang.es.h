@@ -29,6 +29,7 @@
 #define _LANG_WATER_DROWN_LAST "Te queda muy poco aire. Debes subir a la superficie.\n"
 #define _LANG_WATER_DROWN_ME "Te ahogas: el agua te llena los pulmones y sientes un dolor terrible.\n"
 #define _LANG_WATER_DROWN_ROOM who->query_cap_name() + " se debate bajo el agua, ahogándose.\n"
+#define _LANG_WATER_SURFACE "Sacas la cabeza del agua y respiras hondo.\n"
 #define _LANG_COAST_SWIM_MESS "$N se mete en el agua y nada hacia $T."
 #define _LANG_COAST_LOOK "Estás en la orilla. Escribe 'nadar' para meterte en el agua.\n"
 #define _LANG_COAST_GLANCE "Estás en la orilla.\n"

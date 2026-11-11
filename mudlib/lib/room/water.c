@@ -474,8 +474,31 @@ private void breathe_step(object who)
 }
 
 /**
+ * One heart_beat of a living in a cell that is not submerged (the surface, an
+ * air pocket). Whoever had spent breath under the water is told it breathes
+ * again, once, and gets its full lungful back: the property is removed, so the
+ * next dive starts a fresh count. A record older than three beats is stale and
+ * is dropped without a word.
+ *
+ * @param who  a living in the water of this place, above the surface
+ */
+private void surface_step(object who)
+{
+  mixed breath;
+
+  breath = who->query_static_property(WATER_BREATH_PROP);
+  if (!arrayp(breath))
+    return;
+
+  who->remove_static_property(WATER_BREATH_PROP);
+  if (!who->query_dead() && time() - breath[1] <= 3 * HEART_BEAT_TIME)
+    tell_object(who, _LANG_WATER_SURFACE);
+}
+
+/**
  * A living in the water of this place has had another heart_beat: below the
  * surface it holds its breath or drowns, and in moving water it is dragged.
+ * Above it (the surface, an air pocket) it breathes again.
  * The place passes it on from its own event_heart_beat. Whoever is not in the
  * water (on a bridge above it) feels nothing.
  *
@@ -493,6 +516,8 @@ void water_event_heart_beat(object who)
     if (!who)
       return;
   }
+  else
+    surface_step(who);
 
   drift_step(who);
 }
