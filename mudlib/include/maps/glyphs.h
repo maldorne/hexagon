@@ -196,10 +196,9 @@
 #define GLYPH_MAP_RUINS    (chr(226) + chr(136) + chr(180))         // U+2234 therefore
 #define GLYPH_MAP_UNDERGROUND "."
 
-// A volcano is the mountain triangle in another colour. ANSI has no orange:
-// YELLOW (bold dark yellow) reads as orange in many palettes, and the mountain
-// itself is ORANGE (the plain dark yellow, brown). The one place to change it.
-#define COLOUR_MAP_VOLCANO "%^YELLOW%^"
+// A volcano is the mountain triangle in red, apart from the plain mountain.
+// The one place to change it.
+#define COLOUR_MAP_VOLCANO "%^RED%^"
 
 // Shoreline glyphs: a coast is a line joining the coast sectors around it, as
 // a way joins its arms, with rounded corners so it never reads as a road.
