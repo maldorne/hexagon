@@ -337,7 +337,7 @@ int do_exit_command(mapping door_control,
     }
   }
 
-  // a rider goes only where the steed can: the kind of exit, its size, what
+  // a rider goes only where the mount can: the kind of exit, its size, what
   // lies beyond (see the riding handler)
   if (ob->query_riding())
   {

@@ -836,14 +836,14 @@
 #define _LANG_CMD_RESISTANCES_NOT_FOUND "No encuentras a '" + name + "'.\n"
 #define _LANG_CMD_RESISTANCES_INVULNERABLE "Invulnerable a los hechizos"
 
-// steeds
+// mounts
 
-#define _LANG_CMD_STEEDS_ALIAS ({ "monturas", "steeds" })
-#define _LANG_CMD_STEEDS_SYNTAX "monturas"
-#define _LANG_CMD_STEEDS_HELP "Muestra las monturas que tienes y dónde está cada una."
-#define _LANG_CMD_STEEDS_NONE "No tienes ninguna montura.\n"
-#define _LANG_CMD_STEEDS_HEADER "Tus monturas:\n"
-// owned[ids[i]]["name"] es el corto de la montura cuando se compró
-#define _LANG_CMD_STEEDS_LINE "  " + owned[ids[i]]["name"] + ": " + place + ".\n"
-#define _LANG_CMD_STEEDS_NOWHERE "en el establo"
-#define _LANG_CMD_STEEDS_UNKNOWN "en algún lugar"
+#define _LANG_CMD_MOUNTS_ALIAS ({ "monturas", "mounts" })
+#define _LANG_CMD_MOUNTS_SYNTAX "monturas"
+#define _LANG_CMD_MOUNTS_HELP "Muestra las monturas que tienes y dónde está cada una."
+#define _LANG_CMD_MOUNTS_NONE "No tienes ninguna montura.\n"
+#define _LANG_CMD_MOUNTS_HEADER "Tus monturas:\n"
+// owned[i]["name"] es el corto de la montura
+#define _LANG_CMD_MOUNTS_LINE "  " + owned[i]["name"] + ": " + place + ".\n"
+#define _LANG_CMD_MOUNTS_NOWHERE "en el establo"
+#define _LANG_CMD_MOUNTS_UNKNOWN "en algún lugar"

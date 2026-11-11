@@ -98,12 +98,12 @@ it can be intangible (`/lib/obj/shadows/intangible.c`). Attributes of both:
 
 #### The rideable component
 
-`rideable` (`/lib/npc/components/rideable.c`) makes an NPC a steed. Its attributes
-are the spec of the steed (the kind, the seats, the speed, what it may cross;
+`rideable` (`/lib/npc/components/rideable.c`) makes an NPC a mount. Its attributes
+are the spec of the mount (the kind, the seats, the speed, what it may cross;
 `<living/riding.h>`), `/lib/npc.c` answers `query_rideable()` with them, and the
 riding handler (`/lib/handlers/riding.c`) does everything else. The component
 gives the NPC the verbs of its kind (`verbs_board`, `verbs_dismount` of the row
-in the steeds table), unseats the riders when the NPC dies, is destructed or
+in the mounts table), unseats the riders when the NPC dies, is destructed or
 loses the component, and tells the handler when the NPC is moved away from
 them (`event_moved`). Template: `"rideable": { "kind": "horse" }`. Details:
 `/lib/living/riding.md`.
@@ -116,11 +116,11 @@ adds the action and calls that function on the component. Reseeding a live
 component (`add_component`) asks for its verbs again, and dropping it removes
 them.
 
-### The steed shop
+### The mount shop
 
-`steed-shop` (`/lib/location/components/steed-shop.c`) sells steeds: its attribute `stock` lists
+`mount-shop` (`/lib/location/components/mount-shop.c`) sells mounts: its attribute `stock` lists
 the templates or files on sale with their price, and its verbs (`list`, `examine`, `buy`, from
-`query_component_actions`) make the steed in the location, tied to the buyer's registry in the
+`query_component_actions`) make the mount in the location, tied to the buyer and saved in a file of theirs by the
 riding handler. Details: `/lib/living/riding.md`.
 
 ### Location components that act on movement
@@ -160,7 +160,9 @@ that question.
   tries to leave, with a chance that falls as strength plus dexterity rises
   (over 50: never, 41-50: 20%, 36-40: 30%, 31-35: 40%, 30 or less: 50%). A race
   whose object answers `query_swamp_walker()` with 1 (a function of that race
-  file alone, not of `/lib/race.c`) and a ghost are never held.
+  file alone, not of `/lib/race.c`) and a ghost are never held. A rider is judged
+  by its mount: it is never held when the mount's race answers the same, or its
+  spec says `swamp_walker`; otherwise the mount's strength plus dexterity decide.
 
 ## The component
 

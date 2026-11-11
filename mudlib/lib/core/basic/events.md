@@ -132,7 +132,7 @@ The object has just moved. Not sent through `event()`: `move()` calls
 `enter`, because `event()` would tell the mover's inventory and `enter` and
 `exit` leave the mover out. `ob` is always the mover, `from` is nil when it was
 nowhere. The default does nothing. `/lib/npc.c` forwards it to its components,
-and the schedule component uses it to tell its arrival line once the trip ends. `/lib/living/movement.c` uses it on a living that rides (a move that is not its own walk throws it off its steed), and the `rideable` component and `/lib/obj/vehicle.c` on a steed (those on it fall unless it is following its driver); see `/lib/living/riding.md`.
+and the schedule component uses it to tell its arrival line once the trip ends. `/lib/living/movement.c` uses it on a living that rides (a move that is not its own walk throws it off its mount), and the `rideable` component and `/lib/obj/vehicle.c` on a mount (those on it fall unless it is following its driver); see `/lib/living/riding.md`.
 
 ### login
 

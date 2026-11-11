@@ -1,15 +1,15 @@
 // vehicle.c -- an item that can be ridden or driven: a cart, a motorbike, a
-// boat. It carries the same spec an NPC steed carries in its rideable component
-// (the keys of <living/riding.h>, over the row of its kind in the steeds
+// boat. It carries the same spec an NPC mount carries in its rideable component
+// (the keys of <living/riding.h>, over the row of its kind in the mounts
 // table) and answers query_rideable() with it; the riding handler
 // (/lib/handlers/riding.c) does the rest. What inherits it gives the name and
 // the description and calls set_rideable in setup:
 //
 //     set_rideable(([ "kind" : "motorbike", "seats" : 2 ]));
 //
-// A game may fill the hooks the handler calls on a steed: steed_can_board(who,
-// seat) (a refusal written for the rider, or nil), steed_boarded(who) and
-// steed_dismounted(who).
+// A game may fill the hooks the handler calls on a mount: mount_can_board(who,
+// seat) (a refusal written for the rider, or nil), mount_boarded(who) and
+// mount_dismounted(who).
 
 #include <living/riding.h>
 
@@ -36,6 +36,12 @@ void set_rideable(mapping data) { spec = data; }
  * mean it cannot be ridden; a vehicle always can.
  */
 mapping query_rideable() { return spec; }
+
+/**
+ * An owned vehicle exists once in the whole game, so the place it stands in is
+ * not unloaded (the location cleaner keeps whatever holds a unique object).
+ */
+int query_unique_object() { return stringp(spec[RIDE_OWNER]); }
 
 void init()
 {
@@ -103,7 +109,7 @@ string pretty_short(varargs int dark)
 void event_moved(object ob, object from, object dest)
 {
   ::event_moved(ob, from, dest);
-  handler("riding", this_object())->steed_moved(this_object(), from, dest);
+  handler("riding", this_object())->mount_moved(this_object(), from, dest);
 }
 
 void dest_me()
@@ -111,8 +117,8 @@ void dest_me()
   if (environment())
     handler("riding", this_object())->unseat_riders(this_object());
 
-  // an owned vehicle stays in its owner's registry where it stood
-  handler("riding", this_object())->steed_gone(this_object());
+  // an owned vehicle is written where it stands
+  handler("riding", this_object())->mount_gone(this_object());
 
   ::dest_me();
 }

@@ -1,17 +1,17 @@
-// Steed shop component: the location sells steeds (horses, mounts, vehicles).
+// Mount shop component: the location sells mounts (horses, mounts, vehicles).
 //
 // Its only attribute is `stock`, a list of what is on sale, each entry
 //
 //     ([ "template" : "<template id>", "price" : <value> ])
 //     ([ "file" : "/games/<game>/<path>.c", "price" : <value> ])
 //
-// a steed made from a bestiary template or cloned from a file, and the price in
-// the base unit of the money. The label of an entry is the short of the steed.
-// Whoever buys one is its owner: the steed is made in the location, tied to the
-// buyer and put in their registry of the riding handler
-// (/lib/handlers/riding.c), which also keeps the cap of steeds a player may own.
+// a mount made from a bestiary template or cloned from a file, and the price in
+// the base unit of the money. The label of an entry is the short of the mount.
+// Whoever buys one is its owner: the mount is made in the location, tied to the
+// buyer, saved in a file of theirs by the riding handler (/lib/handlers/riding.c),
+// which also keeps the cap of mounts a player may own.
 //
-// The verbs are `list`, `examine <steed>` and `buy <steed>` (a steed is named by
+// The verbs are `list`, `examine <mount>` and `buy <mount>` (a mount is named by
 // what it answers to, or by its number in the list). A sign in the location
 // tells so.
 
@@ -33,7 +33,7 @@ void create()
 {
   component::create();
   stock = ({ });
-  set_type(LOCATION_COMPONENT_STEED_SHOP);
+  set_type(LOCATION_COMPONENT_MOUNT_SHOP);
 }
 
 void init() {}
@@ -46,8 +46,8 @@ void initialize(object location)
   if (!location)
     return;
 
-  sign_item = location->add_sign(_LANG_STEED_SHOP_SIGN_DESC,
-                                 _LANG_STEED_SHOP_SIGN_TEXT);
+  sign_item = location->add_sign(_LANG_MOUNT_SHOP_SIGN_DESC,
+                                 _LANG_MOUNT_SHOP_SIGN_TEXT);
 }
 
 /**
@@ -67,7 +67,7 @@ void take_down()
 mapping * query_stock() { return stock; }
 
 /**
- * Puts a steed on sale and saves the location.
+ * Puts a mount on sale and saves the location.
  * @param entry  ([ "template" : id, "price" : value ]) or
  *               ([ "file" : path, "price" : value ])
  */
@@ -81,7 +81,7 @@ void add_stock(mapping entry)
 
 string query_info()
 {
-  return sizeof(stock) + " steeds";
+  return sizeof(stock) + " mounts";
 }
 
 mapping query_auto_load_attributes()
@@ -113,15 +113,15 @@ mapping query_component_actions()
 
   out = ([ ]);
 
-  verbs = _LANG_STEED_SHOP_LIST_VERBS;
+  verbs = _LANG_MOUNT_SHOP_LIST_VERBS;
   for (i = 0; i < sizeof(verbs); i++)
     out[verbs[i]] = "do_list";
 
-  verbs = _LANG_STEED_SHOP_EXAMINE_VERBS;
+  verbs = _LANG_MOUNT_SHOP_EXAMINE_VERBS;
   for (i = 0; i < sizeof(verbs); i++)
     out[verbs[i]] = "do_examine";
 
-  verbs = _LANG_STEED_SHOP_BUY_VERBS;
+  verbs = _LANG_MOUNT_SHOP_BUY_VERBS;
   for (i = 0; i < sizeof(verbs); i++)
     out[verbs[i]] = "do_buy";
 
@@ -149,7 +149,7 @@ private string text_of(mixed value)
   return "";
 }
 
-// Every name a steed answers to, in lower case.
+// Every name a mount answers to, in lower case.
 private string * names_of(mixed name, mixed aliases, string label)
 {
   string * names;
@@ -171,7 +171,7 @@ private string * names_of(mixed name, mixed aliases, string label)
 }
 
 // What is for sale, each ([ "entry", "label", "long", "names", "price" ]): the
-// stock entries whose steed can be read.
+// stock entries whose mount can be read.
 private mapping * for_sale()
 {
   mapping * goods, t, info;
@@ -186,18 +186,18 @@ private mapping * for_sale()
   {
     info = nil;
 
-    if (stringp(stock[i][STEED_TEMPLATE]))
+    if (stringp(stock[i][MOUNT_TEMPLATE]))
     {
-      t = BESTIARY_HANDLER->query_template(game, stock[i][STEED_TEMPLATE]);
+      t = BESTIARY_HANDLER->query_template(game, stock[i][MOUNT_TEMPLATE]);
       label = t ? text_of(t["short"]) : "";
       if (strlen(label))
         info = ([ "label" : label, "long" : text_of(t["long"]),
                   "names" : names_of(t["name"], t["aliases"], label) ]);
     }
-    else if (stringp(stock[i][STEED_FILE]))
+    else if (stringp(stock[i][MOUNT_FILE]))
     {
       ob = nil;
-      catch(ob = load_object(stock[i][STEED_FILE]));
+      catch(ob = load_object(stock[i][MOUNT_FILE]));
       label = ob ? (string)ob->query_short() : "";
       if (strlen(label))
         info = ([ "label" : label, "long" : (string)ob->query_long(),
@@ -218,13 +218,13 @@ private mapping * for_sale()
 
 // The place in `goods` of what somebody typed (its number, or a name after the
 // articles are dropped), or -1.
-private int find_steed(mapping * goods, string str)
+private int find_mount(mapping * goods, string str)
 {
   string * words;
   int i, number;
 
   words = explode(lower_case(trim(str)), " ") - ({ "" });
-  while (sizeof(words) > 1 && member_array(words[0], _LANG_STEED_SHOP_ARTICLES) != -1)
+  while (sizeof(words) > 1 && member_array(words[0], _LANG_MOUNT_SHOP_ARTICLES) != -1)
     words = words[1 ..];
   str = implode(words, " ");
 
@@ -254,7 +254,7 @@ private string first_paragraph(string text)
 }
 
 /**
- * list: the steeds on sale and their prices.
+ * list: the mounts on sale and their prices.
  */
 int do_list(string str)
 {
@@ -265,17 +265,17 @@ int do_list(string str)
   goods = for_sale();
   if (!sizeof(goods))
   {
-    notify_fail(_LANG_STEED_SHOP_EMPTY);
+    notify_fail(_LANG_MOUNT_SHOP_EMPTY);
     return 0;
   }
 
-  text = _LANG_STEED_SHOP_LIST_HEADER;
+  text = _LANG_MOUNT_SHOP_LIST_HEADER;
   for (i = 0; i < sizeof(goods); i++)
   {
     number = i + 1;
     label = goods[i]["label"];
     price_text = price_in_words(goods[i]["price"]);
-    text += _LANG_STEED_SHOP_LIST_LINE;
+    text += _LANG_MOUNT_SHOP_LIST_LINE;
   }
 
   write(text);
@@ -283,7 +283,7 @@ int do_list(string str)
 }
 
 /**
- * examine <steed>: its short, the first paragraph of its description and its
+ * examine <mount>: its short, the first paragraph of its description and its
  * price, and whether the buyer can pay it.
  */
 int do_examine(string str)
@@ -296,7 +296,7 @@ int do_examine(string str)
     return 0;
 
   goods = for_sale();
-  idx = find_steed(goods, str);
+  idx = find_mount(goods, str);
   if (idx == -1)
     return 0;
 
@@ -304,69 +304,69 @@ int do_examine(string str)
   description = first_paragraph(goods[idx]["long"]);
   price_text = price_in_words(goods[idx]["price"]);
 
-  text = _LANG_STEED_SHOP_EXAMINE;
+  text = _LANG_MOUNT_SHOP_EXAMINE;
   if (this_player()->query_value() < goods[idx]["price"])
-    text += _LANG_STEED_SHOP_EXAMINE_CANNOT_AFFORD;
+    text += _LANG_MOUNT_SHOP_EXAMINE_CANNOT_AFFORD;
 
   write(text);
   return 1;
 }
 
 /**
- * buy <steed>: the buyer pays and is given the steed, which stands in the
- * location and is theirs. Refused over the cap of steeds or without the money.
+ * buy <mount>: the buyer pays and is given the mount, which stands in the
+ * location and is theirs. Refused over the cap of mounts or without the money.
  */
 int do_buy(string str)
 {
   mapping * goods;
-  object buyer, steed, riding;
+  object buyer, mount, riding;
   string label, price_text;
   int idx, max;
 
   if (!strlen(str))
   {
-    notify_fail(_LANG_STEED_SHOP_BUY_WHAT);
+    notify_fail(_LANG_MOUNT_SHOP_BUY_WHAT);
     return 0;
   }
 
   buyer = this_player();
   goods = for_sale();
-  idx = find_steed(goods, str);
+  idx = find_mount(goods, str);
   if (idx == -1)
   {
-    notify_fail(_LANG_STEED_SHOP_NOT_SOLD);
+    notify_fail(_LANG_MOUNT_SHOP_NOT_SOLD);
     return 0;
   }
 
   label = goods[idx]["label"];
   price_text = price_in_words(goods[idx]["price"]);
   riding = handler("riding", query_entity());
-  max = (int)riding->query_max_owned_steeds();
+  max = (int)riding->query_max_owned_mounts();
 
-  if ((int)riding->query_owned_count((string)buyer->query_name(), buyer) >= max)
+  if ((int)riding->query_owned_count(buyer) >= max)
   {
-    notify_fail(_LANG_STEED_SHOP_BUY_LIMIT);
+    notify_fail(_LANG_MOUNT_SHOP_BUY_LIMIT);
     return 0;
   }
 
   if ((int)buyer->query_value() < goods[idx]["price"])
   {
-    notify_fail(_LANG_STEED_SHOP_BUY_CANNOT_AFFORD);
+    notify_fail(_LANG_MOUNT_SHOP_BUY_CANNOT_AFFORD);
     return 0;
   }
 
-  steed = riding->add_steed((string)buyer->query_name(), goods[idx]["entry"],
+  mount = riding->add_mount(buyer, goods[idx]["entry"],
                             query_entity());
-  if (!steed)
+  if (!mount)
   {
-    notify_fail(_LANG_STEED_SHOP_BUY_FAILED);
+    notify_fail(_LANG_MOUNT_SHOP_BUY_FAILED);
     return 0;
   }
 
   buyer->pay_money(handler("money", query_entity())->
                    create_money_array(goods[idx]["price"]));
 
-  tell_object(buyer, _LANG_STEED_SHOP_BUY_ME);
-  tell_room(query_entity(), _LANG_STEED_SHOP_BUY_ROOM, ({ buyer }));
+  tell_object(buyer, _LANG_MOUNT_SHOP_BUY_ME);
+  tell_room(query_entity(), _LANG_MOUNT_SHOP_BUY_ROOM, ({ buyer }));
   return 1;
 }

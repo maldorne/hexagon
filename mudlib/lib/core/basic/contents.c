@@ -143,7 +143,7 @@ private string quest_mark(object ob, object me)
 }
 
 // A rider is followed by where they sit ("(riding the horse)"); the words
-// are the kind of its steed's.
+// are the kind of its mount's.
 private string ride_mark(object ob)
 {
   string listing;

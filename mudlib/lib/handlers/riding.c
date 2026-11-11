@@ -1,25 +1,29 @@
 /*
  * Riding handler.
  *
- * All the rules of mounts and vehicles live here: who may board a steed, what
- * a steed may cross, how a rider and the others in the seats move, what the
- * room reads, and what happens when something goes wrong. A steed is anything
+ * All the rules of mounts and vehicles live here: who may board a mount, what
+ * a mount may cross, how a rider and the others in the seats move, what the
+ * room reads, and what happens when something goes wrong. A mount is anything
  * that answers query_rideable() with its spec: an NPC through its rideable
  * component (/lib/npc/components/rideable.c), an item through /lib/obj/vehicle.c.
- * Both are plain data; nothing here is stored on the steed beyond that. The
- * riders of a steed are not kept anywhere: they are the livings in its place
- * whose query_mount() is the steed, so there is no list to fall out of step.
+ * Both are plain data; nothing here is stored on the mount beyond that. The
+ * riders of a mount are not kept anywhere: they are the livings in its place
+ * whose query_mount() is the mount, so there is no list to fall out of step.
  *
- * The spec of a steed is the default row of the steeds table, then the row of
+ * The spec of a mount is the default row of the mounts table, then the row of
  * its kind, then its own keys (query_spec). Every text a ride says is a key of
  * that spec, so a game gives a horse and a motorbike different words without
  * touching this file. The meaning of every key: /lib/living/riding.md.
  *
- * The steeds a player has bought are kept in a registry per owner, saved in
- * /save/games/<game>/steeds/<letter>/<owner>.o (query_registry_file): the
- * registry is the authority, and the steed only knows who owns it and under
- * which key (RIDE_OWNER, RIDE_ID in its spec). A steed that is out goes with
- * its owner when they quit and is made again where it stood when they log in.
+ * The mounts a player has bought are kept one file each, in the mounts folder of
+ * the player's own save folder (query_mount_file): the file says what the mount
+ * is made from, who owns it, where it stood and how hurt it was. The player
+ * keeps the ids of its mounts (query_mount_ids) and the live ones, and the
+ * mount only knows who owns it and under which id (RIDE_OWNER, RIDE_ID in its
+ * spec). This handler keeps nothing of any player in memory, so reloading it
+ * loses and duplicates nothing. A mount that is out is written when it goes
+ * (its owner quits, its place unloads) and made again where it stood when the
+ * owner logs in.
  *
  * A game may have its own copy: /games/<game>/handlers/riding.c inherits this
  * one and redefines what differs. Reach it with handler("riding", ob), never by
@@ -34,80 +38,76 @@
 #include <room/location.h>
 #include <living/persisted.h>
 
-// who is moving by the rider's own doing right now: the steed and the others
+// who is moving by the rider's own doing right now: the mount and the others
 // in the seats follow the driver, and nobody falls
 static object * carrying;
 
-// the registries in memory, ([ save file : ([ id : entry ]) ]), for the owners
-// who are in the mud; an entry is described by the STEED_* keys of <living/riding.h>
-static mapping registries;
+// what save_object and restore_object go through to move one mount file; they
+// hold something only for the instant of a save or a restore
+string mount_template;  // bestiary template it is made from, or
+string mount_file;      // the file it is cloned from
+string mount_owner;     // name of its owner
+string mount_id;        // its id
+string mount_location;  // where it stood; empty when unknown
+string mount_name;      // its short
+int mount_hp;           // its hit points, 0 when unhurt
 
-// the steeds that exist, ([ id : steed ])
-static mapping live;
-
-// what save_object and restore_object go through to move one registry
-mapping stored;
-
-// the value a skill the steed teaches is given at
+// the value a skill the mount teaches is given at
 #define RIDING_LEARN_VALUE 10
 
 // prototypes
-int board_seat(object who, object steed, int seat);
-private void record_location(object steed, object dest, varargs mapping own);
-private object find_steed(string id, mapping entry);
+int board_seat(object who, object mount, int seat);
 
 void create()
 {
   carrying = ({ });
-  registries = ([ ]);
-  live = ([ ]);
 }
 
 /**
- * The spec a steed has when it carries `own`: the default row of the steeds
+ * The spec a mount has when it carries `own`: the default row of the mounts
  * table, then the row of its kind, then `own`, the last one winning. For a
- * steed that is still being put together and does not answer for itself yet.
+ * mount that is still being put together and does not answer for itself yet.
  */
-mapping query_spec_of(object steed, mapping own)
+mapping query_spec_of(object mount, mapping own)
 {
   object kinds;
 
-  if (!steed || !mappingp(own))
+  if (!mount || !mappingp(own))
     return nil;
 
-  kinds = table("steeds", steed);
+  kinds = table("mounts", mount);
   return ([ ]) + kinds->query_default_kind() + kinds->query_kind(own[RIDE_KIND]) + own;
 }
 
 /**
- * The spec of a steed: its own keys over its kind's row over the default row.
- * @return nil when the object is not a steed
+ * The spec of a mount: its own keys over its kind's row over the default row.
+ * @return nil when the object is not a mount
  */
-mapping query_spec(object steed)
+mapping query_spec(object mount)
 {
-  return steed ? query_spec_of(steed, steed->query_rideable()) : nil;
+  return mount ? query_spec_of(mount, mount->query_rideable()) : nil;
 }
 
 /**
  * Whether the object can be ridden.
  */
-int query_steed(object ob)
+int query_mount(object ob)
 {
   return ob && mappingp(ob->query_rideable());
 }
 
 /**
- * Whether what somebody typed after a verb names this steed: nothing at all
+ * Whether what somebody typed after a verb names this mount: nothing at all
  * does, and so does a name it answers to, after the little words of the
  * language (the prepositions of its kind) are dropped.
  */
-int query_addressed(object steed, string str)
+int query_addressed(object mount, string str)
 {
   mapping spec;
   string * words, * little;
   int i;
 
-  spec = query_spec(steed);
+  spec = query_spec(mount);
   if (!spec)
     return 0;
 
@@ -119,25 +119,25 @@ int query_addressed(object steed, string str)
   while (sizeof(words) > 1 && member_array(words[0], little) != -1)
     words = words[1 ..];
 
-  return steed->id(implode(words, " "));
+  return mount->id(implode(words, " "));
 }
 
 /**
- * The livings riding a steed, driver first. They are in the steed's place.
+ * The livings riding a mount, driver first. They are in the mount's place.
  */
-object * query_riders(object steed)
+object * query_riders(object mount)
 {
   object * obs, * riders;
   int i, j;
 
-  if (!steed || !environment(steed))
+  if (!mount || !environment(mount))
     return ({ });
 
-  obs = all_inventory(environment(steed));
+  obs = all_inventory(environment(mount));
   riders = ({ });
 
   for (i = 0; i < sizeof(obs); i++)
-    if (living(obs[i]) && obs[i]->query_mount() == steed)
+    if (living(obs[i]) && obs[i]->query_mount() == mount)
     {
       // keep the seats in order
       for (j = 0; j < sizeof(riders); j++)
@@ -154,14 +154,14 @@ object * query_riders(object steed)
 }
 
 /**
- * Whether somebody sits in a seat of a steed.
+ * Whether somebody sits in a seat of a mount.
  */
-int query_seat_taken(object steed, int seat)
+int query_seat_taken(object mount, int seat)
 {
   object * riders;
   int i;
 
-  riders = query_riders(steed);
+  riders = query_riders(mount);
   for (i = 0; i < sizeof(riders); i++)
     if ((int)riders[i]->query_seat() == seat)
       return 1;
@@ -170,19 +170,19 @@ int query_seat_taken(object steed, int seat)
 }
 
 /**
- * The first seat nobody sits in, or -1 when the steed is full.
+ * The first seat nobody sits in, or -1 when the mount is full.
  */
-int query_free_seat(object steed)
+int query_free_seat(object mount)
 {
   mapping spec;
   int i;
 
-  spec = query_spec(steed);
+  spec = query_spec(mount);
   if (!spec)
     return -1;
 
   for (i = 0; i < (int)spec[RIDE_SEATS]; i++)
-    if (!query_seat_taken(steed, i))
+    if (!query_seat_taken(mount, i))
       return i;
 
   return -1;
@@ -190,10 +190,10 @@ int query_free_seat(object steed)
 
 /**
  * A text of the spec with the words of this ride put in. $N is the rider and
- * $S the steed's short in lower case; $T and $F are left for move_living.
+ * $S the mount's short in lower case; $T and $F are left for move_living.
  * @param keep_rider  1 to leave $N in, for the lines move_living writes
  */
-private string text(mapping spec, string key, object who, object steed,
+private string text(mapping spec, string key, object who, object mount,
                     varargs int keep_rider)
 {
   string str;
@@ -202,24 +202,24 @@ private string text(mapping spec, string key, object who, object steed,
   if (!stringp(str))
     return "";
 
-  if (steed)
-    str = replace_string(str, "$S", lower_case((string)steed->query_short()));
+  if (mount)
+    str = replace_string(str, "$S", lower_case((string)mount->query_short()));
   if (who && !keep_rider)
     str = replace_string(str, "$N", (string)who->query_cap_name());
 
   return str;
 }
 
-string query_owner(object steed);
-string query_steed_id(object steed);
+string query_owner(object mount);
+string query_mount_id(object mount);
 
 /**
- * The reason somebody cannot take a seat of a steed, written for them, or nil
- * when they can. A driver who does not know the skill the steed teaches counts
+ * The reason somebody cannot take a seat of a mount, written for them, or nil
+ * when they can. A driver who does not know the skill the mount teaches counts
  * as knowing it at the value it would be given.
  * @param seat  the seat wanted, or -1 for the first free one
  */
-string query_board_refusal(object who, object steed, int seat)
+string query_board_refusal(object who, object mount, int seat)
 {
   mapping spec, req;
   mixed * need;
@@ -227,32 +227,32 @@ string query_board_refusal(object who, object steed, int seat)
   int value, free_seat, * sizes;
   string refusal;
 
-  spec = query_spec(steed);
+  spec = query_spec(mount);
   if (!spec || !who)
     return nil;
 
   if (who->query_dead())
-    return text(spec, "refuse_dead", who, steed);
+    return text(spec, "refuse_dead", who, mount);
 
   if (who->query_property(PASSED_OUT_PROP))
-    return text(spec, "refuse_passed_out", who, steed);
+    return text(spec, "refuse_passed_out", who, mount);
 
   if (who->query_mount())
-    return text(spec, "refuse_already", who, steed);
+    return text(spec, "refuse_already", who, mount);
 
-  free_seat = query_free_seat(steed);
+  free_seat = query_free_seat(mount);
   if (free_seat == -1 ||
       (seat != -1 && (seat < 0 || seat >= (int)spec[RIDE_SEATS] ||
-                      query_seat_taken(steed, seat))))
-    return text(spec, "refuse_full", who, steed);
+                      query_seat_taken(mount, seat))))
+    return text(spec, "refuse_full", who, mount);
 
   if (seat == -1)
     seat = free_seat;
 
-  // an owned steed is driven only by its owner; others may still be passengers
-  if (seat == RIDING_DRIVER_SEAT && query_owner(steed) &&
-      query_owner(steed) != (string)who->query_name())
-    return text(spec, "refuse_not_owner", who, steed);
+  // an owned mount is driven only by its owner; others may still be passengers
+  if (seat == RIDING_DRIVER_SEAT && query_owner(mount) &&
+      query_owner(mount) != (string)who->query_name())
+    return text(spec, "refuse_not_owner", who, mount);
 
   // only whoever drives has to know how
   if (seat == RIDING_DRIVER_SEAT && mappingp(spec[RIDE_REQUIRES]))
@@ -266,7 +266,7 @@ string query_board_refusal(object who, object steed, int seat)
       if (!who->query_known_skill(need[0]) && spec[RIDE_LEARN] == need[0])
         value = RIDING_LEARN_VALUE;
       if (value < need[1])
-        return text(spec, "refuse_skill", who, steed);
+        return text(spec, "refuse_skill", who, mount);
     }
 
     sizes = req[RIDE_REQ_BODY_SIZE];
@@ -275,12 +275,12 @@ string query_board_refusal(object who, object steed, int seat)
       race = load_object((string)who->query_race_ob());
       if (race && ((int)race->query_body_size() < sizes[0] ||
                    (int)race->query_body_size() > sizes[1]))
-        return text(spec, "refuse_body_size", who, steed);
+        return text(spec, "refuse_body_size", who, mount);
     }
   }
 
-  // whatever else the steed itself wants to ask
-  refusal = steed->steed_can_board(who, seat);
+  // whatever else the mount itself wants to ask
+  refusal = mount->mount_can_board(who, seat);
   if (stringp(refusal) && strlen(refusal))
     return refusal;
 
@@ -288,31 +288,31 @@ string query_board_refusal(object who, object steed, int seat)
 }
 
 /**
- * Seats somebody on a steed, in the first free seat, and tells them and the
+ * Seats somebody on a mount, in the first free seat, and tells them and the
  * place. The refusal, if any, is told to the rider.
  * @return 1 when they are on it
  */
-int board(object who, object steed)
+int board(object who, object mount)
 {
-  return board_seat(who, steed, -1);
+  return board_seat(who, mount, -1);
 }
 
 /**
- * Seats somebody on a steed in the seat they want (-1: the first free one).
- * Whoever takes the driver's seat of a steed that teaches a skill and does not
+ * Seats somebody on a mount in the seat they want (-1: the first free one).
+ * Whoever takes the driver's seat of a mount that teaches a skill and does not
  * know it learns it, at RIDING_LEARN_VALUE.
  * @return 1 when they are on it
  */
-int board_seat(object who, object steed, int seat)
+int board_seat(object who, object mount, int seat)
 {
   mapping spec;
   string refusal;
 
-  spec = query_spec(steed);
-  if (!spec || !who || environment(who) != environment(steed))
+  spec = query_spec(mount);
+  if (!spec || !who || environment(who) != environment(mount))
     return 0;
 
-  refusal = query_board_refusal(who, steed, seat);
+  refusal = query_board_refusal(who, mount, seat);
   if (refusal)
   {
     tell_object(who, refusal);
@@ -320,24 +320,24 @@ int board_seat(object who, object steed, int seat)
   }
 
   if (seat == -1)
-    seat = query_free_seat(steed);
+    seat = query_free_seat(mount);
 
   if (seat == RIDING_DRIVER_SEAT && stringp(spec[RIDE_LEARN]) &&
       !who->query_known_skill(spec[RIDE_LEARN]))
     who->set_skill_value(spec[RIDE_LEARN], RIDING_LEARN_VALUE);
 
-  who->set_mount(steed, seat);
+  who->set_mount(mount, seat);
   who->add_extra_look(who);
 
-  tell_object(who, text(spec, "board_me", who, steed));
-  tell_room(environment(who), text(spec, "board_room", who, steed), ({ who }));
+  tell_object(who, text(spec, "board_me", who, mount));
+  tell_room(environment(who), text(spec, "board_room", who, mount), ({ who }));
 
-  steed->steed_boarded(who);
+  mount->mount_boarded(who);
   return 1;
 }
 
 /**
- * Takes somebody off the steed they ride, with nothing but words: a fall does
+ * Takes somebody off the mount they ride, with nothing but words: a fall does
  * no damage.
  * @param fall  1 to tell the fall instead of the dismount
  * @return 1 when they were riding
@@ -345,51 +345,51 @@ int board_seat(object who, object steed, int seat)
 int dismount(object who, varargs int fall)
 {
   mapping spec;
-  object steed;
+  object mount;
   string mine, others;
 
   if (!who)
     return 0;
 
-  steed = who->query_mount();
-  if (!steed)
+  mount = who->query_mount();
+  if (!mount)
     return 0;
 
-  spec = query_spec(steed);
+  spec = query_spec(mount);
   if (!spec)
-    spec = table("steeds", who)->query_default_kind();
+    spec = table("mounts", who)->query_default_kind();
 
   who->clear_mount();
   who->remove_extra_look(who);
 
-  mine = text(spec, fall ? "fall_me" : "dismount_me", who, steed);
-  others = text(spec, fall ? "fall_room" : "dismount_room", who, steed);
+  mine = text(spec, fall ? "fall_me" : "dismount_me", who, mount);
+  others = text(spec, fall ? "fall_room" : "dismount_room", who, mount);
 
   tell_object(who, mine);
   if (environment(who))
     tell_room(environment(who), others, ({ who }));
 
-  steed->steed_dismounted(who);
+  mount->mount_dismounted(who);
   return 1;
 }
 
 /**
- * Everybody on a steed falls: it died, was destructed, or was taken somewhere
+ * Everybody on a mount falls: it died, was destructed, or was taken somewhere
  * they were not.
- * @param where  the place they are in, when the steed no longer is
+ * @param where  the place they are in, when the mount no longer is
  */
-void unseat_riders(object steed, varargs object where)
+void unseat_riders(object mount, varargs object where)
 {
   object * riders, env;
   int i;
 
-  env = where ? where : environment(steed);
+  env = where ? where : environment(mount);
   if (!env)
     return;
 
   riders = all_inventory(env);
   for (i = 0; i < sizeof(riders); i++)
-    if (living(riders[i]) && riders[i]->query_mount() == steed)
+    if (living(riders[i]) && riders[i]->query_mount() == mount)
       dismount(riders[i], 1);
 }
 
@@ -402,32 +402,32 @@ void unseat_riders(object steed, varargs object where)
 string query_move_refusal(object who, object room, string dir)
 {
   mapping spec;
-  object steed, dest, kinds;
+  object mount, dest, kinds;
   string type, reason;
   mixed size;
   string * medium;
 
-  steed = who ? who->query_mount() : nil;
-  spec = query_spec(steed);
+  mount = who ? who->query_mount() : nil;
+  spec = query_spec(mount);
   if (!spec || !room)
     return nil;
 
   if (who->query_seat() != RIDING_DRIVER_SEAT)
-    return text(spec, "refuse_passenger", who, steed);
+    return text(spec, "refuse_passenger", who, mount);
 
   type = room->query_ex_type(dir);
   if (type && member_array(type, spec[RIDE_EXITS_DENY]) != -1)
     return text(spec, spec["refuse_" + type] ? "refuse_" + type : "refuse_exit",
-                who, steed);
+                who, mount);
 
   if (type && pointerp(spec[RIDE_TERRAIN_ONLY]) && sizeof(spec[RIDE_TERRAIN_ONLY]) &&
       member_array(type, spec[RIDE_TERRAIN_ONLY]) == -1)
-    return text(spec, "refuse_terrain", who, steed);
+    return text(spec, "refuse_terrain", who, mount);
 
   // how big the exit is; an exit with no size does not hold it back
   size = room->query_size(dir);
   if (intp(size) && size > 0 && size < (int)spec[RIDE_EXIT_SIZE])
-    return text(spec, "refuse_exit_size", who, steed);
+    return text(spec, "refuse_exit_size", who, mount);
 
   dest = room->query_dest_object(dir);
   if (!dest)
@@ -435,22 +435,22 @@ string query_move_refusal(object who, object room, string dir)
 
   if (member_array(RIDE_TERRAIN_INDOORS, spec[RIDE_TERRAIN_DENY]) != -1 &&
       !dest->query_outside())
-    return text(spec, "refuse_indoors", who, steed);
+    return text(spec, "refuse_indoors", who, mount);
 
   if (member_array(RIDE_TERRAIN_UNDERGROUND, spec[RIDE_TERRAIN_DENY]) != -1 &&
       dest->query_underground())
-    return text(spec, "refuse_underground", who, steed);
+    return text(spec, "refuse_underground", who, mount);
 
-  // the medium of the place beyond: a place on water needs a steed that crosses it
+  // the medium of the place beyond: a place on water needs a mount that crosses it
   medium = spec[RIDE_MEDIUM];
   if (dest->query_water_environment())
   {
     if (member_array(RIDE_MEDIUM_WATER, medium) == -1)
-      return text(spec, "refuse_water", who, steed);
+      return text(spec, "refuse_water", who, mount);
   }
   else if (member_array(RIDE_MEDIUM_GROUND, medium) == -1 &&
            member_array(RIDE_MEDIUM_AIR, medium) == -1)
-    return text(spec, "refuse_ground", who, steed);
+    return text(spec, "refuse_ground", who, mount);
 
   return nil;
 }
@@ -463,14 +463,14 @@ string query_move_refusal(object who, object room, string dir)
 string query_travel_line(object who, int arriving)
 {
   mapping spec;
-  object steed;
+  object mount;
 
-  steed = who ? who->query_mount() : nil;
-  spec = query_spec(steed);
+  mount = who ? who->query_mount() : nil;
+  spec = query_spec(mount);
   if (!spec)
     return nil;
 
-  return text(spec, arriving ? "arrive" : "leave", who, steed, 1);
+  return text(spec, arriving ? "arrive" : "leave", who, mount, 1);
 }
 
 /**
@@ -479,11 +479,11 @@ string query_travel_line(object who, int arriving)
 string query_listing(object who)
 {
   mapping spec;
-  object steed;
+  object mount;
 
-  steed = who ? who->query_mount() : nil;
-  spec = query_spec(steed);
-  return spec ? text(spec, "listing", who, steed) : "";
+  mount = who ? who->query_mount() : nil;
+  spec = query_spec(mount);
+  return spec ? text(spec, "listing", who, mount) : "";
 }
 
 /**
@@ -492,33 +492,33 @@ string query_listing(object who)
 string query_look(object who)
 {
   mapping spec;
-  object steed;
+  object mount;
 
-  steed = who ? who->query_mount() : nil;
-  spec = query_spec(steed);
-  return spec ? text(spec, "look", who, steed) : "";
+  mount = who ? who->query_mount() : nil;
+  spec = query_spec(mount);
+  return spec ? text(spec, "look", who, mount) : "";
 }
 
 /**
- * The driver has just walked through an exit: the steed and the others in the
- * seats come after, in silence. If the steed cannot follow, the driver falls.
+ * The driver has just walked through an exit: the mount and the others in the
+ * seats come after, in silence. If the mount cannot follow, the driver falls.
  * @param from  the place the driver left
  */
 void carry(object who, object from)
 {
-  object steed, dest, * riders;
+  object mount, dest, * riders;
   int i;
 
-  steed = who->query_mount();
+  mount = who->query_mount();
   dest = environment(who);
-  if (!steed || !dest || environment(steed) == dest)
+  if (!mount || !dest || environment(mount) == dest)
     return;
 
-  riders = query_riders(steed) - ({ who });
+  riders = query_riders(mount) - ({ who });
 
-  carrying = ({ steed }) + riders;
+  carrying = ({ mount }) + riders;
 
-  if (steed->move(dest) != MOVE_OK)
+  if (mount->move(dest) != MOVE_OK)
   {
     carrying = ({ });
     dismount(who, 1);
@@ -537,7 +537,7 @@ void carry(object who, object from)
 
 /**
  * A rider has been moved by something that is not their ride (a teleport, a
- * push): they fall where they land, and the steed stays where it was.
+ * push): they fall where they land, and the mount stays where it was.
  */
 void rider_moved(object who, object from, object dest)
 {
@@ -548,149 +548,67 @@ void rider_moved(object who, object from, object dest)
 }
 
 /**
- * A steed has been moved: unless it is following its driver, those on it were
+ * A mount has been moved: unless it is following its driver, those on it were
  * left behind and fall.
  */
-void steed_moved(object steed, object from, object dest)
+void mount_moved(object mount, object from, object dest)
 {
-  record_location(steed, dest);
-
-  if (member_array(steed, carrying) != -1)
+  if (member_array(mount, carrying) != -1)
     return;
 
-  unseat_riders(steed, from);
+  unseat_riders(mount, from);
 }
 
-// --- The steeds a player owns -------------------------------------------------
+// --- The mounts a player owns -------------------------------------------------
 
 /**
- * How many steeds a player may own at once; a game's handler may change it.
+ * How many mounts a player may own at once; a game's handler may change it.
  */
-int query_max_owned_steeds()
+int query_max_owned_mounts()
 {
-  return MAX_OWNED_STEEDS;
+  return MAX_OWNED_MOUNTS;
 }
 
 /**
- * The file a player's registry is saved in, in the save tree of the game of
- * `where` (without the .o).
- * @param where  an object in the game: the player, a place, a steed
+ * The file a mount is saved in (without the .o): one per mount, in the mounts
+ * folder of its owner's save folder.
  */
-string query_registry_file(string owner, object where)
+string query_mount_file(string owner, string id)
 {
-  return game_save_dir(where) + STEEDS_SAVE_DIR + owner[0 .. 0] + "/" + owner;
+  return player_save_dir(owner) + MOUNTS_SAVE_DIR + id;
 }
 
 /**
- * Who owns a steed, or nil.
+ * Who owns a mount, or nil.
  */
-string query_owner(object steed)
+string query_owner(object mount)
 {
   mapping own;
 
-  own = steed ? steed->query_rideable() : nil;
+  own = mount ? mount->query_rideable() : nil;
   return mappingp(own) && stringp(own[RIDE_OWNER]) ? own[RIDE_OWNER] : nil;
 }
 
 /**
- * The key of a steed in its owner's registry, or nil.
+ * The id of a mount among its owner's, which is the name of its file, or nil.
  */
-string query_steed_id(object steed)
+string query_mount_id(object mount)
 {
   mapping own;
 
-  own = steed ? steed->query_rideable() : nil;
+  own = mount ? mount->query_rideable() : nil;
   return mappingp(own) && stringp(own[RIDE_ID]) ? own[RIDE_ID] : nil;
 }
 
 /**
- * The steed of an entry of the registry, when it exists.
+ * How many mounts a player owns.
  */
-object query_live_steed(string id)
+int query_owned_count(object owner)
 {
-  return live[id];
+  return owner ? sizeof(owner->query_mount_ids()) : 0;
 }
 
-/**
- * The registry of a player, ([ id : entry ]), read from its file the first
- * time it is asked for and then kept until they quit.
- */
-private mapping query_registry(string owner, object where)
-{
-  string file;
-
-  file = query_registry_file(owner, where);
-  if (registries[file])
-    return registries[file];
-
-  registries[file] = ([ ]);
-  if (file_exists(file + ".o"))
-  {
-    stored = nil;
-    restore_object(file);
-    if (mappingp(stored))
-      registries[file] = stored;
-    stored = nil;
-  }
-
-  return registries[file];
-}
-
-/**
- * Writes the registry of a player; an empty one leaves no file.
- */
-private void save_registry(string owner, object where)
-{
-  string file, * pieces;
-
-  file = query_registry_file(owner, where);
-  if (!registries[file])
-    return;
-
-  if (!map_sizeof(registries[file]))
-  {
-    if (file_exists(file + ".o"))
-      rm(file + ".o");
-    return;
-  }
-
-  pieces = explode(file, "/");
-  mkdir(implode(pieces[.. sizeof(pieces) - 2], "/") + "/");
-
-  stored = registries[file];
-  save_object(file, 1);
-  stored = nil;
-}
-
-/**
- * The entries of a player's registry (the live ones carry their steed under
- * "steed"), each a copy.
- */
-mapping query_owned(string owner, object where)
-{
-  mapping registry, out;
-  string * ids;
-  int i;
-
-  registry = query_registry(owner, where);
-  out = ([ ]);
-  ids = map_indices(registry);
-  for (i = 0; i < sizeof(ids); i++)
-    out[ids[i]] = ([ ]) + registry[ids[i]] +
-                  ([ "steed" : find_steed(ids[i], registry[ids[i]]) ]);
-
-  return out;
-}
-
-/**
- * How many steeds a player owns.
- */
-int query_owned_count(string owner, object where)
-{
-  return map_sizeof(query_registry(owner, where));
-}
-
-// What names a place in a registry: the file of a location, the path of a room.
+// What names a place in a mount file: the file of a location, the path of a room.
 private string place_of(object env)
 {
   if (!env)
@@ -719,220 +637,257 @@ private object load_place(string path)
   return place;
 }
 
-/**
- * The steed of an entry when it exists: the one this handler made, or, when
- * the handler has been reloaded since and no longer knows it, the one standing
- * where the entry says with that key (it is known again from then on).
- *
- * @param id     the key of the entry
- * @param entry  the entry of the registry
- * @return the steed, or nil when it is not out
- */
-private object find_steed(string id, mapping entry)
+// Empties the variables a mount file goes through.
+private void clear_mount_vars()
 {
-  object place, * inv;
-  int i;
-
-  if (live[id])
-    return live[id];
-
-  if (!mappingp(entry) || !strlen(entry[STEED_LOCATION]))
-    return nil;
-
-  place = load_place(entry[STEED_LOCATION]);
-  if (!place)
-    return nil;
-
-  inv = all_inventory(place);
-  for (i = 0; i < sizeof(inv); i++)
-    if (query_steed_id(inv[i]) == id)
-      return live[id] = inv[i];
-
-  return nil;
+  mount_template = nil;
+  mount_file = nil;
+  mount_owner = nil;
+  mount_id = nil;
+  mount_location = nil;
+  mount_name = nil;
+  mount_hp = 0;
 }
 
 /**
- * Ties a steed to its owner and to its entry in the registry: both go in the
- * spec the steed carries (the rideable component of an NPC, the spec of a
- * vehicle).
+ * Writes the file of a mount: what it is made from, its owner and id, where it
+ * stands, its short and how hurt it is.
+ * @param own  its spec, for a provider that can no longer answer query_rideable
+ *             (an NPC's components are let go before they clean up)
  */
-private void mark_owner(object steed, string owner, string id)
+private void write_mount(object mount, mapping own)
+{
+  string path, source, * pieces;
+
+  path = query_mount_file(own[RIDE_OWNER], own[RIDE_ID]);
+  pieces = explode(path, "/");
+  mkdir(implode(pieces[.. sizeof(pieces) - 2], "/") + "/");
+
+  clear_mount_vars();
+  source = mount->query_npc_source();
+  if (stringp(source) && strlen(source))
+    mount_template = source;
+  else
+  {
+    mount_file = base_name(mount);
+    if (mount_file[strlen(mount_file) - 2 ..] != ".c")
+      mount_file += ".c";
+  }
+
+  mount_owner = own[RIDE_OWNER];
+  mount_id = own[RIDE_ID];
+  mount_location = place_of(environment(mount));
+  mount_name = (string)mount->query_short();
+  mount_hp = (int)mount->query_hp();
+
+  save_object(path, 1);
+  clear_mount_vars();
+}
+
+/**
+ * What a mount file holds, or nil when it has none.
+ * @return ([ "template", "file", "location", "name", "hp" ])
+ */
+private mapping read_mount(string owner, string id)
+{
+  mapping data;
+  string path;
+
+  path = query_mount_file(owner, id);
+  if (!file_exists(path + ".o"))
+    return nil;
+
+  clear_mount_vars();
+  restore_object(path, 1);
+  data = ([ "template" : mount_template, "file" : mount_file,
+            "location" : mount_location, "name" : mount_name,
+            "hp" : mount_hp ]);
+  clear_mount_vars();
+  return data;
+}
+
+// Ties a mount to its owner and to its file: both go in the spec the mount
+// carries (the rideable component of an NPC, the spec of a vehicle).
+private void mark_owner(object mount, string owner, string id)
 {
   mapping own;
 
-  own = steed->query_rideable();
+  own = mount->query_rideable();
   own = ([ ]) + (mappingp(own) ? own : ([ ])) + ([ RIDE_OWNER : owner, RIDE_ID : id ]);
 
-  if (steed->query_component_by_type("rideable"))
-    steed->add_component("rideable", own);
+  if (mount->query_component_by_type("rideable"))
+    mount->add_component("rideable", own);
   else
-    steed->set_rideable(own);
+    mount->set_rideable(own);
 }
 
-/**
- * Makes the steed of an entry and puts it in a place, ready to be ridden.
- * @return nil when it cannot be made or moved
- */
-private object make_steed(string owner, string id, mapping entry, object dest)
+// Makes the mount a file describes, its owner's, and puts it in a place, ready
+// to be ridden. Nil when it cannot be made or moved.
+private object make_mount(object owner, string id, mapping data, object dest)
 {
-  object steed;
-  mapping state;
+  object mount;
   int hp;
 
-  steed = nil;
-  if (stringp(entry[STEED_TEMPLATE]))
-    steed = BESTIARY_HANDLER->spawn_from_template(game_name(dest),
-                                                  entry[STEED_TEMPLATE]);
-  else if (stringp(entry[STEED_FILE]))
-    catch(steed = clone_object(entry[STEED_FILE]));
+  mount = nil;
+  if (stringp(data["template"]))
+    mount = BESTIARY_HANDLER->spawn_from_template(game_name(dest), data["template"]);
+  else if (stringp(data["file"]))
+    catch(mount = clone_object(data["file"]));
 
-  if (!steed)
+  if (!mount)
     return nil;
 
-  mark_owner(steed, owner, id);
+  mark_owner(mount, (string)owner->query_name(), id);
 
-  state = entry[STEED_STATE];
-  if (mappingp(state) && intp(state["hp"]) && state["hp"] > 0)
+  hp = data["hp"];
+  if (hp > 0)
   {
-    hp = state["hp"];
-    if (hp > (int)steed->query_max_hp())
-      hp = (int)steed->query_max_hp();
-    steed->set_hp(hp);
+    if (hp > (int)mount->query_max_hp())
+      hp = (int)mount->query_max_hp();
+    mount->set_hp(hp);
   }
 
-  live[id] = steed;
-  if (steed->move(dest) != MOVE_OK)
+  if (mount->move(dest) != MOVE_OK)
   {
-    map_delete(live, id);
-    steed->dest_me();
+    mount->dest_me();
     return nil;
   }
 
   // its components may need to see the world it now stands in
-  steed->components_placed();
-  return steed;
+  mount->components_placed();
+  owner->add_owned_mount(mount);
+  return mount;
 }
 
 /**
- * Buys a steed: makes the one the stock entry names in `where`, registers it
- * to its owner and saves the registry. Whoever sells has already asked for the
- * price and the cap (query_owned_count, query_max_owned_steeds).
- * @param stock  ([ "template" : id ]) or ([ "file" : path ])
- * @return the steed, or nil when the owner has too many or it cannot be made
+ * The mounts a player owns, in the order they were bought, each
+ * ([ "name" : its short, "mount" : the live one or nil ]). One whose file is
+ * gone and is not out is left out.
  */
-object add_steed(string owner, mapping stock, object where)
+mapping * query_owned(object owner)
 {
-  mapping registry, entry;
-  string id;
-  object steed;
+  mapping data;
+  mapping * out;
+  object * live;
+  string * ids;
+  int i, j;
 
-  if (!stringp(owner) || !mappingp(stock) || !where)
+  out = ({ });
+  live = owner->query_owned_mounts();
+  ids = owner->query_mount_ids();
+  for (i = 0; i < sizeof(ids); i++)
+  {
+    for (j = 0; j < sizeof(live); j++)
+      if (query_mount_id(live[j]) == ids[i])
+        break;
+
+    if (j < sizeof(live))
+    {
+      out += ({ ([ "name" : (string)live[j]->query_short(), "mount" : live[j] ]) });
+      continue;
+    }
+
+    data = read_mount((string)owner->query_name(), ids[i]);
+    if (data)
+      out += ({ ([ "name" : data["name"], "mount" : nil ]) });
+  }
+
+  return out;
+}
+
+/**
+ * Buys a mount: makes the one the stock entry names in `where`, saves its file
+ * and adds it to the buyer's. Whoever sells has already asked for the price and
+ * the cap (query_owned_count, query_max_owned_mounts).
+ * @param stock  ([ "template" : id ]) or ([ "file" : path ])
+ * @return the mount, or nil when the owner has too many or it cannot be made
+ */
+object add_mount(object owner, mapping stock, object where)
+{
+  mapping data;
+  string name, id;
+  object mount;
+
+  if (!owner || !mappingp(stock) || !where)
     return nil;
 
-  registry = query_registry(owner, where);
-  if (map_sizeof(registry) >= query_max_owned_steeds())
+  name = (string)owner->query_name();
+  if (query_owned_count(owner) >= query_max_owned_mounts())
+    return nil;
+
+  if (!stringp(stock[MOUNT_TEMPLATE]) && !stringp(stock[MOUNT_FILE]))
     return nil;
 
   do
     id = "" + time() + "-" + random(1000000);
-  while (registry[id]);
+  while (file_exists(query_mount_file(name, id) + ".o") ||
+         member_array(id, owner->query_mount_ids()) != -1);
 
-  entry = ([ STEED_STATE : ([ ]), STEED_LOCATION : place_of(where),
-             STEED_NAME : "" ]);
-  if (stringp(stock[STEED_TEMPLATE]))
-    entry[STEED_TEMPLATE] = stock[STEED_TEMPLATE];
-  else if (stringp(stock[STEED_FILE]))
-    entry[STEED_FILE] = stock[STEED_FILE];
-  else
+  data = ([ "template" : stock[MOUNT_TEMPLATE], "file" : stock[MOUNT_FILE],
+            "hp" : 0 ]);
+  mount = make_mount(owner, id, data, where);
+  if (!mount)
     return nil;
 
-  // registered before it is moved in, so its first move is recorded
-  registry[id] = entry;
-  steed = make_steed(owner, id, entry, where);
-  if (!steed)
-  {
-    map_delete(registry, id);
-    return nil;
-  }
-
-  entry[STEED_NAME] = (string)steed->query_short();
-  save_registry(owner, where);
-  return steed;
+  write_mount(mount, mount->query_rideable());
+  owner->add_mount_id(id);
+  owner->save_me();
+  return mount;
 }
 
 /**
- * Notes where an owned steed stands, and writes the registry when it changed.
- */
-private void record_location(object steed, object dest, varargs mapping own)
-{
-  mapping registry;
-  string owner, id;
-
-  owner = own ? own[RIDE_OWNER] : query_owner(steed);
-  id = own ? own[RIDE_ID] : query_steed_id(steed);
-  if (!stringp(owner) || !stringp(id) || !dest)
-    return;
-
-  registry = query_registry(owner, steed);
-  if (registry[id] && registry[id][STEED_LOCATION] != place_of(dest))
-  {
-    registry[id][STEED_LOCATION] = place_of(dest);
-    // on disk at once: the handler may be reloaded, or the mud may stop
-    save_registry(owner, steed);
-  }
-}
-
-/**
- * An owned steed is being destructed: it stays in the registry where it
- * stood, so its owner finds it at the next login.
+ * An owned mount is going away (its owner quits, its place unloads): its file
+ * is written where it stands, so its owner finds it at the next login. A mount
+ * that died has no file left and is not written again.
  *
- * @param steed  the steed going
+ * @param mount  the mount going
  * @param own    optional: its spec, for a provider that can no longer answer
  *               query_rideable (an NPC's components are let go before they
  *               clean up)
  */
-void steed_gone(object steed, varargs mapping own)
+void mount_gone(object mount, varargs mapping own)
 {
   string owner, id;
 
-  owner = own ? own[RIDE_OWNER] : query_owner(steed);
-  id = own ? own[RIDE_ID] : query_steed_id(steed);
-  if (!stringp(owner) || !stringp(id) || (live[id] && live[id] != steed))
+  owner = own ? own[RIDE_OWNER] : query_owner(mount);
+  id = own ? own[RIDE_ID] : query_mount_id(mount);
+  if (!stringp(owner) || !stringp(id) || !environment(mount) ||
+      !file_exists(query_mount_file(owner, id) + ".o"))
     return;
 
-  record_location(steed, environment(steed), own);
-  map_delete(live, id);
-  save_registry(owner, steed);
+  write_mount(mount, own ? own : mount->query_rideable());
 }
 
 /**
- * An owned steed has died: it is not the owner's any more.
+ * An owned mount has died: its file goes and it is not the owner's any more.
  */
-void steed_died(object steed)
+void mount_died(object mount)
 {
-  mapping registry;
-  string owner, id;
+  object owner;
+  string name, id;
 
-  owner = query_owner(steed);
-  id = query_steed_id(steed);
-  if (!owner || !id)
+  name = query_owner(mount);
+  id = query_mount_id(mount);
+  if (!name || !id)
     return;
 
-  registry = query_registry(owner, steed);
-  map_delete(registry, id);
-  map_delete(live, id);
-  save_registry(owner, steed);
+  rm(query_mount_file(name, id) + ".o");
+
+  owner = find_player(name);
+  if (owner)
+  {
+    owner->remove_mount_id(id);
+    owner->save_me();
+  }
 }
 
 /**
- * A player quits: they get off whatever they ride, and every steed of theirs
- * that is out is saved where it stands and taken away.
+ * A player quits: they get off whatever they ride, and every mount of theirs
+ * that is out is written where it stands and taken away.
  */
 void owner_quit(object owner)
 {
-  mapping registry;
-  string name, * ids;
-  object steed;
+  object * live;
   int i;
 
   if (!owner)
@@ -940,52 +895,54 @@ void owner_quit(object owner)
 
   dismount(owner);
 
-  name = (string)owner->query_name();
-  if (!stringp(name) || !strlen(name))
-    return;
-
-  registry = query_registry(name, owner);
-  ids = map_indices(registry);
-  for (i = 0; i < sizeof(ids); i++)
-  {
-    steed = find_steed(ids[i], registry[ids[i]]);
-    if (!steed)
-      continue;
-
-    // steed_gone notes where it stood, saves the registry and frees the key
-    steed->dest_me();
-  }
-
-  // the registry is read again at the next login
-  map_delete(registries, query_registry_file(name, owner));
+  // mount_gone writes each file
+  live = owner->query_owned_mounts();
+  for (i = 0; i < sizeof(live); i++)
+    live[i]->dest_me();
 }
 
 /**
- * A player logs in: each steed of theirs that was out is made again where it
- * stood, or beside them when that place does not load.
+ * A player logs in: each mount of theirs is made again where it stood, or
+ * beside them when that place does not load. A file that is gone leaves their
+ * list.
  */
 void owner_enter(object owner)
 {
-  mapping registry;
-  string * ids;
-  object dest;
-  int i;
+  mapping data;
+  object * live, dest;
+  string name, * ids;
+  int i, j, changed;
 
   if (!owner || !environment(owner) || !strlen((string)owner->query_name()))
     return;
 
-  registry = query_registry((string)owner->query_name(), owner);
-  ids = map_indices(registry);
+  name = (string)owner->query_name();
+  live = owner->query_owned_mounts();
+  ids = owner->query_mount_ids();
   for (i = 0; i < sizeof(ids); i++)
   {
-    if (!strlen(registry[ids[i]][STEED_LOCATION]) ||
-        find_steed(ids[i], registry[ids[i]]))
+    for (j = 0; j < sizeof(live); j++)
+      if (query_mount_id(live[j]) == ids[i])
+        break;
+
+    if (j < sizeof(live))
       continue;
 
-    dest = load_place(registry[ids[i]][STEED_LOCATION]);
+    data = read_mount(name, ids[i]);
+    if (!data)
+    {
+      owner->remove_mount_id(ids[i]);
+      changed = 1;
+      continue;
+    }
+
+    dest = load_place(data["location"]);
     if (!dest)
       dest = environment(owner);
 
-    make_steed((string)owner->query_name(), ids[i], registry[ids[i]], dest);
+    make_mount(owner, ids[i], data, dest);
   }
+
+  if (changed)
+    owner->save_me();
 }

@@ -192,7 +192,7 @@ A scroll (`/lib/obj/scroll.c`, an item) holds one spell. An item inherits it and
 
 ## Riding
 
-`ride`, `drive` and `pilot` are passive percentage skills read by the riding handler: a steed asks for one in the `requires` of its spec and may name it in `learn`, which gives it at 10% to whoever takes the driver's seat for the first time. Nothing else teaches them. See `/lib/living/riding.md`.
+`ride`, `drive` and `pilot` are passive percentage skills read by the riding handler: a mount asks for one in the `requires` of its spec and may name it in `learn`, which gives it at 10% to whoever takes the driver's seat for the first time. Nothing else teaches them. See `/lib/living/riding.md`.
 
 ## Body parts
 

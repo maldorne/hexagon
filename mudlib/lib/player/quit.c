@@ -118,7 +118,7 @@ int really_quit()
   this_object()->save_me();
   user->save_me();
 
-  // get off whatever we ride; the steeds we own that are out are saved where
+  // get off whatever we ride; the mounts we own that are out are saved where
   // they stand and taken away, they come back at the next login
   catch(handler("riding", this_object())->owner_quit(this_object()));
 

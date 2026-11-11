@@ -259,7 +259,7 @@ int do_death(varargs object killed_by)
   this_object()->clear_lasting_effects(LASTING_END_DEATH);
   this_object()->clear_traits(TRAIT_END_DEATH);
 
-  // a dead rider is thrown from the steed, which stays
+  // a dead rider is thrown from the mount, which stays
   if (this_object()->query_riding())
     handler("riding", this_object())->dismount(this_object(), 1);
   

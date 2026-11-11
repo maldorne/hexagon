@@ -1,28 +1,28 @@
 # Riding: mounts and vehicles
 
-A **steed** is anything a living can be carried by: a horse, a dragon, a motorbike, a boat. A **rider** is any living on a steed; seat 0 is the **driver** and the others are passengers. Everything a ride does is data plus one handler: nothing is shadowed or cloned onto the rider.
+A **mount** is anything a living can be carried by: a horse, a dragon, a motorbike, a boat. A **rider** is any living on a mount; seat 0 is the **driver** and the others are passengers. Everything a ride does is data plus one handler: nothing is shadowed or cloned onto the rider.
 
 | piece | file |
 |---|---|
 | the rider's state (`query_riding`, `query_mount`, `query_seat`) | `/lib/living/riding.c`, inherited by `/lib/living/living.c` |
 | the rules, the movement, the falls | `/lib/handlers/riding.c`, per game: `handler("riding", ob)` |
-| the kinds and every text | `/lib/tables/steeds.c`, per game: `table("steeds", ob)` |
-| an NPC steed | component `rideable` (`/lib/npc/components/rideable.c`) |
-| an item steed | `/lib/obj/vehicle.c` |
-| the steeds a player owns | registry of the riding handler, below |
-| a place that sells steeds | location component `steed-shop` (`/lib/location/components/steed-shop.c`) |
-| the player's list | the `steeds` / `monturas` command (`/lib/cmds/player/steeds.c`) |
+| the kinds and every text | `/lib/tables/mounts.c`, per game: `table("mounts", ob)` |
+| an NPC mount | component `rideable` (`/lib/npc/components/rideable.c`) |
+| an item mount | `/lib/obj/vehicle.c` |
+| the mounts a player owns | one save file each, below |
+| a place that sells mounts | location component `mount-shop` (`/lib/location/components/mount-shop.c`) |
+| the player's list | the `mounts` / `monturas` command (`/lib/cmds/player/mounts.c`) |
 | spec keys | `<living/riding.h>` |
 
 A game's handler inherits the shared one and redefines what differs; a game's table inherits the shared one and adds kinds with `add_kind` (rl-aeternum: `horse`).
 
-## A steed and its spec
+## A mount and its spec
 
-A steed answers `query_rideable()` with a mapping (nil: it cannot be ridden). The NPC gets it from its `rideable` component, whose attributes are the mapping; a vehicle holds it from `set_rideable(spec)` (kept in its auto-load attributes). `query_spec(steed)` of the handler lays three mappings over each other, the last one winning: the default row of the table (`mount`), the row of the steed's `kind`, the steed's own keys. So a template says `"rideable": { "kind": "horse" }` and may add any key to differ from the kind.
+A mount answers `query_rideable()` with a mapping (nil: it cannot be ridden). The NPC gets it from its `rideable` component, whose attributes are the mapping; a vehicle holds it from `set_rideable(spec)` (kept in its auto-load attributes). `query_spec(mount)` of the handler lays three mappings over each other, the last one winning: the default row of the table (`mount`), the row of the mount's `kind`, the mount's own keys. So a template says `"rideable": { "kind": "horse" }` and may add any key to differ from the kind.
 
 | key | meaning |
 |---|---|
-| `kind` | row of the steeds table; unknown kind: the default row |
+| `kind` | row of the mounts table; unknown kind: the default row |
 | `seats` | how many ride at once (default 1) |
 | `medium` | `ground`, `water`, `air`: what a place beyond an exit may be. A water place needs `water`; any other needs `ground` or `air` |
 | `terrain_deny` | `indoors` (a destination that is not `query_outside()`), `underground` (`query_underground()`) |
@@ -30,15 +30,16 @@ A steed answers `query_rideable()` with a mapping (nil: it cannot be ridden). Th
 | `exits_deny` | exit types it cannot use (`rope`, `stair`, `door`...). The refusal is `refuse_<type>` of the row if it has one, else `refuse_exit` |
 | `exit_size` | smallest exit size it fits (the size its exit type has in `room_handler.c`: door 5, corridor 10, gate 15, road 30). An exit whose type has no size does not hold it back |
 | `requires` | what the driver needs: `"skill": ({ id, minimum })`, `"body_size": ({ smallest, biggest })` (race body size) |
+| `swamp_walker` | 1 when it crosses a bog without sinking (`RIDE_SWAMP_WALKER`); a mount whose race answers `query_swamp_walker()` does too. Read by the `swamp` component, which judges a rider by its mount |
 | `learn` | skill id the driver is given at 10% the first time they take the driver's seat without knowing it. It counts as known at 10 for `requires`, so a first ride is never refused for lack of it |
 
 Only the driver's seat asks for `requires` and `learn`; any seat may be taken by whoever fits.
 
 ## The row: texts
 
-Besides the spec keys a row holds every text a ride says. `$N` is the rider's name, `$S` the steed's short in lower case, `$T` the direction and `$F` where the rider comes from (these two for the step lines, filled in by `move_living`). A key a kind leaves out is read from the default row.
+Besides the spec keys a row holds every text a ride says. `$N` is the rider's name, `$S` the mount's short in lower case, `$T` the direction and `$F` where the rider comes from (these two for the step lines, filled in by `move_living`). A key a kind leaves out is read from the default row.
 
-- `verbs_board`, `verbs_dismount`: the verbs the steed answers to (an NPC through its component, a vehicle in `init`). `prepositions`: little words dropped after the verb (`montar sobre el caballo`).
+- `verbs_board`, `verbs_dismount`: the verbs the mount answers to (an NPC through its component, a vehicle in `init`). `prepositions`: little words dropped after the verb (`montar sobre el caballo`).
 - `board_me` / `board_room`, `dismount_me` / `dismount_room`, `fall_me` / `fall_room`.
 - `leave`, `arrive`: replace the race's move lines while mounted; they start with `@`, the marker `move_living` strips. An exit that has its own message keeps it.
 - `listing`: follows the rider's name in a room listing. `look`: the line `look` adds to the rider.
@@ -46,49 +47,56 @@ Besides the spec keys a row holds every text a ride says. `$N` is the rider's na
 
 ## Handler API (`/lib/handlers/riding.c`)
 
-- `query_spec(steed)`, `query_spec_of(steed, own)` (for a steed still being put together), `query_steed(ob)`.
-- `query_riders(steed)` (driver first; not stored: the livings in the steed's place whose `query_mount()` is it), `query_seat_taken`, `query_free_seat`, `query_addressed(steed, str)` (whether the words after a verb name the steed).
-- `query_board_refusal(who, steed, seat)` (a text for the rider, or nil; seat -1 is the first free one), `board(who, steed)`, `board_seat(who, steed, seat)`, `dismount(who, fall)`, `unseat_riders(steed [, place])`.
-- `query_move_refusal(who, room, dir)`: asked by the exit handler of whoever rides; a passenger cannot move the steed.
+- `query_spec(mount)`, `query_spec_of(mount, own)` (for a mount still being put together), `query_mount(ob)`.
+- `query_riders(mount)` (driver first; not stored: the livings in the mount's place whose `query_mount()` is it), `query_seat_taken`, `query_free_seat`, `query_addressed(mount, str)` (whether the words after a verb name the mount).
+- `query_board_refusal(who, mount, seat)` (a text for the rider, or nil; seat -1 is the first free one), `board(who, mount)`, `board_seat(who, mount, seat)`, `dismount(who, fall)`, `unseat_riders(mount [, place])`.
+- `query_move_refusal(who, room, dir)`: asked by the exit handler of whoever rides; a passenger cannot move the mount.
 - `query_travel_line(who, arriving)`, `query_listing(who)`, `query_look(who)`.
-- `carry(who, from)`, `rider_moved`, `steed_moved`: movement, below.
+- `carry(who, from)`, `rider_moved`, `mount_moved`: movement, below.
 
-Hooks the handler calls on the steed, all optional (they are plain `call_other`: a steed that does not define one answers nil): `steed_can_board(who, seat)` (a refusal text, or nil), `steed_boarded(who)`, `steed_dismounted(who)`. A hand-written NPC or a vehicle defines them.
+Hooks the handler calls on the mount, all optional (they are plain `call_other`: a mount that does not define one answers nil): `mount_can_board(who, seat)` (a refusal text, or nil), `mount_boarded(who)`, `mount_dismounted(who)`. A hand-written NPC or a vehicle defines them.
 
 ## Movement
 
 - The exit handler asks `query_move_refusal` before a mounted rider leaves (`do_exit_command`): seat, exit type, size, what lies beyond.
-- `move_living` writes the step lines from `query_travel_line` while the living rides, then calls `carry(rider, from)`: the steed and the passengers are moved after the driver with a plain `move(dest)`, with no lines (the driver's line is the room's). If the steed cannot be moved the driver falls.
-- A rider moved by anything else (`goto`, a spell, a push) reaches `event_moved` of `/lib/living/movement.c`, which is not its own walk, so `rider_moved` throws it off. A steed moved while it is not following its driver (`event_moved` of the NPC or the vehicle) throws off whoever is on it with `steed_moved`. The two walks that are its own are flagged (`walking` on the rider, the handler's `carrying` list for the steed and the passengers).
-- A steed that dies, or is destructed or has its component taken out, unseats its riders (`unseat_riders`). A rider that dies is dismounted.
+- `move_living` writes the step lines from `query_travel_line` while the living rides, then calls `carry(rider, from)`: the mount and the passengers are moved after the driver with a plain `move(dest)`, with no lines (the driver's line is the room's). If the mount cannot be moved the driver falls.
+- A rider moved by anything else (`goto`, a spell, a push) reaches `event_moved` of `/lib/living/movement.c`, which is not its own walk, so `rider_moved` throws it off. A mount moved while it is not following its driver (`event_moved` of the NPC or the vehicle) throws off whoever is on it with `mount_moved`. The two walks that are its own are flagged (`walking` on the rider, the handler's `carrying` list for the mount and the passengers).
+- A mount that dies, or is destructed or has its component taken out, unseats its riders (`unseat_riders`). A rider that dies is dismounted.
 - Every fall is words only: no damage.
-- An NPC steed with somebody on it does not wander (`query_staying_put` of `/lib/npc.c`), and neither steed nor ridden vehicle shows in the room list (`pretty_short` empty): the rider does, with its `listing`.
+- An NPC mount with somebody on it does not wander (`query_staying_put` of `/lib/npc.c`), and neither mount nor ridden vehicle shows in the room list (`pretty_short` empty): the rider does, with its `listing`.
 
 ## Skills
 
-`ride`, `drive` and `pilot` are common passive skills (`lib/obj/skills/`), percentage, ids in `<living/skills.h>`, names and help in `lib/obj/skills/.lang.<lang>.h`. Nothing teaches `drive` or `pilot` yet; a steed that wants one in its `requires` and `learn` gets it granted at 10%.
+`ride`, `drive` and `pilot` are common passive skills (`lib/obj/skills/`), percentage, ids in `<living/skills.h>`, names and help in `lib/obj/skills/.lang.<lang>.h`. Nothing teaches `drive` or `pilot` yet; a mount that wants one in its `requires` and `learn` gets it granted at 10%.
 
-## Owned steeds: the registry
+## Owned mounts: one file each
 
-A steed a player buys is theirs. The riding handler keeps one **registry** per owner, saved in `/save/games/<game>/steeds/<first letter>/<owner>.o` (`query_registry_file`; the game is the one of the object it is asked with). The registry is the authority: `([ id : entry ])`, an entry being `template` (bestiary template id) or `file` (cloned path), `state` (what it keeps: `hp`), `location` (where it stands; empty when it is not out) and `name` (its short when bought), keys `STEED_*` of `<living/riding.h>`. A player owns at most `MAX_OWNED_STEEDS` (10; `query_max_owned_steeds`, a game's handler may change it).
+A mount a player buys is theirs, up to `MAX_OWNED_MOUNTS` (10; `query_max_owned_mounts`, a game's handler may change it).
 
-The steed itself only knows who owns it and under which key: `owner` (`RIDE_OWNER`) and `steed_id` (`RIDE_ID`) in its spec, so in the attributes of its `rideable` component (a vehicle: its `set_rideable` spec). `query_owner(steed)` and `query_steed_id(steed)` read them.
+- **On disk**: one file per mount, `<player save folder>/mounts/<id>.o` (`query_mount_file(owner, id)`, the folder is `player_save_dir(owner)`). It holds `mount_template` (bestiary template id) or `mount_file` (cloned path), `mount_owner`, `mount_id`, `mount_location` (where it stood: a location by its `.o`, a room by its path), `mount_name` (its short) and `mount_hp` (0 when unhurt).
+- **On the player** (`/lib/living/riding.c`): `mount_ids`, the ids it owns, saved with the player (`query_mount_ids`), and `owned_mounts`, the mounts that are out now, not saved (`query_owned_mounts`).
+- **On the mount**: only who owns it and under which id, `owner` (`RIDE_OWNER`) and `mount_id` (`RIDE_ID`) in its spec, so in the attributes of its `rideable` component (a vehicle: its `set_rideable` spec). `query_owner(mount)` and `query_mount_id(mount)` read them.
+- **The handler keeps nothing of any player in memory**: it only holds the logic (its `mount_*` variables are used for the instant of a save or restore), so reloading it loses and duplicates no mount.
 
-- `add_steed(owner, stock, where)`: makes the steed in `where` (a template through the bestiary, a file by cloning), ties it to the owner, registers it and saves. The cap and the price are asked by whoever sells.
-- Every move of an owned steed reaches `steed_moved`, which notes its place (`location`) and writes the registry. It is also written when it changes hands and when the steed goes (`steed_gone`, from the destruction of the component or vehicle: it stays registered where it stood; an NPC lets its components go before they clean up, so the component passes its spec along). A steed that dies (`steed_died`) leaves the registry.
-- Which steeds are out is kept in memory (`live`) only as a shortcut: when the handler has been reloaded, `find_steed` looks for the steed where its entry says, so quit and login never lose nor duplicate one.
-- Only the owner may take the driver's seat of an owned steed (`refuse_not_owner`); anybody may still ride as a passenger.
-- An owned steed belongs to its player, not to an area: it is made through the bestiary, outside any census.
-- **Quit** (`lib/player/quit.c`): `owner_quit` takes the player off what they ride, then every steed of theirs that is out is destructed, saved where it stood.
-- **Login** (`lib/player/start.c`, not on a reconnect): `owner_enter` makes again each steed with a `location` where it stood (a location by its `.o`, a room by its path), or beside the player when that place does not load. Its `hp` is restored.
-- `query_owned(owner, where)` (the entries, each with its live `steed`), `query_owned_count`, `query_live_steed(id)`.
+What happens:
 
-## Selling steeds: the `steed-shop` component
+- `add_mount(owner, stock, where)`: makes the mount in `where` (a template through the bestiary, a file by cloning), ties it to the owner, writes its file, adds its id to the player and saves the player. The cap and the price are asked by whoever sells.
+- A mount going away (`mount_gone`, from the destruction of the component or vehicle) writes its file where it stands: when its owner quits, or when its place unloads. An NPC lets its components go before they clean up, so the component passes its spec along.
+- A mount that dies (`mount_died`) deletes its file and leaves the player's ids; it is not written again.
+- **Quit** (`lib/player/quit.c`): `owner_quit` takes the player off what they ride, then every mount of theirs that is out is destructed, saved where it stood.
+- **Login** (`lib/player/start.c`): `owner_enter` makes again each saved mount where it stood, or beside the player when that place does not load; its `hp` is restored. An id whose file is gone leaves the list. A mount already out for that player is not made twice.
+- **The place does not unload while an owned mount stands in it**: an owned mount (NPC or vehicle) answers `query_unique_object()` with 1, and `clean_up` of a location keeps whatever holds a unique object.
+- Only the owner may take the driver's seat of an owned mount (`refuse_not_owner`); anybody may still ride as a passenger.
+- An owned mount belongs to its player, not to an area: it is made through the bestiary, outside any census.
+- `query_owned(owner)` (in the order bought, each `([ "name", "mount" ])`, the mount being the live one or nil) and `query_owned_count(owner)`.
+- A retired player's `player.o` is removed but its folder stays, with its mount files.
 
-A location with `steed-shop` sells what its `stock` lists, a list of `([ "template" : id, "price" : value ])` or `([ "file" : path, "price" : value ])`, the price in the base unit of the money; the label of each is the short of the steed. Verbs (`.lang` files of `lib/location/components/`): `list`, `examine <steed>` (short, first paragraph of the description, price, and whether the player cannot afford it) and `buy <steed>`; a steed is named by what it answers to or by its number in the list. A buy is refused over the cap or without the money; otherwise the player pays, the steed is made in the location and registered to them, and the player and the room are told. The component puts up a sign that lists the commands.
+## Selling mounts: the `mount-shop` component
+
+A location with `mount-shop` sells what its `stock` lists, a list of `([ "template" : id, "price" : value ])` or `([ "file" : path, "price" : value ])`, the price in the base unit of the money; the label of each is the short of the mount. Verbs (`.lang` files of `lib/location/components/`): `list`, `examine <mount>` (short, first paragraph of the description, price, and whether the player cannot afford it) and `buy <mount>`; a mount is named by what it answers to or by its number in the list. A buy is refused over the cap or without the money; otherwise the player pays, the mount is made in the location and saved as theirs, and the player and the room are told. The component puts up a sign that lists the commands.
 
 Adding it to a location from the mud, with its stock (`components add` takes no attributes), standing in the location:
 
-    exec environment(TP)->add_component("steed-shop", ([ "stock" : ({ ([ "template" : "<template id>", "price" : <value> ]) }) ])); environment(TP)->save_me(); return 1;
+    exec environment(TP)->add_component("mount-shop", ([ "stock" : ({ ([ "template" : "<template id>", "price" : <value> ]) }) ])); environment(TP)->save_me(); return 1;
 
-`components remove steed-shop` takes it away with its sign. More stock afterwards: `exec environment(TP)->query_component_by_type("steed-shop")->add_stock(([ "template" : "<id>", "price" : <value> ])); return 1;`.
+`components remove mount-shop` takes it away with its sign. More stock afterwards: `exec environment(TP)->query_component_by_type("mount-shop")->add_stock(([ "template" : "<id>", "price" : <value> ])); return 1;`.

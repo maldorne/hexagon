@@ -116,7 +116,7 @@ nomask void start(varargs int going_invis, int is_new_player, int reconnected, o
     if (query_property(PASSED_OUT_PROP))
       call_out("remove_property", 20, PASSED_OUT_PROP);
 
-    // the steeds we own that were out are made again where they stood
+    // the mounts we own that were out are made again where they stood
     catch(handler("riding", this_object())->owner_enter(this_object()));
   }
 

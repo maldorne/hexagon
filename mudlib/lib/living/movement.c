@@ -32,7 +32,7 @@ string * move_msgs;
 static int sneaking;
 
 // set while this living walks through an exit by its own doing, so the move is
-// not taken for a push when it is on a steed
+// not taken for a push when it is on a mount
 static int walking;
 
 void create()
@@ -70,7 +70,7 @@ private void _ensure_move_msgs()
 
 /**
  * This living has just been moved. A rider moved by anything but its own walk
- * (a teleport, a push) is thrown off its steed; the rest is the object's.
+ * (a teleport, a push) is thrown off its mount; the rest is the object's.
  */
 void event_moved(object ob, object from, object dest)
 {
@@ -116,7 +116,7 @@ int move_living(string dir, mixed dest, varargs mixed message, mixed enter)
 
   last = environment();
 
-  // a rider leaves and arrives the way the kind of its steed says
+  // a rider leaves and arrives the way the kind of its mount says
   out_text = query_mout();
   in_text = query_min();
 
@@ -240,7 +240,7 @@ int move_living(string dir, mixed dest, varargs mixed message, mixed enter)
 
   new_env = environment();
 
-  // the steed and whoever else sits on it come along
+  // the mount and whoever else sits on it come along
   if (riding)
     riding->carry(this_object(), last);
 

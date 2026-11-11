@@ -1,7 +1,7 @@
-// Riding: mounts and vehicles. A steed is anything a living can be carried by;
+// Riding: mounts and vehicles. A mount is anything a living can be carried by;
 // its spec is a mapping with the keys below, assembled by the riding handler
 // (handler("riding", ob)) from the default row, the row of its kind in the
-// steeds table and the steed's own overrides, in that order. Details:
+// mounts table and the mount's own overrides, in that order. Details:
 // /lib/living/riding.md.
 
 #ifndef _RIDING_H
@@ -14,7 +14,7 @@
 #define RIDING_DRIVER_SEAT 0
 
 // spec keys
-#define RIDE_KIND         "kind"          // row of the steeds table
+#define RIDE_KIND         "kind"          // row of the mounts table
 #define RIDE_SEATS        "seats"         // how many ride at once
 #define RIDE_MEDIUM       "medium"        // RIDE_MEDIUM_* it can cross
 #define RIDE_TERRAIN_DENY "terrain_deny"  // RIDE_TERRAIN_* it cannot enter
@@ -23,6 +23,7 @@
 #define RIDE_EXIT_SIZE    "exit_size"     // smallest exit size (ROOM_SIZE) it fits
 #define RIDE_REQUIRES     "requires"      // what the driver needs, see below
 #define RIDE_LEARN        "learn"         // skill the driver gets at 10% on a first ride
+#define RIDE_SWAMP_WALKER "swamp_walker"  // 1 when it crosses a bog without sinking
 
 // RIDE_MEDIUM values
 #define RIDE_MEDIUM_GROUND "ground"
@@ -37,21 +38,17 @@
 #define RIDE_REQ_SKILL     "skill"      // ({ skill id, minimum value })
 #define RIDE_REQ_BODY_SIZE "body_size"  // ({ smallest, biggest }) body size of the race
 
-// the steeds a player owns: how many at most, and the keys that tie a steed to
-// its owner (kept in its spec) and to its entry in the registry of the riding
-// handler
-#define MAX_OWNED_STEEDS 10
+// the mounts a player owns: how many at most, and the keys that tie a mount to
+// its owner and to its save file (both kept in its spec)
+#define MAX_OWNED_MOUNTS 10
 #define RIDE_OWNER       "owner"      // name of the player who owns it
-#define RIDE_ID          "steed_id"   // key of its entry in the owner's registry
+#define RIDE_ID          "mount_id"   // name of its save file, and its key in the owner's list
 
-// keys of an entry of the registry
-#define STEED_TEMPLATE "template"  // bestiary template it is made from, or
-#define STEED_FILE     "file"      // the file it is cloned from
-#define STEED_STATE    "state"     // what it keeps between logins ("hp")
-#define STEED_LOCATION "location"  // where it stands; empty when it is not out
-#define STEED_NAME     "name"      // its short when it was bought
+// keys of an entry of a mount shop's stock: what the mount is made from
+#define MOUNT_TEMPLATE "template"  // bestiary template it is made from, or
+#define MOUNT_FILE     "file"      // the file it is cloned from
 
-// the directory of a game's save tree that holds the registries
-#define STEEDS_SAVE_DIR "steeds/"
+// the folder, inside the owner's save folder, holding one file per mount
+#define MOUNTS_SAVE_DIR "mounts/"
 
 #endif

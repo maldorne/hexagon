@@ -18,6 +18,7 @@
 #include <npc/npc.h>
 #include <living/consents.h>
 #include <living/living.h>
+#include <living/riding.h>
 
 inherit monster   "/lib/monster.c";
 // Inventory persistence, the same mixin players use: create_auto_load snapshots
@@ -164,7 +165,7 @@ int query_staying_put()
   if (guard && (int)guard->query_staying_put())
     return 1;
 
-  // a steed does not wander off with somebody on it
+  // a mount does not wander off with somebody on it
   if (has_component("rideable") &&
       sizeof(handler("riding", this_object())->query_riders(this_object())))
     return 1;
@@ -204,6 +205,18 @@ mapping query_rideable()
 
   rideable = query_component_by_type("rideable");
   return rideable ? rideable->query_rideable() : nil;
+}
+
+/**
+ * An owned mount exists once in the whole game, so the place it stands in is
+ * not unloaded (the location cleaner keeps whatever holds a unique object).
+ */
+int query_unique_object()
+{
+  mapping own;
+
+  own = query_rideable();
+  return mappingp(own) && stringp(own[RIDE_OWNER]);
 }
 
 /**
@@ -387,7 +400,7 @@ string short(varargs int dark)
 // header) and must not leak into the grouping key.
 string pretty_short(varargs int dark)
 {
-  // a steed with somebody on it does not show: its rider does
+  // a mount with somebody on it does not show: its rider does
   if (has_component("rideable") &&
       sizeof(handler("riding", this_object())->query_riders(this_object())))
     return "";

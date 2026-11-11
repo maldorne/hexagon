@@ -43,7 +43,7 @@
 #define SKILL_PROTECT     "protect"
 #define SKILL_JUDGE       "judge"
 #define SKILL_PRAY        "pray"
-// riding: what the driver of a steed needs, by kind of steed (see the
+// riding: what the driver of a mount needs, by kind of mount (see the
 // requires of the spec in /lib/living/riding.md)
 #define SKILL_RIDE        "ride"
 #define SKILL_DRIVE       "drive"

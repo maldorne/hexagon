@@ -1,8 +1,8 @@
 // rideable.c -- an NPC that can be ridden, as a component.
 //
-// The attributes are the spec of the steed (the keys of <living/riding.h>: the
+// The attributes are the spec of the mount (the keys of <living/riding.h>: the
 // kind, the seats, the speed, what it may cross...), written over the row of its
-// kind in the steeds table. The component only holds that data and gives the
+// kind in the mounts table. The component only holds that data and gives the
 // NPC the verbs of its kind; boarding, moving, falling and every text belong
 // to the riding handler (/lib/handlers/riding.c).
 //
@@ -77,9 +77,9 @@ mapping query_component_actions()
 }
 
 /**
- * The board verb: with nothing after it, the first steed in the place that
+ * The board verb: with nothing after it, the first mount in the place that
  * takes the rider; otherwise the one the words name. A refusal is left for
- * notify_fail so another steed in the place may still answer.
+ * notify_fail so another mount in the place may still answer.
  */
 int do_board(string str)
 {
@@ -105,7 +105,7 @@ int do_board(string str)
 }
 
 /**
- * The dismount verb answers only for the steed the rider is on.
+ * The dismount verb answers only for the mount the rider is on.
  */
 int do_dismount(string str)
 {
@@ -118,14 +118,14 @@ int do_dismount(string str)
   return handler("riding", query_entity())->dismount(who);
 }
 
-// Those riding fall when the NPC dies, and when it goes. A dead steed is no
-// longer in its owner's registry.
+// Those riding fall when the NPC dies, and when it goes. A dead mount leaves
+// its owner's mounts.
 void died(object killer)
 {
   if (query_entity())
   {
     handler("riding", query_entity())->unseat_riders(query_entity());
-    handler("riding", query_entity())->steed_died(query_entity());
+    handler("riding", query_entity())->mount_died(query_entity());
   }
 }
 
@@ -137,10 +137,10 @@ void dest_me()
   if (npc && environment(npc))
     handler("riding", npc)->unseat_riders(npc);
 
-  // an owned steed stays in its owner's registry where it stood; the NPC has
-  // already let this component go, so the spec travels with the call
+  // an owned mount is written where it stands; the NPC has already let this
+  // component go, so the spec travels with the call
   if (npc)
-    handler("riding", npc)->steed_gone(npc, spec);
+    handler("riding", npc)->mount_gone(npc, spec);
 
   component::dest_me();
 }
@@ -149,5 +149,5 @@ void dest_me()
 void event_moved(object ob, object from, object dest)
 {
   if (ob == query_entity())
-    handler("riding", ob)->steed_moved(ob, from, dest);
+    handler("riding", ob)->mount_moved(ob, from, dest);
 }

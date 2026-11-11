@@ -1,5 +1,5 @@
 // Drive — passive skill. Measures how well the character drives a land vehicle. It has no active command: the riding handler reads
-// it when somebody takes the driver's seat of a steed that asks for it (see
+// it when somebody takes the driver's seat of a mount that asks for it (see
 // /lib/handlers/riding.c).
 
 #include <living/effects.h>
