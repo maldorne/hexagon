@@ -13,8 +13,8 @@ void setup()
 {
   set_aliases(({ "sectors" }));
   set_usage("sectors\n" +
-            "sectors settype <type>\n" +
-            "sectors settype <sx> <sy> <sz> <type> [<map>]\n" +
+            "sectors settype <type> [<kind>] [<map>]\n" +
+            "sectors settype <sx> <sy> <sz> <type> [<kind>] [<map>]\n" +
             "sectors verify <sx> <sy> <sz> [<map>]\n" +
             "sectors purge [<sx> <sy> <sz> [<sx2> <sy2> <sz2>]] [<map>]\n" +
             "sectors reindex [<map>]\n" +
@@ -26,8 +26,10 @@ void setup()
     "again.\n" +
     "\n" +
     "  sectors                             list loaded sectors\n" +
-    "  sectors settype <type>              set the type of the sector you are in\n" +
-    "  sectors settype <sx> <sy> <sz> <t>  set the sector at index (sx, sy, sz)\n" +
+    "  sectors settype <type> [<kind>]     set the type (and subtype) of the\n" +
+    "                                      sector you are in\n" +
+    "  sectors settype <sx> <sy> <sz> <t> [<kind>]\n" +
+    "                                      set the sector at index (sx, sy, sz)\n" +
     "  sectors verify <sx> <sy> <sz>       report drift in one sector (read-only)\n" +
     "  sectors purge                       drop the ghost positions it finds\n" +
     "  sectors purge <sx> <sy> <sz> [<sx2> <sy2> <sz2>]\n" +
@@ -47,8 +49,10 @@ void setup()
     "Coordinates are SECTOR indices (the ones shown by look / glance), not\n" +
     "location coordinates. The map defaults to the one you are standing in;\n" +
     "pass an explicit <map> as the last argument to target another one.\n" +
-    "Type is one of: city, forest, coast, underground, empty, none; beach and\n" +
-    "marsh paint a coast of that kind of shore. A manual\n" +
+    "Type is one of: city, forest, coast, underground, empty, none, and the\n" +
+    "terrains. A type may take a kind: coast (beach, marsh, bank) or mountain\n" +
+    "(volcano), as in 'settype -32 -4 0 mountain volcano'; a kind alone\n" +
+    "('settype beach') stands for its type with that kind. A manual\n" +
     "type only shows on the world map when the sector has no locations of its\n" +
     "own, or only underground ones at or above the surface (a cave inside\n" +
     "raised terrain: paint mountain or hills there; without a painted type\n" +
@@ -58,21 +62,24 @@ void setup()
     "painted.\n");
 }
 
-// A painted coast may name its kind of shore instead of "coast".
-#define PAINTED_COAST_KINDS ({ "beach", "marsh" })
+// Every subtype a sector can be painted with; each is valid for one type only
+// (checked by the sector). A kind may also be given in place of its type.
+#define ALL_KINDS (SECTOR_COAST_KINDS + SECTOR_MOUNTAIN_KINDS)
 
 private int _valid_type(string type)
 {
   return member_array(type, SECTOR_MAP_COMPONENTS) != -1 ||
-         member_array(type, PAINTED_COAST_KINDS) != -1 ||
+         member_array(type, ALL_KINDS) != -1 ||
          type == SECTOR_TYPE_EMPTY || type == SECTOR_TYPE_NONE ||
          type == "none";
 }
 
 private string _canon_type(string type)
 {
-  if (member_array(type, PAINTED_COAST_KINDS) != -1)
+  if (member_array(type, SECTOR_COAST_KINDS) != -1)
     return SECTOR_TYPE_COAST;
+  if (member_array(type, SECTOR_MOUNTAIN_KINDS) != -1)
+    return SECTOR_TYPE_MOUNTAIN;
   return type == "none" ? SECTOR_TYPE_NONE : type;
 }
 
@@ -185,7 +192,8 @@ static int cmd(string str, object me, string verb)
   // ===== settype =====
   if (sizeof(tokens) && tokens[0] == "settype")
   {
-    string game, map_name, type;
+    string game, map_name, type, kind;
+    string * rest;
     int x, y, z;
     object env, sector;
 
@@ -197,9 +205,25 @@ static int cmd(string str, object me, string verb)
       return 0;
     }
 
-    // settype <type>  -> the sector we stand in. Convert the location's
-    // world coordinates into the sector index the map system keys on.
-    if (sizeof(tokens) == 2)
+    // settype <type> [<kind>] [<map>]  -> the sector we stand in. Convert the
+    // location's world coordinates into the sector index the map system keys on.
+    // settype <sx> <sy> <sz> <type> [<kind>] [<map>]  -> sector indices.
+    // After the type, a word that is a known kind is the kind; any other is
+    // the map.
+    if (sizeof(tokens) >= 2 && sscanf(tokens[1], "%d", x) == 1)
+    {
+      if (sizeof(tokens) < 5 || sscanf(tokens[2], "%d", y) != 1 ||
+          sscanf(tokens[3], "%d", z) != 1)
+      {
+        notify_fail("Usage: sectors settype [<sx> <sy> <sz>] <type> " +
+                    "[<kind>] [<map>]\n");
+        return 0;
+      }
+      type = tokens[4];
+      rest = tokens[5..];
+      map_name = nil;
+    }
+    else if (sizeof(tokens) >= 2)
     {
       int * coords;
       env = environment(me);
@@ -215,37 +239,54 @@ static int cmd(string str, object me, string verb)
       z = SECTOR_INDEX(coords[2]);
       map_name = env->query_map_name();
       type = tokens[1];
-    }
-    // settype <sx> <sy> <sz> <type> [<map>]  -> sector indices, used directly
-    else if (sizeof(tokens) == 5 || sizeof(tokens) == 6)
-    {
-      if (sscanf(tokens[1], "%d", x) != 1 ||
-          sscanf(tokens[2], "%d", y) != 1 ||
-          sscanf(tokens[3], "%d", z) != 1)
-      {
-        notify_fail("Coordinates must be integers.\n");
-        return 0;
-      }
-      type = tokens[4];
-      map_name = _resolve_map(me, sizeof(tokens) == 6 ? tokens[5] : nil);
+      rest = tokens[2..];
     }
     else
     {
-      notify_fail("Usage: sectors settype [<sx> <sy> <sz>] <type> [<map>]\n");
+      notify_fail("Usage: sectors settype [<sx> <sy> <sz>] <type> " +
+                  "[<kind>] [<map>]\n");
       return 0;
     }
+
+    kind = SECTOR_KIND_NONE;
+    if (sizeof(rest) && member_array(rest[0], ALL_KINDS) != -1)
+    {
+      kind = rest[0];
+      rest = rest[1..];
+    }
+    if (sizeof(rest) > 1)
+    {
+      notify_fail("Usage: sectors settype [<sx> <sy> <sz>] <type> " +
+                  "[<kind>] [<map>]\n");
+      return 0;
+    }
+    if (sizeof(rest))
+      map_name = rest[0];
+    map_name = _resolve_map(me, map_name);
 
     if (!_valid_type(type))
     {
       notify_fail("Unknown type '" + type + "'. One of: city, forest, " +
-                  "coast, beach, marsh, underground, farm, plains, tundra, swamp, hills, mountain, " +
+                  "coast, beach, marsh, bank, volcano, underground, farm, plains, tundra, swamp, hills, mountain, " +
                   "taiga, ruins, empty, none.\n");
       return 0;
     }
 
+    // beach, marsh, bank and volcano also work as a type: shorthand for
+    // the type they belong to plus that kind
+    if (!strlen(kind) && member_array(type, ALL_KINDS) != -1)
+      kind = type;
+    type = _canon_type(type);
+
+    if (strlen(kind) && !load_object(SECTOR_STORAGE_OBJECT)->valid_kind(type, kind))
+    {
+      notify_fail("A " + (strlen(type) ? type : "none") + " sector cannot be '" +
+                  kind + "'.\n");
+      return 0;
+    }
+
     sector = load_object(SECTORS_HANDLER)->set_sector_manual_type(
-               game, map_name, x, y, z, _canon_type(type),
-               member_array(type, PAINTED_COAST_KINDS) != -1 ? type : nil);
+               game, map_name, x, y, z, type, kind);
 
     if (!sector)
     {
@@ -255,7 +296,8 @@ static int cmd(string str, object me, string verb)
 
     write("Set manual type of sector (" + x + "," + y + "," + z +
           ") in map '" + map_name + "' to '" +
-          (strlen(_canon_type(type)) ? _canon_type(type) : "none") + "'.\n");
+          (strlen(type) ? type : "none") +
+          (strlen(kind) ? " (" + kind + ")" : "") + "'.\n");
     return 1;
   }
 
@@ -390,6 +432,8 @@ static int cmd(string str, object me, string verb)
     string manual;
 
     manual = sectors[keys[i]]->query_manual_type();
+    if (strlen(sectors[keys[i]]->query_manual_kind()))
+      manual += " " + sectors[keys[i]]->query_manual_kind();
 
     // What a sector knows is the coordinates it indexes, not what happens to
     // be in memory: the whole point of the index is answering without loading

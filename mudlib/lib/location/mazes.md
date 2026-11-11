@@ -78,6 +78,18 @@ sector->is_maze_at(x, y, z);   // returns 1 if the coord is a maze
 
 `remove_location` keeps both mappings in sync.
 
+### Manual type and kind
+
+A sector with no locations of its own can be painted by hand with
+`sectors settype [<sx> <sy> <sz>] <type> [<kind>] [<map>]`
+(`sector->set_manual_type(type, kind)`). The kind is the subtype, valid per
+type (`SECTOR_*_KINDS` in `include/sector/sector.h`): coast takes beach, marsh
+or bank; mountain takes volcano. A kind alone (`settype beach`) stands for its
+type with that kind. `query_beach`, `query_marsh`, `query_bank` and
+`query_volcano` count the sector's locations and answer the manual kind when
+it has none of that type. The kind is saved as `manual_kind`; old saves with
+`manual_coast_kind` are folded into it on restore.
+
 ## 4. Area accessor
 
 The area exposes a derived query — no separate storage, filters

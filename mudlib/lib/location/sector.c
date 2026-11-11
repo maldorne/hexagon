@@ -54,8 +54,11 @@ mapping boundary_exits;
 // locations to derive a type from (underground ones do not count on the
 // surface map, see query_sector_type). See query_sector_type / set_manual_type.
 string manual_type;
-// the kind of shore a coast painted by hand draws as ("beach", "marsh"), when
-// the sector has no coast locations to tell it
+// the subtype of the manual type (a coast's shore, a mountain's volcano; see
+// SECTOR_KIND_*), used when the sector has no locations of that type to tell it
+string manual_kind;
+// legacy save variable: the shore kind of a hand-painted coast, folded into
+// manual_kind on restore (see _migrate_kind)
 string manual_coast_kind;
 string file_name;
 
@@ -90,27 +93,58 @@ string query_manual_type()
   return manual_type ? manual_type : SECTOR_TYPE_NONE;
 }
 
-string query_manual_coast_kind()
+string query_manual_kind()
 {
-  return manual_coast_kind ? manual_coast_kind : "";
+  return manual_kind ? manual_kind : SECTOR_KIND_NONE;
 }
 
 /**
- * Sets the type the sector shows when it has no locations of its own.
+ * Whether a kind is valid for a type: coast and mountain have kinds.
+ *
+ * @param type the sector type
+ * @param kind the kind, SECTOR_KIND_NONE for none
+ * @return 1 when the type accepts it
+ */
+int valid_kind(string type, string kind)
+{
+  if (!kind || !strlen(kind))
+    return 1;
+  if (type == SECTOR_TYPE_COAST)
+    return member_array(kind, SECTOR_COAST_KINDS) != -1;
+  if (type == SECTOR_TYPE_MOUNTAIN)
+    return member_array(kind, SECTOR_MOUNTAIN_KINDS) != -1;
+  return 0;
+}
+
+/**
+ * Sets the type the sector shows when it has no locations of its own, and
+ * optionally its subtype. A kind the type does not accept is dropped.
  *
  * @param type the sector type, SECTOR_TYPE_NONE to clear it
- * @param coast_kind optional: for a coast, the kind of shore it draws as
+ * @param kind optional: the subtype (SECTOR_KIND_*), valid for that type
  */
-void set_manual_type(string type, varargs string coast_kind)
+void set_manual_type(string type, varargs string kind)
 {
   manual_type = type ? type : SECTOR_TYPE_NONE;
-  manual_coast_kind = (manual_type == SECTOR_TYPE_COAST && coast_kind) ?
-                      coast_kind : "";
+  manual_kind = valid_kind(manual_type, kind) && kind ? kind : SECTOR_KIND_NONE;
+  manual_coast_kind = "";
   save_me();
+}
+
+// Old saves kept the shore kind of a hand-painted coast in manual_coast_kind.
+private void _migrate_kind()
+{
+  if (manual_coast_kind && strlen(manual_coast_kind))
+  {
+    if (!manual_kind || !strlen(manual_kind))
+      manual_kind = manual_coast_kind;
+    manual_coast_kind = "";
+  }
 }
 
 void restore_me() {
   restore_object(file_name);
+  _migrate_kind();
 }
 
 void refresh_glyph();
@@ -247,6 +281,7 @@ int restore_from_file_name(string name)
   if (file_size(name) >= 0)
   {
     restore_object(name);
+    _migrate_kind();
     return 1;
   }
 
@@ -651,7 +686,7 @@ private int _coast_majority(string flag)
 
   // a coast painted by hand has no locations to count
   if (!coast)
-    return manual_type == SECTOR_TYPE_COAST && manual_coast_kind == flag;
+    return manual_type == SECTOR_TYPE_COAST && manual_kind == flag;
 
   return beach * 2 > coast;
 }
@@ -663,7 +698,7 @@ private int _coast_majority(string flag)
  */
 int query_beach()
 {
-  return _coast_majority("beach");
+  return _coast_majority(SECTOR_KIND_BEACH);
 }
 
 /**
@@ -674,7 +709,7 @@ int query_beach()
  */
 int query_marsh()
 {
-  return _coast_majority("marsh");
+  return _coast_majority(SECTOR_KIND_MARSH);
 }
 
 /**
@@ -698,9 +733,14 @@ int query_volcano()
         member_array(SECTOR_TYPE_MOUNTAIN, locations[files[i]]["types"]) == -1)
       continue;
     mountains++;
-    if (locations[files[i]]["volcano"])
+    if (locations[files[i]][SECTOR_KIND_VOLCANO])
       volcanoes++;
   }
+
+  // a mountain painted by hand has no locations to count
+  if (!mountains)
+    return manual_type == SECTOR_TYPE_MOUNTAIN &&
+           manual_kind == SECTOR_KIND_VOLCANO;
 
   return volcanoes * 2 > mountains;
 }
@@ -712,7 +752,7 @@ int query_volcano()
  */
 int query_bank()
 {
-  return _coast_majority("bank");
+  return _coast_majority(SECTOR_KIND_BANK);
 }
 
 /**

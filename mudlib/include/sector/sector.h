@@ -60,6 +60,17 @@
 // it on the world map.
 #define SECTOR_TYPE_EMPTY       "empty"
 
+// The subtype (kind) a manual type may carry, valid per type: the kinds a
+// location's coast or mountain component can declare that the world map draws
+// apart. A sector with no locations of its own answers the manual kind.
+#define SECTOR_KIND_NONE        ""
+#define SECTOR_KIND_BEACH       "beach"
+#define SECTOR_KIND_MARSH       "marsh"
+#define SECTOR_KIND_BANK        "bank"
+#define SECTOR_KIND_VOLCANO     MOUNTAIN_KIND_VOLCANO
+#define SECTOR_COAST_KINDS      ({ SECTOR_KIND_BEACH, SECTOR_KIND_MARSH, SECTOR_KIND_BANK })
+#define SECTOR_MOUNTAIN_KINDS   ({ SECTOR_KIND_VOLCANO })
+
 // Iterated in this order by query_sector_type() with strict `>`, so on
 // equal counts the earlier entry wins. This is the majority-component
 // tie-break only; the map renderer applies a separate display priority
