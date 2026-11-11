@@ -537,11 +537,16 @@ void carry(object who, object from)
 
 /**
  * A rider has been moved by something that is not their ride (a teleport, a
- * push): they fall where they land, and the mount stays where it was.
+ * push): they fall where they land, and the mount stays where it was. A move
+ * to the place they already are in (the login of a link-dead player is one)
+ * throws nobody off.
  */
 void rider_moved(object who, object from, object dest)
 {
   if (member_array(who, carrying) != -1)
+    return;
+
+  if (from == dest)
     return;
 
   dismount(who, 1);
