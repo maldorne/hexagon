@@ -384,9 +384,61 @@ private int _plains_code(int sx, int sy, int sz)
 #define RUINS_OVERRIDE_MIN 5
 // lake cells that draw the lake over any terrain of the sector
 #define LAKE_OVERRIDE_MIN 10
+// lake cells that make a sector open water: its neighbours are the lake's shore
+#define LAKE_WATER_MIN 40
 
 // prototype: _is_coast asks whether a neighbour is open sea
 private int _is_sea(string game, string map_name, int sx, int sy, int sz);
+
+/**
+ * Whether the sector at (sx, sy, sz) is the water of a big lake: it holds
+ * LAKE_WATER_MIN lake cells or more and is not a city.
+ */
+private int _is_lake_water(string game, string map_name, int sx, int sy, int sz)
+{
+  object sect;
+
+  sect = cached_sector(game, map_name, sx, sy, sz);
+  return sect && !sect->has_locations_of_type(SECTOR_TYPE_CITY) &&
+         _memo("l", sect, sx, sy, sz) >= LAKE_WATER_MIN;
+}
+
+/**
+ * Whether the sector at (sx, sy, sz) is the rim of a big lake: it is not lake
+ * water and one of its eight neighbours is. The shore wins over a city, as a
+ * town's docks do on the sea coast.
+ */
+private int _is_lake_rim(string game, string map_name, int sx, int sy, int sz)
+{
+  object sect;
+  string key;
+  int dx, dy, rim;
+
+  key = "m" + sx + "_" + sy + "_" + sz;
+  if (!undefinedp(border_cache[key]))
+    return border_cache[key];
+
+  sect = cached_sector(game, map_name, sx, sy, sz);
+  if (sect && !_is_lake_water(game, map_name, sx, sy, sz))
+    for (dx = -1; dx <= 1 && !rim; dx++)
+      for (dy = -1; dy <= 1 && !rim; dy++)
+        if ((dx || dy) &&
+            _is_lake_water(game, map_name, sx + dx, sy + dy, sz))
+          rim = 1;
+
+  border_cache[key] = rim;
+  return rim;
+}
+
+/**
+ * Whether the sector at (sx, sy, sz) is open water for the arms of a shoreline:
+ * sea (see _is_sea) or the water of a big lake.
+ */
+private int _is_water(string game, string map_name, int sx, int sy, int sz)
+{
+  return _is_sea(game, map_name, sx, sy, sz) ||
+         _is_lake_water(game, map_name, sx, sy, sz);
+}
 
 /**
  * Whether the sector at (sx, sy, sz) meets the sea on its own: coast is its
@@ -420,14 +472,16 @@ private int _is_shore(string game, string map_name, int sx, int sy, int sz)
  * of the sea and turns the corner between two such sectors (one north or
  * south, one east or west) that do not already meet through the sector
  * diagonal to it, so the shoreline is not broken where a coastal sector has no
- * side open to the sea. A city keeps its own glyph there.
+ * side open to the sea. A city keeps its own glyph there. The rim of a big lake
+ * (see _is_lake_rim) is coast as well.
  */
 private int _is_coast(string game, string map_name, int sx, int sy, int sz)
 {
   object sect;
   int dx, dy;
 
-  if (_is_shore(game, map_name, sx, sy, sz))
+  if (_is_shore(game, map_name, sx, sy, sz) ||
+      _is_lake_rim(game, map_name, sx, sy, sz))
     return 1;
 
   sect = cached_sector(game, map_name, sx, sy, sz);
@@ -531,7 +585,7 @@ private int _is_islet(string game, string map_name, int sx, int sy, int sz,
   dy = ({ 1, -1, 0, 0 });
 
   for (i = 0; i < 4; i++)
-    if (i != side && !_is_sea(game, map_name, sx + dx[i], sy + dy[i], sz))
+    if (i != side && !_is_water(game, map_name, sx + dx[i], sy + dy[i], sz))
       return 0;
 
   // the arms of the neighbour on that side, pointing back here or not
@@ -627,7 +681,7 @@ private int * _sea_sides(int * arms, string game, string map_name,
   sea_side = -1;
 
   for (i = 0; i < 4; i++)
-    if (!arms[i] && _is_sea(game, map_name, sx + dx[i], sy + dy[i], sz))
+    if (!arms[i] && _is_water(game, map_name, sx + dx[i], sy + dy[i], sz))
     {
       sea_side = i;
       sea_count++;
@@ -670,7 +724,7 @@ private int _shore_code(object sect, string game, string map_name,
     ways = way_arms(sect, game, map_name, sx, sy, sz);
     for (i = 0; i < 4 && road_side < 0; i++)
       if (!arms[i] && i != sea_side && ways[i] &&
-          !_is_sea(game, map_name, sx + dx[i], sy + dy[i], sz))
+          !_is_water(game, map_name, sx + dx[i], sy + dy[i], sz))
         road_side = i;
 
     if (sea_side >= 0)
@@ -732,7 +786,9 @@ private string _seen_from_above(object sect, string game, string map_name,
 //                    reaches it or a river meets the sea; a road reaching it,
 //                    or a dock, adds a third arm (see _shore_code). A river
 //                    bank is not a shoreline: it is drawn as the river or the
-//                    land it is
+//                    land it is. The water of a big lake (LAKE_WATER_MIN lake cells
+//                    or more, not a city) is blank, as the sea, and the sectors
+//                    around it, its rim (see _is_lake_rim), are coast too
 //   2. city        — any city presence wins; drawn as a solid block, the
 //                    surrounding wall added later by _overlay_city_walls.
 //                    A forest city (half or more of its city locations are
@@ -779,6 +835,10 @@ private int sector_code(string game, string map_name, int sx, int sy, int sz)
   // wherever the land meets the sea, a town's docks included
   if (_is_coast(game, map_name, sx, sy, sz))
     return _shore_code(sect, game, map_name, sx, sy, sz);
+
+  // the water of a big lake is drawn as the sea is: blank, with waves
+  if (_is_lake_water(game, map_name, sx, sy, sz))
+    return MAP_GLYPH_EMPTY;
 
   // a single city location paints the whole sector (present-wins), so two
   // neighbouring cities never merge through the terrain between them

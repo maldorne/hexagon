@@ -90,6 +90,21 @@ type with that kind. `query_beach`, `query_marsh`, `query_bank` and
 it has none of that type. The kind is saved as `manual_kind`; old saves with
 `manual_coast_kind` are folded into it on restore.
 
+### Big lakes on the world map
+
+A sector with `LAKE_WATER_MIN` (40) lake cells or more that is not a city is the
+water of a big lake (`_is_lake_water` in `lib/handlers/worldmap.c`). It is drawn
+blank, as the open sea, and the sectors around it, its eight neighbours that are
+not lake water, are its rim (`_is_lake_rim`): they are drawn as coast (same
+shore glyphs and kind colours as the sea), whatever else they hold, a city
+included, as a town's docks on the sea coast, with
+arms closing the outline, and a road or dock reaching the ring adds its arm as
+on the sea coast. For the arms of a shoreline the lake counts as water
+(`_is_water`); `_is_sea` and everything else about the sea are untouched. A
+sector with fewer lake cells keeps the lake glyph (`LAKE_OVERRIDE_MIN`). After
+changing the rule or a lake, run `sectors glyphs <map>` to refresh the stored
+glyphs.
+
 ## 4. Area accessor
 
 The area exposes a derived query — no separate storage, filters
