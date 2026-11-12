@@ -6,7 +6,8 @@ serves every game: a boss is keyed by its template path (the game is read from
 it), so the record survives respawns.
 
 - The component registers the boss when it is placed, so `bosses` / `jefes`
-  lists it before anybody has fought it.
+  lists it before anybody has fought it. It is named by its short without the
+  colour codes (the list shows the short with them, measured without them).
 - The fight clock starts at the first blow involving the boss (`event_fight_in_progress`)
   and restarts after two minutes without blows. On death (`died`) the component
   hands the handler the killer, the NPC's attacker list and the seconds.

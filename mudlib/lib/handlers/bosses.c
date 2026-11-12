@@ -17,6 +17,7 @@
  * Shown by the bosses command; prune() drops the bosses whose template is gone.
  */
 
+#include <user/terminal.h>
 #include <mud/config.h>
 #include <user/player.h>
 #include <living/persisted.h>
@@ -44,11 +45,26 @@ mapping bosses;
 
 void create()
 {
+  string * keys;
+  string name;
+  int i;
+
   bosses = ([ ]);
   ::create();
   restore_object(BOSSES_SAVE, 1);
   if (!mappingp(bosses))
     bosses = ([ ]);
+
+  // the shown name is the short without colours: records kept from before
+  // take it from the short they saved
+  keys = map_indices(bosses);
+  for (i = 0; i < sizeof(keys); i++)
+    if (stringp(bosses[keys[i]]["short"]))
+    {
+      name = (string)TERM_HANDLER->clean_string(bosses[keys[i]]["short"]);
+      if (strlen(name))
+        bosses[keys[i]]["name"] = name;
+    }
 }
 
 void setup()
@@ -133,7 +149,12 @@ void register_boss(object npc)
     return;
 
   key = query_boss_key(npc);
-  name = (string)npc->query_cap_name();
+  // the name shown is the short without its colour codes: a boss called after
+  // what it is ("Mago Errante") would lose half of it with query_cap_name
+  short_name = (string)npc->query_short();
+  name = stringp(short_name) ? (string)TERM_HANDLER->clean_string(short_name) : nil;
+  if (!name || !strlen(name))
+    name = (string)npc->query_cap_name();
   if (!name || !strlen(name))
     return;
 
@@ -149,7 +170,6 @@ void register_boss(object npc)
   }
 
   // the full name and description are kept for bosses with no template to read
-  short_name = (string)npc->query_short();
   long_desc = (string)npc->query_long();
   if (stringp(short_name) && bosses[key]["short"] != short_name)
   {

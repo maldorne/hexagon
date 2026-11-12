@@ -9,6 +9,7 @@
 
 #include <mud/cmd.h>
 #include <language.h>
+#include <user/terminal.h>
 
 inherit CMD_BASE;
 
@@ -41,25 +42,40 @@ private string _death_line(mapping death)
 
 /**
  * A table cell of `width` characters: padded with spaces (on the left when
- * `right` is set) or cut with an ellipsis when it does not fit.
+ * `right` is set) or cut with an ellipsis when it does not fit. The width is
+ * measured without the colour codes, which keep their colour when the text
+ * fits; a text cut to fit loses them.
  */
 private string _cell(string text, int width, int right)
 {
+  string plain;
   int len, i, chars;
 
-  len = strlen(text, 1);
+  plain = (string)TERM_HANDLER->clean_string(text);
+  len = strlen(plain, 1);
   if (len > width)
   {
     // keep width - 1 characters, never cutting one of several bytes in two
-    for (i = 0, chars = 0; i < strlen(text); i++)
-      if ((text[i] & 0xC0) != 0x80 && ++chars == width)
+    for (i = 0, chars = 0; i < strlen(plain); i++)
+      if ((plain[i] & 0xC0) != 0x80 && ++chars == width)
         break;
-    return text[0 .. i - 1] + "…";
+    return plain[0 .. i - 1] + "…";
   }
 
   if (right)
     return pad("", width - len) + text;
   return text + pad("", width - len);
+}
+
+/**
+ * The name a boss is listed under, without colour codes: its short when it
+ * is known (the list shows it with its colours), else its name.
+ */
+private string _shown_name(mapping boss)
+{
+  if (stringp(boss["short"]) && strlen(boss["short"]))
+    return (string)TERM_HANDLER->clean_string(boss["short"]);
+  return boss["name"];
 }
 
 // The list of the bosses of a game, as a table with column headings.
@@ -87,8 +103,8 @@ private string _list_text(object bosses_ob, string game)
     boss = bosses_ob->query_boss(keys[i]);
     deaths[i] = "" + boss["deaths"];
     killed[i] = "" + boss["killed"];
-    if (strlen(boss["name"], 1) > name_w)
-      name_w = strlen(boss["name"], 1);
+    if (strlen(_shown_name(boss), 1) > name_w)
+      name_w = strlen(_shown_name(boss), 1);
     if (strlen(deaths[i]) > deaths_w)
       deaths_w = strlen(deaths[i]);
     if (strlen(killed[i]) > killed_w)
@@ -114,7 +130,7 @@ private string _list_text(object bosses_ob, string game)
   for (i = 0; i < sizeof(keys); i++)
   {
     boss = bosses_ob->query_boss(keys[i]);
-    ret += _cell(boss["name"], name_w, 0) + "  " +
+    ret += _cell(stringp(boss["short"]) ? boss["short"] : boss["name"], name_w, 0) + "  " +
            _cell(deaths[i], deaths_w, 1) + "  " +
            _cell(killed[i], killed_w, 1) + "\n";
   }
@@ -134,7 +150,7 @@ private string _record_text(mapping boss, mapping info)
     cols = 80;
 
   ret = "";
-  if (info["short"] && info["short"] != boss["name"])
+  if (info["short"] && TERM_HANDLER->clean_string(info["short"]) != boss["name"])
     ret += info["short"] + "\n";
   // a blank line between the name and the description
   if (strlen(ret) && info["long"])
