@@ -155,15 +155,30 @@ int query_legal_worn_armour(object armour)
 }
 
 /**
+ * Whether a member may wear this piece (what a living asks before putting one
+ * on). Bags and quivers hang from the body and are free for every guild; the
+ * rest is the guild's own rule, query_legal_worn_armour.
+ * @param  armour  the piece the member wants to wear
+ */
+int query_legal_wear(object armour)
+{
+  if (!armour->query_shield() &&
+      (string)armour->query_armour_type_name() == ARMOUR_TYPE_MISC)
+    return 1;
+
+  return query_legal_worn_armour(armour);
+}
+
+/**
  * Whether a member may cast spells while wearing this piece (asked of every
  * worn piece when casting). The default is what the member may wear, as
- * query_legal_worn_armour answers; a guild that lets its members wear
- * something it still chokes their spells masks this.
+ * query_legal_wear answers; a guild that lets its members wear something it
+ * still chokes their spells masks this.
  * @param  armour  the worn piece
  */
 int query_legal_casting_armour(object armour)
 {
-  return query_legal_worn_armour(armour);
+  return query_legal_wear(armour);
 }
 /*
 int query_valid_melee_weapon(object ob) { return 1;} 

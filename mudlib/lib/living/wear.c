@@ -342,7 +342,7 @@ int query_legal_wear(object ob)
   if (!stringp(guild))
     return 1;
 
-  return guild->query_legal_worn_armour(ob);
+  return guild->query_legal_wear(ob);
 }
 
 /**
