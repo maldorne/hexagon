@@ -28,10 +28,17 @@
 #define RIDE_PROTECT      "protect"       // percent chance it takes the blows aimed at its rider
 #define RIDE_WIMPY        "wimpy"         // percent of its hit points under which it flees with its rider
 #define RIDE_FEARS        "fears"         // names, race ids or properties that make it flee with its rider
+#define RIDE_SPEED        "speed"         // percent (100: normal) of the pace it keeps when it travels on its own
+#define RIDE_SUMMON       "summon"        // RIDE_SUMMON_* where its owner may call it
 
 // RIDE_COMBAT values
 #define RIDE_COMBAT_LINKED "linked"  // it fights whoever fights its rider, and the rider whoever fights it
 #define RIDE_COMBAT_NONE   "none"    // it stays out of the fights
+
+// RIDE_SUMMON values
+#define RIDE_SUMMON_OUTDOORS "outdoors"  // outside, and on water only if it crosses water
+#define RIDE_SUMMON_ANYWHERE "anywhere"
+#define RIDE_SUMMON_NEVER    "never"     // it is never called (a vehicle that cannot be fetched)
 
 // RIDE_MEDIUM values
 #define RIDE_MEDIUM_GROUND "ground"
@@ -51,6 +58,16 @@
 #define MAX_OWNED_MOUNTS 10
 #define RIDE_OWNER       "owner"      // name of the player who owns it
 #define RIDE_ID          "mount_id"   // name of its save file, and its key in the owner's list
+
+// summoning: the timed property on the owner while it cannot call a mount
+// again, and its length in seconds of play
+#define RIDING_SUMMON_LOCK     "mount_summon_lock"
+#define RIDING_SUMMON_COOLDOWN 300
+
+// travelling on its own: seconds between steps at speed 100, and the chance
+// (one in this many) that a step is skipped, so the pace is not mechanical
+#define RIDING_TRAVEL_DELAY 3
+#define RIDING_TRAVEL_PAUSE 6
 
 // keys of an entry of a mount shop's stock: what the mount is made from
 #define MOUNT_TEMPLATE "template"  // bestiary template it is made from, or

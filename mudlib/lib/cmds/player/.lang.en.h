@@ -321,7 +321,7 @@
 
 #define _LANG_CMD_TRAVEL_ALIAS ({ "travel" })
 #define _LANG_CMD_TRAVEL_SYNTAX "travel [<direction>]"
-#define _LANG_CMD_TRAVEL_HELP "Allows you to travel in a certain direction.\nIt needs you to be on a mount or vehicle."
+#define _LANG_CMD_TRAVEL_HELP "Your mount follows the way in that direction on its own, one step at a time: where the way bends it takes the nearest exit, and where it forks it stops.\nType the command again, with no direction, to stop. A fight, a closed door or anything that blocks the way stops it too.\nIt needs you to be on a mount or vehicle, driving it."
 #define _LANG_CMD_TRAVEL_NO_MOUNT "It only works if you are on a mount or vehicle.\n"
 #define _LANG_CMD_TRAVEL_WHERE "Travel where?\n"
 
@@ -835,10 +835,32 @@
 
 #define _LANG_CMD_MOUNTS_ALIAS ({ "mounts" })
 #define _LANG_CMD_MOUNTS_SYNTAX "mounts"
-#define _LANG_CMD_MOUNTS_HELP "Shows the mounts you own and where each one is."
+#define _LANG_CMD_MOUNTS_HELP "Shows the mounts you own, numbered, and where each one is; the one you have out is marked.\nSee also: summon, dismiss."
 #define _LANG_CMD_MOUNTS_NONE "You do not own any mount.\n"
 #define _LANG_CMD_MOUNTS_HEADER "Your mounts:\n"
 // owned[i]["name"] is the short of the mount
-#define _LANG_CMD_MOUNTS_LINE "  " + owned[i]["name"] + ": " + place + ".\n"
+#define _LANG_CMD_MOUNTS_LINE "  " + (i + 1) + ". " + owned[i]["name"] + ": " + place + marker + ".\n"
 #define _LANG_CMD_MOUNTS_NOWHERE "stabled"
 #define _LANG_CMD_MOUNTS_UNKNOWN "somewhere"
+#define _LANG_CMD_MOUNTS_OUT " (out)"
+
+// summon
+
+#define _LANG_CMD_SUMMON_ALIAS ({ "summon" })
+#define _LANG_CMD_SUMMON_SYNTAX "summon <mount>"
+#define _LANG_CMD_SUMMON_HELP "Calls one of your mounts to your side, by its name or its number in the 'mounts' list.\nOnly one of your mounts is out at a time: the one that was out is put away. Where it may come depends on the mount, and you cannot call again for a few minutes.\nSee also: mounts, dismiss."
+#define _LANG_CMD_SUMMON_DEAD "You are in no state to do that.\n"
+#define _LANG_CMD_SUMMON_NONE "You do not own any mount.\n"
+#define _LANG_CMD_SUMMON_WHAT "Summon which mount? See the 'mounts' list.\n"
+#define _LANG_CMD_SUMMON_UNKNOWN "You have no such mount. See the 'mounts' list.\n"
+#define _LANG_CMD_SUMMON_AMBIGUOUS "More than one of your mounts fits that: use its number in the 'mounts' list.\n"
+#define _LANG_CMD_SUMMON_HERE "That mount is already beside you.\n"
+#define _LANG_CMD_SUMMON_COOLDOWN "You have called a mount too recently: wait a few minutes.\n"
+#define _LANG_CMD_SUMMON_FAILED "The mount does not come.\n"
+
+// dismiss
+
+#define _LANG_CMD_DISMISS_ALIAS ({ "dismiss" })
+#define _LANG_CMD_DISMISS_SYNTAX "dismiss"
+#define _LANG_CMD_DISMISS_HELP "Sends away the mount you have out, wherever it is. You can call it, or any other, again with 'summon'.\nSee also: mounts, summon."
+#define _LANG_CMD_DISMISS_NONE "You have no mount out.\n"

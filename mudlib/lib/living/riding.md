@@ -11,7 +11,7 @@ A **mount** is anything a living can be carried by: a horse, a dragon, a motorbi
 | an item mount | `/lib/obj/vehicle.c` |
 | the mounts a player owns | one save file each, below |
 | a place that sells mounts | location component `mount-shop` (`/lib/location/components/mount-shop.c`) |
-| the player's list | the `mounts` / `monturas` command (`/lib/cmds/player/mounts.c`) |
+| the player's list, calling and sending away a mount, travelling on its own | the commands `mounts` / `monturas`, `summon` / `invocar`, `dismiss` / `desinvocar`, `travel` / `viajar` (`/lib/cmds/player/`) |
 | spec keys | `<living/riding.h>` |
 
 A game's handler inherits the shared one and redefines what differs; a game's table inherits the shared one and adds kinds with `add_kind` (rl-aeternum: `horse`).
@@ -35,6 +35,8 @@ A mount answers `query_rideable()` with a mapping (nil: it cannot be ridden). Th
 | `protect` | percent chance (default 0) that the mount takes the blows aimed at its rider (`RIDE_PROTECT`) |
 | `wimpy` | percent of its hit points under which a ridden mount flees carrying its rider (default 0, `RIDE_WIMPY`) |
 | `fears` | list of names, race ids or properties that make a ridden mount flee, in sight or when they fight it (`RIDE_FEARS`) |
+| `speed` | percent (default 100, `RIDE_SPEED`) of the pace it keeps when its driver travels on its own: 200 takes a step in half the time |
+| `summon` | where its owner may call it (`RIDE_SUMMON`): `outdoors` (default: only outside, and on water only if its `medium` has water), `anywhere`, or `never` (a vehicle that cannot be fetched) |
 | `learn` | skill id the driver is given at 10% the first time they take the driver's seat without knowing it. It counts as known at 10 for `requires`, so a first ride is never refused for lack of it |
 
 Only the driver's seat asks for `requires` and `learn`; any seat may be taken by whoever fits.
@@ -48,7 +50,9 @@ Besides the spec keys a row holds every text a ride says. `$N` is the rider's na
 - `leave`, `arrive`: replace the race's move lines while mounted; they start with `@`, the marker `move_living` strips. An exit that has its own message keeps it.
 - `listing`: follows the rider's name in a room listing. `look`: the line `look` adds to the rider.
 - `protect_room`, `flee_me` / `flee_room`: the mount covers its rider, the mount bolts with its rider.
-- `refuse_<reason>`: `attack` (a rider tries to attack its own mount), `dead`, `passed_out`, `already`, `full`, `skill`, `body_size`, `passenger`, `exit`, `exit_size`, `terrain`, `indoors`, `underground`, `water`, `ground`, plus one per exit type a kind denies.
+- `summon_me` / `summon_room`, `dismiss_me` / `dismiss_room`: its owner calls it or sends it away (`$N` the owner).
+- `travel_start`, `travel_follow`, `travel_stop`, `travel_lost`, `travel_blocked`, `travel_fight`: the lines of travelling on its own; `$T` is the direction.
+- `refuse_<reason>`: `attack` (a rider tries to attack its own mount), `dead`, `passed_out`, `already`, `full`, `skill`, `body_size`, `passenger`, `summon` (kind never called), `summon_indoors`, `summon_water`, `exit`, `exit_size`, `terrain`, `indoors`, `underground`, `water`, `ground`, plus one per exit type a kind denies.
 
 ## Handler API (`/lib/handlers/riding.c`)
 
@@ -57,7 +61,9 @@ Besides the spec keys a row holds every text a ride says. `$N` is the rider's na
 - `query_board_refusal(who, mount, seat)` (a text for the rider, or nil; seat -1 is the first free one), `board(who, mount)`, `board_seat(who, mount, seat)`, `dismount(who, fall)`, `unseat_riders(mount [, place])`.
 - `query_move_refusal(who, room, dir)`: asked by the exit handler of whoever rides; a passenger cannot move the mount.
 - `query_travel_line(who, arriving)`, `query_listing(who)`, `query_look(who)`.
-- `carry(who, from)`, `rider_moved`, `mount_moved`: movement, below.
+- `carry(who, from)`, `rider_moved`, `mount_moved`, `begin_teleport(who)`, `end_teleport(who, from)`, `rider_jailed(who)`: movement, below.
+- `summon(owner, str)`, `dismiss(owner)`, `query_mount_out(owner)`, `query_summon_refusal(owner, mount, place)`, `find_owned(owned, str)`: the mounts a player owns, below.
+- `query_travel_start(who, str)`, `query_travel_exit(who, room, dir)`, `query_travel_delay(who)`, `tell_travel(who, key [, dir])`: travelling on its own, below.
 - `query_mates(a, b)`, `query_attack_refusal(who, other)`, `rider_fights`, `rider_attacked`, `mount_attacked`, `query_shares_xp(attacker, attackers)`, `query_feared(mount, who)`, `query_wants_to_flee(mount)`, `query_fear_present(mount)`, `run_away(mount)`: combat, below.
 
 Hooks the handler calls on the mount, all optional (they are plain `call_other`: a mount that does not define one answers nil): `mount_can_board(who, seat)` (a refusal text, or nil), `mount_boarded(who)`, `mount_dismounted(who)`. A hand-written NPC or a vehicle defines them.
@@ -67,6 +73,8 @@ Hooks the handler calls on the mount, all optional (they are plain `call_other`:
 - The exit handler asks `query_move_refusal` before a mounted rider leaves (`do_exit_command`): seat, exit type, size, what lies beyond.
 - `move_living` writes the step lines from `query_travel_line` while the living rides, then calls `carry(rider, from)`: the mount and the passengers are moved after the driver with a plain `move(dest)`, with no lines (the driver's line is the room's). If the mount cannot be moved the driver falls.
 - A rider moved by anything else (`goto`, a spell, a push) reaches `event_moved` of `/lib/living/movement.c`, which is not its own walk, so `rider_moved` throws it off (a move to the place it already is in, as the login of a link-dead player does, throws nobody off). A mount moved while it is not following its driver (`event_moved` of the NPC or the vehicle) throws off whoever is on it with `mount_moved`. The two walks that are its own are flagged (`walking` on the rider, the handler's `carrying` list for the mount and the passengers).
+- A teleport that moves a rider (a recall, a portal, a spell) brings the mount and the passengers along: the code that teleports calls `begin_teleport(who)` before the move and `end_teleport(who, from)` right after it, both harmless for a living that rides nothing. The driver arrives with the mount and the passengers beside it, in silence and with no check of what the mount may cross; a passenger who teleports gets off first, since the mount is not theirs. Paths covered: `/lib/obj/recall.c` (`continue_travel`), and in rl-aeternum the cleric's return home (`spheres/all/return-home.c`, `do_step`), the magic portal (`schools/alteration/magic-portal.c`, `do_portal`) and the portal of the mines of Zulk (`areas/zulk/minas/items/portal.c`, `do_enter`). Whoever writes a new teleport adds the two calls; without them the rider falls where it lands. `goto` and `home` of the coders are not covered.
+- A prisoner taken to a cell (`arrest` and the put-back of `/lib/handlers/crimes.c`) goes through `rider_jailed(who)` first: it gets off its mount (the passengers stay), and a mount of its own that is out is stored, so nothing waits in the street. A mount that is not theirs stays where it is.
 - A mount that dies, or is destructed or has its component taken out, unseats its riders (`unseat_riders`: the fall lines, no damage). A rider that dies is dismounted with no lines (`dismount(who, 0, 1)` from `death.c`) and the mount stays where it is.
 - Every fall is words only: no damage.
 - An NPC mount with somebody on it does not wander (`query_staying_put` of `/lib/npc.c`), and neither mount nor ridden vehicle shows in the room list (`pretty_short` empty): the rider does, with its `listing`.
@@ -90,25 +98,45 @@ rl-aeternum values (`/games/rl-aeternum/tables/mounts.c`): horse `protect` 25, `
 
 ## Owned mounts: one file each
 
-A mount a player buys is theirs, up to `MAX_OWNED_MOUNTS` (10; `query_max_owned_mounts`, a game's handler may change it).
+A mount a player buys is theirs, up to `MAX_OWNED_MOUNTS` (10; `query_max_owned_mounts`, a game's handler may change it). **Only one is out in the world at a time**: the others are stored (their file, nothing alive). See Summoning and dismissing.
 
 - **On disk**: one file per mount, `<player save folder>/mounts/<id>.o` (`query_mount_file(owner, id)`, the folder is `player_save_dir(owner)`). It holds `mount_template` (bestiary template id) or `mount_file` (cloned path), `mount_owner`, `mount_id`, `mount_location` (where it stood: a location by its `.o`, a room by its path), `mount_name` (its short) and `mount_hp` (0 when unhurt).
-- **On the player** (`/lib/living/riding.c`): `mount_ids`, the ids it owns, saved with the player (`query_mount_ids`), and `owned_mounts`, the mounts that are out now, not saved (`query_owned_mounts`).
+- **On the player** (`/lib/living/riding.c`): `mount_ids`, the ids it owns, and `mount_out`, the id of the one that is out (empty when none), both saved with the player (`query_mount_ids`, `query_mount_out`); and `owned_mounts`, the live ones, at most the one out, not saved (`query_owned_mounts`).
 - **On the mount**: only who owns it and under which id, `owner` (`RIDE_OWNER`) and `mount_id` (`RIDE_ID`) in its spec, so in the attributes of its `rideable` component (a vehicle: its `set_rideable` spec). `query_owner(mount)` and `query_mount_id(mount)` read them.
 - **The handler keeps nothing of any player in memory**: it only holds the logic (its `mount_*` variables are used for the instant of a save or restore), so reloading it loses and duplicates no mount.
 
 What happens:
 
-- `add_mount(owner, stock, where)`: makes the mount in `where` (a template through the bestiary, a file by cloning), ties it to the owner, writes its file, adds its id to the player and saves the player. The cap and the price are asked by whoever sells.
+- `add_mount(owner, stock, where)`: makes the mount in `where` (a template through the bestiary, a file by cloning), ties it to the owner, writes its file, adds its id to the player, stores the mount that was out and makes the new one the one out, and saves the player. The cap and the price are asked by whoever sells.
 - A mount going away (`mount_gone`, from the destruction of the component or vehicle) writes its file where it stands: when its owner quits, or when its place unloads. An NPC lets its components go before they clean up, so the component passes its spec along.
-- A mount that dies (`mount_died`) deletes its file and leaves the player's ids; it is not written again.
-- **Quit** (`lib/player/quit.c`): `owner_quit` takes the player off what they ride, then every mount of theirs that is out is destructed, saved where it stood.
-- **Login** (`lib/player/start.c`): `owner_enter` makes again each saved mount where it stood, or beside the player when that place does not load; its `hp` is restored. An id whose file is gone leaves the list. A mount already out for that player is not made twice.
+- A mount that dies (`mount_died`) deletes its file, leaves the player's ids, and if it was the one out the player has none out; it is not written again.
+- **Quit** (`lib/player/quit.c`): `owner_quit` takes the player off what they ride, then the mount of theirs that is out is destructed, saved where it stood; `mount_out` stays set.
+- **Login** (`lib/player/start.c`): `owner_enter` makes again only the mount that was out, where it stood, or beside the player when that place does not load; its `hp` is restored. The stored ones stay stored. An id whose file is gone leaves the list. A mount already out is not made twice.
 - **The place does not unload while an owned mount stands in it**: an owned mount (NPC or vehicle) answers `query_unique_object()` with 1, and `clean_up` of a location keeps whatever holds a unique object.
 - Only the owner may take the driver's seat of an owned mount (`refuse_not_owner`); anybody may still ride as a passenger.
 - An owned mount belongs to its player, not to an area: it is made through the bestiary, outside any census.
-- `query_owned(owner)` (in the order bought, each `([ "name", "mount" ])`, the mount being the live one or nil) and `query_owned_count(owner)`.
+- `query_owned(owner)` (in the order bought, each `([ "id", "name", "mount" ])`, the mount being the live one, the one out, or nil) and `query_owned_count(owner)`.
 - A retired player's `player.o` is removed but its folder stays, with its mount files.
+
+## Summoning and dismissing
+
+Commands `summon <mount>` / `invocar <montura>`, `dismiss` / `desinvocar` and `mounts` / `monturas` (`/lib/cmds/player/`); the rules are in the handler.
+
+- `mounts` lists every mount numbered, where each stands (a stored one is "stabled") and marks the one out.
+- `summon` takes a number of that list or part of a name (a single mount needs no argument). The mount that was out is stored (whoever else rides it gets off first) and the called one appears beside the player, ready to be ridden. Calling the one that is out brings it to the player; if it is already beside them nothing happens. A mount that is called is made again from its file, with its hurts.
+- Where it may come is its kind's `summon` key (`query_summon_refusal`): by default only outdoors, and on water only a mount that crosses water; a refusal is a text of the kind (`refuse_summon_indoors`, `refuse_summon_water`, `refuse_summon`). A refusal stores nothing and starts no cooldown.
+- A successful call locks the next one for `RIDING_SUMMON_COOLDOWN` seconds of play (5 minutes; timed property `RIDING_SUMMON_LOCK` on the player, which counts their heart beats like the recall item's). Buying a mount and `dismiss` do not use or start it.
+- `dismiss` stores the mount that is out wherever it stands, after getting its riders off. The command says there is none out when so.
+- The recall item no longer summons: summoning is these commands only.
+
+## Travelling on its own
+
+`travel <direction>` / `viajar <direction>` (`/lib/cmds/player/travel.c`): the driver's mount follows the way by itself, one step at a time, until the command is typed again with no direction. The state and the chain of `call_out`s (no heart beat) are on the rider (`/lib/living/riding.c`: `start_ride_travel`, `stop_ride_travel`, `query_ride_traveling`, `ride_travel_step`); the choice of exit belongs to the handler.
+
+- The first step is the direction typed (any word of the language for it) or, if the place has no such exit, the nearest one (`query_travel_start`).
+- At each place `query_travel_exit` picks, among the exits the mount may take (`query_move_refusal`): the same direction, else the nearest ones (the exit handler's broad nearest directions), else the only exit left apart from the way back. If there is none the mount "does not know where to go" and stops. Following a bend says so (`travel_follow`).
+- The pace is `RIDING_TRAVEL_DELAY` seconds (3) scaled by the `speed` of the kind, and one step in `RIDING_TRAVEL_PAUSE` (6) is skipped at random. The step is queued as the exit command, so doors, refusals and the lines of a ride are the usual ones.
+- It stops by itself when a step moved nowhere (`travel_blocked`: a closed door, a refusal), when the rider fights or is attacked (`rider_fights`, `rider_attacked`: `travel_fight`), when it gets off, is no longer the driver or dies.
 
 ## Selling mounts: the `mount-shop` component
 

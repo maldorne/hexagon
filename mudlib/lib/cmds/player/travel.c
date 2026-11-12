@@ -29,9 +29,9 @@ static int cmd (string arg, object me, string verb)
 
   if (!strlen(arg))
   {
-    if (me->query_traveling())
+    if (me->query_ride_traveling())
     {
-      me->stop_travel();
+      me->stop_ride_travel();
       return 1;
     }
     else
@@ -41,6 +41,11 @@ static int cmd (string arg, object me, string verb)
     }
   }
     
-  me->start_travel(arg);
-	return 1;
+  if (!me->start_ride_travel(arg))
+  {
+    notify_fail(_LANG_CMD_TRAVEL_WHERE);
+    return 0;
+  }
+
+  return 1;
 }

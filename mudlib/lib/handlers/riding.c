@@ -25,6 +25,12 @@
  * (its owner quits, its place unloads) and made again where it stood when the
  * owner logs in.
  *
+ * A player owns up to ten mounts but only one is out in the world: the others
+ * are stored (a file, nothing alive). `summon` takes one out beside its owner
+ * (and stores the one that was out), `dismiss` stores the one out, a bought mount
+ * is the one out, and at login only the one out comes back. The player keeps
+ * the id of the one out (query_mount_out).
+ *
  * A game may have its own copy: /games/<game>/handlers/riding.c inherits this
  * one and redefines what differs. Reach it with handler("riding", ob), never by
  * path.
@@ -37,6 +43,7 @@
 #include <room/room.h>
 #include <room/location.h>
 #include <living/persisted.h>
+#include <mud/mudos.h>
 
 // who is moving by the rider's own doing right now: the mount and the others
 // in the seats follow the driver, and nobody falls
@@ -58,6 +65,9 @@ int mount_hp;           // its hit points, 0 when unhurt
 // prototypes
 int board_seat(object who, object mount, int seat);
 string query_move_refusal(object who, object room, string dir);
+void tell_travel(object who, string key, varargs string dir);
+object query_mount_out(object owner);
+static void store_mount(object owner, object mount, varargs int quiet);
 
 void create()
 {
@@ -361,6 +371,7 @@ int dismount(object who, varargs int fall, int quiet)
   if (!spec)
     spec = table("mounts", who)->query_default_kind();
 
+  who->stop_ride_travel(1);
   who->clear_mount();
   who->remove_extra_look(who);
 
@@ -459,6 +470,16 @@ private int fights_beside_rider(object mount)
   return spec && spec[RIDE_COMBAT] == RIDE_COMBAT_LINKED;
 }
 
+// A rider who was travelling on its own stops when a fight starts.
+private void stop_travel_for_fight(object rider)
+{
+  if (rider && rider->query_ride_traveling())
+  {
+    rider->stop_ride_travel(1);
+    tell_travel(rider, "travel_fight");
+  }
+}
+
 /**
  * A rider has taken on `foe`, or `foe` has taken on the rider: the mount joins
  * the fight as one more combatant.
@@ -466,6 +487,8 @@ private int fights_beside_rider(object mount)
 void rider_fights(object rider, object foe)
 {
   object mount;
+
+  stop_travel_for_fight(rider);
 
   mount = rider ? rider->query_mount() : nil;
   if (!mount || !foe || query_mates(mount, foe) || !fights_beside_rider(mount) ||
@@ -483,6 +506,8 @@ void rider_attacked(object rider, object foe)
 {
   mapping spec;
   object mount;
+
+  stop_travel_for_fight(rider);
 
   mount = rider ? rider->query_mount() : nil;
   if (!mount || !foe || query_mates(mount, foe) || !fights_beside_rider(mount) ||
@@ -826,6 +851,178 @@ void mount_moved(object mount, object from, object dest)
   unseat_riders(mount, from);
 }
 
+/**
+ * Call before a teleport (a recall, a portal, a spell) moves a rider: the move
+ * is not a throw. A driver is carried, with the mount and the passengers, when
+ * end_teleport follows the move; a passenger gets off first, since the mount
+ * is not theirs to take. Nothing for a living that rides nothing.
+ */
+void begin_teleport(object who)
+{
+  if (!who || !who->query_mount())
+    return;
+
+  if ((int)who->query_seat() != RIDING_DRIVER_SEAT)
+  {
+    dismount(who);
+    return;
+  }
+
+  if (member_array(who, carrying) == -1)
+    carrying += ({ who });
+}
+
+/**
+ * Call right after the move that begin_teleport announced: the mount and the
+ * passengers arrive beside the driver. If the move did not happen nothing
+ * changes.
+ * @param from  the place the rider left
+ */
+void end_teleport(object who, object from)
+{
+  if (!who)
+    return;
+
+  carrying -= ({ who });
+  if (who->query_mount())
+    carry(who, from);
+}
+
+/**
+ * A prisoner is about to be taken to a cell: it gets off its mount, and a mount
+ * of its own that is out is stored, so nothing is left standing in the street
+ * waiting for it. A mount that is not theirs stays where it is.
+ */
+void rider_jailed(object who)
+{
+  object out;
+
+  if (!who)
+    return;
+
+  dismount(who);
+  out = query_mount_out(who);
+  if (out)
+    store_mount(who, out, 1);
+}
+
+// --- Travelling on its own -----------------------------------------------------
+
+/**
+ * Tells a rider one of the travel lines of its mount's kind; `dir` fills $T.
+ */
+void tell_travel(object who, string key, varargs string dir)
+{
+  mapping spec;
+  object mount;
+  string str;
+
+  mount = who ? who->query_mount() : nil;
+  spec = query_spec(mount);
+  if (!spec)
+    return;
+
+  str = text(spec, key, who, mount);
+  if (dir)
+    str = replace_string(str, "$T", (string)ROOM_HAND->query_exit_dir(dir));
+  tell_object(who, str);
+}
+
+// Whether a rider's mount may take the exit `dir` of `room`.
+private int travel_allowed(object who, object room, string dir)
+{
+  return room->query_exit(dir) && !query_move_refusal(who, room, dir);
+}
+
+/**
+ * Which way a rider travelling in direction `dir` goes on from `room`: the
+ * direction itself if the mount may take it, else the nearest ones, else the
+ * only other exit it may take apart from the way back. Nil when there is no
+ * way on.
+ */
+string query_travel_exit(object who, object room, string dir)
+{
+  string * nearest, * exits, * ways;
+  string back;
+  int i;
+
+  if (!who || !room || !dir)
+    return nil;
+
+  if (travel_allowed(who, room, dir))
+    return dir;
+
+  nearest = EXIT_HAND->query_broad_nearest_directions(dir);
+  for (i = 0; i < sizeof(nearest); i++)
+    if (travel_allowed(who, room, nearest[i]))
+      return nearest[i];
+
+  back = (string)ROOM_HAND->query_opposite(dir);
+  exits = room->query_direc() - ({ back });
+  ways = ({ });
+  for (i = 0; i < sizeof(exits); i++)
+    if (travel_allowed(who, room, exits[i]))
+      ways += ({ exits[i] });
+
+  return sizeof(ways) == 1 ? ways[0] : nil;
+}
+
+/**
+ * The exit a rider starts travelling by when it types a direction: the
+ * direction (any word the language knows for it), or the nearest exit to it.
+ * @return nil when there is no such way, an empty string when there is one the
+ *         mount cannot take (the reason is told), else the exit
+ */
+string query_travel_start(object who, string str)
+{
+  object room;
+  string dir, refusal, * nearest;
+  int i;
+
+  room = who ? environment(who) : nil;
+  if (!room || !str || !strlen(trim(str)))
+    return nil;
+
+  dir = (string)ROOM_HAND->localize_dir(
+          (string)ROOM_HAND->canonical_dir(lower_case(trim(str))));
+
+  if (room->query_exit(dir))
+  {
+    refusal = query_move_refusal(who, room, dir);
+    if (refusal)
+    {
+      tell_object(who, refusal);
+      return "";
+    }
+    return dir;
+  }
+
+  nearest = EXIT_HAND->query_broad_nearest_directions(dir);
+  for (i = 0; i < sizeof(nearest); i++)
+    if (travel_allowed(who, room, nearest[i]))
+      return nearest[i];
+
+  return nil;
+}
+
+/**
+ * Seconds between the steps of a rider travelling on its own: the base pace
+ * scaled by the speed of its mount.
+ */
+int query_travel_delay(object who)
+{
+  mapping spec;
+  int speed, delay;
+
+  spec = query_spec(who ? who->query_mount() : nil);
+  speed = spec ? (int)spec[RIDE_SPEED] : 100;
+  if (speed <= 0)
+    speed = 100;
+
+  delay = RIDING_TRAVEL_DELAY * 100 / speed;
+  return delay < 1 ? 1 : delay;
+}
+
 // --- The mounts a player owns -------------------------------------------------
 
 /**
@@ -988,16 +1185,16 @@ private void mark_owner(object mount, string owner, string id)
     mount->set_rideable(own);
 }
 
-// Makes the mount a file describes, its owner's, and puts it in a place, ready
-// to be ridden. Nil when it cannot be made or moved.
-private object make_mount(object owner, string id, mapping data, object dest)
+// Makes the mount a file describes, its owner's, not yet anywhere: whatever
+// is decided about it (where it may stand) is decided before it is placed.
+private object build_mount(object owner, string id, mapping data, object like)
 {
   object mount;
   int hp;
 
   mount = nil;
   if (stringp(data["template"]))
-    mount = BESTIARY_HANDLER->spawn_from_template(game_name(dest), data["template"]);
+    mount = BESTIARY_HANDLER->spawn_from_template(game_name(like), data["template"]);
   else if (stringp(data["file"]))
     catch(mount = clone_object(data["file"]));
 
@@ -1014,6 +1211,13 @@ private object make_mount(object owner, string id, mapping data, object dest)
     mount->set_hp(hp);
   }
 
+  return mount;
+}
+
+// Puts a built mount in a place, ready to be ridden, and notes it as out for
+// its owner. Nil when it cannot be moved (and the mount is gone).
+private object place_mount(object owner, object mount, object dest)
+{
   if (mount->move(dest) != MOVE_OK)
   {
     mount->dest_me();
@@ -1026,10 +1230,20 @@ private object make_mount(object owner, string id, mapping data, object dest)
   return mount;
 }
 
+// Makes the mount a file describes and puts it in a place. Nil when it cannot
+// be made or moved.
+private object make_mount(object owner, string id, mapping data, object dest)
+{
+  object mount;
+
+  mount = build_mount(owner, id, data, dest);
+  return mount ? place_mount(owner, mount, dest) : nil;
+}
+
 /**
  * The mounts a player owns, in the order they were bought, each
- * ([ "name" : its short, "mount" : the live one or nil ]). One whose file is
- * gone and is not out is left out.
+ * ([ "id" : its id, "name" : its short, "mount" : the live one or nil ]); only
+ * the one out is live. One whose file is gone and is not out is left out.
  */
 mapping * query_owned(object owner)
 {
@@ -1050,13 +1264,14 @@ mapping * query_owned(object owner)
 
     if (j < sizeof(live))
     {
-      out += ({ ([ "name" : (string)live[j]->query_short(), "mount" : live[j] ]) });
+      out += ({ ([ "id" : ids[i], "name" : (string)live[j]->query_short(),
+                  "mount" : live[j] ]) });
       continue;
     }
 
     data = read_mount((string)owner->query_name(), ids[i]);
     if (data)
-      out += ({ ([ "name" : data["name"], "mount" : nil ]) });
+      out += ({ ([ "id" : ids[i], "name" : data["name"], "mount" : nil ]) });
   }
 
   return out;
@@ -1064,7 +1279,7 @@ mapping * query_owned(object owner)
 
 /**
  * Buys a mount: makes the one the stock entry names in `where`, saves its file
- * and adds it to the buyer's. Whoever sells has already asked for the price and
+ * and adds it to the buyer's, as the one out (the one that was is stored). Whoever sells has already asked for the price and
  * the cap (query_owned_count, query_max_owned_mounts).
  * @param stock  ([ "template" : id ]) or ([ "file" : path ])
  * @return the mount, or nil when the owner has too many or it cannot be made
@@ -1073,7 +1288,7 @@ object add_mount(object owner, mapping stock, object where)
 {
   mapping data;
   string name, id;
-  object mount;
+  object mount, out;
 
   if (!owner || !mappingp(stock) || !where)
     return nil;
@@ -1098,6 +1313,12 @@ object add_mount(object owner, mapping stock, object where)
 
   write_mount(mount, mount->query_rideable());
   owner->add_mount_id(id);
+
+  // the new one is the one out; the one that was is stored
+  out = query_mount_out(owner);
+  if (out && out != mount)
+    store_mount(owner, out);
+  owner->set_mount_out(id);
   owner->save_me();
   return mount;
 }
@@ -1144,6 +1365,8 @@ void mount_died(object mount)
   if (owner)
   {
     owner->remove_mount_id(id);
+    if (owner->query_mount_out() == id)
+      owner->set_mount_out("");
     owner->save_me();
   }
 }
@@ -1169,47 +1392,269 @@ void owner_quit(object owner)
 }
 
 /**
- * A player logs in: each mount of theirs is made again where it stood, or
- * beside them when that place does not load. A file that is gone leaves their
- * list.
+ * A player logs in: the mount of theirs that was out is made again where it
+ * stood, or beside them when that place does not load; the stored ones stay
+ * stored. A file that is gone leaves their list.
  */
 void owner_enter(object owner)
 {
   mapping data;
-  object * live, dest;
-  string name, * ids;
-  int i, j, changed;
+  object dest;
+  string name, id;
 
   if (!owner || !environment(owner) || !strlen((string)owner->query_name()))
     return;
 
+  id = owner->query_mount_out();
+  if (!strlen(id) || query_mount_out(owner))
+    return;
+
   name = (string)owner->query_name();
-  live = owner->query_owned_mounts();
-  ids = owner->query_mount_ids();
-  for (i = 0; i < sizeof(ids); i++)
+  data = nil;
+  if (member_array(id, owner->query_mount_ids()) != -1)
+    data = read_mount(name, id);
+  if (!data)
   {
-    for (j = 0; j < sizeof(live); j++)
-      if (query_mount_id(live[j]) == ids[i])
-        break;
-
-    if (j < sizeof(live))
-      continue;
-
-    data = read_mount(name, ids[i]);
-    if (!data)
-    {
-      owner->remove_mount_id(ids[i]);
-      changed = 1;
-      continue;
-    }
-
-    dest = load_place(data["location"]);
-    if (!dest)
-      dest = environment(owner);
-
-    make_mount(owner, ids[i], data, dest);
+    owner->remove_mount_id(id);
+    owner->set_mount_out("");
+    owner->save_me();
+    return;
   }
 
-  if (changed)
+  dest = load_place(data["location"]);
+  if (!dest)
+    dest = environment(owner);
+
+  make_mount(owner, id, data, dest);
+}
+
+// --- Summoning and dismissing ----------------------------------------------
+
+/**
+ * The owned mount of a player that is out in the world, or nil.
+ */
+object query_mount_out(object owner)
+{
+  object * live;
+  string id;
+  int i;
+
+  id = owner ? owner->query_mount_out() : "";
+  if (!stringp(id) || !strlen(id))
+    return nil;
+
+  live = owner->query_owned_mounts();
+  for (i = 0; i < sizeof(live); i++)
+    if (query_mount_id(live[i]) == id)
+      return live[i];
+
+  return nil;
+}
+
+/**
+ * Stores the owned mount that is out: everybody on it gets off, and it is
+ * written where it stands and taken from the world; the owner no longer has
+ * one out. Whoever is in its place is told it leaves, unless `quiet`.
+ */
+static void store_mount(object owner, object mount, varargs int quiet)
+{
+  mapping spec;
+  object * riders, place;
+  int i;
+
+  if (!owner || !mount)
+    return;
+
+  riders = query_riders(mount);
+  for (i = 0; i < sizeof(riders); i++)
+    dismount(riders[i]);
+
+  if (query_mount_id(mount) == owner->query_mount_out())
+    owner->set_mount_out("");
+
+  place = environment(mount);
+  spec = query_spec(mount);
+  if (!quiet && spec)
+    tell_object(owner, text(spec, "dismiss_me", owner, mount));
+  if (place && spec)
+    tell_room(place, text(spec, "dismiss_room", owner, mount), ({ owner }));
+
+  // mount_gone writes its file
+  mount->dest_me();
+  owner->save_me();
+}
+
+/**
+ * The reason an owner may not call a mount to a place, written for them, or
+ * nil: the kind of the mount says where it may be called (RIDE_SUMMON).
+ * @param mount  the mount, which need not be placed yet
+ */
+string query_summon_refusal(object owner, object mount, object place)
+{
+  mapping spec;
+  string mode;
+
+  spec = query_spec(mount);
+  if (!spec || !place)
+    return nil;
+
+  mode = spec[RIDE_SUMMON];
+  if (mode == RIDE_SUMMON_NEVER)
+    return text(spec, "refuse_summon", owner, mount);
+
+  if (mode == RIDE_SUMMON_ANYWHERE)
+    return nil;
+
+  if (!place->query_outside())
+    return text(spec, "refuse_summon_indoors", owner, mount);
+
+  if (place->query_water_environment() &&
+      member_array(RIDE_MEDIUM_WATER, spec[RIDE_MEDIUM]) == -1)
+    return text(spec, "refuse_summon_water", owner, mount);
+
+  return nil;
+}
+
+/**
+ * Which of an owner's mounts (the list of query_owned) a player means: a
+ * number of that list, or part of a name.
+ * @return its index; -1 when none matches, -2 when several do
+ */
+int find_owned(mapping * owned, string str)
+{
+  string word, name;
+  int i, n, found;
+
+  if (!str || !strlen(trim(str)))
+    return -1;
+
+  word = lower_case(trim(str));
+  if (sscanf(word, "%d", n) == 1 && "" + n == word)
+    return n >= 1 && n <= sizeof(owned) ? n - 1 : -1;
+
+  found = -1;
+  for (i = 0; i < sizeof(owned); i++)
+  {
+    name = lower_case((string)owned[i]["name"]);
+    if (strsrch(name, word) == -1)
+      continue;
+
+    if (found != -1)
+      return -2;
+    found = i;
+  }
+
+  return found;
+}
+
+/**
+ * An owner calls one of their mounts. The one that was out is stored and the
+ * called one appears beside them, if its kind allows that place and the call
+ * is not on cooldown (RIDING_SUMMON_COOLDOWN). Whoever else rides the mount
+ * that was out gets off. Calling the one that is out brings it to the owner.
+ * @param str  a number of the `mounts` list or part of a name
+ * @return an empty string when it came; "told" when the kind of the mount
+ *         refused and said so; else why not: "none" (owns none), "unknown",
+ *         "ambiguous", "here" (it is already beside them), "cooldown", "failed"
+ */
+string summon(object owner, string str)
+{
+  mapping * owned;
+  mapping data, spec;
+  object place, current, mount;
+  string id, name, refusal;
+  int idx;
+
+  place = owner ? environment(owner) : nil;
+  if (!place)
+    return "failed";
+
+  owned = query_owned(owner);
+  if (!sizeof(owned))
+    return "none";
+
+  idx = find_owned(owned, str);
+  if (idx == -1)
+    return "unknown";
+  if (idx == -2)
+    return "ambiguous";
+
+  id = owned[idx]["id"];
+  name = (string)owner->query_name();
+  current = query_mount_out(owner);
+
+  if (current && query_mount_id(current) == id && environment(current) == place)
+    return "here";
+
+  if (owner->query_timed_property(RIDING_SUMMON_LOCK))
+    return "cooldown";
+
+  // the one called, or the one out when it is called to its owner; either is
+  // judged by its kind before anything is stored
+  if (current && query_mount_id(current) == id)
+    mount = current;
+  else
+  {
+    data = read_mount(name, id);
+    if (!data)
+      return "unknown";
+
+    mount = build_mount(owner, id, data, place);
+    if (!mount)
+      return "failed";
+  }
+
+  refusal = query_summon_refusal(owner, mount, place);
+  if (refusal)
+  {
+    if (mount != current)
+      mount->dest_me();
+    tell_object(owner, refusal);
+    return "told";
+  }
+
+  // the one out leaves; if it was this one it is made again from its file,
+  // with its hurts and nothing else of where it was
+  if (current)
+  {
+    store_mount(owner, current);
+    if (mount == current)
+    {
+      data = read_mount(name, id);
+      mount = data ? build_mount(owner, id, data, place) : nil;
+    }
+  }
+
+  if (!mount || !place_mount(owner, mount, place))
+  {
+    owner->set_mount_out("");
     owner->save_me();
+    return "failed";
+  }
+
+  owner->set_mount_out(id);
+  owner->add_timed_property(RIDING_SUMMON_LOCK, 1,
+                            RIDING_SUMMON_COOLDOWN / HEART_BEAT_TIME);
+  owner->save_me();
+
+  spec = query_spec(mount);
+  tell_object(owner, text(spec, "summon_me", owner, mount));
+  tell_room(place, text(spec, "summon_room", owner, mount), ({ owner }));
+  return "";
+}
+
+/**
+ * An owner sends away the mount that is out, wherever it is: it is stored.
+ * @return an empty string when it was, "none" when no mount is out
+ */
+string dismiss(object owner)
+{
+  object mount;
+
+  mount = query_mount_out(owner);
+  if (!mount)
+    return "none";
+
+  store_mount(owner, mount);
+  return "";
 }

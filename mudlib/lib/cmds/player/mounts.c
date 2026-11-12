@@ -13,12 +13,13 @@ void setup()
 }
 
 /**
- * mounts: the mounts the player owns and where each one is.
+ * mounts: the mounts the player owns, numbered, and where each one is; the
+ * one that is out is marked.
  */
 static int cmd(string str, object me, string verb)
 {
   mapping * owned;
-  string text, place;
+  string text, place, marker;
   object mount;
   int i;
 
@@ -39,6 +40,8 @@ static int cmd(string str, object me, string verb)
         (string)environment(mount)->short() : _LANG_CMD_MOUNTS_NOWHERE;
     if (!stringp(place) || !strlen(place))
       place = _LANG_CMD_MOUNTS_UNKNOWN;
+
+    marker = mount ? _LANG_CMD_MOUNTS_OUT : "";
 
     text += _LANG_CMD_MOUNTS_LINE;
   }

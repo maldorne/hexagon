@@ -247,7 +247,7 @@ int do_travel(string str)
 
 void continue_travel(object who, int count, object where)
 {
-  object dest;
+  object dest, riding;
 
   // the owner quit, or the item left them
   if (!who || environment(this_object()) != who)
@@ -294,13 +294,13 @@ void continue_travel(object who, int count, object where)
     return;
   }
 
-  // Mounts do not travel: nobody should arrive at an inn on horseback. Kept
-  // until mounts work again.
-  // if (who->query_riding())
-  //   who->destruct_ride_shadow();
-
   tell_room(where, query_message("leave_room", who), who);
+
+  // a rider arrives with its mount and passengers
+  riding = handler("riding", who);
+  riding->begin_teleport(who);
   who->move(dest);
+  riding->end_teleport(who, where);
   who->add_timed_property(RECALL_LOCK, 1, cooldown / HEART_BEAT_TIME);
 
   tell_object(who, query_message("arrive_me", who));
@@ -335,40 +335,6 @@ int do_mark(string str)
   tell_object(who, query_message("marked", who));
   return 1;
 }
-
-// Summoning the owner's mount, kept until mounts work again. It shared the
-// cooldown with travelling, worked only outdoors and out of water, and took
-// the mount from whoever was riding it.
-//
-// int do_invoke(string str)
-// {
-//   object ob;
-//
-//   if (member_array(str, _LANG_HEARTHSTONE_INVOKE_NAMES) == -1)
-//     return notify_fail(_LANG_HEARTHSTONE_INVOKE_WHAT), 0;
-//   if (!this_player()->query_mount())
-//     return notify_fail(_LANG_HEARTHSTONE_INVOKE_NO_MOUNT), 0;
-//   if (!environment(this_player())->query_outside())
-//     return notify_fail(_LANG_HEARTHSTONE_INVOKE_OUTSIDE), 0;
-//   if (environment(this_player())->query_water_environment())
-//     return notify_fail(_LANG_HEARTHSTONE_INVOKE_NO_WATER), 0;
-//   if (this_player()->query_timed_property(RECALL_LOCK))
-//     return notify_fail(query_message("cooldown")), 0;
-//
-//   ob = this_player()->query_mount();
-//   if (environment(this_player()) == environment(ob))
-//     return notify_fail(_LANG_HEARTHSTONE_INVOKE_MOUNT_HERE), 0;
-//
-//   // in case somebody else is riding it
-//   ob->unride();
-//   ob->move(environment(this_player()));
-//
-//   tell_player(this_player(), _LANG_HEARTHSTONE_INVOKE_MSG_ME);
-//   tell_room(environment(this_player()), _LANG_HEARTHSTONE_INVOKE_MSG_ROOM, this_player());
-//
-//   this_player()->add_timed_property(RECALL_LOCK, 1, cooldown / HEART_BEAT_TIME);
-//   return 1;
-// }
 
 mixed * stats()
 {

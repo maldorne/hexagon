@@ -165,5 +165,8 @@ markable at any shrine as well as at an inn:
 
 ## Mounts
 
-Summoning the owner's mount, and leaving it behind when travelling, are written
-in `recall.c` but commented out until mounts work again.
+A rider who travels takes the mount and the passengers along: the arrival is the
+rider's, with the mount and whoever else rides it beside them (`begin_teleport`
+and `end_teleport` of the riding handler, around the move in `continue_travel`).
+The item does not summon a mount: that is the `summon` command (see
+`/lib/living/riding.md`).

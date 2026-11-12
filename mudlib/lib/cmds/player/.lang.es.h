@@ -320,7 +320,7 @@
 
 #define _LANG_CMD_TRAVEL_ALIAS ({ "viajar" })
 #define _LANG_CMD_TRAVEL_SYNTAX "viajar [<dirección>]"
-#define _LANG_CMD_TRAVEL_HELP "Te permite viajar en una dirección determinada.\nNecesita que estés sobre una montura o vehículo."
+#define _LANG_CMD_TRAVEL_HELP "Tu montura sigue el camino en esa dirección por sí sola, paso a paso: donde el camino gira toma la salida más cercana, y donde se bifurca se detiene.\nVuelve a escribir el comando, sin dirección, para detenerte. Una pelea, una puerta cerrada o cualquier cosa que cierre el paso también te detiene.\nNecesita que estés sobre una montura o vehículo, llevándolo tú."
 #define _LANG_CMD_TRAVEL_NO_MOUNT "Sólo funciona si estás sobre una montura o vehículo.\n"
 #define _LANG_CMD_TRAVEL_WHERE "¿"+capitalize(verb)+" hacia dónde?\n"
 
@@ -840,10 +840,32 @@
 
 #define _LANG_CMD_MOUNTS_ALIAS ({ "monturas", "mounts" })
 #define _LANG_CMD_MOUNTS_SYNTAX "monturas"
-#define _LANG_CMD_MOUNTS_HELP "Muestra las monturas que tienes y dónde está cada una."
+#define _LANG_CMD_MOUNTS_HELP "Muestra tus monturas, numeradas, y dónde está cada una; la que tienes fuera va marcada.\nVéase también: invocar, desinvocar."
 #define _LANG_CMD_MOUNTS_NONE "No tienes ninguna montura.\n"
 #define _LANG_CMD_MOUNTS_HEADER "Tus monturas:\n"
 // owned[i]["name"] es el corto de la montura
-#define _LANG_CMD_MOUNTS_LINE "  " + owned[i]["name"] + ": " + place + ".\n"
+#define _LANG_CMD_MOUNTS_LINE "  " + (i + 1) + ". " + owned[i]["name"] + ": " + place + marker + ".\n"
 #define _LANG_CMD_MOUNTS_NOWHERE "en el establo"
 #define _LANG_CMD_MOUNTS_UNKNOWN "en algún lugar"
+#define _LANG_CMD_MOUNTS_OUT " (fuera)"
+
+// summon
+
+#define _LANG_CMD_SUMMON_ALIAS ({ "invocar", "summon" })
+#define _LANG_CMD_SUMMON_SYNTAX "invocar <montura>"
+#define _LANG_CMD_SUMMON_HELP "Llama a una de tus monturas a tu lado, por su nombre o por su número en la lista de 'monturas'.\nSólo una de tus monturas está fuera a la vez: la que lo estaba se guarda. Dónde puede acudir depende de la montura, y no puedes volver a llamar hasta pasados unos minutos.\nVéase también: monturas, desinvocar."
+#define _LANG_CMD_SUMMON_DEAD "En tu estado no puedes hacer eso.\n"
+#define _LANG_CMD_SUMMON_NONE "No tienes ninguna montura.\n"
+#define _LANG_CMD_SUMMON_WHAT "¿Invocar qué montura? Mira la lista de 'monturas'.\n"
+#define _LANG_CMD_SUMMON_UNKNOWN "No tienes esa montura. Mira la lista de 'monturas'.\n"
+#define _LANG_CMD_SUMMON_AMBIGUOUS "Más de una de tus monturas encaja: usa su número de la lista de 'monturas'.\n"
+#define _LANG_CMD_SUMMON_HERE "Esa montura ya está a tu lado.\n"
+#define _LANG_CMD_SUMMON_COOLDOWN "Has llamado a una montura hace muy poco: espera unos minutos.\n"
+#define _LANG_CMD_SUMMON_FAILED "La montura no acude.\n"
+
+// dismiss
+
+#define _LANG_CMD_DISMISS_ALIAS ({ "desinvocar", "dismiss" })
+#define _LANG_CMD_DISMISS_SYNTAX "desinvocar"
+#define _LANG_CMD_DISMISS_HELP "Despide a la montura que tienes fuera, esté donde esté. Puedes volver a llamarla, o a otra, con 'invocar'.\nVéase también: monturas, invocar."
+#define _LANG_CMD_DISMISS_NONE "No tienes ninguna montura fuera.\n"

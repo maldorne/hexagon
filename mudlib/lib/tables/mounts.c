@@ -35,6 +35,8 @@ void create()
       RIDE_PROTECT      : 0,
       RIDE_WIMPY        : 0,
       RIDE_FEARS        : ({ }),
+      RIDE_SPEED        : 100,
+      RIDE_SUMMON       : RIDE_SUMMON_OUTDOORS,
 
       // the verbs the mount answers to
       "verbs_board"    : _LANG_MOUNTS_VERBS_BOARD,
@@ -60,6 +62,18 @@ void create()
       // the mount runs from a fight or from what it fears, carrying its rider
       "flee_me"      : _LANG_MOUNTS_FLEE_ME,
       "flee_room"    : _LANG_MOUNTS_FLEE_ROOM,
+      // its owner calls it ($N the owner) and sends it away
+      "summon_me"    : _LANG_MOUNTS_SUMMON_ME,
+      "summon_room"  : _LANG_MOUNTS_SUMMON_ROOM,
+      "dismiss_me"   : _LANG_MOUNTS_DISMISS_ME,
+      "dismiss_room" : _LANG_MOUNTS_DISMISS_ROOM,
+      // travelling on its own; $T is where it heads
+      "travel_start"   : _LANG_MOUNTS_TRAVEL_START,
+      "travel_follow"  : _LANG_MOUNTS_TRAVEL_FOLLOW,
+      "travel_stop"    : _LANG_MOUNTS_TRAVEL_STOP,
+      "travel_lost"    : _LANG_MOUNTS_TRAVEL_LOST,
+      "travel_blocked" : _LANG_MOUNTS_TRAVEL_BLOCKED,
+      "travel_fight"   : _LANG_MOUNTS_TRAVEL_FIGHT,
 
       // why a ride is refused
       "refuse_dead"       : _LANG_MOUNTS_REFUSE_DEAD,
@@ -78,6 +92,9 @@ void create()
       "refuse_water"      : _LANG_MOUNTS_REFUSE_WATER,
       "refuse_ground"     : _LANG_MOUNTS_REFUSE_GROUND,
       "refuse_attack"     : _LANG_MOUNTS_REFUSE_ATTACK,
+      "refuse_summon"        : _LANG_MOUNTS_REFUSE_SUMMON,
+      "refuse_summon_indoors": _LANG_MOUNTS_REFUSE_SUMMON_INDOORS,
+      "refuse_summon_water"  : _LANG_MOUNTS_REFUSE_SUMMON_WATER,
     ]),
   ]);
 }

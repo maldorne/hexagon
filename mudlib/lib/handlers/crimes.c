@@ -1398,6 +1398,8 @@ void arrest(string citizenship, object victim)
     if (place)
       tell_room(place, replace_string(_LANG_CRIMES_ARRESTED_ROOM, "$who$",
                                       victim->query_cap_name()), ({ victim }));
+    // nobody is taken to a cell on horseback
+    handler("riding", victim)->rider_jailed(victim);
     victim->move_living("X", prison);
     return;
   }
@@ -1493,6 +1495,7 @@ void check_prisoner(object who)
   if (cell && environment(who) != cell)
   {
     tell_object(who, _LANG_CRIMES_PUT_BACK);
+    handler("riding", who)->rider_jailed(who);
     who->move_living("X", sentence["prison"]);
   }
 }
