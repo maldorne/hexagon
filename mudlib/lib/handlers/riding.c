@@ -201,7 +201,9 @@ int query_free_seat(object mount)
 
 /**
  * A text of the spec with the words of this ride put in. $N is the rider and
- * $S the mount's short in lower case; $T and $F are left for move_living.
+ * $S the mount's short in lower case; $T and $F are left for move_living, $P
+ * for whoever adds the passengers. The gender tokens of personalize_string
+ * follow: $mvocal$ of the rider, $hnumeral$ and $hvocal$ of the mount.
  * @param keep_rider  1 to leave $N in, for the lines move_living writes
  */
 private string text(mapping spec, string key, object who, object mount,
@@ -217,6 +219,10 @@ private string text(mapping spec, string key, object who, object mount,
     str = replace_string(str, "$S", lower_case((string)mount->query_short()));
   if (who && !keep_rider)
     str = replace_string(str, "$N", (string)who->query_cap_name());
+
+  // personalize_string leaves the tokens it does not know ($N, $T, $F, $P)
+  if (who)
+    str = personalize_string(str, who, mount);
 
   return str;
 }
@@ -563,9 +569,35 @@ int query_shares_xp(object attacker, object * attackers)
 }
 
 /**
+ * Whether `who` threatens a mount and whoever is on it: it is aggressive or it
+ * fights the mount or one of its riders.
+ */
+private int threatens_ride(object mount, object who)
+{
+  object * foes, * mine;
+  int i;
+
+  // only monsters have an aggressiveness: anything else answers nil
+  if (who->query_aggressive())
+    return 1;
+
+  foes = who->query_attacker_list();
+  if (!pointerp(foes))
+    return 0;
+
+  mine = ({ mount }) + query_riders(mount);
+  for (i = 0; i < sizeof(mine); i++)
+    if (member_array(mine[i], foes) != -1)
+      return 1;
+
+  return 0;
+}
+
+/**
  * Whether `who` is something the mount fears: it answers to one of the names,
  * is of one of the race ids or carries one of the properties in the RIDE_FEARS
- * of the mount.
+ * of the mount, and it threatens the ride (it is aggressive or fights the mount
+ * or one of its riders).
  */
 int query_feared(object mount, object who)
 {
@@ -578,7 +610,10 @@ int query_feared(object mount, object who)
     return 0;
 
   fears = spec[RIDE_FEARS];
-  if (!pointerp(fears))
+  if (!pointerp(fears) || !sizeof(fears))
+    return 0;
+
+  if (!threatens_ride(mount, who))
     return 0;
 
   for (i = 0; i < sizeof(fears); i++)
@@ -588,6 +623,43 @@ int query_feared(object mount, object who)
       return 1;
 
   return 0;
+}
+
+/**
+ * The driver of a mount tries to keep it from bolting: it rolls its ride skill,
+ * whose ability is the chance of success, and each roll counts as a use towards
+ * improving the skill.
+ * @param quiet  1 to say nothing; otherwise a success is told to the driver and
+ *               the place
+ * @return 1 when the driver masters the mount, 0 when it bolts or nobody drives it
+ */
+int query_rider_masters(object mount, int quiet)
+{
+  mapping spec;
+  object * riders;
+  object driver;
+  int ability;
+
+  riders = query_riders(mount);
+  if (!sizeof(riders) || (int)riders[0]->query_seat() != RIDING_DRIVER_SEAT)
+    return 0;
+
+  driver = riders[0];
+  ability = (int)driver->query_skill_ability(SKILL_RIDE);
+  driver->update_skill_used_times(SKILL_RIDE);
+
+  if (random(100) >= ability)
+    return 0;
+
+  if (!quiet)
+  {
+    spec = query_spec(mount);
+    tell_object(driver, text(spec, "calm_me", driver, mount));
+    tell_room(environment(mount), text(spec, "calm_room", driver, mount),
+              ({ driver }));
+  }
+
+  return 1;
 }
 
 /**
@@ -744,20 +816,43 @@ string query_move_refusal(object who, object room, string dir)
 
 /**
  * The line a rider leaves (0) or arrives (1) with, for move_living: the
- * leaving line takes $N and $T, the arriving one $N and $F. Nil when the
- * rider rides nothing.
+ * leaving line takes $N and $T, the arriving one $N and $F. The driver's line
+ * names the passengers that can be seen, before its closing full stop. Nil when
+ * the rider rides nothing.
  */
 string query_travel_line(object who, int arriving)
 {
   mapping spec;
   object mount;
+  object * riders;
+  string * names;
+  string line;
+  int i;
 
   mount = who ? who->query_mount() : nil;
   spec = query_spec(mount);
   if (!spec)
     return nil;
 
-  return text(spec, arriving ? "arrive" : "leave", who, mount, 1);
+  line = text(spec, arriving ? "arrive" : "leave", who, mount, 1);
+  if ((int)who->query_seat() != RIDING_DRIVER_SEAT)
+    return line;
+
+  riders = query_riders(mount) - ({ who });
+  names = ({ });
+  for (i = 0; i < sizeof(riders); i++)
+    if (!riders[i]->query_invis())
+      names += ({ (string)riders[i]->query_cap_name() });
+
+  if (!sizeof(names))
+    return line;
+
+  // the passengers go before the closing full stop, as the followers do
+  if (strlen(line) && line[strlen(line) - 1] == '.')
+    line = line[.. strlen(line) - 2];
+
+  return line + replace_string(text(spec, "passengers", who, mount, 1), "$P",
+                               query_multiple_short(names)) + ".";
 }
 
 /**
@@ -770,7 +865,11 @@ string query_listing(object who)
 
   mount = who ? who->query_mount() : nil;
   spec = query_spec(mount);
-  return spec ? text(spec, "listing", who, mount) : "";
+  if (!spec)
+    return "";
+
+  return text(spec, (int)who->query_seat() == RIDING_DRIVER_SEAT ?
+              "listing" : "listing_passenger", who, mount);
 }
 
 /**
@@ -783,7 +882,11 @@ string query_look(object who)
 
   mount = who ? who->query_mount() : nil;
   spec = query_spec(mount);
-  return spec ? text(spec, "look", who, mount) : "";
+  if (!spec)
+    return "";
+
+  return text(spec, (int)who->query_seat() == RIDING_DRIVER_SEAT ?
+              "look" : "look_passenger", who, mount);
 }
 
 /**
@@ -936,9 +1039,10 @@ private int travel_allowed(object who, object room, string dir)
 
 /**
  * Which way a rider travelling in direction `dir` goes on from `room`: the
- * direction itself if the mount may take it, else the one nearest open way,
- * else the only other exit it may take apart from the way back. Nil when there
- * is no way on or two nearest ways are open (a fork).
+ * direction itself if the mount may take it, else the straightest open way
+ * (a slight turn before a sharp one), else the only other exit it may take
+ * apart from the way back. Nil when there is no way on or two equally
+ * straight ways are open (a fork).
  */
 string query_travel_exit(object who, object room, string dir)
 {
@@ -952,16 +1056,21 @@ string query_travel_exit(object who, object room, string dir)
   if (travel_allowed(who, room, dir))
     return dir;
 
-  // two ways to choose from is a fork: it stops there
+  // the nearest directions come in pairs, the slighter turn first: the
+  // straightest open way wins, and two equally straight ones are a fork
   nearest = EXIT_HAND->query_broad_nearest_directions(dir);
-  ways = ({ });
-  for (i = 0; i < sizeof(nearest); i++)
+  for (i = 0; i + 1 < sizeof(nearest); i += 2)
+  {
+    ways = ({ });
     if (travel_allowed(who, room, nearest[i]))
       ways += ({ nearest[i] });
-  if (sizeof(ways) > 1)
-    return nil;
-  if (sizeof(ways) == 1)
-    return ways[0];
+    if (travel_allowed(who, room, nearest[i + 1]))
+      ways += ({ nearest[i + 1] });
+    if (sizeof(ways) > 1)
+      return nil;
+    if (sizeof(ways) == 1)
+      return ways[0];
+  }
 
   back = (string)ROOM_HAND->query_opposite(dir);
   exits = room->query_direc() - ({ back });

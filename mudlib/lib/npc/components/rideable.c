@@ -168,11 +168,16 @@ mapping query_hooks()
 
 /**
  * With somebody on it, the mount runs when it is hurt under its wimpy or is
- * fighting what it fears (RIDE_WIMPY, RIDE_FEARS).
+ * fighting what it fears (RIDE_WIMPY, RIDE_FEARS), unless its driver masters it
+ * (a quiet roll of the ride skill, as it may be asked every round).
  */
 int hook_flee(mixed * args)
 {
-  if (query_entity() && handler("riding", query_entity())->query_wants_to_flee(query_entity()))
+  object npc;
+
+  npc = query_entity();
+  if (npc && handler("riding", npc)->query_wants_to_flee(npc) &&
+      !handler("riding", npc)->query_rider_masters(npc, 1))
     return FLEE_FORCE;
 
   return FLEE_ABSTAIN;
@@ -189,7 +194,8 @@ void watch_for_fears()
 }
 
 /**
- * With somebody on it and something it fears in the place, the mount bolts.
+ * With somebody on it and something it fears in the place, the mount bolts
+ * unless its driver masters it.
  */
 void check_fears()
 {
@@ -203,7 +209,8 @@ void check_fears()
   if (!sizeof(handler("riding", npc)->query_riders(npc)))
     return;
 
-  if (handler("riding", npc)->query_fear_present(npc))
+  if (handler("riding", npc)->query_fear_present(npc) &&
+      !handler("riding", npc)->query_rider_masters(npc, 0))
     handler("riding", npc)->run_away(npc);
 }
 

@@ -3,6 +3,13 @@
 // riding handler (/lib/handlers/riding.c); the shape of a row and the meaning
 // of every key is in /lib/living/riding.md.
 //
+// A text may use $N (the rider), $S (the mount's short in lower case), $T and $F
+// (direction and origin of a step), $P (the passengers, in the "passengers"
+// text) and the gender tokens of personalize_string: $mvocal$ (o/a of the rider)
+// and $hnumeral$, $hvocal$ (the article and the ending of the mount). A kind text
+// that writes a masculine article or pronoun in the words assumes a masculine
+// mount: a feminine NPC overrides those keys in its own spec.
+//
 // The mudlib ships only the neutral kind "mount", which every missing key of a
 // kind falls back to. A game's own table (/games/<game>/tables/mounts.c)
 // inherits this one and adds its kinds with add_kind:
@@ -55,6 +62,12 @@ void create()
       "arrive"       : _LANG_MOUNTS_ARRIVE,
       "listing"      : _LANG_MOUNTS_LISTING,
       "look"         : _LANG_MOUNTS_LOOK,
+      // the same for a rider who is not the driver
+      "listing_passenger" : _LANG_MOUNTS_LISTING_PASSENGER,
+      "look_passenger"    : _LANG_MOUNTS_LOOK_PASSENGER,
+      // added before the closing full stop of the driver's step lines; $P the
+      // passengers
+      "passengers"   : _LANG_MOUNTS_PASSENGERS,
       "fall_me"      : _LANG_MOUNTS_FALL_ME,
       "fall_room"    : _LANG_MOUNTS_FALL_ROOM,
       // the mount takes the blows aimed at its rider; $N the rider
@@ -62,6 +75,9 @@ void create()
       // the mount runs from a fight or from what it fears, carrying its rider
       "flee_me"      : _LANG_MOUNTS_FLEE_ME,
       "flee_room"    : _LANG_MOUNTS_FLEE_ROOM,
+      // the driver masters a mount that shies at what it fears
+      "calm_me"      : _LANG_MOUNTS_CALM_ME,
+      "calm_room"    : _LANG_MOUNTS_CALM_ROOM,
       // its owner calls it ($N the owner) and sends it away
       "summon_me"    : _LANG_MOUNTS_SUMMON_ME,
       "summon_room"  : _LANG_MOUNTS_SUMMON_ROOM,

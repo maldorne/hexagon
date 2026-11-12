@@ -34,7 +34,7 @@ A mount answers `query_rideable()` with a mapping (nil: it cannot be ridden). Th
 | `combat` | `linked` (default) or `none` (`RIDE_COMBAT`): whether the mount takes part in its rider's fights, see Combat |
 | `protect` | percent chance (default 0) that the mount takes the blows aimed at its rider (`RIDE_PROTECT`) |
 | `wimpy` | percent of its hit points under which a ridden mount flees carrying its rider (default 0, `RIDE_WIMPY`) |
-| `fears` | list of names, race ids or properties that make a ridden mount flee, in sight or when they fight it (`RIDE_FEARS`) |
+| `fears` | list of names, race ids or properties that make a ridden mount flee (`RIDE_FEARS`); only what also threatens the ride counts, see Combat |
 | `speed` | percent (default 100, `RIDE_SPEED`) of the pace it keeps when its driver travels on its own: 200 takes a step in half the time |
 | `summon` | where its owner may call it (`RIDE_SUMMON`): `outdoors` (default: only outside, and on water only if its `medium` has water), `anywhere`, or `never` (a vehicle that cannot be fetched) |
 | `learn` | skill id the driver is given at 10% the first time they take the driver's seat without knowing it. It counts as known at 10 for `requires`, so a first ride is never refused for lack of it |
@@ -43,13 +43,22 @@ Only the driver's seat asks for `requires` and `learn`; any seat may be taken by
 
 ## The row: texts
 
-Besides the spec keys a row holds every text a ride says. `$N` is the rider's name, `$S` the mount's short in lower case, `$T` the direction and `$F` where the rider comes from (these two for the step lines, filled in by `move_living`). A key a kind leaves out is read from the default row.
+Besides the spec keys a row holds every text a ride says. A key a kind leaves out is read from the default row, and an NPC or vehicle may override any text key in its own spec, like any other key (a template: `"rideable": { "kind": "horse", "calm_me": "..." }`).
+
+Tokens of a text:
+
+- `$N` the rider's name, `$S` the mount's short in lower case, `$T` the direction and `$F` where the rider comes from (these two for the step lines, filled in by `move_living`), `$P` the passengers (only in `passengers`).
+- The gender tokens of `personalize_string`, applied to every text with the rider as the actor and the mount as the target: `$mvocal$` is the vowel ending of the rider's gender (Spanish `montad$mvocal$`: montado, montada), `$hnumeral$` and `$hvocal$` the article and the ending of the mount (`$hnumeral$ $S`: un caballo, una yegua). Tokens it does not know (`$N`, `$T`, `$F`, `$P`) are left for whoever fills them.
+- A kind text that writes a masculine article or pronoun in plain words (`el $S`) assumes a masculine mount: a feminine NPC overrides those keys in its template.
+
+The keys:
 
 - `verbs_board`, `verbs_dismount`: the verbs the mount answers to (an NPC through its component, a vehicle in `init`). `prepositions`: little words dropped after the verb (`montar sobre el caballo`).
 - `board_me` / `board_room`, `dismount_me` / `dismount_room`, `fall_me` / `fall_room`.
 - `leave`, `arrive`: replace the race's move lines while mounted; they start with `@`, the marker `move_living` strips. An exit that has its own message keeps it.
-- `listing`: follows the rider's name in a room listing. `look`: the line `look` adds to the rider.
-- `protect_room`, `flee_me` / `flee_room`: the mount covers its rider, the mount bolts with its rider.
+- `listing`: follows the rider's name in a room listing. `look`: the line `look` adds to the rider. `listing_passenger` and `look_passenger` are the same for a rider who is not the driver.
+- `passengers`: added before the closing full stop of the driver's `leave` and `arrive` lines when the mount carries riders that can be seen, `$P` being their names (`@$N rides off $T, carrying Y.`). Whoever follows the driver is then added after it by the group line (`..., carrying Y, followed by Z.`).
+- `protect_room`, `flee_me` / `flee_room`: the mount covers its rider, the mount bolts with its rider. `calm_me` / `calm_room`: the driver masters a mount that shies at what it fears.
 - `summon_me` / `summon_room`, `dismiss_me` / `dismiss_room`: its owner calls it or sends it away (`$N` the owner).
 - `travel_start`, `travel_follow`, `travel_stop`, `travel_lost`, `travel_blocked`, `travel_fight`: the lines of travelling on its own; `$T` is the direction.
 - `refuse_<reason>`: `attack` (a rider tries to attack its own mount), `dead`, `passed_out`, `already`, `full`, `skill`, `body_size`, `passenger`, `summon` (kind never called), `summon_indoors`, `summon_water`, `exit`, `exit_size`, `terrain`, `indoors`, `underground`, `water`, `ground`, plus one per exit type a kind denies.
@@ -60,11 +69,11 @@ Besides the spec keys a row holds every text a ride says. `$N` is the rider's na
 - `query_riders(mount)` (driver first; not stored: the livings in the mount's place whose `query_mount()` is it), `query_seat_taken`, `query_free_seat`, `query_addressed(mount, str)` (whether the words after a verb name the mount).
 - `query_board_refusal(who, mount, seat)` (a text for the rider, or nil; seat -1 is the first free one), `board(who, mount)`, `board_seat(who, mount, seat)`, `dismount(who, fall)`, `unseat_riders(mount [, place])`.
 - `query_move_refusal(who, room, dir)`: asked by the exit handler of whoever rides; a passenger cannot move the mount.
-- `query_travel_line(who, arriving)`, `query_listing(who)`, `query_look(who)`.
+- `query_travel_line(who, arriving)` (the driver's line names the passengers), `query_listing(who)`, `query_look(who)` (each reads the `_passenger` key for a rider who is not the driver).
 - `carry(who, from)`, `rider_moved`, `mount_moved`, `begin_teleport(who)`, `end_teleport(who, from)`, `rider_jailed(who)`: movement, below.
 - `summon(owner, str)`, `dismiss(owner)`, `query_mount_out(owner)`, `query_summon_refusal(owner, mount, place)`, `find_owned(owned, str)`: the mounts a player owns, below.
 - `query_travel_start(who, str)`, `query_travel_exit(who, room, dir)`, `query_travel_delay(who)`, `tell_travel(who, key [, dir])`: travelling on its own, below.
-- `query_mates(a, b)`, `query_attack_refusal(who, other)`, `rider_fights`, `rider_attacked`, `mount_attacked`, `query_shares_xp(attacker, attackers)`, `query_feared(mount, who)`, `query_wants_to_flee(mount)`, `query_fear_present(mount)`, `run_away(mount)`: combat, below.
+- `query_mates(a, b)`, `query_attack_refusal(who, other)`, `rider_fights`, `rider_attacked`, `mount_attacked`, `query_shares_xp(attacker, attackers)`, `query_feared(mount, who)`, `query_wants_to_flee(mount)`, `query_fear_present(mount)`, `query_rider_masters(mount, quiet)`, `run_away(mount)`: combat, below.
 
 Hooks the handler calls on the mount, all optional (they are plain `call_other`: a mount that does not define one answers nil): `mount_can_board(who, seat)` (a refusal text, or nil), `mount_boarded(who)`, `mount_dismounted(who)`. A hand-written NPC or a vehicle defines them.
 
@@ -88,13 +97,15 @@ With `combat` `linked` (every NPC kind by default; a vehicle is no living and ne
 - A rider attacks, or is attacked: the mount takes on the foe (`rider_fights` from `attack_ob`, `rider_attacked` from `attack_by`). In `rider_attacked`, with the chance `protect`, the mount steps in instead: the foe stops fighting the rider and takes on the mount.
 - A ridden mount is attacked: every rider takes on the foe (`mount_attacked`).
 - A ridden mount runs when it is under its `wimpy` percent of hit points or fights something it `fears`: the `rideable` component votes `FLEE_FORCE` in the flee chain of `/lib/npc.c`, and `run_away` of `/lib/living/movement.c` hands the run to the handler's `run_away(mount)`, which picks a random exit the driver may take and walks the driver through it, so the mount and the passengers come along (lines `flee_me`, `flee_room`). It also bolts, a second after something it fears enters its place or it arrives in a place where it stands (`check_fears` of the component). A passenger-only ride (no driver) or a place with no valid exit keeps it fighting.
+- What it fears scares it only when it threatens the ride (`query_feared`): the thing matches `fears` (a name, a race id or a property) and is aggressive (`query_aggressive()`) or is fighting the mount or one of its riders. A peaceful wolf in the place is no reason to bolt.
+- The driver may keep it from bolting: before either run (hurt or fear) the component asks `query_rider_masters(mount, quiet)`, a roll of the driver's `ride` skill (success when `random(100)` is under its ability; nobody driving, or not knowing the skill, always fails). The roll counts as a use of the skill (`update_skill_used_times`). When the mount shies at something that arrived, a success tells `calm_me` to the driver and `calm_room` to the place; the roll of the flee chain, asked every round, is quiet. A failed roll lets the mount run as before.
 - Experience: a mount whose rider or owner is among the killers does not share the xp of a kill and gets none (`query_shares_xp` from `death.c`).
 
-rl-aeternum values (`/games/rl-aeternum/tables/mounts.c`): horse `protect` 25, `wimpy` 35, fears wolf, warg and bear; warg 60 / 10 / none; crocodile 50 / 10 / none; donkey 5 / 50 and pony 10 / 50 (they keep the fears of the horse).
+rl-aeternum values (`/games/rl-aeternum/tables/mounts.c`, with its own Spanish words for each kind: `listing`, `look`, the `_passenger` pair and the step lines): horse `protect` 25, `wimpy` 35, fears wolf, warg and bear; warg 60 / 10 / none; crocodile 50 / 10 / none; donkey 5 / 50 and pony 10 / 50 (they keep the fears of the horse). Takome's stables also sell a war horse (template `war-horse`: kind `horse` with no fears, `protect` 40, `wimpy` 15).
 
 ## Skills
 
-`ride`, `drive` and `pilot` are common passive skills (`lib/obj/skills/`), percentage, ids in `<living/skills.h>`, names and help in `lib/obj/skills/.lang.<lang>.h`. Nothing teaches `drive` or `pilot` yet; a mount that wants one in its `requires` and `learn` gets it granted at 10%.
+`ride`, `drive` and `pilot` are common passive skills (`lib/obj/skills/`), percentage, ids in `<living/skills.h>`, names and help in `lib/obj/skills/.lang.<lang>.h`. Nothing teaches `drive` or `pilot` yet; a mount that wants one in its `requires` and `learn` gets it granted at 10%. `ride` also gives the driver the chance to master a mount that bolts (`query_rider_masters`, see Combat).
 
 ## Owned mounts: one file each
 
@@ -134,7 +145,7 @@ Commands `summon <mount>` / `invocar <montura>`, `dismiss` / `desinvocar` and `m
 `travel <direction>` / `viajar <direction>` (`/lib/cmds/player/travel.c`): the driver's mount follows the way by itself, one step at a time, until the command is typed again with no direction. The state and the chain of `call_out`s (no heart beat) are on the rider (`/lib/living/riding.c`: `start_ride_travel`, `stop_ride_travel`, `query_ride_traveling`, `ride_travel_step`); the choice of exit belongs to the handler.
 
 - The first step is the direction typed (any word of the language for it) or, if the place has no such exit, the nearest one (`query_travel_start`).
-- At each place `query_travel_exit` picks, among the exits the mount may take (`query_move_refusal`): the same direction, else the nearest one (the exit handler's broad nearest directions; if two of them are open it is a fork and it stops), else the only exit left apart from the way back. If there is none the mount "does not know where to go" and stops. Following a bend says so (`travel_follow`).
+- At each place `query_travel_exit` picks, among the exits the mount may take (`query_move_refusal`): the same direction, else the straightest open way: the exit handler's broad nearest directions come in two pairs, the slight turns (45 degrees) before the sharp ones (90 degrees); the first pair with an open exit wins, and if both of that pair are open it is a fork and it stops, else the only exit left apart from the way back. If there is none the mount "does not know where to go" and stops. Following a bend says so (`travel_follow`).
 - The pace is `RIDING_TRAVEL_DELAY` seconds (3) scaled by the `speed` of the kind, and one step in `RIDING_TRAVEL_PAUSE` (6) is skipped at random. The step is queued as the exit command, so doors, refusals and the lines of a ride are the usual ones.
 - It stops by itself when a step moved nowhere (`travel_blocked`: a closed door, a refusal), when the rider fights or is attacked (`rider_fights`, `rider_attacked`: `travel_fight`), when it gets off, is no longer the driver or dies.
 
