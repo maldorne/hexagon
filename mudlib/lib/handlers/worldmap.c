@@ -1301,30 +1301,42 @@ private string _known_area_name(object area)
 }
 
 /**
- * The docks of the map as a player may read them: one per landing sector,
- * named by the short of its first dock location and placed by the name of the
- * area it belongs to. Nothing internal (no files, no coordinates).
+ * The docks of the map as a player may read them: one per port (a port
+ * with docks in several sectors counts once), named by the short of its first
+ * dock location and placed by the name of the area it belongs to. Nothing
+ * internal (no files, no coordinates).
  *
  * @param docks ({ ({ sector, sx, sy, sz }), ... }) the sectors with a dock
  * @return ({ ({ dock name, area name }), ... }) sorted by dock name
  */
 string ** dock_list(mixed * docks)
 {
-  string ** list, * files, * parts, * entry, dir, name, place;
+  string ** list, * files, * parts, * entry, * seen, dir, name, place, port;
   mapping locs;
   object location, area;
-  int i, j, k, was_loaded;
+  int i, j, k, was_loaded, repeated;
 
   list = ({ });
+  seen = ({ });
   for (i = 0; i < sizeof(docks); i++)
   {
     locs = docks[i][0]->query_locations();
     files = map_indices(locs);
     name = place = "";
+    repeated = 0;
     for (j = 0; j < sizeof(files); j++)
     {
       if (!mappingp(locs[files[j]]) || !locs[files[j]]["port"])
         continue;
+
+      // a port whose docks fall in several sectors is listed once
+      port = _port_key(files[j]);
+      if (member_array(port, seen) != -1)
+      {
+        repeated = 1;
+        break;
+      }
+      seen += ({ port });
 
       was_loaded = load_object(LOCATION_HANDLER)->is_location_loaded(files[j]);
       location = load_object(LOCATION_HANDLER)->load_location(files[j]);
@@ -1346,6 +1358,8 @@ string ** dock_list(mixed * docks)
       }
       break;
     }
+    if (repeated)
+      continue;
     list += ({ ({ name, place }) });
   }
 

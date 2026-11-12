@@ -2,6 +2,7 @@
 #include <mud/cmd.h>
 #include <sector/sector.h>
 #include <language.h>
+#include <user/terminal.h>
 
 inherit CMD_BASE;
 
@@ -14,34 +15,6 @@ void setup()
   set_aliases(_LANG_CMD_DOCKS_ALIAS);
   set_usage(_LANG_CMD_DOCKS_SYNTAX);
   set_help(_LANG_CMD_DOCKS_HELP);
-}
-
-// A text without its colour tokens (%^NAME%^) nor ANSI colour sequences.
-private string _plain(string text)
-{
-  string ret;
-  int i, len;
-
-  ret = "";
-  len = strlen(text);
-  for (i = 0; i < len; i++)
-  {
-    if (text[i] == 27 && i + 1 < len && text[i + 1] == '[')
-    {
-      // skip up to the final byte of the sequence
-      for (i += 2; i < len && (text[i] < 0x40 || text[i] > 0x7E); i++);
-      continue;
-    }
-    if (text[i] == '%' && i + 1 < len && text[i + 1] == '^')
-    {
-      // skip up to the closing "%^" of the token
-      for (i += 2; i + 1 < len && !(text[i] == '%' && text[i + 1] == '^'); i++);
-      i++;
-      continue;
-    }
-    ret += text[i .. i];
-  }
-  return ret;
 }
 
 // A table cell: the text padded with spaces to `width` visible characters.
@@ -75,8 +48,8 @@ void show_docks(object who, string game, string map_name, mixed * docks)
   keys = allocate(sizeof(list));
   for (i = 0; i < sizeof(list); i++)
   {
-    list[i][0] = _plain(list[i][0]);
-    list[i][1] = _plain(list[i][1]);
+    list[i][0] = TERM_HANDLER->clean_string(list[i][0]);
+    list[i][1] = TERM_HANDLER->clean_string(list[i][1]);
     keys[i] = lower_case(list[i][0]);
   }
 
