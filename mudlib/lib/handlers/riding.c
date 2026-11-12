@@ -936,9 +936,9 @@ private int travel_allowed(object who, object room, string dir)
 
 /**
  * Which way a rider travelling in direction `dir` goes on from `room`: the
- * direction itself if the mount may take it, else the nearest ones, else the
- * only other exit it may take apart from the way back. Nil when there is no
- * way on.
+ * direction itself if the mount may take it, else the one nearest open way,
+ * else the only other exit it may take apart from the way back. Nil when there
+ * is no way on or two nearest ways are open (a fork).
  */
 string query_travel_exit(object who, object room, string dir)
 {
@@ -952,10 +952,16 @@ string query_travel_exit(object who, object room, string dir)
   if (travel_allowed(who, room, dir))
     return dir;
 
+  // two ways to choose from is a fork: it stops there
   nearest = EXIT_HAND->query_broad_nearest_directions(dir);
+  ways = ({ });
   for (i = 0; i < sizeof(nearest); i++)
     if (travel_allowed(who, room, nearest[i]))
-      return nearest[i];
+      ways += ({ nearest[i] });
+  if (sizeof(ways) > 1)
+    return nil;
+  if (sizeof(ways) == 1)
+    return ways[0];
 
   back = (string)ROOM_HAND->query_opposite(dir);
   exits = room->query_direc() - ({ back });
