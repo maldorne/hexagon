@@ -73,6 +73,7 @@
 #define _LANG_MOUNT_SHOP_EXAMINE_CANNOT_AFFORD "No puedes permitírtela.\n"
 #define _LANG_MOUNT_SHOP_BUY_WHAT "¿Qué montura quieres comprar?\n"
 #define _LANG_MOUNT_SHOP_NOT_SOLD "Eso no está a la venta aquí.\n"
+#define _LANG_MOUNT_SHOP_AMBIGUOUS "Varias monturas responden a '" + typed + "': " + choices + ". Di el número o un nombre más preciso.\n"
 #define _LANG_MOUNT_SHOP_BUY_LIMIT "Ya tienes todas las monturas que puedes atender (" + max + ").\n"
 #define _LANG_MOUNT_SHOP_BUY_CANNOT_AFFORD "No puedes permitírtela: " + label + " cuesta " + price_text + ".\n"
 #define _LANG_MOUNT_SHOP_BUY_FAILED "Ahora mismo no se puede sacar la montura.\n"

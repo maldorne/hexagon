@@ -73,6 +73,7 @@
 #define _LANG_MOUNT_SHOP_EXAMINE_CANNOT_AFFORD "You cannot afford it.\n"
 #define _LANG_MOUNT_SHOP_BUY_WHAT "Buy which mount?\n"
 #define _LANG_MOUNT_SHOP_NOT_SOLD "That is not for sale here.\n"
+#define _LANG_MOUNT_SHOP_AMBIGUOUS "Several mounts answer to '" + typed + "': " + choices + ". Say the number or a more precise name.\n"
 #define _LANG_MOUNT_SHOP_BUY_LIMIT "You already own as many mounts as you can look after (" + max + ").\n"
 #define _LANG_MOUNT_SHOP_BUY_CANNOT_AFFORD "You cannot afford it: " + label + " costs " + price_text + ".\n"
 #define _LANG_MOUNT_SHOP_BUY_FAILED "The mount cannot be brought out right now.\n"

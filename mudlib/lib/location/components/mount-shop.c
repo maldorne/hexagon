@@ -12,8 +12,9 @@
 // which also keeps the cap of mounts a player may own.
 //
 // The verbs are `list`, `examine <mount>` and `buy <mount>` (a mount is named by
-// what it answers to, or by its number in the list). A sign in the location
-// tells so.
+// what it answers to, or by its number in the list). When several answer to what
+// was typed, the one whose short is exactly that wins; otherwise the shop lists
+// them with their numbers and does nothing. A sign in the location tells so.
 
 #include <room/location.h>
 #include <living/riding.h>
@@ -216,26 +217,69 @@ private mapping * for_sale()
   return goods;
 }
 
-// The place in `goods` of what somebody typed (its number, or a name after the
-// articles are dropped), or -1.
+// A label without its colour codes (%^CODE%^), which are the odd pieces when it
+// is split on the marker.
+private string plain_label_case(string label)
+{
+  string * parts;
+  string out;
+  int i;
+
+  parts = explode(label, "%^");
+  out = "";
+
+  for (i = 0; i < sizeof(parts); i += 2)
+    out += parts[i];
+
+  return trim(out);
+}
+
+// The same, in lower case, to compare with what was typed.
+private string plain_label(string label)
+{
+  return lower_case(plain_label_case(label));
+}
+
+/*
+ * The place in `goods` of what somebody typed: its number, or a name after the
+ * articles are dropped. Several mounts answering to the name are told apart by
+ * the one whose short is exactly what was typed; with none, the player is told
+ * which ones answer and -2 is returned. -1 when nothing answers.
+ */
 private int find_mount(mapping * goods, string str)
 {
-  string * words;
+  string * words, * labels;
+  string typed, choices;
+  int * found;
   int i, number;
 
   words = explode(lower_case(trim(str)), " ") - ({ "" });
   while (sizeof(words) > 1 && member_array(words[0], _LANG_MOUNT_SHOP_ARTICLES) != -1)
     words = words[1 ..];
-  str = implode(words, " ");
+  typed = implode(words, " ");
 
-  if (sscanf(str, "%d", number) == 1 && "" + number == str)
+  if (sscanf(typed, "%d", number) == 1 && "" + number == typed)
     return number >= 1 && number <= sizeof(goods) ? number - 1 : -1;
 
+  found = ({ });
   for (i = 0; i < sizeof(goods); i++)
-    if (member_array(str, goods[i]["names"]) != -1)
-      return i;
+    if (member_array(typed, goods[i]["names"]) != -1)
+      found += ({ i });
 
-  return -1;
+  if (sizeof(found) <= 1)
+    return sizeof(found) ? found[0] : -1;
+
+  for (i = 0; i < sizeof(found); i++)
+    if (plain_label(goods[found[i]]["label"]) == typed)
+      return found[i];
+
+  labels = ({ });
+  for (i = 0; i < sizeof(found); i++)
+    labels += ({ (found[i] + 1) + ". " + plain_label_case(goods[found[i]]["label"]) });
+  choices = implode(labels, ", ");
+
+  write(_LANG_MOUNT_SHOP_AMBIGUOUS);
+  return -2;
 }
 
 // A price in words.
@@ -297,6 +341,8 @@ int do_examine(string str)
 
   goods = for_sale();
   idx = find_mount(goods, str);
+  if (idx == -2)
+    return 1;
   if (idx == -1)
     return 0;
 
@@ -332,6 +378,8 @@ int do_buy(string str)
   buyer = this_player();
   goods = for_sale();
   idx = find_mount(goods, str);
+  if (idx == -2)
+    return 1;
   if (idx == -1)
   {
     notify_fail(_LANG_MOUNT_SHOP_NOT_SOLD);

@@ -121,7 +121,7 @@ them.
 `mount-shop` (`/lib/location/components/mount-shop.c`) sells mounts: its attribute `stock` lists
 the templates or files on sale with their price, and its verbs (`list`, `examine`, `buy`, from
 `query_component_actions`) make the mount in the location, tied to the buyer and saved in a file of theirs by the
-riding handler. Details: `/lib/living/riding.md`.
+riding handler. A mount is named by what it answers to or by its number; when several answer, the one whose short is exactly what was typed wins, otherwise the shop lists them with their numbers and does nothing. Details: `/lib/living/riding.md`.
 
 ### Location components that act on movement
 
