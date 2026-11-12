@@ -146,9 +146,10 @@ string chat_expand_string(object me, string in_str, varargs object on, object at
     {
       switch (str[i][0])
       {
+        // the monster itself: falls through to the token switch below, as
+        // 'l' and 'o' do once they have chosen their living
         case 'm' :
           ob = me;
-          break;
         case 'l' :
           if (!ob)
           {
