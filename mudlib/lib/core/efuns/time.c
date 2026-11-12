@@ -64,27 +64,29 @@ string seconds_to_time_string(int seconds)
   string * values;
   values = ({ });
 
-  if (seconds > 86400)
+  if (seconds >= 86400)
     values += ({ sprintf("%d " + _LANG_TIME_DAY + 
                          ((seconds/86400 == 1) ? "" : "s"),
                            seconds/86400) });
 
   seconds = seconds % 86400;
-  if (seconds > 3600)
+  if (seconds >= 3600)
     values += ({ sprintf("%d " + _LANG_TIME_HOUR + 
                          ((seconds/3600 == 1) ? "" : "s"),
                            seconds/3600) });
 
   seconds = seconds % 3600;
-  if (seconds > 60)
+  if (seconds >= 60)
     values += ({ sprintf("%d " + _LANG_TIME_MINUTE + 
                          (((seconds/60)%60 == 1) ? "" : "s"),
                            (seconds/60)%60) });
 
+  // whole minutes, hours or days leave no seconds to say
   seconds = seconds % 60;
-  values += ({ sprintf("%d " + _LANG_TIME_SECOND + 
-                       ((seconds%60 == 1) ? "" : "s"),
-                           seconds%60) });
+  if (seconds > 0 || !sizeof(values))
+    values += ({ sprintf("%d " + _LANG_TIME_SECOND + 
+                         ((seconds%60 == 1) ? "" : "s"),
+                             seconds%60) });
 
   return query_multiple_short(values);
 }

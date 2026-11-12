@@ -40,6 +40,36 @@
 // Corresponds with the 12th column in the lookup table (query_weapon_family to the object)
 string * query_weapon_masteries() { return WEAPON_MASTERIES; }
 
+mixed * lookup_weapon_data(string name);
+
+// every weapon the table knows, by name
+string * query_weapon_names()
+{
+  return ({ KNIFE, DAGGER, CLUB, LIGHT_MACE, SHOVEL, SAW, PICK, HEAVY_MACE, MORNING_STAR, STAFF, JAVELIN,
+            LIGHT_SPEAR, SHORT_SWORD, THROWING_AXE, HAND_AXE, LIGHT_HAMMER, SCIMITAR, LONG_SWORD, RAPIER,
+            BATTLE_AXE, LONG_SPEAR, WAR_HAMMER, HEAVY_PICK, TRIDENT, HALBERD, GLAIVE, CUTLASS, BROADSWORD,
+            HEAVY_AXE, HEAVY_SPEAR, PIKE, SICKLE, LIGHT_FLAIL, TWO_HANDED_STAFF, BASTARD_SWORD,
+            HOOKED_HAMMER, WHIP, CHAIN, TWO_HANDED_SWORD, SCYTHE, HEAVY_FLAIL, });
+}
+
+// the weapons of a family, the ones whose mastery is the given one
+string * query_weapons_of_mastery(string mastery)
+{
+  string * names, * out;
+  mixed * data;
+  int i;
+
+  names = query_weapon_names();
+  out = ({ });
+  for (i = 0; i < sizeof(names); i++)
+  {
+    data = lookup_weapon_data(names[i]);
+    if (sizeof(data) > 12 && data[12] == mastery)
+      out += ({ names[i] });
+  }
+  return out;
+}
+
 mixed * lookup_weapon_data(string name)
 {  
   mixed * weapon_data;

@@ -106,3 +106,29 @@
     (mappingp(row) && intp(row["min"]) ? row["min"] : 0) + "% y el " + \
     (mappingp(row) && intp(row["max"]) ? row["max"] : 100) + "%, " + \
     (price > 0 ? price_words(price) + " cada punto" : "gratis") + ".\n"
+
+// weapon masteries and levels (rows with "mastery"; min, max, now, value, left_text, cooldown_text
+// and status are set by trainer.c)
+#define _LANG_TRAINER_LEVEL "Aún no tienes experiencia suficiente: tienes que ser al menos de nivel " + \
+    trainer_gate["min_level"] + " para que te enseñe nada.\n"
+#define _LANG_TRAINER_MASTERY_ILLEGAL "Tu gremio no permite empuñar ninguna de esas armas, y no voy a enseñarte lo que no podrías usar."
+#define _LANG_TRAINER_MASTERY_NEVER "Primero tienes que pelear con esa arma: no puedo enseñarte a manejar lo que nunca has empuñado."
+#define _LANG_TRAINER_MASTERY_TOO_LOW "Solo enseño lo que luchar ya no puede darte, a partir del " + min + "% en " + \
+    skill_name + ". Tú vas por el " + now + "%: sigue peleando con esas armas."
+#define _LANG_TRAINER_MASTERY_FULL "Con " + skill_name + " has llegado al " + now + "%, y el " + max + "% es lo máximo que sé enseñar."
+#define _LANG_TRAINER_COOLDOWN "Ya has aprendido de mí hace poco. Vuelve dentro de " + left_text + "."
+#define _LANG_TRAINER_MASTERY_COST "Un punto de " + skill_name + " (del " + ask[1] + "% al " + ask[2] + "%) te costará " + \
+    price_text + ". Enseño un punto cada vez" + (trainer_cooldown > 0 ? ", y no te daré otro hasta que pasen " + \
+    cooldown_text : "") + "."
+#define _LANG_TRAINER_MASTERY_TRAINED "Entrenas " + skill_name + ": ahora dominas el " + value + "% por " + price_text + \
+    ". No podré darte otro punto hasta dentro de " + cooldown_text + ".\n"
+#define _LANG_TRAINER_MASTERY_TRAINED_NOW "Entrenas " + skill_name + ": ahora dominas el " + value + "% por " + price_text + ".\n"
+#define _LANG_TRAINER_VALUE_NONE "nada, nunca la has usado"
+#define _LANG_TRAINER_MASTERY_LINE "  " + capitalize(name) + ": dominas " + value_text + "; enseño del " + min + "% al " + max + \
+    "%, " + (price > 0 ? price_words(price) + " cada punto" : "gratis") + ", un punto por sesión. " + status + "\n"
+#define _LANG_TRAINER_STATUS_ILLEGAL "Tu gremio no permite ninguna de esas armas."
+#define _LANG_TRAINER_STATUS_NEVER "Primero tienes que pelear con esa arma."
+#define _LANG_TRAINER_STATUS_TOO_LOW "Aún no llegas al " + min + "%: sigue peleando."
+#define _LANG_TRAINER_STATUS_FULL "Ya no tengo más que enseñarte."
+#define _LANG_TRAINER_STATUS_WAIT "Podrás entrenar otro punto dentro de " + left_text + "."
+#define _LANG_TRAINER_STATUS_READY "Puedes entrenar un punto ahora."

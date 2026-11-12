@@ -106,3 +106,29 @@
     (mappingp(row) && intp(row["min"]) ? row["min"] : 0) + "% to " + \
     (mappingp(row) && intp(row["max"]) ? row["max"] : 100) + "%, " + \
     (price > 0 ? price_words(price) + " each point" : "free") + ".\n"
+
+// weapon masteries and levels (rows with "mastery"; min, max, now, value, left_text, cooldown_text
+// and status are set by trainer.c)
+#define _LANG_TRAINER_LEVEL "You do not have enough experience yet: you must be at least level " + \
+    trainer_gate["min_level"] + " for me to teach you anything.\n"
+#define _LANG_TRAINER_MASTERY_ILLEGAL "Your guild does not allow you to wield any of those weapons, and I will not teach you what you could not use."
+#define _LANG_TRAINER_MASTERY_NEVER "You have to fight with that weapon first: I cannot teach you to handle what you have never wielded."
+#define _LANG_TRAINER_MASTERY_TOO_LOW "I only teach what fighting can no longer give you, from " + min + "% in " + \
+    skill_name + ". You are at " + now + "%: keep fighting with those weapons."
+#define _LANG_TRAINER_MASTERY_FULL "With " + skill_name + " you have reached " + now + "%, and " + max + "% is the most I can teach."
+#define _LANG_TRAINER_COOLDOWN "You learned from me not long ago. Come back in " + left_text + "."
+#define _LANG_TRAINER_MASTERY_COST "One point of " + skill_name + " (from " + ask[1] + "% to " + ask[2] + "%) will cost you " + \
+    price_text + ". I teach one point at a time" + (trainer_cooldown > 0 ? ", and I will not give you another until " + \
+    cooldown_text + " have passed" : "") + "."
+#define _LANG_TRAINER_MASTERY_TRAINED "You train " + skill_name + ": you now master " + value + "% for " + price_text + \
+    ". I cannot give you another point for " + cooldown_text + ".\n"
+#define _LANG_TRAINER_MASTERY_TRAINED_NOW "You train " + skill_name + ": you now master " + value + "% for " + price_text + ".\n"
+#define _LANG_TRAINER_VALUE_NONE "nothing, you have never used it"
+#define _LANG_TRAINER_MASTERY_LINE "  " + capitalize(name) + ": you master " + value_text + "; I teach from " + min + "% to " + max + \
+    "%, " + (price > 0 ? price_words(price) + " each point" : "free") + ", one point a session. " + status + "\n"
+#define _LANG_TRAINER_STATUS_ILLEGAL "Your guild does not allow any of those weapons."
+#define _LANG_TRAINER_STATUS_NEVER "You have to fight with that weapon first."
+#define _LANG_TRAINER_STATUS_TOO_LOW "You are not at " + min + "% yet: keep fighting."
+#define _LANG_TRAINER_STATUS_FULL "I have nothing more to teach you."
+#define _LANG_TRAINER_STATUS_WAIT "You can train another point in " + left_text + "."
+#define _LANG_TRAINER_STATUS_READY "You can train a point now."
