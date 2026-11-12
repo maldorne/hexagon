@@ -212,6 +212,9 @@
 #define _LANG_HOLD_WHAT capitalize(query_verb()) + " what?\n"
 #define _LANG_HOLD_NOT_IN_INV "You don't have that in your inventory.\n"
 #define _LANG_HOLD_ALREADY_HOLDING "Already holding that!\n"
+#define _LANG_HOLD_ILLEGAL_WEAPON "You lack the skill needed to wield this weapon.\n"
+#define _LANG_HOLD_ILLEGAL_SHIELD "You lack the skill needed to carry this equipment.\n"
+#define _LANG_HOLD_ILLEGAL_UNHOLD "Your guild does not allow holding " + ob->query_name() + ", you let go of it.\n"
 #define _LANG_HOLD_CANNOT_HOLD "Cannot hold that.\n"
 #define _LANG_HOLD_HANDS_NEEDED "Not enough free hands to hold that.\n"
 #define _LANG_HOLD_MSG "You hold your " + ob->query_name() + ".\n"
@@ -232,6 +235,8 @@
 #define _LANG_WEAR_STILL_LOADING "Your inventory is still loading, cannot wear it yet.\n"
 #define _LANG_WEAR_WRONG_BODY_TYPE "This item does not fit well to your body, " + \
               "you cannot wear it.\n"
+#define _LANG_WEAR_ILLEGAL_FOR_GUILD "This item is not among those your guild allows.\n"
+#define _LANG_WEAR_ILLEGAL_UNWEAR "Your guild does not allow wearing " + ob->query_name() + ", you take it off.\n"
 #define _LANG_WEAR_SAME_TYPE "You are already wearing an item of the same type.\n"
 #define _LANG_WEAR_NO_SIZE "This object has an error (has no size), please tell a coder.\n"
 #define _LANG_WEAR_START "You start wearing your " + ob->query_name() + ".\n"

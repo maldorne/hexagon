@@ -60,7 +60,7 @@ Strings go in the directory's `.lang.<lang>.h` as everywhere. `damage-over-time.
 ## Traits in the tree
 
 - `bleeding.c`: a wound on a body part (`part` and its `article`, named by whoever adds it); raises the flag `bleeding`. Healing closes it by removing it with the reason `cured` (a game's healing spells decide how often), which tells the living the wound closes.
-- `poisoned.c`: venom in the blood; raises the flag `poisoned`.
+- `poisoned.c`: venom in the blood; raises the flag `poisoned`. The target's poison resistance (`query_resistance(DAMAGE_POISON)`, a percent) applies to a new poison: it is resisted altogether with that chance (a resisted poison over a carried one leaves the carried one alone), and what lands has its `damage`, `spread` and `left` scaled down by the percent, never under 1 damage and 1 pulse. A negative resistance scales them up and is never resisted.
 - `deaf.c`: the living hears nothing; raises the flag `deaf`. Permanent without `expires`, temporary with it; a permanent one stays when a temporary one is added, between temporary ones the longer lasts. It tells the living when it starts and ends (not on death or replacement) and adds a look line. It does not touch what the living says.
 - `mute.c`: the living cannot speak; raises the flag `mute`, same rules for `expires` and the messages. It does not touch what the living hears.
 

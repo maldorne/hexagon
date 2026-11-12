@@ -31,6 +31,7 @@ mixed *query_shields_held();
 int query_free_hands_left();
 int unhold_ob(object ob);
 int hold_ob(object ob);
+int query_legal_hold(object ob);
 int shield_bonus();
 int query_dual_wield_penalty();
 int * query_total_held_ac() { return held_ac; }
@@ -238,11 +239,64 @@ int unhold_ob(object ob)
   return 1;
 }
 
+/**
+ * Whether the guild of this living lets it hold a weapon or a shield. A
+ * living without a guild is free, and so is an NPC: its template chooses what
+ * it carries.
+ * @param  ob  the weapon or shield
+ */
+int query_legal_hold(object ob)
+{
+  string guild;
+
+  if (!this_object()->query_player())
+    return 1;
+
+  guild = this_object()->query_guild_ob();
+  if (!stringp(guild))
+    return 1;
+
+  if (ob->query_weapon())
+    return guild->query_legal_weapon(ob->query_weapon_name());
+
+  if (ob->query_shield())
+    return guild->query_legal_worn_armour(ob);
+
+  return 1;
+}
+
+/**
+ * Lets go of every held weapon or shield the guild does not allow, with a
+ * message for each. Called when the living joins a guild.
+ */
+void unhold_illegal_arms()
+{
+  object ob;
+  mixed * held;
+  int i;
+
+  held = held_ob - ({ nil });
+
+  for (i = 0; i < sizeof(held); i++)
+  {
+    ob = held[i];
+
+    // a piece that takes several hands is listed once per hand
+    if (member_array(ob, held) < i)
+      continue;
+
+    if (!query_legal_hold(ob))
+    {
+      tell_object(this_object(), _LANG_HOLD_ILLEGAL_UNHOLD);
+      unhold_ob(ob);
+    }
+  }
+}
+
 int hold_ob(object ob)
 {
   int weap_hands; // hands the weapon needs.
   int slot;
-  object gobj;
 
   if (this_object()->query_dead())
   {
@@ -250,32 +304,15 @@ int hold_ob(object ob)
     return 0;
   }
 
-  // Check to make sure weapon is an allowed weapon
-
-  // Taniwha 1995, make it work ...
-  // if (ob->query_weapon())    
-  // {
-  //   gobj = this_object()->query_guild_ob();
-
-  //   if ( gobj && !gobj->query_legal_weapon(ob->query_weapon_name()))
-  //   {
-  //     tell_object(this_object(),"Careces de la habilidad necesaria "+
-  //                 "para empuñar este arma.\n");
-  //     return 1;
-  //   }
-  // }
-  
-  // if (ob->query_shield())    
-  // {
-  //   gobj = this_object()->query_guild_ob();
-
-  //   if ( gobj && !gobj->query_legal_armour(ob->query_shield_name()))
-  //   {
-  //     tell_object(this_object(),"Careces de la habilidad necesaria "+
-  //                 "para llevar este equipo.\n");
-  //     return 1;
-  //   }
-  // }
+  // check to make sure the guild allows this weapon or shield
+  if (!query_legal_hold(ob))
+  {
+    if (ob->query_shield())
+      notify_fail(_LANG_HOLD_ILLEGAL_SHIELD);
+    else
+      notify_fail(_LANG_HOLD_ILLEGAL_WEAPON);
+    return 0;
+  }
 
   weap_hands = (int)ob->query_hands_needed();
 

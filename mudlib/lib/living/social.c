@@ -484,6 +484,10 @@ void set_guild_ob(string str)
   // This, every time we log in
   social_object_list[GUILD_OB]->start_player(this_object());
 
+  // what the new guild does not allow is taken off
+  this_object()->unwear_illegal_armour();
+  this_object()->unhold_illegal_arms();
+
 } /* set_guild_ob() */
 
 int query_guild_join_age() { return guild_join_age; }

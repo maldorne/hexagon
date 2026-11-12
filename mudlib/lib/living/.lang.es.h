@@ -211,6 +211,9 @@
 #define _LANG_HOLD_WHAT "¿" + capitalize(query_verb()) + " el qué?\n"
 #define _LANG_HOLD_NOT_IN_INV "No llevas eso en tu inventario.\n"
 #define _LANG_HOLD_ALREADY_HOLDING "¡Ya estás sosteniendo eso!\n"
+#define _LANG_HOLD_ILLEGAL_WEAPON "Careces de la habilidad necesaria para empuñar este arma.\n"
+#define _LANG_HOLD_ILLEGAL_SHIELD "Careces de la habilidad necesaria para llevar este equipo.\n"
+#define _LANG_HOLD_ILLEGAL_UNHOLD "Tu gremio no permite empuñar " + ob->query_name() + ", lo sueltas.\n"
 #define _LANG_HOLD_CANNOT_HOLD "No puedes sostener eso.\n"
 #define _LANG_HOLD_HANDS_NEEDED "No tienes suficientes manos libres para sostener eso.\n"
 #define _LANG_HOLD_MSG "Sostienes tu " + ob->query_name() + ".\n"
@@ -231,6 +234,8 @@
 #define _LANG_WEAR_STILL_LOADING "Tu equipamiento todavía está cargándose, aún no puedes ponértelo.\n"
 #define _LANG_WEAR_WRONG_BODY_TYPE "Este equipo no se ajusta bien a tu cuerpo, " + \
               "no puedes ponértelo.\n"
+#define _LANG_WEAR_ILLEGAL_FOR_GUILD "Este objeto no se corresponde con los permitidos en tu gremio.\n"
+#define _LANG_WEAR_ILLEGAL_UNWEAR "Tu gremio no permite llevar " + ob->query_name() + ", te lo quitas.\n"
 #define _LANG_WEAR_SAME_TYPE "Ya tienes puesto un objeto del mismo tipo.\n"
 #define _LANG_WEAR_NO_SIZE "Este objeto tiene un fallo (no tiene tamaño), pide ayuda a un programador.\n"
 #define _LANG_WEAR_START "Empiezas a ponerte " + (ob->query_default_plural() ? "tus" : "tu") + " " + \

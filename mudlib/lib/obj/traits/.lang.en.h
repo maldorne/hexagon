@@ -17,6 +17,7 @@
 // poisoned.c
 #define _LANG_TRAIT_POISONED_ME "The poison burns you from inside, causing you great pain.\n"
 #define _LANG_TRAIT_POISONED_ROOM living->query_cap_name() + " shudders in pain.\n"
+#define _LANG_TRAIT_POISONED_RESISTED "You resist the poison.\n"
 #define _LANG_TRAIT_POISONED_ENDS "The poison stops working.\n"
 #define _LANG_TRAIT_POISONED_LOOK "Shows signs of poisoning.\n"
 

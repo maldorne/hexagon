@@ -35,6 +35,7 @@ int query_skill_malus() { return skill_malus; }
 int unwear_ob(object ob, varargs int forced);
 int do_unwear_ob(object ob, varargs int forced);
 int wear_ob(object ob);
+int query_legal_wear(object ob);
 int do_wear_ob(object ob);
 void reset_types();
 object *query_worn_ob(varargs int type);
@@ -325,6 +326,49 @@ int do_unwear_ob(object ob, varargs int forced)
   return 1;
 }
 
+/**
+ * Whether the guild of this living lets it wear a piece. A living without a
+ * guild is free, and so is an NPC: its template chooses what it wears.
+ * @param  ob  the piece
+ */
+int query_legal_wear(object ob)
+{
+  string guild;
+
+  if (!this_object()->query_player())
+    return 1;
+
+  guild = this_object()->query_guild_ob();
+  if (!stringp(guild))
+    return 1;
+
+  return guild->query_legal_worn_armour(ob);
+}
+
+/**
+ * Takes off every worn piece the guild does not allow, with a message for
+ * each. Called when the living joins a guild.
+ */
+void unwear_illegal_armour()
+{
+  object ob;
+  object * worn;
+  int i;
+
+  worn = query_worn_ob();
+
+  for (i = 0; i < sizeof(worn); i++)
+  {
+    ob = worn[i];
+
+    if (!query_legal_wear(ob))
+    {
+      tell_object(this_object(), _LANG_WEAR_ILLEGAL_UNWEAR);
+      do_unwear_ob(ob, 1);
+    }
+  }
+}
+
 int wear_ob(object ob)
 {
   int a_type;
@@ -356,13 +400,12 @@ int wear_ob(object ob)
     return 0;
   }
 
-  // if (this_object()->query_guild_ob() &&
-  //    !this_object()->query_guild_ob()->
-  //     query_legal_armour(ob->query_armour_name()))
-  // {
-  //   tell_object(this_object(), "cannot wear.\n");
-  //   return 1;
-  // }
+  // the guild may not allow this kind of armour
+  if (!query_legal_wear(ob))
+  {
+    notify_fail(_LANG_WEAR_ILLEGAL_FOR_GUILD);
+    return 0;
+  }
 
   notify_fail(_LANG_WEAR_SAME_TYPE);
 

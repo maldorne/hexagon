@@ -8,6 +8,7 @@
  */
 
 #include <living/effects.h>
+#include <translations/armour.h>
 #include <language.h>
 
 inherit "/lib/core/object.c";
@@ -139,15 +140,30 @@ int query_legal_weapon(string weapon_name) { return 1; }
 int query_legal_armour(string weapon_name) { return 1; }
 
 /**
+ * Whether a member may wear this piece, or hold it when it is a shield (asked
+ * of every piece a living puts on). The default judges only the category of
+ * the piece, as query_legal_armour does; a guild that cares what the piece is
+ * made of, or which one it is, masks this.
+ * @param  armour  the piece the member wants to wear or hold
+ */
+int query_legal_worn_armour(object armour)
+{
+  if (armour->query_shield())
+    return query_legal_armour(ARMOUR_TYPE_SHIELD);
+
+  return query_legal_armour((string)armour->query_armour_type_name());
+}
+
+/**
  * Whether a member may cast spells while wearing this piece (asked of every
- * worn piece when casting). The default judges only the kind of armour, as
- * query_legal_armour does; a guild that cares what the piece is made of, or
- * which piece it is, masks this.
+ * worn piece when casting). The default is what the member may wear, as
+ * query_legal_worn_armour answers; a guild that lets its members wear
+ * something it still chokes their spells masks this.
  * @param  armour  the worn piece
  */
 int query_legal_casting_armour(object armour)
 {
-  return query_legal_armour((string)armour->query_armour_type_name());
+  return query_legal_worn_armour(armour);
 }
 /*
 int query_valid_melee_weapon(object ob) { return 1;} 
