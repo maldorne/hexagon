@@ -3,6 +3,8 @@
 #include <living/food.h>
 #include <living/combat.h>
 #include <living/quests.h>
+#include <living/skills.h>
+#include <living/effects.h>
 #include <mud/secure.h>
 #include <user/xp.h>
 #include <language.h>
@@ -178,6 +180,11 @@ int adjust_hp(int i, varargs object hp_remover)
 {
   int color, spared;
   hp += i;
+
+  // a caster notes the damage it takes: it keeps it from starting a spell
+  if (i < 0 && this_object()->query_known_skill(SKILL_CONCENTRATION))
+    this_object()->add_timed_property(PROPERTY_RECENT_DAMAGE,
+      (int)this_object()->query_timed_property(PROPERTY_RECENT_DAMAGE) - i, 1);
 
   color = 1; // for color on hp monitor - Radix
 

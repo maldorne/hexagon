@@ -1464,6 +1464,22 @@ private int run_cast(string str, object * given, object who, int quiet)
         return 0;
     }
 
+    // a caster hurt a moment ago may not manage to start a spell: when what it
+    // lost is more than a third of its concentration in percent of its hit
+    // points, half of the tries fail
+    if (effect_type == EFFECT_IS_SPELL &&
+        caster->query_known_skill(SKILL_CONCENTRATION) &&
+        (int)caster->query_max_hp() > 0 &&
+        ((int)caster->query_timed_property(PROPERTY_RECENT_DAMAGE) * 100) /
+          (int)caster->query_max_hp() >
+          (int)caster->query_skill_ability(SKILL_CONCENTRATION) / 3 &&
+        random(2))
+    {
+        notify_fail(MSG_NO_CONCENTRATION);
+        caster->add_timed_property(NOCAST_PROP, 1, 1);
+        return 0;
+    }
+
     if (caster->query_property(NOSKILL_PROP))
     {
         notify_fail(MSG_NOSKILL);

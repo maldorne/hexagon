@@ -384,3 +384,13 @@
 #define _LANG_SKILL_PILOT_ALIASES ({ })
 #define _LANG_SKILL_PILOT_HELP "Esta habilidad mide lo bien que pilotas una " + \
     "nave voladora o un barco. Quien la pide la necesita para ponerse a los mandos.\n"
+
+// concentration.c
+
+#define _LANG_SKILL_CONCENTRATION_NAME "concentración"
+#define _LANG_SKILL_CONCENTRATION_ALIASES ({ "concentracion" })
+#define _LANG_SKILL_CONCENTRATION_HELP "La concentración mide lo que resistes cuando algo te distrae mientras " + \
+      "formulas un hechizo. No se usa: mejora sola con los hechizos que formulas, hasta la mitad, y solo " + \
+      "un maestro puede llevarla más allá. Cuanto más la dominas, más daño puedes recibir en una ronda " + \
+      "sin perder el hechizo que formulas, menos te desconcentra un golpe reciente al empezar otro y menos " + \
+      "tardas en poder formular de nuevo.\n"

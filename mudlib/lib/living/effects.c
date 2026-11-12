@@ -1,6 +1,7 @@
 
 #include <common/properties.h>
 #include <living/effects.h>
+#include <living/skills.h>
 #include <user/xp.h>
 
 int do_call_out_effect(mixed *params);
@@ -100,6 +101,92 @@ mixed *query_active_effect_type(string type)
   return ret;
 } /* query_active_effect_type() */
 
+/**
+ * The ability of a living in the concentration skill, 0 when it does not know it.
+ */
+private int concentration()
+{
+  if (!this_object()->query_known_skill(SKILL_CONCENTRATION))
+    return 0;
+  return (int)this_object()->query_skill_ability(SKILL_CONCENTRATION);
+}
+
+/**
+ * The rating of the original table of the concentration, by ability: 10 (nothing)
+ * up to 50.
+ */
+private int concentration_rating(int ability)
+{
+  if (ability < 7)   return 10;
+  if (ability <= 10) return 20;
+  if (ability <= 20) return 25;
+  if (ability <= 30) return 28;
+  if (ability <= 40) return 30;
+  if (ability <= 50) return 33;
+  if (ability <= 60) return 35;
+  if (ability <= 70) return 38;
+  if (ability <= 80) return 40;
+  if (ability <= 90) return 45;
+  return 50;
+}
+
+/**
+ * Hit points a living can lose in one round before it loses the concentration
+ * of the effect it is running: a fifth of its maximum, up to five times that
+ * with the concentration skill (the rating over 10).
+ */
+private int concentration_threshold()
+{
+  return ((int)this_object()->query_max_hp() / SP_DIV) *
+         concentration_rating(concentration()) / 10;
+}
+
+/**
+ * The lockout of an effect once the concentration has shortened it.
+ *
+ * - The short ones (under 60 heart beats) lose a quarter of the ability plus
+ *   three quarters of the level in percent, at most 25.
+ * - A spell is scaled by the turns of lockout the caster needs: its level
+ *   (times three, hexagon levels run to 20 and the original ones to 60), half
+ *   its concentration and a roll of its charisma, 60 or more is one turn, 40 two,
+ *   30 three, less four; the lockout of the effect is the one of four turns, so it
+ *   is multiplied by turns / 4.
+ *
+ * @param lockout the lockout the effect declares
+ * @param spell   1 when the effect is a spell
+ * @return the lockout this caster has
+ */
+private int shortened_lockout(int lockout, int spell)
+{
+  int conc, percent, total, turns, cha;
+
+  if (!this_object()->query_known_skill(SKILL_CONCENTRATION))
+    return lockout;
+
+  conc = concentration();
+
+  if (lockout < 60)
+  {
+    percent = conc / 4 + (3 * (int)this_object()->query_level()) / 4;
+    if (percent > 25)
+      percent = 25;
+    lockout -= (lockout * percent) / 100;
+  }
+
+  if (spell)
+  {
+    cha = (int)this_object()->query_cha();
+    total = 3 * (int)this_object()->query_level() + conc / 2 +
+            (cha > 0 ? random(cha) : 0);
+    turns = total >= 60 ? 1 : total >= 40 ? 2 : total >= 30 ? 3 : 4;
+    lockout = lockout * turns / 4;
+    if (lockout < 1)
+      lockout = 1;
+  }
+
+  return lockout;
+}
+
 int do_active_effects(object attacker)
 {
   int i, j, ok;
@@ -111,7 +198,7 @@ int do_active_effects(object attacker)
     for ( j = sizeof(effects[i+1])-2; j>=0; j-=2) 
     {
       if ((effect_hp - (int)this_object()->query_hp()) > 
-        ((int)this_object()->query_max_hp()/SP_DIV) )
+        concentration_threshold() )
       {
         tell_room(environment(this_object()), "¡"+
            (string)this_object()->query_cap_name()+
@@ -156,7 +243,8 @@ int do_active_effects(object attacker)
             this_object()->add_timed_property("LOCK " + 
               base_name(effects[i+1][j+1][SP_OBJECT]), 
               1, 
-              (effects[i+1][j+1][SP_OBJECT])->query_lockout_time() / 2 );
+              shortened_lockout((effects[i+1][j+1][SP_OBJECT])->query_lockout_time(),
+              (effects[i+1][j+1][SP_OBJECT])->query_effect_type() == EFFECT_IS_SPELL) / 2 );
   
           remove_active_effect(effects[i+1][j]);
 
@@ -173,7 +261,12 @@ int do_active_effects(object attacker)
           this_object()->add_timed_property("LOCK " + 
             base_name(effects[i+1][j+1][SP_OBJECT]), 
             1, 
-            (effects[i+1][j+1][SP_OBJECT])->query_lockout_time() );
+            shortened_lockout((effects[i+1][j+1][SP_OBJECT])->query_lockout_time(),
+              (effects[i+1][j+1][SP_OBJECT])->query_effect_type() == EFFECT_IS_SPELL) );
+
+          // casting spells is what trains the concentration (up to its use cap)
+          if ((effects[i+1][j+1][SP_OBJECT])->query_effect_type() == EFFECT_IS_SPELL)
+            this_object()->update_skill_used_times(SKILL_CONCENTRATION);
 
           // tell_object(find_living("folken"), "[do_active_effects] aprendizaje de la dote: "+effects[i+1][0]+"\n");
         

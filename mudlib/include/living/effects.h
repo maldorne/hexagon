@@ -49,6 +49,8 @@
 #define EFFECT_INTENT_HARM "harm"
 
 #define PROPERTY_IS_CASTING "casting"
+// the hit points a living with concentration lost in its last few seconds (a timed property)
+#define PROPERTY_RECENT_DAMAGE "recent damage"
 #define PROP_EFECTO_INAUDIBLE "inaudible"
 #define PROP_EFFECT_TESTER "TEST"
 #define PROPERTY_BLINDED "BLIND"

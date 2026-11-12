@@ -6,14 +6,18 @@
 
 // Data returned by query_skill_data from the skills table:
 //   ({ path, initial value, times used, ACTIVE_SKILL | PASSIVE_SKILL,
-//      [kind, [number of levels]] })
-// The last two entries are optional; a row without them is a percentage skill.
+//      [kind, [number of levels, [highest ability use can raise it to]]] })
+// The last three entries are optional; a row without them is a percentage skill
+// that use raises up to 100. A percentage skill with a use cap (the last entry)
+// stops growing with use at that ability: only a teacher or a quest takes it
+// higher.
 #define SKILL_DATA_PATH   0
 #define SKILL_DATA_VALUE  1
 #define SKILL_DATA_USES   2
 #define SKILL_DATA_TYPE   3
 #define SKILL_DATA_KIND   4
 #define SKILL_DATA_LEVELS 5
+#define SKILL_DATA_USE_CAP 6
 
 // What the stored value of a skill means. There is no conversion between
 // kinds: a skill's own code asks for the kind it was written for.
@@ -36,6 +40,8 @@
 #define SKILL_REPAIR      "repair"
 #define SKILL_SLICE       "slice"
 #define SKILL_SWIM        "swim"
+// the concentration of the casters: given by every guild that casts
+#define SKILL_CONCENTRATION "concentration"
 #define SKILL_FOLLOW      "follow"
 #define SKILL_EVADE       "evade"
 #define SKILL_STEAL       "steal"

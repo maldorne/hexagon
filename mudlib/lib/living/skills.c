@@ -702,13 +702,22 @@ int set_skill_value(string str, int value, varargs int silence)
  */
 int update_skill_used_times(string str)
 {
+  mixed * row;
+  int cap;
+
   // Not known, or not a percentage skill
   if ((member_array(str, known_skills) == -1) ||
       (query_skill_kind(str) != SKILL_KIND_PERCENTAGE))
     return 0;
 
-  // Stop updating once at the maximum
-  if (clamped_value(str) < 100)
+  // Stop updating once at the maximum, or at the highest ability use can
+  // raise this skill to (the last entry of its row; 0 for none)
+  row = skill_row(str);
+  cap = sizeof(row) > SKILL_DATA_USE_CAP ? row[SKILL_DATA_USE_CAP] : 0;
+  if (!cap || cap > 100)
+    cap = 100;
+
+  if (clamped_value(str) < cap)
   {
     skill_list[str][SKILL_DATA_USES] += 1;
 

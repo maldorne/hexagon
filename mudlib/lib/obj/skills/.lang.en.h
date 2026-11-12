@@ -379,3 +379,13 @@
 #define _LANG_SKILL_PILOT_ALIASES ({ })
 #define _LANG_SKILL_PILOT_HELP "This skill measures how well you pilot a flying " + \
       "or sailing craft. Whoever asks for it needs it to take the controls.\n"
+
+// concentration.c
+
+#define _LANG_SKILL_CONCENTRATION_NAME "concentration"
+#define _LANG_SKILL_CONCENTRATION_ALIASES ({ })
+#define _LANG_SKILL_CONCENTRATION_HELP "Concentration measures how well you hold on when something distracts you " + \
+      "while you cast a spell. It is not used: it improves by itself with the spells you cast, up to half, " + \
+      "and only a master can take it further. The better you master it, the more damage you can take in " + \
+      "one round without losing the spell you are casting, the less a recent blow keeps you from starting " + \
+      "another, and the sooner you can cast again.\n"

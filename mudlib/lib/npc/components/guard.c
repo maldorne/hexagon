@@ -36,6 +36,10 @@
 //                       even when listed in "races"; "*" stops every race
 //   "night_admit"     - "citizens": from nightfall to dawn only fellow citizens
 //                       pass
+//   "pass_property"   - the name of a static property: whoever carries it passes,
+//                       whatever the other rules say (even "everybody"), but
+//                       not the wanted. An item that sets it while it is worn
+//                       is a pass
 //   "message"         - what whoever it stops is told
 //   "everybody"       - 1 to stop everybody, whatever the other rules say
 //                       (default 0)
@@ -81,6 +85,7 @@ private mixed guard_min_align;
 // it admits at night ("" for anybody)
 private string * guard_races, * guard_barred_races;
 private string guard_night_admit;
+private string guard_pass_property;
 // when it watches ("always", "attacked"), the percent chance a blow starts the
 // watch, how long it lasts (0: until it leaves or dies) and the room texts
 private string guard_when, guard_start_message, guard_end_message;
@@ -112,6 +117,7 @@ void create()
   guard_races = ({ });
   guard_barred_races = ({ });
   guard_night_admit = "";
+  guard_pass_property = "";
   guard_when = "always";
   guard_chance = 100;
   guard_duration = 0;
@@ -627,6 +633,11 @@ int check(object mover)
     return 0;
   }
 
+  // a pass: the static property overrides every rule but the law
+  if (strlen(guard_pass_property) &&
+      mover->query_static_property(guard_pass_property))
+    return 1;
+
   if (guard_everybody)
     return 0;
 
@@ -682,6 +693,7 @@ mapping query_auto_load_attributes()
     "races"           : guard_races,
     "barred_races"    : guard_barred_races,
     "night_admit"     : guard_night_admit,
+    "pass_property"   : guard_pass_property,
     "message"         : guard_message,
     "when"            : guard_when,
     "chance"          : guard_chance,
@@ -719,6 +731,8 @@ void init_auto_load_attributes(mapping args)
     guard_barred_races = ({ }) + args["barred_races"];
   if (stringp(args["night_admit"]))
     guard_night_admit = args["night_admit"];
+  if (stringp(args["pass_property"]))
+    guard_pass_property = args["pass_property"];
   if (stringp(args["message"]))
     guard_message = args["message"];
   if (stringp(args["when"]))
@@ -747,6 +761,7 @@ mixed * stats()
     ({ "Races", implode(guard_races, ", ") }),
     ({ "Barred Races", implode(guard_barred_races, ", ") }),
     ({ "Night Admit", guard_night_admit }),
+    ({ "Pass Property", guard_pass_property }),
     ({ "When", guard_when }),
     ({ "Chance", guard_chance }),
     ({ "Duration", guard_duration }),

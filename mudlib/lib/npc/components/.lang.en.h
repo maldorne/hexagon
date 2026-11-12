@@ -80,3 +80,29 @@
 #define _LANG_ESCORT_ARRESTS_AWAY "A guard has reached $who$ and made the arrest.\n"
 #define _LANG_ESCORT_DRAG_FROM "$guard$ drags $who$ away.\n"
 #define _LANG_ESCORT_DRAG_TO "$guard$ arrives dragging $who$, unconscious.\n"
+
+// trainer.c -- the service of teaching skills for money
+// skill_name, points, price_text, now, to and name/row/price (list) are set by trainer.c
+
+#define _LANG_TRAINER_LIST_VERBS ({ "list" })
+#define _LANG_TRAINER_COST_VERBS ({ "cost" })
+#define _LANG_TRAINER_TRAIN_VERBS ({ "train" })
+#define _LANG_TRAINER_UP_TO "to"
+
+#define _LANG_TRAINER_BUSY "I cannot see to you now, I am busy.\n"
+#define _LANG_TRAINER_REFUSED "I have nothing to teach you, not yet.\n"
+#define _LANG_TRAINER_WHICH "What do you want to learn? Type 'list' to see what I teach."
+#define _LANG_TRAINER_NOT_TAUGHT "I do not teach that. Type 'list' to see what I know."
+#define _LANG_TRAINER_UNKNOWN_SKILL "You do not know that skill, I cannot improve it for you."
+#define _LANG_TRAINER_TOO_LOW "You do not know enough of that yet for me to help you: practise it first."
+#define _LANG_TRAINER_NOTHING_MORE "You already know of that everything I can teach you."
+#define _LANG_TRAINER_COST "Improving " + skill_name + " by " + points + " point" + (points == 1 ? "" : "s") + \
+    " up to " + ask[2] + "% will cost you " + price_text + "."
+#define _LANG_TRAINER_CANNOT_PAY "That would be " + price_text + ", and you do not carry so much. Come back when you do."
+#define _LANG_TRAINER_DONE "So be it."
+#define _LANG_TRAINER_TRAINED "You train " + skill_name + " up to " + ask[2] + "% for " + price_text + ".\n"
+#define _LANG_TRAINER_LIST_HEADER "This is what I teach:\n\n"
+#define _LANG_TRAINER_LIST_LINE "  " + capitalize(name) + ": from " + \
+    (mappingp(row) && intp(row["min"]) ? row["min"] : 0) + "% to " + \
+    (mappingp(row) && intp(row["max"]) ? row["max"] : 100) + "%, " + \
+    (price > 0 ? price_words(price) + " each point" : "free") + ".\n"

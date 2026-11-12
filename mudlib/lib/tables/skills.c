@@ -116,6 +116,15 @@ void create()
       ({ SKILLS_PATH + SKILL_DISMEMBERING, 10, 0, ACTIVE_SKILL, }),
     SKILL_PULLING :
       ({ SKILLS_PATH + SKILL_PULLING, 10, 0, ACTIVE_SKILL, }),
+
+    // passive skill: the concentration of whoever casts spells (every guild that
+    // casts gives it, at 10%). It holds a running spell under blows, keeps the
+    // caster able to start one after being hurt and shortens the lockout of the
+    // spells (lib/living/effects.c, lib/effects/base_effect.c). Use raises it
+    // only up to 50% (the last entry); a trainer takes it higher.
+    SKILL_CONCENTRATION :
+      ({ SKILLS_PATH + SKILL_CONCENTRATION, 10, 0, PASSIVE_SKILL,
+         SKILL_KIND_PERCENTAGE, 0, 50, }),
   ]);
 }
 

@@ -24,6 +24,8 @@ The stored value means the kind. There is no conversion between kinds: a levelle
 SKILL_BERSERK : ({ SKILLS_PATH + SKILL_BERSERK, 1, 0, ACTIVE_SKILL, SKILL_KIND_LEVELLED, 3, }),
 ```
 
+A percentage skill row may end with a use cap, `({ path, initial, uses, type, SKILL_KIND_PERCENTAGE, 0, 50 })`: use (`update_skill_used_times`) raises the skill only up to that ability, and a teacher (the `trainer` NPC component) or a quest takes it higher. `concentration` (`lib/obj/skills/concentration.c`) is the example: every guild that casts gives it at 10%, spells cast raise it to 50, and it is read by `lib/living/effects.c` (the damage a caster can take in a round before losing its spell, the shorter lockout of its spells) and `lib/effects/base_effect.c` (a caster hurt in its last seconds may fail to start a spell; the damage is a timed property, `PROPERTY_RECENT_DAMAGE`, that `adjust_hp` keeps for those who know the skill).
+
 How a level rises or falls is not the mudlib's business: no learn command, trainer or automatic rule. Whoever wants it calls the API (a guild, a quest, a script).
 
 ## API (`lib/living/skills.c`)
