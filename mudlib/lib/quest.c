@@ -183,8 +183,10 @@ int can_take(object who)
   return 1;
 }
 
-// Extra conditions to complete it, beyond having met every objective.
-int can_complete(object who)
+// Extra conditions to complete it, beyond having met every objective. Returns 1
+// when it can be handed in, 0 to refuse with the generic reason, or a string
+// with the reason to tell the player as it is.
+mixed can_complete(object who)
 {
   return 1;
 }

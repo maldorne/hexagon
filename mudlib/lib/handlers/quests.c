@@ -261,10 +261,58 @@ int check_can_complete(object who, string id)
   if (!objectives_met(who, id))
     return QUEST_INCOMPLETE;
 
-  if (!quest->can_complete(who))
+  // a string is the reason the quest refuses
+  if (stringp(quest->can_complete(who)) || !quest->can_complete(who))
     return QUEST_INCOMPLETE;
 
   return QUEST_OK;
+}
+
+/**
+ * Why a quest being done cannot be handed in, to tell the player.
+ * @param who  the player
+ * @param id   the quest id
+ * @return nil when it can be handed in; otherwise the line to tell: the
+ *         objectives still missing, or the reason the quest gives
+ */
+string query_complete_refusal(object who, string id)
+{
+  object quest;
+  mapping * objectives;
+  int * progress;
+  string missing;
+  mixed answer;
+  int i;
+
+  if (check_can_complete(who, id) == QUEST_OK)
+    return nil;
+
+  quest = query_quest(id);
+
+  if (!quest || !who->is_doing_quest(game_of(who), id))
+    return _LANG_QUEST_REFUSED_GENERIC;
+
+  if (!objectives_met(who, id))
+  {
+    objectives = quest->query_objectives();
+    progress = who->query_progress(game_of(who), id);
+    missing = "";
+
+    for (i = 0; i < sizeof(objectives); i++)
+      if (progress[i] < objectives[i][OBJ_COUNT] && strlen(objectives[i][OBJ_TEXT]))
+        missing += (strlen(missing) ? ", " : "") + objectives[i][OBJ_TEXT] +
+                   " (" + progress[i] + "/" + objectives[i][OBJ_COUNT] + ")";
+
+    return strlen(missing) ? _LANG_QUEST_OBJECTIVES_MISSING :
+                             _LANG_QUEST_OBJECTIVES_UNMET;
+  }
+
+  answer = quest->can_complete(who);
+
+  if (stringp(answer) && strlen(answer))
+    return (string)answer + "\n";
+
+  return _LANG_QUEST_REFUSED_GENERIC;
 }
 
 /*

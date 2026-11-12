@@ -313,6 +313,9 @@
       "%^RESET%^\n  " + objectives[j][OBJ_TEXT] + ": " + after + " de " + \
       objectives[j][OBJ_COUNT] + "."
 #define _LANG_QUEST_OBJECTIVES_MET "\n  Ya puedes entregarla ('misiones entregar')."
+#define _LANG_QUEST_OBJECTIVES_UNMET "Aún no has cumplido todos los objetivos de esta misión.\n"
+#define _LANG_QUEST_OBJECTIVES_MISSING "Aún no has cumplido todos los objetivos de esta misión. Te falta: " + missing + ".\n"
+#define _LANG_QUEST_REFUSED_GENERIC "No cumples las condiciones para entregar esta misión.\n"
 
 // books. `page` and `pages` are the page shown and how many there are, `book`
 // the title of the book and `reader` who is reading it

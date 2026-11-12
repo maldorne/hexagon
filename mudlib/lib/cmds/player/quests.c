@@ -83,6 +83,22 @@ private object completer_here(object me, string id, object * givers)
   return nil;
 }
 
+// Whether something here takes this quest back, even if it cannot be handed in
+// yet.
+private int takes_back_here(object me, string id, object * givers)
+{
+  object quests;
+  int i;
+
+  quests = handler(QUESTS_HANDLER, me);
+
+  for (i = 0; i < sizeof(givers); i++)
+    if (member_array(id, quests->giver_of(givers[i])->query_completed_quests()) != -1)
+      return 1;
+
+  return 0;
+}
+
 // How many quests each of these creatures would offer right now. Handing one in
 // can open the next of a chain, and that is how the difference is noticed.
 private int * offer_counts(object me, object * givers)
@@ -585,7 +601,7 @@ private int complete_quest(object me, int index)
   mixed * line;
   object * givers;
   object quest, giver;
-  string name;
+  string name, reason;
   int * before, * after;
   int i;
 
@@ -594,6 +610,18 @@ private int complete_quest(object me, int index)
 
   line = entry_at(me, index);
   quest = line ? handler(QUESTS_HANDLER, me)->query_quest(line[ENTRY_ID]) : nil;
+
+  // a giver here that takes the quest back tells why it cannot be handed in yet
+  if (line && line[ENTRY_KIND] == ENTRY_MINE && quest && !line[ENTRY_GIVER] &&
+      takes_back_here(me, line[ENTRY_ID], givers_here(me)))
+  {
+    reason = handler(QUESTS_HANDLER, me)->query_complete_refusal(me, line[ENTRY_ID]);
+    if (reason)
+    {
+      tell_object(me, reason);
+      return 1;
+    }
+  }
 
   // something here has to close it, unless the quest needs nobody
   if (!line || line[ENTRY_KIND] != ENTRY_MINE || !quest ||

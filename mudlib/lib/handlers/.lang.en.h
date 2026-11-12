@@ -304,6 +304,9 @@
       "%^RESET%^\n  " + objectives[j][OBJ_TEXT] + ": " + after + " of " + \
       objectives[j][OBJ_COUNT] + "."
 #define _LANG_QUEST_OBJECTIVES_MET "\n  You can hand it in now ('quests deliver')."
+#define _LANG_QUEST_OBJECTIVES_UNMET "You have not met every objective of this quest yet.\n"
+#define _LANG_QUEST_OBJECTIVES_MISSING "You have not met every objective of this quest yet. Still missing: " + missing + ".\n"
+#define _LANG_QUEST_REFUSED_GENERIC "You do not meet the conditions to hand in this quest.\n"
 
 // books. `page` and `pages` are the page shown and how many there are, `book`
 // the title of the book and `reader` who is reading it
