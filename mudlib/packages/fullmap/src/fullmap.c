@@ -306,43 +306,38 @@ private mixed * style_runs(int * styles)
 }
 
 /**
- * The city names of a level, told apart by drawing it with and without them:
- * each run of cells that changed is a name, a single blank between two runs
- * kept inside it.
+ * The city names the world map placed on a level, with the style each is
+ * drawn in.
  *
- * @return ({ ([ "text", "row", "col", "style" ]) ... })
+ * @param placed the handler's placed labels, ({ text, row, col }) each
+ * @param with_names the rows of the level as drawn with names
+ * @return ({ ([ "text", "row", "col", "style" ]) ... }), top row first
  */
-private mapping * find_labels(mixed ** with_names, mixed ** without)
+private mapping * find_labels(mixed * placed, mixed ** with_names)
 {
-  mapping * labels;
-  string * a, * b;
-  string text;
-  int r, c, start, end;
+  mapping * labels, tmp;
+  int i, r, c;
 
   labels = ({ });
-  for (r = 0; r < sizeof(with_names); r++)
+  for (i = 0; i < sizeof(placed); i++)
   {
-    a = with_names[r][0];
-    b = without[r][0];
-    for (c = 0; c < sizeof(a); c++)
-    {
-      if (c >= sizeof(b) || a[c] == b[c])
-        continue;
-
-      start = c;
-      end = c;
-      while (end + 1 < sizeof(a) &&
-             (a[end + 1] != b[end + 1] ||
-              (a[end + 1] == " " && end + 2 < sizeof(a) &&
-               a[end + 2] != b[end + 2])))
-        end++;
-
-      text = implode(a[start..end], "");
-      labels += ({ ([ "text": text, "row": r, "col": start,
-                      "style": with_names[r][1][start] ]) });
-      c = end;
-    }
+    r = placed[i][1];
+    c = placed[i][2];
+    labels += ({ ([ "text": placed[i][0], "row": r, "col": c,
+                    "style": with_names[r][1][c] ]) });
   }
+
+  // reading order, as the rows of the file
+  for (i = 1; i < sizeof(labels); i++)
+    for (r = i; r > 0 &&
+         (labels[r]["row"] < labels[r - 1]["row"] ||
+          (labels[r]["row"] == labels[r - 1]["row"] &&
+           labels[r]["col"] < labels[r - 1]["col"])); r--)
+    {
+      tmp = labels[r];
+      labels[r] = labels[r - 1];
+      labels[r - 1] = tmp;
+    }
   return labels;
 }
 
@@ -362,6 +357,7 @@ string to_json(string game, string map_name, int z)
   string text, out;
   string * rows_named, * rows_plain, * legend_kinds;
   mixed ** named, ** plain;
+  mixed * placed;
   mixed * legend_cell;
   mapping legend, * labels;
   int * b;
@@ -385,6 +381,7 @@ string to_json(string game, string map_name, int z)
   text = worldmap->render(cx, cy, z * SECTOR_SIZE, game, map_name,
                           width, height, 0, 1, LABEL_ROOM);
   rows_named = explode(text, "\n");
+  placed = worldmap->query_placed_labels();
   text = worldmap->render(cx, cy, z * SECTOR_SIZE, game, map_name,
                           width, height, 0, 0, 0);
   rows_plain = explode(text, "\n");
@@ -407,7 +404,7 @@ string to_json(string game, string map_name, int z)
         plain[i][0][j] = " ";
   }
 
-  labels = find_labels(named, plain);
+  labels = find_labels(placed, named);
 
   out = "{\"format\":\"worldmap/1\",\"game\":" + json_encode(game) +
         ",\"map\":" + json_encode(map_name) + ",\"z\":" + z +

@@ -46,7 +46,7 @@ city names apart so a renderer can draw them as text over the map.
 - `rows`: one per row, top first: `text`, the glyphs of the row without the
   names (one character per cell), and `runs`, `[first cell, length, style]`
   for every run not in the plain style.
-- `labels`: `text`, `row`, `col` (its first cell) and `style` of each name.
+- `labels`: `text`, `row`, `col` (its first cell) and `style` of each name, one per city, as the world map handler placed it.
 - `legend`: `kind` of sector, the `glyph` it is drawn with and its `style`.
 - `styles`: `colour` (a token of `palette`, empty for the plain text) and
   `bold`; style 0 is the plain text.

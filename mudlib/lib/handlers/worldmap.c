@@ -1536,6 +1536,10 @@ private string * _cells_of(string text)
 private static mixed * label_cities;
 private static int label_own;
 
+// The labels the last render placed: ({ text, row, col }), col counted in the
+// grid the render returned (blank columns included).
+private static mixed * placed_labels;
+
 // How far a label of `n` cells on row `r` from column `c` is from a city's
 // box (`city` as _overlay_city_names builds it): the fewest steps, corners
 // counting as one, from any of its letters to the box.
@@ -1807,9 +1811,21 @@ private void _overlay_city_names(string ** grid, int ** is_city, int w, int h,
       continue;
     for (i = 0; i < n; i++)
       grid[spot[0]][spot[1] + i] = cells[i];
+    placed_labels += ({ ({ cities[k][5], spot[0], spot[1] }) });
   }
 
   label_cities = nil;
+}
+
+/**
+ * The city names the last render placed, valid right after it.
+ *
+ * @return ({ ({ text, row, col }) ... }), col counted in the rendered grid,
+ *         blank columns beside the map included
+ */
+mixed * query_placed_labels()
+{
+  return placed_labels ? placed_labels[..] : ({ });
 }
 
 // Render a `width x height` sector viewport centred on the given world
@@ -1832,6 +1848,7 @@ string render(int center_x, int center_y, int center_z,
   int ** is_city, ** shore, ** sea, ** blank;
   string result;
 
+  placed_labels = ({ });
   sector_cache = ([ ]);
   border_cache = ([ ]);
   sectors = load_object(SECTORS_HANDLER);
