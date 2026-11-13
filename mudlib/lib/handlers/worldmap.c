@@ -1649,11 +1649,12 @@ private int * _spot_above_or_below(string ** grid, int w, int h, int above,
 
 // Last resort for a label of `n` cells: the spot nearest the city's centre
 // with some letter at most three cells from its box. Only the rows and columns
-// that close to the city are tried.
+// that close to the city are tried. When the nearest spot is below the city,
+// the nearest one above wins instead if it is no more rows away from the box.
 private int * _spot_near(string ** grid, int w, int h, mixed * city, int n)
 {
-  int * best;
-  int r, c, dist, best_dist, crow, ccol;
+  int * best, * best_up;
+  int r, c, dist, best_dist, best_up_dist, crow, ccol;
 
   crow = (city[1] + city[2]) / 2;
   ccol = (city[3] + city[4]) / 2;
@@ -1671,8 +1672,16 @@ private int * _spot_near(string ** grid, int w, int h, mixed * city, int n)
         best = ({ r, c });
         best_dist = dist;
       }
+      if (r < city[1] && (!best_up || dist < best_up_dist))
+      {
+        best_up = ({ r, c });
+        best_up_dist = dist;
+      }
     }
 
+  if (best && best[0] > city[2] && best_up &&
+      city[1] - best_up[0] <= best[0] - city[2])
+    return best_up;
   return best;
 }
 
