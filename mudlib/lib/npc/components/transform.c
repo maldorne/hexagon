@@ -16,6 +16,9 @@
 //   "attack"     - 1 (default) the new NPC fights whoever fought the original,
 //                  0 it does not
 //   "hp_percent" - the threshold of "defeated" (default 20)
+//   "chance"     - percentage of NPCs that transform (default 100): rolled
+//                  once, the first time the trigger happens; one that fails
+//                  stays as it is and fights on until it dies
 //   "message"    - told to the room when the original goes
 //   "appears"    - told to the room when the new one stands there
 //                  (both texts may carry $name$, the original's short)
@@ -30,11 +33,13 @@ inherit component "/lib/npc/component.c";
 #define DEFAULT_HP_PERCENT 20
 
 private string trigger_kind, template_id, room_message, appears_message;
-private int leaves_corpse, hp_percent, attacks;
+private int leaves_corpse, hp_percent, attacks, chance;
 // the attackers the original had when it died, not saved
 static object * last_attackers;
 // the transformation is already under way
 static int pending;
+// the roll of chance failed: this one never transforms
+static int declined;
 
 void create()
 {
@@ -46,8 +51,26 @@ void create()
   leaves_corpse = 1;
   hp_percent = DEFAULT_HP_PERCENT;
   attacks = 1;
+  chance = 100;
   last_attackers = ({ });
   pending = 0;
+  declined = 0;
+}
+
+/**
+ * Whether this NPC transforms now that its trigger happened: the roll of
+ * chance is made only once, and a failed one is final.
+ *
+ * @return 1 if it transforms
+ */
+private int rolls_through()
+{
+  if (declined)
+    return 0;
+  if (chance >= 100 || random(100) < chance)
+    return 1;
+  declined = 1;
+  return 0;
 }
 
 string query_info()
@@ -145,7 +168,7 @@ void died(object killer)
 // The body is made and the death announced: the new NPC rises.
 void second_life(object corpse, object initiator)
 {
-  if (trigger_kind != "killed" || pending)
+  if (trigger_kind != "killed" || pending || !rolls_through())
     return;
 
   pending = 1;
@@ -206,6 +229,9 @@ void event_fight_in_progress(object ob, object * fighters)
   else
     return;
 
+  if (!rolls_through())
+    return;
+
   // outside the blow: the fight is still being resolved
   pending = 1;
   call_out("change_now", 0);
@@ -219,6 +245,7 @@ mapping query_auto_load_attributes()
             "corpse" : leaves_corpse,
             "attack" : attacks,
             "hp_percent" : hp_percent,
+            "chance" : chance,
             "message" : room_message,
             "appears" : appears_message ]);
 }
@@ -239,6 +266,8 @@ void init_auto_load_attributes(mapping args)
     attacks = args["attack"];
   if (intp(args["hp_percent"]))
     hp_percent = args["hp_percent"];
+  if (intp(args["chance"]))
+    chance = args["chance"];
   if (stringp(args["message"]))
     room_message = args["message"];
   if (stringp(args["appears"]))
@@ -250,5 +279,5 @@ mixed * stats()
   return component::stats() +
          ({ ({ "Trigger", trigger_kind }), ({ "Template", template_id }),
             ({ "Leaves a corpse", leaves_corpse }),
-            ({ "Hp percent", hp_percent }) });
+            ({ "Hp percent", hp_percent }), ({ "Chance", chance }) });
 }
