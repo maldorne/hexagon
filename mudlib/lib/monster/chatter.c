@@ -133,7 +133,10 @@ string chat_expand_string(object me, string in_str, varargs object on, object at
 
   object liv, *obs, ob, *attacker_list;
 
-  str = explode(in_str, "$");
+  // explode drops a leading separator: a pad keeps a token at the very start
+  // in the odd places of the array, where the tokens are read
+  str = explode("_" + in_str, "$");
+  str[0] = str[0][1..];
   ret = "";
 
   // Fix by Wonderflug, only parse every SECOND argument, just tack on the 

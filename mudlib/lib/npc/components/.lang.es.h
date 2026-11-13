@@ -118,7 +118,7 @@
 #define _LANG_TRAINER_MASTERY_FULL "Con " + skill_name + " has llegado al " + now + "%, y el " + max + "% es lo máximo que sé enseñar."
 #define _LANG_TRAINER_COOLDOWN "Ya has aprendido de mí hace poco. Vuelve dentro de " + left_text + "."
 #define _LANG_TRAINER_MASTERY_COST "Un punto de " + skill_name + " (del " + ask[1] + "% al " + ask[2] + "%) te costará " + \
-    price_text + ". Enseño un punto cada vez" + (trainer_cooldown > 0 ? ", y no te daré otro hasta que pasen " + \
+    price_text + ". Enseño un punto cada vez" + (trainer_cooldown > 0 ? ", y no te daré otro hasta dentro de " + \
     cooldown_text : "") + "."
 #define _LANG_TRAINER_MASTERY_TRAINED "Entrenas " + skill_name + ": ahora dominas el " + value + "% por " + price_text + \
     ". No podré darte otro punto hasta dentro de " + cooldown_text + ".\n"

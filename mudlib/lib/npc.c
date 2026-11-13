@@ -934,6 +934,20 @@ void apply_template(mapping t, varargs int born)
     set_liked_message(gender_value(t["liked_message"], g));
   if (t["disliked_message"])
     set_disliked_message(gender_value(t["disliked_message"], g));
+  // what it says on joining a fight
+  if (t["join_fight_message"])
+  {
+    set_join_fight_mess(gender_value(t["join_fight_message"], g));
+    // joining fights means against players, not against other NPCs
+    set_join_fights();
+  }
+
+  // its allies, asked of the diplomacy handler at the moment it decides, are
+  // never attacked: those of its own citizenship (true) or of the node named
+  if (stringp(t["loyal_to"]))
+    set_loyal_node(t["loyal_to"]);
+  else if (t["loyal_to"])
+    set_loyal_node("");
 
   // Behaviour the type carries: ([ "<component>" : ([ attrs ]) ]). This is how
   // a template says its people can do something a data field cannot describe --

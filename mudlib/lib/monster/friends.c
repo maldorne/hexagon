@@ -22,6 +22,7 @@ int pacifist;
 // what it says to somebody on seeing them arrive ($ocname$ is their name).
 mapping liked, disliked;
 string liked_message, disliked_message;
+string loyal_node;   // diplomacy node whose allies it spares ("" = its own citizenship), nil = none
 
 void create()
 {
@@ -38,6 +39,7 @@ void create()
   disliked = ([ ]);
   liked_message = nil;
   disliked_message = nil;
+  loyal_node = nil;
 }
 
 int query_join_fights() { return join_fights; }
@@ -75,6 +77,11 @@ mapping add_disliked(string type, mixed targets)
   return disliked;
 }
 
+// The diplomacy node this monster is loyal to: its allies are never attacked,
+// and with aggressiveness anybody else is (nil: none; "": its own citizenship).
+string query_loyal_node() { return loyal_node; }
+void set_loyal_node(string node) { loyal_node = node; }
+
 string query_liked_message() { return liked_message; }
 void set_liked_message(string str) { liked_message = str; }
 string query_disliked_message() { return disliked_message; }
@@ -95,7 +102,7 @@ void pile_in(object ob, object ob1)
     {
       if (!sizeof(this_object()->query_attacker_list()))
       {
-        if (stringp(join_fight_mess))
+        if (stringp(join_fight_mess) && strlen(join_fight_mess))
           tell_room(environment(this_object()),
               (string)this_object()->chat_expand_string(this_object(), join_fight_mess, this_object(), ob));
         else 
@@ -205,6 +212,49 @@ int matches_group(mapping description, object who)
   return 0;
 }
 
+// Whether somebody is an ally of the node this monster is loyal to, asked of
+// the diplomacy handler now, so alliances that change are followed. Somebody
+// with no citizenship is nobody's ally.
+private int is_kin(object who)
+{
+  object mine, theirs;
+  string node;
+  mixed path;
+
+  if (loyal_node == nil)
+    return 0;
+
+  // an unset citizenship may come back as something other than a string
+  path = who->query_city_ob();
+  if (!stringp(path) || !strlen(path))
+    return 0;
+  theirs = load_object(path);
+  if (!theirs)
+    return 0;
+
+  node = loyal_node;
+  if (!strlen(node))
+  {
+    path = this_object()->query_city_ob();
+    if (!stringp(path) || !strlen(path))
+      return 0;
+    mine = load_object(path);
+    if (!mine)
+      return 0;
+    node = (string)mine->query_name();
+  }
+
+  return (int)handler("diplomacy", theirs)->is_ally(node,
+                                         (string)theirs->query_name());
+}
+
+// Whether this monster never attacks somebody: it loves their kind, or they
+// are allies of the node it is loyal to.
+private int spares(object who)
+{
+  return (mappingp(loved) && matches_group(loved, who)) || is_kin(who);
+}
+
 // Whether this monster would attack somebody who just turned up. The levels of
 // aggressiveness read the loved and the hated lists differently: the lowest
 // only goes for the hated, and the highest for anybody who is not loved,
@@ -223,27 +273,28 @@ private int would_attack(object ob)
     case 0:
       if (!interactive(ob)) return 0;
       if (ob->query_hidden()) return 0;
+      if (is_kin(ob)) return 0;
       if (mappingp(hated) && matches_group(hated, ob)) return 1;
       return 0;
 
     case 1:
-      if (mappingp(loved) && matches_group(loved, ob)) return 0;
+      if (spares(ob)) return 0;
       if (!interactive(ob)) return 0;
       if (ob->query_hidden()) return 0;
       return 1;
 
     case 2:
-      if (mappingp(loved) && matches_group(loved, ob)) return 0;
+      if (spares(ob)) return 0;
       if (ob->query_hidden()) return 0;
       return 1;
 
     case 3:
-      if (mappingp(loved) && matches_group(loved, ob)) return 0;
+      if (spares(ob)) return 0;
       if (!interactive(ob)) return 0;
       return 1;
 
     case 4:
-      if (mappingp(loved) && matches_group(loved, ob)) return 0;
+      if (spares(ob)) return 0;
       return 1;
   }
 
@@ -320,6 +371,7 @@ mixed * stats()
     ({ "Disliked", disliked }),
     ({ "Minplayer", minplayer }),
     ({ "Aggressive", aggressive }),
+    ({ "Loyal Node", loyal_node }),
           });
 
     return ret;
