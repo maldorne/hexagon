@@ -74,6 +74,14 @@
 // verb-response
 #define _LANG_VERB_RESPONSE_BUSY "$npc$ está en mitad de un combate y ahora no puede atenderte."
 
+// receive
+#define _LANG_RECEIVE_PREP "a"
+#define _LANG_RECEIVE_HAND_OVER_ME "Entregas $item$ a $npc$."
+#define _LANG_RECEIVE_HAND_OVER_ROOM "$player$ entrega $item$ a $npc$."
+#define _LANG_RECEIVE_NOT_HAVE "No tienes nada así que entregar.\n"
+#define _LANG_RECEIVE_CANNOT "No puedes entregar eso ahora.\n"
+#define _LANG_RECEIVE_SPENT "$npc$ no necesita nada más de ti."
+
 // escort.c -- a guard taking a beaten criminal to prison
 
 #define _LANG_ESCORT_ARRESTS "$guard$ se planta ante $who$, le echa los grilletes y declara: '¡En nombre de la ley, quedas detenido!'\n"

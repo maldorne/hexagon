@@ -10,7 +10,10 @@
 //                    "defeated"  a blow leaves it with "hp_percent" of its
 //                                hit points or less, still alive
 //                    "killed"    it dies
-//   "template"   - template id of the NPC that appears (areas/<area>/npcs/<type>)
+//                  any other value: it never changes by itself, only when
+//                  another component calls become() (the receive component)
+//   "template"   - template id of the NPC that appears (areas/<area>/npcs/<type>),
+//                  or the full path with .c of a monster to clone instead
 //   "corpse"     - 1 (default) the original leaves a corpse, 0 its body is
 //                  gone, with everything it carried
 //   "attack"     - 1 (default) the new NPC fights whoever fought the original,
@@ -38,6 +41,10 @@ private int leaves_corpse, hp_percent, attacks, chance;
 static object * last_attackers;
 // the transformation is already under way
 static int pending;
+// who the new NPC attacks besides the original's attackers, set by become()
+static object * extra_targets;
+// the original counts as dead for the census, 0 when it only changes shape
+static int counts_dead;
 // the roll of chance failed: this one never transforms
 static int declined;
 
@@ -55,6 +62,8 @@ void create()
   last_attackers = ({ });
   pending = 0;
   declined = 0;
+  extra_targets = ({ });
+  counts_dead = 1;
 }
 
 /**
@@ -111,22 +120,34 @@ private void raise_new(object * attackers)
   if (!place || !strlen(template_id))
     return;
 
-  game = game_name(place);
-  born = handler("bestiary", place)->spawn_from_template(game, template_id);
-  if (!born)
-    return;
+  if (strlen(template_id) > 2 && template_id[strlen(template_id) - 2 ..] == ".c")
+  {
+    // a monster that has no template: cloned from its file
+    born = clone_object(template_id);
+    if (!born)
+      return;
+  }
+  else
+  {
+    game = game_name(place);
+    born = handler("bestiary", place)->spawn_from_template(game, template_id);
+    if (!born)
+      return;
 
-  area = place->query_area();
-  if (area)
-    born->set_level((int)area->decide_level(game, template_id));
+    area = place->query_area();
+    if (area)
+      born->set_level((int)area->decide_level(game, template_id));
+  }
 
   born->move(place);
   born->components_placed();
 
   tell_here(appears_message);
 
-  for (i = 0; attacks && i < sizeof(attackers); i++)
-    if (attackers[i] && !attackers[i]->query_dead() &&
+  for (i = 0; i < sizeof(attackers); i++)
+    if (attackers[i] &&
+        (attacks || member_array(attackers[i], extra_targets) != -1) &&
+        !attackers[i]->query_dead() &&
         environment(attackers[i]) == place)
       born->attack_ob(attackers[i]);
 }
@@ -197,12 +218,41 @@ void change_now()
   corpse = npc->make_corpse(sizeof(attackers) ? attackers[0] : nil);
   clear_corpse(corpse);
 
-  raise_new(attackers);
+  raise_new(attackers + (extra_targets - attackers));
 
   for (i = 0; i < sizeof(attackers); i++)
     attackers[i]->stop_fight(npc, 1);
-  npc->set_dead(1);
+  if (counts_dead)
+    npc->set_dead(1);
   npc->dest_me();
+}
+
+/**
+ * Turns the NPC into another one now, at the request of another component. The
+ * original leaves no corpse and, with `replaced` 0, its place in the census is
+ * kept: the type comes back when its place loads again.
+ *
+ * @param  id        template id, or full path with .c, of the new NPC
+ * @param  message   told to the room when the original goes, empty for none
+ * @param  appears   told to the room when the new one stands there
+ * @param  targets   who the new NPC attacks at once, besides the original's
+ *                   attackers
+ * @param  replaced  1 if the original counts as dead for the census
+ */
+void become(string id, string message, string appears, object * targets,
+            int replaced)
+{
+  if (pending)
+    return;
+
+  pending = 1;
+  template_id = id;
+  room_message = message;
+  appears_message = appears;
+  leaves_corpse = 0;
+  extra_targets = targets ? targets : ({ });
+  counts_dead = replaced;
+  change_now();
 }
 
 // A blow in the room: the original takes it, or has taken enough of them.
