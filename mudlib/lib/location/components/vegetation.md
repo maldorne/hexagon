@@ -45,10 +45,10 @@ undoes it.
 
 | depth | locations with plants | trees and shrubs |
 |---|---|---|
-| garden | 30% | 1 |
-| thicket | 60% | 1-2 |
-| forest | 90% | 2-3 |
-| jungle | 100% | 3-4 |
+| garden | 20% | 1 |
+| thicket | 40% | 1 |
+| forest | 60% | 1-2 |
+| jungle | 90% | 2-3 |
 
 The trees and shrubs are fixtures chosen from `query_plants(kind)` of the table.
 They are planted when the location loads (`components_ready`), and the component

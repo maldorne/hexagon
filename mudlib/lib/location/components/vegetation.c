@@ -176,10 +176,10 @@ private int * plant_counts()
 {
   switch (query_depth())
   {
-    case "garden":  return ({ 30, 1, 1 });
-    case "thicket": return ({ 60, 1, 2 });
-    case "jungle":  return ({ 100, 3, 4 });
-    default:        return ({ 90, 2, 3 });
+    case "garden":  return ({ 20, 1, 1 });
+    case "thicket": return ({ 40, 1, 1 });
+    case "jungle":  return ({ 90, 2, 3 });
+    default:        return ({ 60, 1, 2 });
   }
 }
 
