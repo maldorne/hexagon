@@ -132,7 +132,8 @@ void pile_in(object ob, object ob1)
 // (other_guild: somebody with no guild does not match), a
 // group, a race group, a name, a deity, a citizenship, a citizenship at war
 // with one of the ones named (enemy_of, read live from the diplomacy graph), or
-// simply a property they carry. Each key holds one value or a list of them, and
+// simply a property they carry, or hit points at or below a percentage of
+// their maximum (wounded). Each key holds one value or a list of them, and
 // any match is enough.
 // Taniwha, util routine for "membership"
 int matches_group(mapping description, object who)
@@ -208,6 +209,12 @@ int matches_group(mapping description, object who)
     for (i = 0; i < sizeof(list); i++)
       if (stringp(list[i]) && who->query_property(list[i])) return 1;
   if (stringp(list) && who->query_property(list)) return 1;
+
+  // hit points at or below that percentage of their maximum
+  list = description["wounded"];
+  if (intp(list) && who->query_max_hp() > 0 &&
+      who->query_hp() * 100 <= list * who->query_max_hp())
+    return 1;
 
   return 0;
 }
