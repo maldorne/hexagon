@@ -44,6 +44,9 @@ starter set, named `<culture>[.<origin>].<gender>.names`:
 - `goblins.male.names`, `goblins.female.names` — short and sharp (Sn-, Gn-,
   -ik, -ix, -ot); examples taken from named goblins of older muds plus
   invented ones.
+- `halflings.male.names`, `halflings.female.names`, `halflings.surname.names` —
+  invented, round and homely (b, d, m, p, -o, -ic, -wick; flowers and berries;
+  rustic family names of fields, burrows and food).
 - `humans.fantasy.male.names`, `humans.fantasy.female.names` — invented,
   medieval-fantasy flavour.
 - `humans.latin.male.names`, `humans.latin.female.names` — ordinary Spanish /
