@@ -73,7 +73,7 @@ void create()
 void set_receptacle(mapping config)
 {
   receptacle = ([ ]) + config;
-  if (sizeof(receptacle["verbs"]))
+  if (pointerp(receptacle["verbs"]) && sizeof(receptacle["verbs"]))
     add_fixture_action("do_receive", receptacle["verbs"]);
 }
 
@@ -139,7 +139,7 @@ int is_wanted(object item)
   string * items;
   int i;
 
-  items = receptacle["items"];
+  items = pointerp(receptacle["items"]) ? receptacle["items"] : ({ });
   if (!sizeof(items))
     return 1;
 
@@ -317,7 +317,7 @@ private void do_effects(object who)
   else if (pointerp(prop) && sizeof(prop) == 2)
     who->add_property(prop[0], prop[1]);
 
-  files = receptacle["give"];
+  files = pointerp(receptacle["give"]) ? receptacle["give"] : ({ });
   for (i = 0; i < sizeof(files); i++)
   {
     gift = clone_object(files[i]);
