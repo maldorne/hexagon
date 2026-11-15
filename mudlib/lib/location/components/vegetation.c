@@ -14,7 +14,7 @@
 // (table("vegetation", location)):
 //
 //   trees and shrubs  planted when the location loads, as many as the depth
-//                     says: they are fixtures (/lib/obj/fixture.c). The paths
+//                     says: they are fixtures (/lib/obj/fixtures/fixture.c). The paths
 //                     planted are kept in this component's saved state and
 //                     cloned again, the same ones, on every later load. New
 //                     ones are rolled only when none is saved and none stands

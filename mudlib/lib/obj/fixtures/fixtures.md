@@ -52,7 +52,7 @@ the location gets a line about it and `look rope` describes it.
 
 A fixture is an object that belongs to the place: it cannot be taken, weighs
 nothing and answers `query_fixture()`. Every fixture inherits
-`/lib/obj/fixture.c`.
+`/lib/obj/fixtures/fixture.c`.
 
 A location keeps the list of its fixtures (`query_fixtures`, blueprint ->
 count) and clones them again every time it loads. `room2loc` fills the list
@@ -74,11 +74,11 @@ the usual departure and arrival: `leave` is what the place left reads (`$N` who,
 
 Two bases put both pieces together:
 
-- `/lib/obj/climbable.c`: climbed with the climb skill (`set_climb_modifier`);
+- `/lib/obj/fixtures/climbable.c`: climbed with the climb skill (`set_climb_modifier`);
   reaching the top takes the climber through `set_climb_exit`. Climbing is the
   skill's, not an action of the fixture, so its verb shows in the line only to
   whoever knows the skill.
-- `/lib/obj/movable.c`: moved with `mover` / `move`; it reveals
+- `/lib/obj/fixtures/movable.c`: moved with `mover` / `move`; it reveals
   `set_reveal_exit`, with the messages given to `set_move_messages`. With
   `set_pass_through(leave, arrive)` it reveals nothing: it takes the mover alone
   through the sealed exit, which stays sealed, with those messages in the place

@@ -6,7 +6,7 @@
 
 #include <living/skills.h>
 
-inherit "/lib/obj/fixture.c";
+inherit "/lib/obj/fixtures/fixture.c";
 
 private string climb_exit;
 private int climb_modifier;

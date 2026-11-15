@@ -358,7 +358,7 @@ void event_climb_failed(object climber)
 
 Called directly by the climb skill (`/lib/obj/skills/climb.c`) on the thing
 climbed, which only needs to define them when it wants its own messages: when it
-does not, the skill prints a default text. Climbable items (`/lib/obj/climbable.c`)
+does not, the skill prints a default text. Climbable items (`/lib/obj/fixtures/climbable.c`)
 define `event_climbed`; `/lib/location.c` passes both to its bridge component
 (`/lib/room/bridge.c` has the old-style room version).
 

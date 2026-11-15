@@ -4,7 +4,7 @@
 
 #include <language.h>
 
-inherit "/lib/obj/fixture.c";
+inherit "/lib/obj/fixtures/fixture.c";
 
 void setup()
 {

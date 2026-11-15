@@ -10,7 +10,7 @@
 
 #include <language.h>
 
-inherit "/lib/obj/fixture.c";
+inherit "/lib/obj/fixtures/fixture.c";
 
 private string reveal_exit;
 private string move_message, move_room_message;

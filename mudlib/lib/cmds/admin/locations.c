@@ -340,7 +340,7 @@ private int do_fixture(object loc, string * args)
   if (!bp || !bp->query_fixture())
   {
     notify_fail("'" + path + "' does not load or is not a fixture " +
-                "(it has to inherit /lib/obj/fixture.c).\n");
+                "(it has to inherit /lib/obj/fixtures/fixture.c).\n");
     return 0;
   }
 
