@@ -72,7 +72,7 @@ gives the line, for a fixture that builds its own long.
 the usual departure and arrival: `leave` is what the place left reads (`$N` who,
 `$T` the way they go), `arrive` what the place reached reads (`$N`).
 
-Two bases put both pieces together:
+Three bases put both pieces together:
 
 - `/lib/obj/fixtures/climbable.c`: climbed with the climb skill (`set_climb_modifier`);
   reaching the top takes the climber through `set_climb_exit`. Climbing is the
@@ -84,6 +84,53 @@ Two bases put both pieces together:
   through the sealed exit, which stays sealed, with those messages in the place
   left and the place reached.
 
+- `/lib/obj/fixtures/receptacle.c`: receives an item from the player (see below).
+
 Each place has its own file that inherits one of them, gives the description
 and, if it needs to, redefines `event_climbed` or `do_move` to do something of
 its own.
+
+## Receptacles
+
+`/lib/obj/fixtures/receptacle.c` is the fixture for a thing that takes an item:
+a pedestal that takes an idol, a chest opened with its key, an altar that takes
+a sacrifice. Its vocabulary is the one of the NPC component `receive`
+(`/lib/npc/components/receive.c`). The fixture gives its description and calls
+`set_receptacle(mapping)` in `setup()`; every attribute is optional:
+
+- `items`: what is accepted, full file paths with `.c` (compared exactly) or
+  ids; nothing listed accepts any item.
+- `verbs`: the verbs, with the syntax `<verb> <item> [in <fixture>]`.
+- `carried`: 1 for a key: the syntax is only `<verb> <fixture>` ("open chest")
+  and the item is looked for in what the player carries.
+- `consume`: 1 destroys the item. `once`: `"player"` (kept as a property of the
+  player) or `"fixture"`.
+- `requires_quest`: `"<game>:<quest id>"`, only for who is doing it.
+- Texts: `message` (to the giver), `room_message` (to the others), `refusal`
+  (nothing accepted is carried), `refusal_room`, `spent` and `denied` (quest not
+  being done). They may carry `$player$` and `$item$`; without them the base
+  has a stock line for `refusal`, `spent` and `denied`.
+- Effects, in this order: `property` (a name, or `({ name, value })`, set on the
+  giver), `give` (files cloned for the giver), `quest` (`([ "id", "action",
+  "source" ])` as in `receive`), `reveal` (a sealed exit; `reveal_time` seals
+  it again after that many seconds) and `pass` (the giver alone goes through a
+  sealed exit; `pass_leave` and `pass_arrive` are the messages of
+  `force_exit`).
+
+For what the attributes cannot say, the inheritor redefines:
+
+- `int can_receive(object item, object who)`: a condition, called with the item
+  found or nil when the player carries nothing accepted; it tells the player
+  itself when it stops (returns 0).
+- `void received(object item, object who, string target)`: called after the
+  item is taken and the effects are done, for the puzzles that keep their own
+  logic. `query_receive_target()` is the fixture phrase of the command while
+  `can_receive` runs.
+- `is_wanted`, `find_item`, `is_target` and `parse_receive` change how the item,
+  the fixture and the command words are matched (an item known by a method
+  instead of an id, a fixture phrase such as "head 1").
+- `take_item(item, who, target)` does the taking for a fixture that learns of
+  the item by other means (an item put on it with the common command).
+
+The player texts of the base (the questions and stock lines) live in
+`.lang.<lang>.h`, as in every lib object.
