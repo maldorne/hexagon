@@ -1,5 +1,6 @@
-// Rope component. Attached during conversion when the source room answers
-// query_rope_anchor() with the direction of one of its exits. That exit is
+// Rope component. Attached by hand to a location with
+// "components add rope <direction> [<what it is tied to>]", on an exit of type
+// "rope" that its room declares sealed. That exit is
 // sealed until somebody ties a rope: "tie rope" takes one from what they
 // carry (anything answering query_rope()) and opens the exit, "untie rope"
 // gives it back and seals the exit again.

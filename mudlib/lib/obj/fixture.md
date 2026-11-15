@@ -28,15 +28,21 @@ them.
 ## Ropes
 
 A rope tied to something opens an exit that is sealed without it. The room
-declares the exit as usual with the type `"rope"` and names it:
+declares the exit as usual, with the type `"rope"` and the option `sealed`, and
+has no code for the rope:
 
-    add_exit(DIR_DOWN, ROOMS + "ravine.c", "rope");
-    string query_rope_anchor() { return DIR_DOWN; }
-    string query_rope_anchor_name() { return "a tree"; }  // optional
+    add_exit(DIR_DOWN, ROOMS + "ravine.c", "rope", nil, ([ "sealed": 1 ]));
 
-`room2loc` seals that exit and attaches the `rope` component
-(`/lib/location/components/rope.c`). "tie rope" takes the first thing the player
-carries that answers `query_rope()` (`/lib/obj/rope.c`), destroys it and
+The exit at the other end of a climb (the way back up) is a plain `"rope"` exit
+and stays open. The `rope` component
+(`/lib/location/components/rope.c`) is attached to the location by an admin,
+standing in it:
+
+    components add rope down a tree
+
+The words after the direction say what the rope is tied to (optional). The
+component is saved with the location, and `room2loc reload` keeps it. "tie
+rope" takes the first thing the player carries that answers `query_rope()` (`/lib/obj/rope.c`), destroys it and
 reveals the exit; "untie rope" clones it again into the player (or the floor)
 and seals the exit. The file of the tied rope is saved with the location, so the
 exit is open again on every load while a rope is tied. While tied, the look of

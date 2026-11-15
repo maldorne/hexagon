@@ -1,6 +1,7 @@
 
 #include <mud/cmd.h>
 #include <room/location.h>
+#include <room/room.h>
 
 inherit CMD_BASE;
 
@@ -9,6 +10,7 @@ inherit CMD_BASE;
 private int do_list(object env);
 private int do_add(object env, string type);
 private int do_remove(object env, string type);
+private int do_add_rope(object env, string * words);
 private int do_batch(string verb, string type, string * targets);
 private string * resolve_target(string target);
 private string * loadable(string * files);
@@ -27,6 +29,9 @@ void setup()
     "  components remove <type>            detach a component\n" +
     "  components add <type> <target> ...  attach it to every target\n" +
     "  components remove <type> <target> ... detach it from every target\n" +
+    "  components add rope <direction> [<what it is tied to>]\n" +
+    "                                      attach a rope to the exit of this location\n" +
+    "                                      in that direction (\"components add rope down a tree\")\n" +
     "\n" +
     "The type is the component blueprint name under " + COMPONENTS_DIR + ".\n" +
     "Without targets the location you are standing in is changed, and saved so " +
@@ -59,6 +64,19 @@ static int cmd(string str, object me, string verb)
   {
     notify_fail("Usage: components [ add | remove <type> [<target> ...] ]\n");
     return 0;
+  }
+
+  // a rope is configured with the exit it opens and what it is tied to, the
+  // words after the type are not targets
+  if (sizeof(tokens) > 2 && tokens[0] == "add" && tokens[1] == "rope")
+  {
+    env = environment(me);
+    if (!env || !env->query_location())
+    {
+      notify_fail("You are not standing in a location.\n");
+      return 0;
+    }
+    return do_add_rope(env, tokens[2 ..]);
   }
 
   // with targets, the work is not on the location we stand in
@@ -134,6 +152,11 @@ private int do_remove(object env, string type)
  */
 private int do_add(object env, string type)
 {
+  if (type == LOCATION_COMPONENT_ROPE)
+  {
+    notify_fail("Usage: components add rope <direction> [<what it is tied to>]\n");
+    return 0;
+  }
   if (file_size(COMPONENTS_DIR + type + ".c") <= 0)
   {
     notify_fail("No component blueprint '" + type + "' under " +
@@ -147,6 +170,43 @@ private int do_add(object env, string type)
   }
   env->add_component(type, ([ ]));
   write("Added component '" + type + "'.\n");
+  return 1;
+}
+
+/**
+ * components add rope <direction> [<what it is tied to>]: attaches the rope
+ * component to the exit of the location in that direction. The exit has to be
+ * of type "rope" and declared sealed by its room.
+ */
+private int do_add_rope(object env, string * words)
+{
+  string direction, anchor;
+
+  if (env->has_component(LOCATION_COMPONENT_ROPE))
+  {
+    notify_fail("This location already has a 'rope' component.\n");
+    return 0;
+  }
+
+  direction = ROOM_HAND->canonical_dir(words[0]);
+  if (direction)
+    direction = ROOM_HAND->localize_dir(direction);
+  if (!direction || !env->query_exit_map()[direction])
+  {
+    notify_fail("This location has no exit '" + words[0] + "'.\n");
+    return 0;
+  }
+
+  anchor = implode(words[1 ..], " ");
+  // quotes around the anchor are optional
+  if (strlen(anchor) > 1 && anchor[0] == '"' && anchor[strlen(anchor) - 1] == '"')
+    anchor = anchor[1 .. strlen(anchor) - 2];
+
+  env->add_component(LOCATION_COMPONENT_ROPE,
+                     ([ "direction": direction, "anchor": anchor ]));
+  env->save_me();
+  write("Added component 'rope' on the exit " + direction +
+        (strlen(anchor) ? ", tied to " + anchor : "") + ".\n");
   return 1;
 }
 
