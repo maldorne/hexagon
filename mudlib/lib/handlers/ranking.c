@@ -42,6 +42,15 @@ mapping ranking;
 // when the last prune ran
 private int last_prune;
 
+// ticks that must be left to weigh one more entry in a prune; below that the
+// prune stops and goes on from a call_out
+#define PRUNE_TICK_MARGIN 3000000
+
+// state of a prune in progress: verdicts by game, key and name, and the
+// template names found per game
+private mapping prune_verdicts;
+private mapping prune_game_names;
+
 // NPCs waiting to be weighed, all in one call_out (see queue_check)
 static object * pending_checks;
 
@@ -539,24 +548,51 @@ private int _npc_exists(string game, string source, string name)
          file_size(source) >= 0;
 }
 
-// Take out of every group the entries of characters that no longer exist (see
-// the header). Unless forced, it does nothing when it ran less than
-// RANKING_PRUNE_EVERY seconds ago. Saves if anything went; returns how many
-// entries were removed.
+private int _prune_pass();
+
+/**
+ * Takes out of every group the entries of characters that no longer exist (see
+ * the header). Unless forced, it does nothing when it ran less than
+ * RANKING_PRUNE_EVERY seconds ago. Checking an NPC decodes its template, so
+ * the work is done in slices: when the ticks run short the verdicts reached so
+ * far are kept and prune_step carries on from a call_out.
+ *
+ * @param force  prune even if it ran recently
+ * @return how many entries were removed in this first slice
+ */
 int prune(varargs int force)
 {
-  mapping levels, game_names, cache;
-  string * groups, * entries;
-  string game, key, name, source, who;
-  int * keys;
-  int i, j, k, removed, keep;
-
   if (!force && last_prune && time() - last_prune < RANKING_PRUNE_EVERY)
     return 0;
   last_prune = time();
 
-  game_names = ([ ]);
-  cache = ([ ]);
+  // a prune still going on restarts from scratch
+  prune_game_names = ([ ]);
+  prune_verdicts = ([ ]);
+  return _prune_pass();
+}
+
+/**
+ * Next slice of a prune that ran out of ticks. Public because the call_out
+ * dispatcher reaches it through call_other.
+ */
+void prune_step()
+{
+  if (prune_verdicts)
+    _prune_pass();
+}
+
+// One pass over every entry, using the verdicts already reached. Stops, saves
+// and schedules prune_step when the ticks run short; otherwise drops the
+// verdicts at the end. Returns how many entries it removed.
+private int _prune_pass()
+{
+  mapping levels;
+  string * groups, * entries;
+  string game, key, name, source, who;
+  int * keys;
+  int i, j, k, removed, keep, left;
+
   groups = map_indices(ranking);
   for (i = 0; i < sizeof(groups); i++)
   {
@@ -584,25 +620,36 @@ int prune(varargs int force)
 
         // one verdict per game, key and name
         who = game + "|" + key + "|" + name;
-        if (cache[who] == nil)
+        if (prune_verdicts[who] == nil)
         {
+          // out of ticks: keep what is done and go on later
+          left = eval_cost();
+          if (left >= 0 && left < PRUNE_TICK_MARGIN)
+          {
+            if (removed)
+              save_handler();
+            if (find_call_out("prune_step") == -1)
+              call_out("prune_step", 0);
+            return removed;
+          }
+
           if (sscanf(key, "player:%s", source))
             keep = player_exists(source) && !_is_test_name(source);
           else if (sscanf(key, "npc:%s", source))
             keep = _npc_exists(game, source, name);
           else if (sscanf(key, "name:%s", source))
           {
-            if (!game_names[game])
-              game_names[game] = _game_template_names(game);
+            if (!prune_game_names[game])
+              prune_game_names[game] = _game_template_names(game);
             keep = player_exists(lower_case(source)) ||
-                   game_names[game][lower_case(source)];
+                   prune_game_names[game][lower_case(source)];
           }
           else
             keep = 1;
-          cache[who] = keep ? 1 : 0;
+          prune_verdicts[who] = keep ? 1 : 0;
         }
 
-        if (!cache[who])
+        if (!prune_verdicts[who])
         {
           map_delete(levels[keys[j]], key);
           removed++;
@@ -619,6 +666,10 @@ int prune(varargs int force)
 
   if (removed)
     save_handler();
+
+  // finished
+  prune_verdicts = nil;
+  prune_game_names = nil;
   return removed;
 }
 
