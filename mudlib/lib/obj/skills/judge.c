@@ -1,7 +1,9 @@
 // Judge — active skill: 'judge <item>'. Rates, with a word, how much
 // harm a weapon carried does (one line for each of its attacks) or how well an
-// armour or shield carried protects. Based on the work of Timion; the scale
-// is the one of the weapon and armour tables.
+// armour or shield carried protects. Ported from the juzgar command of the RL
+// muds (std/commands/juzgar.c of ancient-kingdoms, Timion): there it was a
+// level table over the damage of the weapon or a fifth of the ac of the armour;
+// here the scale is the one of the weapon and armour tables.
 //
 // The rating goes from 1 to 12. The better the skill, the less the verdict can
 // be off: the word is shifted by up to (100 - ability) / 25 steps either way.
