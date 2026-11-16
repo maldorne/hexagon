@@ -20,9 +20,9 @@ private string parent_report(object area, mapping plan, string path, int check);
 private int do_parent(object area, string * args);
 private int do_principal(object area, object loc);
 private int do_set(object me, string * args);
-private string describe_tree(mapping areas, mapping children, string key,
-                             int depth, int width, int show_locations,
-                             int show_connections);
+private void describe_tree(mapping areas, mapping children, string key,
+                           int depth, int width, int show_locations,
+                           int show_connections);
 
 void setup()
 {
@@ -190,6 +190,8 @@ private int do_reindex(object me, string * tokens)
 
 // Width of the level band column; the band is centred in it.
 #define BAND_WIDTH 12
+// longest text written in one go; the driver limits the length of a string
+#define PIECE_LENGTH 8000
 
 // `text` centred in `width` columns.
 private string centre(string text, int width)
@@ -211,10 +213,14 @@ private string header(int width)
   return line + " " + pad("", width + BAND_WIDTH + 1, "-") + "\n";
 }
 
-// One area's entry and, indented below it, its child areas.
-private string describe_tree(mapping areas, mapping children, string key,
-                             int depth, int width, int show_locations,
-                             int show_connections)
+/**
+ * Writes one area's entry and, indented below it, its child areas. The text
+ * goes out in pieces as it is built: the whole listing does not fit in one
+ * string (the driver's string limit).
+ */
+private void describe_tree(mapping areas, mapping children, string key,
+                           int depth, int width, int show_locations,
+                           int show_connections)
 {
   object area, source;
   mapping connections;
@@ -242,7 +248,16 @@ private string describe_tree(mapping areas, mapping children, string key,
     locations = area->query_loaded_locations();
 
     for (i = 0; i < sizeof(locations); i++)
+    {
       ret += indent + "   - " + locations[i]->query_file_name() + "\n";
+
+      // a big area is sent in parts
+      if (strlen(ret) > PIECE_LENGTH)
+      {
+        write(ret);
+        ret = "";
+      }
+    }
 
     ret += "\n";
   }
@@ -255,19 +270,27 @@ private string describe_tree(mapping areas, mapping children, string key,
     connections_keys = keys(connections);
 
     for (i = 0; i < sizeof(connections_keys); i++)
+    {
       ret += indent + "   - " + connections_keys[i] + "\n" + indent +
              "     %^CYAN%^" + connections[connections_keys[i]][0] +
              "%^RESET%^ : " + connections[connections_keys[i]][1] + "\n";
 
+      if (strlen(ret) > PIECE_LENGTH)
+      {
+        write(ret);
+        ret = "";
+      }
+    }
+
     ret += "\n";
   }
 
+  write(ret);
+
   kids = children[key];
   for (i = 0; kids && i < sizeof(kids); i++)
-    ret += describe_tree(areas, children, kids[i], depth + 1, width,
-                         show_locations, show_connections);
-
-  return ret;
+    describe_tree(areas, children, kids[i], depth + 1, width,
+                  show_locations, show_connections);
 }
 
 // ===== areas state [draft|settled] =====
@@ -707,7 +730,6 @@ static int cmd(string str, object me, string verb)
   string * pieces;
   int show_locations, show_connections, only_current;
   object current_area;
-  string ret;
 
   pieces = words(str);
   if (sizeof(pieces) && pieces[0] == "reindex")
@@ -771,26 +793,25 @@ static int cmd(string str, object me, string verb)
       width = strlen(keys[i]) + 12;
   }
 
-  ret = header(width);
-
-  for (i = 0; i < sizeof(roots); i++)
-  {
-    ret += describe_tree(areas, children, roots[i], 0, width, show_locations,
-                         show_connections);
-  }
+  write(header(width));
 
   if (only_current)
   {
     // the registry is keyed by area path, so compare the objects: the current
     // area's display name never matches a key
-    ret = header(width);
     keys = keys(areas);
     for (i = 0; i < sizeof(keys); i++)
       if (areas[keys[i]] == current_area)
-        ret += describe_tree(areas, ([ ]), keys[i], 0, width, show_locations,
-                             show_connections);
+        describe_tree(areas, ([ ]), keys[i], 0, width, show_locations,
+                      show_connections);
+  }
+  else
+  {
+    for (i = 0; i < sizeof(roots); i++)
+      describe_tree(areas, children, roots[i], 0, width, show_locations,
+                    show_connections);
   }
 
-  write(ret + " (a band in parentheses is inherited from a parent area)\n");
+  write(" (a band in parentheses is inherited from a parent area)\n");
   return 1;
 }
