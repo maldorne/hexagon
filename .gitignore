@@ -15,6 +15,4 @@ scripts/*.sh
 # ide and editor files
 .sublime-project
 .vscode
-
-# throwaway files of working sessions
-/.scratch/
+.scratch/
