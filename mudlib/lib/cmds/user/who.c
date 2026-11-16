@@ -120,7 +120,7 @@ object guild_of(object ob)
 }
 
 // Whether a game answers to this word, by the name of its directory
-// ("ciudad-capital") or by the name it shows ("Ciudad Capital")
+// ("my-game") or by the name it shows ("My Game")
 int game_answers_to(object game, string str)
 {
   return (game_name(game) == str) ||
@@ -174,7 +174,7 @@ int compare_guild(object ob, string str)
 
 // The options asked for and the filter left over. An option is a word starting
 // with a dash and may come before or after the filter, which may itself be
-// several words ("Ciudad Capital"). Answers nil when an option is unknown.
+// several words ("My Game"). Answers nil when an option is unknown.
 mixed * parse_options(string str)
 {
   string * words, filter;

@@ -100,7 +100,7 @@ No skill or spell keeps its own `call_out` chain to repeat something: anything p
 
 ### Components
 
-An effect declares what the caster must carry in `setup()`: `set_components(({ file, ... }))` (required; casting is refused with a message naming what is missing) and `set_optional_components(({ file, ... }), max)` (one of each kind he carries, up to `max`). The last round calls `use_components(caster)` once nothing else can fail: it takes the components out of the inventory and returns how many optional ones it used (`-1` when a required one is gone; `query_used_optional_components()` answers the same right after). A component is an item that inherits `/lib/obj/spell-component.c` and sets `set_spell_component("<id>")`; effects are matched by that id, never by a name. A cast from a scroll or an item asks for none. The components of rl-aeternum are listed in its spells readme.
+An effect declares what the caster must carry in `setup()`: `set_components(({ file, ... }))` (required; casting is refused with a message naming what is missing) and `set_optional_components(({ file, ... }), max)` (one of each kind he carries, up to `max`). The last round calls `use_components(caster)` once nothing else can fail: it takes the components out of the inventory and returns how many optional ones it used (`-1` when a required one is gone; `query_used_optional_components()` answers the same right after). A component is an item that inherits `/lib/obj/spell-component.c` and sets `set_spell_component("<id>")`; effects are matched by that id, never by a name. A cast from a scroll or an item asks for none.
 
 ## Balance: `query_balance`
 

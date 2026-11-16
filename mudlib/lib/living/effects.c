@@ -112,7 +112,7 @@ private int concentration()
 }
 
 /**
- * The rating of the original table of the concentration, by ability: 10 (nothing)
+ * The rating of the concentration table, by ability: 10 (nothing)
  * up to 50.
  */
 private int concentration_rating(int ability)
@@ -147,7 +147,7 @@ private int concentration_threshold()
  * - The short ones (under 60 heart beats) lose a quarter of the ability plus
  *   three quarters of the level in percent, at most 25.
  * - A spell is scaled by the turns of lockout the caster needs: its level
- *   (times three, hexagon levels run to 20 and the original ones to 60), half
+ *   (times three, to scale the 20 levels up to 60), half
  *   its concentration and a roll of its charisma, 60 or more is one turn, 40 two,
  *   30 three, less four; the lockout of the effect is the one of four turns, so it
  *   is multiplied by turns / 4.

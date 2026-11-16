@@ -638,7 +638,7 @@ mapping query_hooks()
  * `"climb, lean, smell"`. Empty string when the instance has no
  * actions. One verb per action — the canonical action id, which
  * matches the first element of PROP_SPEC_VERBS when that field
- * lands (task 839723a4).
+ * lands.
  *
  * Raw data shape; callers that need the player-facing hint wrap it
  * via query_actions_hint(), coder cmds consume this directly.

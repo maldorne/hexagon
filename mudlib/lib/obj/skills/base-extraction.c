@@ -2,7 +2,7 @@
 // dismembering, pulling). The race of the dead says which parts its body has
 // and the skill each one needs (see /lib/obj/death/body-parts.md); a skill
 // takes only its own. Whoever knows the skill may use it, however they learnt
-// it. A knife or a dagger has to be wielded, as in the original muds, unless
+// it. A knife or a dagger has to be wielded unless
 // the part names its own tools (BODY_PART_TOOLS; a horn takes a saw).
 //
 //   <verb> <corpse>              the first of the skill's parts still on it

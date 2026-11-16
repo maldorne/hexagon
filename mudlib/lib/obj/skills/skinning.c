@@ -1,8 +1,8 @@
 // Skinning: takes the skin, plumage or scales off a corpse.
 // Which parts a body has, and which skill takes each, is its race's; the
 // work is shared with the other extraction skills (base-extraction.c).
-// 10/2026 - The skinning of CcMud (despellejar, neverbot 30/03/2009) made a
-//           mudlib skill, and the other parts beside it.
+// 10/2026 - Made a mudlib skill (neverbot, first written 03/2009), and the
+//           other parts beside it.
 
 #include <living/skills.h>
 #include <language.h>

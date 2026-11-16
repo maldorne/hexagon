@@ -9,8 +9,7 @@
 // Iolo: slicing breaks the hiding.
 // Reformado por completo por Radkar, Enero 2004: iluminado's own version, two
 //   or three turns depending on the slicer's level.
-// 10/2026 - Ported to Hexagon as a skill, neverbot, from the ancient-kingdoms
-//           version (std/commands/slice.c), not Radkar's.
+// 10/2026 - Made a Hexagon skill, neverbot.
 
 #include <living/effects.h>
 #include <living/skills.h>

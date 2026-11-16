@@ -1,10 +1,9 @@
 // Concentration — passive skill. How well a caster holds on to what it is doing
 // when it is hurt, and how fast it recovers from a spell. It has no command: the
 // effects code (lib/living/effects.c, lib/effects/base_effect.c) reads its
-// ability. Ported from the concentracion skill of the RL muds (std/living/spells.c,
-// std/spells/base.c: Gestur 2002, Radkar and Lummen 2004).
+// ability. Based on the work of Gestur (2002), Radkar and Lummen (2004).
 //
-// 11/2026 - Ported to Hexagon, neverbot.
+// 11/2026 - Made a Hexagon skill, neverbot.
 
 #include <living/effects.h>
 #include <living/skills.h>

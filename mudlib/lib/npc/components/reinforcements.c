@@ -7,7 +7,7 @@
 // made from any of the sources: the nearest free one comes walking, with the
 // responder component, after whoever fights the owner, and goes back to its
 // round when that fight is over. Nobody is created: when no helper is free, no
-// help comes. Ported from the escolta of the old muds.
+// help comes.
 //
 // Attributes:
 //   "sources" - template ids of the helpers (areas/<area>/npcs/<type>), people

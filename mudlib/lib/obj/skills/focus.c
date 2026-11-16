@@ -1,7 +1,6 @@
 // Focus — active skill: 'focus <someone>' / 'focus off'. Keeps every
 // blow of the character on one of the opponents for a while, instead of the
-// one the fight would pick. Ported from the centrar command of the RL muds
-// (std/commands/centrar.c of ancient-kingdoms, Wonderflug).
+// one the fight would pick. Based on the work of Wonderflug.
 //
 // The combat code forgets a concentrate target after one round, so a lasting
 // effect (see /lib/living/effects.c) renews it every heartbeat until the time

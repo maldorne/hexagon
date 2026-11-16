@@ -641,7 +641,7 @@ static nomask string slugify(string str)
       result += str[i..i];
     }
     // anything else separates words: a run of it is one hyphen, and none
-    // starts or ends the slug ("RL - Aeternum" is "rl-aeternum")
+    // starts or ends the slug ("My - Game" is "my-game")
     else if (strlen(result) && result[strlen(result) - 1] != '-')
     {
       result += "-";

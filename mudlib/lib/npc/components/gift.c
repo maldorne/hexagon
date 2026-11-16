@@ -1,6 +1,5 @@
 // gift.c -- an item handed to those who greet the NPC in the right way, as an
-// NPC component. Ported from the bow of the masters of the old muds, who gave
-// their holy symbol to whoever honoured them.
+// NPC component.
 //
 // The NPC asks for the verbs to greet it with ("<verb> <its name>"). Whoever
 // greets it is turned away unless they meet every rule, and is given a fresh

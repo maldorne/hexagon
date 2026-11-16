@@ -1,10 +1,7 @@
 
 // people.c -- what can be said about whoever is connected right now.
 //
-// The old mudlib kept a "peopler" handler that did everything at once: it
-// gathered the facts, formatted them into columns, sorted the lines and paged
-// the result, and each creator stored a private column layout as a property on
-// themselves. This keeps the gathering and drops the rest -- the report belongs
+// This only gathers the facts: the report (columns, sorting, paging) belongs
 // to the command that asks for it (/lib/cmds/admin/people.c), and the layouts
 // are views that command names.
 //
