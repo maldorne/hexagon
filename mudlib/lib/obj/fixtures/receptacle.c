@@ -262,15 +262,17 @@ private int is_spent(object who)
 // Whether the player is doing the quest the fixture requires, if any.
 private int meets_quest(object who)
 {
-  string game, id;
+  string * parts;
 
   if (!stringp(receptacle["requires_quest"]))
     return 1;
 
-  if (sscanf(receptacle["requires_quest"], "%s:%s", game, id) != 2)
+  // quests are recorded under their full id, "<game>:<name>"
+  parts = explode(receptacle["requires_quest"], ":");
+  if (sizeof(parts) < 2)
     return 1;
 
-  return who->is_doing_quest(game, id);
+  return who->is_doing_quest(parts[0], receptacle["requires_quest"]);
 }
 
 // Accepts or completes the quest of the fixture for the giver.
