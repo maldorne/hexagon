@@ -717,6 +717,12 @@ object place_npc(string id, object loc)
     // rode in on its npc.o and would keep walking them about on its own.
     npc->remove_component("schedule");
     this_object()->index_schedule_hours(id, ({ }));
+
+    // A post holder with no hours belongs at the post: one loaded elsewhere
+    // (an errand cut short by an unload) walks back to it, as it walks
+    // anywhere else. Deferred for the same reason as a resumed trip.
+    if (work && strlen(work) && work != (string)loc->query_file_name())
+      call_out("return_placed_npc", 0, npc);
   }
 
   // Refresh what the books remember about this person. The npc.o is the
@@ -740,6 +746,26 @@ void resume_placed_npc(object npc)
     return;
 
   npc->resume_schedule((int)this_object()->query_game_hour());
+}
+
+/**
+ * Walks a post holder with no hours, placed by place_npc away from the post,
+ * back to it. Runs from a call_out, outside the location load that placed
+ * them.
+ *
+ * @param npc the person placed
+ */
+void return_placed_npc(object npc)
+{
+  string work;
+
+  if (!npc || !environment(npc) || npc->travelling())
+    return;
+
+  work = npc->query_work();
+  if (work && strlen(work) &&
+      (string)environment(npc)->query_file_name() != work)
+    npc->travel_to(work);
 }
 
 // Called when a location loads (prewarm / movement): bring back exactly the

@@ -259,8 +259,10 @@ entry governs the current hour and walks the person there, so somebody who was
 mid-trip when the location unloaded resumes. That walk starts from a
 `call_out` (`resume_placed_npc()`), never inside the load: planning it loads the
 destination, which places its own people, and each load must run in an
-execution of its own. A guard posted to a town entrance registers at its post
-the same way. Monsters of the location's bucket
+execution of its own. A post holder with no hours who is placed away from
+the post (an errand of the `responder` component cut short by an unload) walks
+back to it the same way (`return_placed_npc()`), along a route like any other
+move. A guard posted to a town entrance registers at its post the same way. Monsters of the location's bucket
 are cloned too, and so are roamers indexed there from other areas. Nobody is
 placed twice.
 
